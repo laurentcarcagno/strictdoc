@@ -739,6 +739,37 @@ DOCUMENTATION: >>>
 [[/SECTION]]
 
 [[SECTION]]
+MID: 52b0247b93234fc1a78cf497740b740d
+TITLE: Word support
+
+[[SECTION]]
+MID: fae1ff97e14642b2b0024c161e759aaf
+TITLE: Definition
+
+[FEATURE]
+MID: 73ad2b34824f401da05022e6504764e6
+UID: SDOC-FEAT-14
+STATUS: Experimental
+TITLE: Word support
+STATEMENT: >>>
+The Word support feature in StrictDoc imports requirements from a Word (.docx)
+document into SDoc and exports SDoc back to Word.
+
+A mapping profile describes how the document is organized: which styles are
+headings and how a requirement table is laid out. The import merges a changed
+Word document into the existing SDoc files by UID. The export can fill a Word
+template. When a Word document is already under review, the export can instead
+update it and write the differences as Word tracked changes.
+<<<
+DOCUMENTATION: >>>
+- [LINK: SECTION-UG-Word-support]
+<<<
+
+[[/SECTION]]
+
+[[/SECTION]]
+
+[[SECTION]]
 MID: e1109c5b3b1c4068a0eace811684f0c0
 TITLE: Project configuration
 
