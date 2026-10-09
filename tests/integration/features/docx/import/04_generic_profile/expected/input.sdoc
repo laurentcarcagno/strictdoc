@@ -1,0 +1,92 @@
+[DOCUMENT]
+TITLE: input
+
+[[SECTION]]
+TITLE: Introduction
+
+[TEXT]
+STATEMENT: >>>
+This document describes the system.
+
+It has **two** requirements.
+<<<
+
+[[/SECTION]]
+
+[[SECTION]]
+TITLE: Requirements
+
+[[SECTION]]
+TITLE: Functional
+
+[TEXT]
+STATEMENT: >>>
+.. list-table::
+
+   * - SYS-0001
+     -
+   * - Power on
+     -
+   * - Version:
+     - V1
+   * - Verified by:
+     - T
+   * - Linked Req:
+     - [DA1] REQ-12
+   * - The system shall power on.
+     -
+   * - Note :
+     -
+<<<
+
+[TEXT]
+STATEMENT: >>>
+.. list-table::
+
+   * - SYS-0002
+     -
+   * - Power on delay
+     -
+   * - Version:
+     - V0
+   * - Verified by:
+     - T
+   * - Linked Req:
+     - SYS-0001, SYS-0099
+   * - The power-on delay shall not exceed:
+     -
+   * - Note :
+     -
+<<<
+
+[[/SECTION]]
+
+[[SECTION]]
+TITLE: Notes
+
+[TEXT]
+STATEMENT: >>>
+The delay is measured at the connector.
+
+- first item
+- second item
+<<<
+
+[TEXT]
+STATEMENT: >>>
+.. list-table::
+
+   * - Mode
+     - Delay
+   * - Nominal
+     - 2 s
+<<<
+
+[TEXT]
+STATEMENT: >>>
+Kept. Inserted.
+<<<
+
+[[/SECTION]]
+
+[[/SECTION]]

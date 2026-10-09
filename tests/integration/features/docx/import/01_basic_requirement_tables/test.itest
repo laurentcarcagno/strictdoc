@@ -1,0 +1,9 @@
+# Requirement tables, headings, free text, lists and tables of a Word document
+# become an SDoc document. Unknown links are reported.
+
+RUN: %mkdir %T
+RUN: %strictdoc convert %S/input.docx %T/ --docx-profile %S/profile.py | filecheck %s --check-prefix CHECK-REPORT
+CHECK-REPORT: Word import: 2 requirement(s), 4 section(s), 6 free paragraph(s), 1 other table(s).
+CHECK-REPORT: Unresolved link: SYS-0002 -> SYS-0099
+
+RUN: %diff %T/input.sdoc %S/expected/input.sdoc

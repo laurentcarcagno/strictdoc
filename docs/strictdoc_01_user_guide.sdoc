@@ -3885,6 +3885,143 @@ default value.
 [[/SECTION]]
 
 [[SECTION]]
+MID: 74566d4a3b7d4ff39b4030d402e0e7e1
+UID: SECTION-UG-Word-support
+TITLE: Word support
+
+[TEXT]
+MID: f71716de7bd64e2fbb29907c02321db1
+STATEMENT: >>>
+StrictDoc imports requirements from Word (``.docx``) files.
+
+The command ``strictdoc convert`` reads the document and writes an SDoc file.
+Headings become sections. Requirement tables become requirements. Other
+paragraphs and tables become text.
+
+.. note::
+
+    Only import is supported. Export to Word is not implemented yet.
+<<<
+
+[[SECTION]]
+MID: d504f21bd41e4953a146473efcd609ef
+TITLE: Import flow (Word -> SDoc)
+
+[TEXT]
+MID: f9c415d4986b4f1a8b527022c99e4e0a
+STATEMENT: >>>
+.. code:: text
+
+    strictdoc convert input.docx output/ --docx-profile profile.py
+
+The input format is detected from the ``.docx`` extension. The output file is
+``output/input.sdoc``.
+
+The command also prints a report: the number of requirements, sections, free
+paragraphs and other tables, plus the problems found:
+
+- Duplicate or invalid UIDs. The requirement is imported without a UID.
+- Links to requirement IDs that do not exist in the document.
+
+Options:
+
+``--docx-profile`` Path to the profile file. Without it, the generic profile is
+used: headings become sections, everything else becomes text.
+
+``--docx-tracked-changes`` ``accept`` (default) keeps insertions and drops
+deletions. ``reject`` does the opposite.
+
+``--docx-dry-run`` Prints the report and writes nothing.
+
+.. note::
+
+    Pass absolute paths to the profile file.
+<<<
+
+[[/SECTION]]
+
+[[SECTION]]
+MID: df991c3fe0da4c18a0c49e7cb9f59589
+TITLE: Profile
+
+[TEXT]
+MID: 365a9a930125460d9dd90120265416aa
+STATEMENT: >>>
+Every organization lays out its Word requirements differently. A profile
+describes the layout. It is a Python file that defines ``create_profile()``.
+
+.. code:: python
+
+    from strictdoc.backend.docx.docx_profile import (
+        DocxProfile,
+        DocxRequirementTable,
+    )
+
+
+    def create_profile() -> DocxProfile:
+        return DocxProfile(
+            heading_styles={"Heading1": 1, "Heading2": 2},
+            requirement_table=DocxRequirementTable(
+                id_style="ReqId",
+                title_style="ReqTitle",
+                meta_rows={"Version:": "VERSION", "Linked Req:": "LINKED_REQ"},
+                text_style="ReqText",
+                note_label="Note",
+                relation_fields=["LINKED_REQ"],
+            ),
+        )
+
+``DocxProfile`` fields:
+
+- ``heading_styles``: paragraph style to section depth.
+- ``requirement_table``: the layout of one requirement, or ``None`` if the
+  document has no requirement tables.
+- ``free_text``: ``"text"`` keeps paragraphs outside requirements as text
+  nodes. ``"drop"`` counts them in the report and skips them.
+- ``document_title``: the title of the SDoc document. Default: the file name.
+- ``ignored_style_prefixes``: paragraph styles to skip. Default: tables of
+  contents and tables of figures.
+
+``DocxRequirementTable`` describes one requirement, written as a table:
+
+- The first paragraph of the first row has the style ``id_style``. Its text is
+  the UID.
+- The paragraph of style ``title_style`` is the title.
+- A row of two cells whose first cell is a key of ``meta_rows`` sets the field
+  named by the value.
+- A row of one cell that starts with ``note_label`` is the note. The label is
+  removed.
+- Any other row of one cell is the statement.
+- A name in a ``relation_fields`` value that is the UID of another requirement
+  becomes a Parent relation.
+
+The importer writes a document grammar with the fields UID, the ``meta_rows``
+fields, TITLE, STATEMENT and the note field, plus Parent and File relations.
+<<<
+
+[[/SECTION]]
+
+[[SECTION]]
+MID: 940b69be61e84c368220601248cc5846
+TITLE: Formatting and tracked changes
+
+[TEXT]
+MID: 925aebad4064473691fd37ee57561877
+STATEMENT: >>>
+Bold, italic and monospace runs become RST ``**bold**``, ``*italic*`` and
+````monospace````. A Word list item becomes an RST list item.
+
+Characters that RST treats as markup (``*``, backquote, backslash and a
+trailing underscore) are escaped.
+
+Nested tables are flattened. Images, comments and footnotes are not imported.
+<<<
+
+[[/SECTION]]
+
+[[/SECTION]]
+
+[[SECTION]]
 MID: 241afbf6b7af40189eec8054d0d0201c
 UID: SECTION-UG-Project-statistics-screen
 TITLE: Project statistics screen

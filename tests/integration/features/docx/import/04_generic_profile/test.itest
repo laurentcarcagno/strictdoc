@@ -1,0 +1,7 @@
+# Without a profile, headings become sections and everything else becomes text.
+
+RUN: %mkdir %T
+RUN: %strictdoc convert %S/input.docx %T/ | filecheck %s --check-prefix CHECK-REPORT
+CHECK-REPORT: Word import: 0 requirement(s), 4 section(s), 6 free paragraph(s), 3 other table(s).
+
+RUN: %diff %T/input.sdoc %S/expected/input.sdoc

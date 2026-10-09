@@ -1,0 +1,8 @@
+# --docx-dry-run prints the report and writes no file.
+
+RUN: %mkdir %T
+RUN: %strictdoc convert %S/input.docx %T/ --docx-profile %S/profile.py --docx-dry-run | filecheck %s
+CHECK: Word import: 2 requirement(s)
+CHECK: Dry run: no file written.
+
+RUN: %check_exists --invert --file "%T/input.sdoc"

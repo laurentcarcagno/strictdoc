@@ -1,0 +1,10 @@
+# A missing profile, a profile without create_profile() and a file that is not
+# a Word document stop the conversion with an error.
+
+RUN: %mkdir %T
+RUN: %expect_exit 1 %strictdoc convert %S/input.docx %T/ --docx-profile %S/missing.py 2>&1 | filecheck %s --check-prefix CHECK-MISSING
+CHECK-MISSING: error: Profile file not found
+RUN: %expect_exit 1 %strictdoc convert %S/input.docx %T/ --docx-profile %S/bad_profile.py 2>&1 | filecheck %s --check-prefix CHECK-BAD
+CHECK-BAD: error: The profile {{.*}} must define create_profile().
+RUN: %expect_exit 1 %strictdoc convert %S/bad_profile.py %T/ --input-format=docx 2>&1 | filecheck %s --check-prefix CHECK-NOTDOCX
+CHECK-NOTDOCX: Could not read {{.*}}bad_profile.py as a Word document

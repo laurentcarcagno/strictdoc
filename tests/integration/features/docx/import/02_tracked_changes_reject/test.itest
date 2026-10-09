@@ -1,0 +1,6 @@
+# --docx-tracked-changes=reject drops insertions and restores deletions.
+
+RUN: %mkdir %T
+RUN: %strictdoc convert %S/input.docx %T/ --docx-profile %S/profile.py --docx-tracked-changes=reject
+RUN: %cat %T/input.sdoc | filecheck %s
+CHECK: Kept. Deleted.
