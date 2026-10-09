@@ -1,9 +1,11 @@
 import os
+import sys
 from pathlib import Path
 from typing import Optional
 
 from strictdoc.backend.docx.docx_profile import DocxProfile, load_docx_profile
 from strictdoc.backend.docx.export.docx_template import DocxTemplate
+from strictdoc.backend.docx.export.docx_tracked_update import DocxUpdater
 from strictdoc.backend.docx.export.sdoc_to_docx_generator import (
     DocxGenerator,
     effective_profile,
@@ -14,6 +16,7 @@ from strictdoc.core.document_meta import DocumentMeta
 from strictdoc.core.project_config import ProjectConfig
 from strictdoc.core.traceability_index import TraceabilityIndex
 from strictdoc.helpers.cast import assert_cast
+from strictdoc.helpers.exception import StrictDocException
 
 
 class DocxExport:
@@ -25,25 +28,46 @@ class DocxExport:
     ) -> None:
         Path(output_docx_root).mkdir(parents=True, exist_ok=True)
         profile = effective_profile(_load_profile(project_config))
-        template = (
-            DocxTemplate.load(profile.template, profile)
-            if profile.template is not None
-            else DocxTemplate.minimal(profile)
-        )
         assert profile.requirement_table is not None
+        template: Optional[DocxTemplate] = None
+        if project_config.docx_base is None:
+            template = (
+                DocxTemplate.load(profile.template, profile)
+                if profile.template is not None
+                else DocxTemplate.minimal(profile)
+            )
 
         document: SDocDocument
         for document in traceability_index.document_tree.document_list:
             document_meta = assert_cast(document.meta, DocumentMeta)
             items = items_from_document(document, profile.requirement_table)
-            package = DocxGenerator.generate(items, profile, template)
-            DocxGenerator.write(
-                package,
-                os.path.join(
-                    output_docx_root,
-                    f"{document_meta.document_filename_base}.docx",
-                ),
+            output_path = os.path.join(
+                output_docx_root, f"{document_meta.document_filename_base}.docx"
             )
+            if project_config.docx_base is not None:
+                base_path = _base_path(
+                    project_config, document_meta.document_filename_base
+                )
+                package, report = DocxUpdater.update(base_path, items, profile)
+                sys.stdout.write(report.format() + "\n")
+            else:
+                assert template is not None
+                package = DocxGenerator.generate(items, profile, template)
+            DocxGenerator.write(package, output_path)
+
+
+def _base_path(project_config: ProjectConfig, document_name: str) -> str:
+    base = project_config.docx_base
+    assert base is not None
+    if not os.path.isabs(base):
+        base = os.path.join(project_config.get_project_root_path(), base)
+    if os.path.isdir(base):
+        base = os.path.join(base, f"{document_name}.docx")
+    if not os.path.isfile(base):
+        raise StrictDocException(
+            f"The Word document to update is missing: {base}."
+        )
+    return base
 
 
 def _load_profile(project_config: ProjectConfig) -> DocxProfile:

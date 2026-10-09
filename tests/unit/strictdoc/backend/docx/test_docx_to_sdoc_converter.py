@@ -339,3 +339,18 @@ def test_019_the_note_label_is_stripped_even_inside_italic_markup(tmp_path):
         blocks, _requirement_table_profile(), "Doc"
     )
     assert "NOTE: >>>\n*see annex.*\n<<<" in text
+
+
+def test_020_a_table_without_rows_is_ignored(tmp_path):
+    rows_all_inserted = table(
+        row(cell(paragraph("x")), row_change="ins"),
+    )
+    path = os.path.join(str(tmp_path), "input.docx")
+    write_docx(path, [rows_all_inserted, paragraph("After.")])
+    blocks = DocxReader.read(path, TrackedChangesMode.REJECT)
+    text, report = DocxToSDocConverter.build_sdoc_text(
+        blocks, _requirement_table_profile(), "Doc"
+    )
+    assert report.free_table_count == 0
+    assert text.count("\n\n\n") == 0
+    DocxToSDocConverter.parse(text)

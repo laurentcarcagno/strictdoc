@@ -66,6 +66,9 @@ class DocxProfile:
     # A relative path is resolved against the profile file. Without it, a
     # minimal template is built.
     template: Optional[str] = None
+    # The author of the tracked changes that an update of a Word document
+    # writes.
+    revision_author: str = "StrictDoc"
 
     @staticmethod
     def generic() -> "DocxProfile":

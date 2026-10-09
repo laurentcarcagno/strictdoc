@@ -1,0 +1,138 @@
+[DOCUMENT]
+TITLE: input
+
+[GRAMMAR]
+ELEMENTS:
+- TAG: SECTION
+  PROPERTIES:
+    IS_COMPOSITE: True
+  FIELDS:
+  - TITLE: UID
+    TYPE: String
+    REQUIRED: False
+  - TITLE: LEVEL
+    TYPE: String
+    REQUIRED: False
+  - TITLE: PREFIX
+    TYPE: String
+    REQUIRED: False
+  - TITLE: TITLE
+    TYPE: String
+    REQUIRED: True
+- TAG: TEXT
+  FIELDS:
+  - TITLE: STATEMENT
+    TYPE: String
+    REQUIRED: True
+- TAG: REQUIREMENT
+  FIELDS:
+  - TITLE: UID
+    TYPE: String
+    REQUIRED: False
+  - TITLE: VERSION
+    TYPE: String
+    REQUIRED: False
+  - TITLE: VERIFIED_BY
+    TYPE: String
+    REQUIRED: False
+  - TITLE: LINKED_REQ
+    TYPE: String
+    REQUIRED: False
+  - TITLE: TITLE
+    TYPE: String
+    REQUIRED: True
+  - TITLE: STATEMENT
+    TYPE: String
+    REQUIRED: True
+  - TITLE: NOTE
+    TYPE: String
+    REQUIRED: False
+  RELATIONS:
+  - TYPE: Parent
+  - TYPE: File
+
+[[SECTION]]
+TITLE: Introduction
+
+[TEXT]
+STATEMENT: >>>
+This document describes the system.
+
+It has **two** requirements.
+<<<
+
+[[/SECTION]]
+
+[[SECTION]]
+TITLE: Requirements
+
+[[SECTION]]
+TITLE: Functional
+
+[REQUIREMENT]
+UID: SYS-0001
+VERSION: V1
+VERIFIED_BY: T
+LINKED_REQ: [DA1] REQ-12
+TITLE: Power on
+STATEMENT: >>>
+The system shall power on within 2 seconds.
+<<<
+
+[REQUIREMENT]
+UID: SYS-0002
+VERSION: V0
+VERIFIED_BY: T
+LINKED_REQ: SYS-0001, SYS-0099
+TITLE: Power-on delay
+STATEMENT: >>>
+The power-on delay shall not exceed:
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: SYS-0001
+
+[REQUIREMENT]
+UID: SYS-0003
+VERSION: V0
+VERIFIED_BY: T
+LINKED_REQ: SYS-0001
+TITLE: Shutdown
+STATEMENT: >>>
+The system shall stop.
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: SYS-0001
+
+[[/SECTION]]
+
+[[SECTION]]
+TITLE: Notes
+
+[TEXT]
+STATEMENT: >>>
+The delay is measured at the connector.
+
+- first item
+- second item
+<<<
+
+[TEXT]
+STATEMENT: >>>
+.. list-table::
+
+   * - Mode
+     - Delay
+   * - Nominal
+     - 2 s
+<<<
+
+[TEXT]
+STATEMENT: >>>
+Kept. Inserted.
+<<<
+
+[[/SECTION]]
+
+[[/SECTION]]

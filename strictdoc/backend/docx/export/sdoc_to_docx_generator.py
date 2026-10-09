@@ -32,7 +32,9 @@ from strictdoc.backend.sdoc.models.node import SDocNode
 from strictdoc.core.document_iterator import SDocDocumentIterator
 
 # A paragraph is either self-closing or has content. "<w:pPr>" does not match.
-_PARAGRAPH = re.compile(r"<w:p(?:\s[^>]*)?/>|<w:p(?:\s[^>]*)?>.*?</w:p>", re.S)
+PARAGRAPH_PATTERN = re.compile(
+    r"<w:p(?:\s[^>]*)?/>|<w:p(?:\s[^>]*)?>.*?</w:p>", re.S
+)
 
 DEFAULT_EXPORT_LAYOUT = DocxRequirementTable(
     id_style="RequirementId",
@@ -127,7 +129,7 @@ class DocxGenerator:
     ) -> Dict[str, bytes]:
         profile = effective_profile(profile)
         assert profile.requirement_table is not None
-        heading_styles = _heading_style_by_level(profile)
+        heading_styles = heading_style_by_level(profile)
         body: List[str] = []
         for item_ in items:
             if isinstance(item_, ExportSection):
@@ -139,7 +141,7 @@ class DocxGenerator:
                 body.extend(_text_blocks(item_.statement))
             else:
                 body.append(
-                    _requirement_xml(
+                    requirement_xml(
                         item_,
                         profile.requirement_table,
                         template.requirement_skeleton,
@@ -155,7 +157,7 @@ class DocxGenerator:
                 output_.writestr(name_, data_)
 
 
-def _heading_style_by_level(profile: DocxProfile) -> Dict[int, str]:
+def heading_style_by_level(profile: DocxProfile) -> Dict[int, str]:
     """Level -> style. A level the profile does not name uses the one above."""
     named: Dict[int, str] = {}
     for style_, level_ in profile.heading_styles.items():
@@ -193,7 +195,7 @@ def _plain(text: str) -> str:
     return "".join(run_.text for run_ in runs)
 
 
-def _requirement_xml(
+def requirement_xml(
     requirement: ExportRequirement,
     layout: DocxRequirementTable,
     skeleton: str,
@@ -204,7 +206,7 @@ def _requirement_xml(
     out_rows: List[str] = []
     text_row_done = False
     for row_ in rows:
-        role = _row_role(row_, layout, text_row_done)
+        role = row_role(row_, layout, text_row_done)
         if role == "id":
             out_rows.append(_fill_row(row_, [[_p(requirement.uid)]]))
         elif role == "title":
@@ -219,7 +221,7 @@ def _requirement_xml(
         elif role == "note":
             note_paragraphs = rst_to_paragraphs(requirement.note)
             out_rows.append(
-                _fill_note_row(row_, note_paragraphs, layout.note_label or "")
+                fill_note_row(row_, note_paragraphs, layout.note_label or "")
             )
         elif role == "keep":
             out_rows.append(row_)
@@ -230,13 +232,13 @@ def _p(text: str) -> ExportParagraph:
     return ExportParagraph([ExportRun(text)] if len(text) > 0 else [])
 
 
-def _row_role(
+def row_role(
     row_xml: str, layout: DocxRequirementTable, text_row_done: bool
 ) -> str:
     cells = re.findall(r"<w:tc\b.*?</w:tc>", row_xml, re.S)
     first_style = re.search(r'<w:pStyle w:val="([^"]*)"/>', cells[0])
     style = first_style.group(1) if first_style is not None else ""
-    label = _text_of(cells[0]).strip()
+    label = text_of(cells[0]).strip()
     if style == layout.id_style:
         return "id"
     if layout.title_style is not None and style == layout.title_style:
@@ -250,7 +252,7 @@ def _row_role(
     return "drop"
 
 
-def _text_of(xml: str) -> str:
+def text_of(xml: str) -> str:
     return "".join(re.findall(r"<w:t(?:\s[^>]*)?>([^<]*)</w:t>", xml))
 
 
@@ -265,12 +267,12 @@ def _fill_row(
         content = cell_contents[index_] if index_ < len(cell_contents) else None
         if content is not None:
             result = result.replace(
-                cell_, _replace_cell_paragraphs(cell_, content), 1
+                cell_, replace_cell_paragraphs(cell_, content), 1
             )
     return result
 
 
-def _fill_note_row(
+def fill_note_row(
     row_xml: str, note: List[ExportParagraph], note_label: str
 ) -> str:
     """
@@ -283,12 +285,12 @@ def _fill_note_row(
     if cell_match is None:
         return row_xml
     cell_xml = cell_match.group(0)
-    paragraph_match = _PARAGRAPH.search(cell_xml)
+    paragraph_match = PARAGRAPH_PATTERN.search(cell_xml)
     if paragraph_match is None:
         return row_xml
     prototype = paragraph_match.group(0)
     label_match = re.match(
-        rf"\s*{re.escape(note_label)}\s*:?", _text_of(prototype)
+        rf"\s*{re.escape(note_label)}\s*:?", text_of(prototype)
     )
     label = label_match.group(0).strip() if label_match else f"{note_label} :"
     paragraphs = [ExportParagraph([ExportRun(label)])]
@@ -297,9 +299,7 @@ def _fill_note_row(
             ExportParagraph([ExportRun(label + " ")] + note[0].runs),
             *note[1:],
         ]
-    new_paragraphs = "".join(
-        _paragraph_like(prototype, p_) for p_ in paragraphs
-    )
+    new_paragraphs = "".join(paragraph_like(prototype, p_) for p_ in paragraphs)
     end_of_content = cell_xml.rindex("</w:tc>")
     new_cell = (
         cell_xml[: paragraph_match.start()]
@@ -309,20 +309,20 @@ def _fill_note_row(
     return row_xml.replace(cell_xml, new_cell, 1)
 
 
-def _replace_cell_paragraphs(
+def replace_cell_paragraphs(
     cell_xml: str, paragraphs: List[ExportParagraph]
 ) -> str:
-    match = _PARAGRAPH.search(cell_xml)
+    match = PARAGRAPH_PATTERN.search(cell_xml)
     prototype = match.group(0) if match is not None else "<w:p/>"
     start = match.start() if match is not None else cell_xml.rindex("</w:tc>")
     end = cell_xml.rindex("</w:tc>")
     new_paragraphs = "".join(
-        _paragraph_like(prototype, paragraph_) for paragraph_ in paragraphs
-    ) or _paragraph_like(prototype, ExportParagraph())
+        paragraph_like(prototype, paragraph_) for paragraph_ in paragraphs
+    ) or paragraph_like(prototype, ExportParagraph())
     return cell_xml[:start] + new_paragraphs + cell_xml[end:]
 
 
-def _paragraph_like(prototype: str, paragraph: ExportParagraph) -> str:
+def paragraph_like(prototype: str, paragraph: ExportParagraph) -> str:
     """A paragraph that looks like the prototype: same properties and font."""
     properties = re.search(r"<w:pPr>.*?</w:pPr>", prototype, re.S)
     run_properties = re.search(

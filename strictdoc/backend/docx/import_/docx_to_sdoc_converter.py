@@ -102,7 +102,7 @@ class _FreeText:
 
 
 @dataclass
-class _Requirement:
+class DocxRequirement:
     uid: str
     title: str
     fields: Dict[str, str]
@@ -110,7 +110,7 @@ class _Requirement:
     note_paragraphs: List[DocxParagraph]
 
 
-_Item = Union[_Section, _FreeText, DocxTable, _Requirement]
+_Item = Union[_Section, _FreeText, DocxTable, DocxRequirement]
 
 
 class DocxToSDocConverter:
@@ -170,7 +170,7 @@ class DocxToSDocConverter:
                 )
                 open_sections += 1
             elif isinstance(item_, _FreeText):
-                parts.append(_text_node(_join_paragraphs(item_.paragraphs)))
+                parts.append(_text_node(join_paragraphs(item_.paragraphs)))
             elif isinstance(item_, DocxTable):
                 parts.append(_text_node(_list_table(item_)))
             else:
@@ -227,7 +227,10 @@ def _classify_blocks(
                 pending_free.append(block_)
         else:
             flush_free_text()
-            requirement = _read_requirement(block_, profile.requirement_table)
+            if len(block_.rows) == 0:
+                # Every row was a tracked change that this mode drops.
+                continue
+            requirement = read_requirement(block_, profile.requirement_table)
             if requirement is not None:
                 report.requirement_count += 1
                 items.append(requirement)
@@ -238,9 +241,9 @@ def _classify_blocks(
     return items
 
 
-def _read_requirement(
+def read_requirement(
     table: DocxTable, layout: Optional[DocxRequirementTable]
-) -> Optional[_Requirement]:
+) -> Optional[DocxRequirement]:
     if layout is None or len(table.rows) == 0:
         return None
     first_cell = table.rows[0][0]
@@ -273,7 +276,7 @@ def _read_requirement(
             note = _note_paragraphs(first_paragraphs, layout.note_label)
         else:
             statement.extend(first_paragraphs)
-    return _Requirement(uid, title, fields, statement, note)
+    return DocxRequirement(uid, title, fields, statement, note)
 
 
 def _note_paragraphs(
@@ -315,7 +318,7 @@ def _cell_text(paragraphs: List[DocxParagraph]) -> str:
 def _resolve_uids(items: List[_Item], report: DocxImportReport) -> Set[str]:
     known: Set[str] = set()
     for item_ in items:
-        if not isinstance(item_, _Requirement):
+        if not isinstance(item_, DocxRequirement):
             continue
         if _UID_PATTERN.fullmatch(item_.uid) is None:
             report.invalid_uids.append(item_.uid)
@@ -377,7 +380,7 @@ def _grammar_text(
 
 
 def _requirement_text(
-    requirement: _Requirement,
+    requirement: DocxRequirement,
     layout: DocxRequirementTable,
     known_uids: Set[str],
     report: DocxImportReport,
@@ -392,9 +395,9 @@ def _requirement_text(
             fields.append((field_name_, value))
     title = _single_line(requirement.title)
     fields.append(("TITLE", title if len(title) > 0 else requirement.uid))
-    statement = _join_paragraphs(requirement.statement_paragraphs)
+    statement = join_paragraphs(requirement.statement_paragraphs)
     fields.append(("STATEMENT", _multiline(statement or "(no text)")))
-    note = _join_paragraphs(requirement.note_paragraphs)
+    note = join_paragraphs(requirement.note_paragraphs)
     if len(note) > 0:
         fields.append((layout.note_field, _multiline(note)))
 
@@ -422,7 +425,7 @@ def _requirement_text(
 
 
 def _parent_uids(
-    requirement: _Requirement,
+    requirement: DocxRequirement,
     layout: DocxRequirementTable,
     known_uids: Set[str],
     report: DocxImportReport,
@@ -523,7 +526,7 @@ def _looks_like_known_uid(name: str, known_uids: Set[str]) -> bool:
     return any(uid_.split("-", 1)[0] == prefix for uid_ in known_uids)
 
 
-def _join_paragraphs(paragraphs: List[DocxParagraph]) -> str:
+def join_paragraphs(paragraphs: List[DocxParagraph]) -> str:
     """
     One RST paragraph per Word paragraph. List items that follow each other
     stay together, so that RST sees one list.

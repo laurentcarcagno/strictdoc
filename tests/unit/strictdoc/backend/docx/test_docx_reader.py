@@ -157,3 +157,30 @@ def test_013_a_file_that_is_not_a_docx_is_rejected(tmp_path):
         file_.write("not a zip")
     with pytest.raises(StrictDocException):
         DocxReader.read(path, TrackedChangesMode.ACCEPT)
+
+
+def test_014_accept_mode_drops_paragraphs_deleted_as_a_whole(tmp_path):
+    path = os.path.join(str(tmp_path), "input.docx")
+    deleted_paragraph = (
+        "<w:p><w:pPr><w:rPr><w:del "
+        'w:id="1" w:author="a" w:date="d"/></w:rPr></w:pPr>'
+        + deleted("gone")
+        + "</w:p>"
+    )
+    write_docx(path, [paragraph("kept"), deleted_paragraph])
+    accepted = DocxReader.read(path, TrackedChangesMode.ACCEPT)
+    rejected = DocxReader.read(path, TrackedChangesMode.REJECT)
+    assert [block_.text for block_ in accepted] == ["kept"]
+    assert [block_.text for block_ in rejected] == ["kept", "gone"]
+
+
+def test_015_reject_mode_drops_a_table_inserted_as_a_whole(tmp_path):
+    path = os.path.join(str(tmp_path), "input.docx")
+    inserted_table = table(
+        row(cell(paragraph("new")), row_change="ins"),
+    )
+    write_docx(path, [paragraph("kept"), inserted_table])
+    rejected = DocxReader.read(path, TrackedChangesMode.REJECT)
+    accepted = DocxReader.read(path, TrackedChangesMode.ACCEPT)
+    assert len(rejected) == 1
+    assert len(accepted) == 2

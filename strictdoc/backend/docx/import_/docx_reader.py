@@ -68,8 +68,21 @@ class DocxReader:
                 if paragraph is not None:
                     blocks.append(paragraph)
             elif element_.tag == WORD_NAMESPACE + "tbl":
-                blocks.append(_read_table(element_, mode))
+                table = _read_table(element_, mode)
+                # A table whose rows were all removed by the mode is gone.
+                if (
+                    len(table.rows) > 0
+                    or element_.find(WORD_NAMESPACE + "tr") is None
+                ):
+                    blocks.append(table)
         return blocks
+
+
+def read_table_element(
+    element: ET.Element, mode: TrackedChangesMode
+) -> DocxTable:
+    """Reads a w:tbl element that the caller has parsed."""
+    return _read_table(element, mode)
 
 
 def _parse_document_xml(path: str) -> ET.Element:
@@ -132,6 +145,7 @@ def _read_paragraph(
     style = ""
     is_list_item = False
     mark_is_inserted = False
+    mark_is_deleted = False
     if properties is not None:
         style_element = properties.find(WORD_NAMESPACE + "pStyle")
         if style_element is not None:
@@ -142,15 +156,20 @@ def _read_paragraph(
             mark_is_inserted = (
                 mark_properties.find(WORD_NAMESPACE + "ins") is not None
             )
+            mark_is_deleted = (
+                mark_properties.find(WORD_NAMESPACE + "del") is not None
+            )
 
     segments: List[_Segment] = []
     _collect_segments(element, mode, False, False, False, segments)
     text = "".join(segment_[0] for segment_ in segments)
-    if (
-        mode == TrackedChangesMode.REJECT
-        and mark_is_inserted
-        and len(text.strip()) == 0
-    ):
+    # A paragraph that the mode removes, whose text is gone: nothing is left.
+    mark_is_removed = (
+        mark_is_inserted
+        if mode == TrackedChangesMode.REJECT
+        else mark_is_deleted
+    )
+    if mark_is_removed and len(text.strip()) == 0:
         return None
     return DocxParagraph(
         style=style,

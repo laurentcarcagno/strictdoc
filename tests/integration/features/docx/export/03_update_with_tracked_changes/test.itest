@@ -1,0 +1,27 @@
+# With docx_base, the export updates an existing Word document and records every
+# difference as a tracked change by the profile's revision_author:
+# - SYS-0001 got a new statement and SYS-0002 a new title (replaced text),
+# - SYS-0003 is new (inserted table), placed after SYS-0002.
+# Accepting all changes gives the model. Rejecting them gives the base document.
+
+RUN: %mkdir %T
+RUN: %strictdoc export %S/input --formats=docx --output-dir %T/out | filecheck %s --check-prefix CHECK-REPORT
+CHECK-REPORT: Word update: 1 added, 2 changed, 0 deleted, 0 unchanged requirement(s).
+CHECK-REPORT: Added: SYS-0003
+CHECK-REPORT: Changed: SYS-0001 (STATEMENT)
+CHECK-REPORT: Changed: SYS-0002 (TITLE)
+
+RUN: python -c "import sys, zipfile; sys.stdout.write(zipfile.ZipFile(sys.argv[1]).read('word/document.xml').decode().replace('><', '>\n<'))" %T/out/docx/input.docx | filecheck %s --check-prefix CHECK-XML
+CHECK-XML: w:author="Laurent Carcagno"
+CHECK-XML: <w:delText
+CHECK-XML: power on within 2 seconds.
+
+RUN: %mkdir %T/accepted
+RUN: %strictdoc convert %T/out/docx/input.docx %T/accepted --docx-profile %S/input/profile.py
+RUN: %diff %T/accepted/input.sdoc %S/input/input.sdoc
+
+RUN: %mkdir %T/rejected
+RUN: %strictdoc convert %T/out/docx/input.docx %T/rejected --docx-profile %S/input/profile.py --docx-tracked-changes=reject
+RUN: %mkdir %T/base
+RUN: %strictdoc convert %S/base/input.docx %T/base --docx-profile %S/input/profile.py --docx-tracked-changes=reject
+RUN: %diff %T/rejected/input.sdoc %T/base/input.sdoc

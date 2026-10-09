@@ -4107,6 +4107,56 @@ requirement. Tables of contents have no page numbers until Word updates them.
 [[/SECTION]]
 
 [[SECTION]]
+MID: 73d5be0e8fae46488d9bda5cb7469e32
+TITLE: Update flow (SDoc -> existing Word document with tracked changes)
+
+[TEXT]
+MID: 7b7a6f0dadc247f684a97fbe1733a964
+STATEMENT: >>>
+When a Word document is already under review, a fresh export would throw away
+its history. The update flow instead compares the SDoc model with the existing
+document and writes the differences as Word tracked changes.
+
+Set ``docx_base`` in ``strictdoc_config.py`` to the existing document, as a
+path to a file or to a folder that holds it:
+
+.. code:: python
+
+    def create_config() -> ProjectConfig:
+        return ProjectConfig(
+            project_title="My project",
+            docx_profile="profile.py",
+            docx_base="requirements.docx",
+        )
+
+Then export as usual:
+
+.. code:: text
+
+    strictdoc export --formats=docx .
+
+Requirements are matched by UID. StrictDoc then:
+
+- inserts a new requirement as a tracked table, after the requirement that
+  precedes it in the model;
+- marks the table of a requirement that is no longer in the model as deleted;
+- changes only the cells whose text differs, as tracked deletions and
+  insertions;
+- keeps every other part of the package as it was: styles, headers, footers,
+  numbering and the existing revisions.
+
+An unchanged model leaves the document identical. Rejecting all changes in
+Word gives back the base document. Accepting all gives the model.
+
+The revision author is set by ``revision_author`` in the profile and defaults
+to ``StrictDoc``. After the update, StrictDoc prints the added, changed and
+deleted UIDs. Tables of contents are marked for refresh when Word opens the
+file.
+<<<
+
+[[/SECTION]]
+
+[[SECTION]]
 MID: 940b69be61e84c368220601248cc5846
 TITLE: Formatting and tracked changes
 

@@ -200,6 +200,7 @@ class ProjectConfig:
             List[Tuple[str, Optional[str]]]
         ] = None,
         docx_profile: Optional[str] = None,
+        docx_base: Optional[str] = None,
         reqif_profile: str = ReqIFProfile.P01_SDOC,
         # FIXME: Change to true by default.
         reqif_multiline_is_xhtml: bool = False,
@@ -456,6 +457,10 @@ class ProjectConfig:
         # Path of the Word profile used by the docx export, relative to the
         # project root.
         self.docx_profile: Optional[str] = docx_profile
+        # An existing Word document, or a folder of them named after the
+        # documents, to update with tracked changes instead of writing a new
+        # file. Relative to the project root.
+        self.docx_base: Optional[str] = docx_base
         self.reqif_profile: str = reqif_profile
 
         assert isinstance(reqif_multiline_is_xhtml, bool), (
