@@ -1,0 +1,9 @@
+# Importing the same Word document twice into the same directory changes
+# nothing.
+
+RUN: %mkdir %T
+RUN: %strictdoc convert %S/input.docx %T/ --docx-profile %S/profile.py
+RUN: %cp %T/input.sdoc %T/first.sdoc
+RUN: %strictdoc convert %S/input.docx %T/ --docx-profile %S/profile.py | filecheck %s
+CHECK: Merged into the existing file: 0 added, 0 changed, 2 unchanged, 0 not in the Word document.
+RUN: %diff %T/input.sdoc %T/first.sdoc

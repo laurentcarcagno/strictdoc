@@ -3933,9 +3933,45 @@ deletions. ``reject`` does the opposite.
 
 ``--docx-dry-run`` Prints the report and writes nothing.
 
+``--docx-overwrite`` Replaces an existing SDoc file instead of merging into it.
+
 .. note::
 
     Pass absolute paths to the profile file.
+<<<
+
+[[/SECTION]]
+
+[[SECTION]]
+MID: 6e637a3e09ee45e58056b3077e7acede
+TITLE: Re-import into an existing file
+
+[TEXT]
+MID: 21fbd377f2e14df1acd26a9e8749de5e
+STATEMENT: >>>
+If the output directory already has an SDoc file with the same name, StrictDoc
+merges the Word document into it. Running the same import twice changes
+nothing.
+
+Requirements are matched by UID. The Word document owns:
+
+- the structure: sections and text,
+- the fields named in the profile, including TITLE and STATEMENT,
+- the Parent relations that come from ``relation_fields``.
+
+The importer keeps what people added to the SDoc file:
+
+- extra fields of type ``String`` that the profile does not name,
+- File relations.
+
+A requirement that is in the SDoc file but no longer in the Word document is
+not deleted. It moves to a section titled "Not in the Word document". It leaves
+that section if it comes back.
+
+The report lists the added and changed requirements, with the names of the
+changed fields, and the requirements that left the Word document. Use
+``--docx-dry-run`` to see the report without writing. Use ``--docx-overwrite``
+to replace the file instead of merging.
 <<<
 
 [[/SECTION]]

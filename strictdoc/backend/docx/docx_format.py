@@ -61,6 +61,15 @@ class DocxFormat(Format):
             ),
         )
         parser.add_argument(
+            "--docx-overwrite",
+            action="store_true",
+            default=False,
+            help=(
+                "Replace the SDoc file in the output directory. By default, "
+                "the Word document is merged into it by UID."
+            ),
+        )
+        parser.add_argument(
             "--docx-dry-run",
             action="store_true",
             default=False,
@@ -76,6 +85,8 @@ class DocxFormat(Format):
             profile_path=args.docx_profile,
             tracked_changes=TrackedChangesMode(args.docx_tracked_changes),
             dry_run=args.docx_dry_run,
+            output_path=args.output_path,
+            overwrite=args.docx_overwrite,
         )
 
     def import_file(  # type: ignore[override]

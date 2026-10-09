@@ -1,0 +1,11 @@
+# --docx-overwrite replaces the SDoc file instead of merging into it.
+
+RUN: %mkdir %T
+RUN: %cp %S/input.docx %T/other.docx
+RUN: echo "[DOCUMENT]" > %T/input.sdoc
+RUN: echo "TITLE: Old" >> %T/input.sdoc
+RUN: %strictdoc convert %S/input.docx %T/ --docx-profile %S/profile.py --docx-overwrite | filecheck %s
+CHECK-NOT: Merged into the existing file
+RUN: %cat %T/input.sdoc | filecheck %s --check-prefix CHECK-FILE
+CHECK-FILE: TITLE: input
+CHECK-FILE: UID: SYS-0001

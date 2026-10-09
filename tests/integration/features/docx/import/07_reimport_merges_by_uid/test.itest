@@ -1,0 +1,15 @@
+# A Word document that changed is merged into the SDoc file written by an
+# earlier import: Word wins on its fields, the extra field OWNER and the File
+# relation added by hand are kept, a requirement that left the Word document is
+# kept in its own section, and the report lists every difference.
+
+RUN: %mkdir %T
+RUN: %cp %S/existing.sdoc %T/input.sdoc
+RUN: %strictdoc convert %S/input.docx %T/ --docx-profile %S/profile.py | filecheck %s
+CHECK: Word import: 2 requirement(s), 1 section(s)
+CHECK: Merged into the existing file: 1 added, 1 changed, 0 unchanged, 1 not in the Word document.
+CHECK: Added: SYS-0003
+CHECK: Changed: SYS-0001 (VERSION, LINKED_REQ, STATEMENT)
+CHECK: Kept in 'Not in the Word document': SYS-0002
+
+RUN: %diff %T/input.sdoc %S/expected/input.sdoc

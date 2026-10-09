@@ -20,8 +20,14 @@ from strictdoc.backend.docx.import_.docx_reader import (
     DocxParagraph,
     DocxTable,
 )
+from strictdoc.backend.docx.import_.sdoc_requirement_blocks import (
+    CarryOver,
+    owned_field_names,
+)
 from strictdoc.backend.sdoc.models.document import SDocDocument
 from strictdoc.backend.sdoc.reader import SDReader
+
+REMOVED_SECTION_TITLE = "Not in the Word document"
 
 # Same character set as a UID in the SDoc grammar, without spaces.
 _UID_PATTERN = re.compile(r"[\w]+[\w()\-/.:]*")
@@ -40,6 +46,14 @@ class DocxImportReport:
     # (UID of the requirement, name that looks like a requirement ID but
     # matches no requirement of the document).
     unresolved_links: List[Tuple[str, str]] = field(default_factory=list)
+    # Filled when the Word document is merged into an existing SDoc file.
+    merged: bool = False
+    added_uids: List[str] = field(default_factory=list)
+    # UID -> names of the fields whose value changed.
+    changed_uids: Dict[str, List[str]] = field(default_factory=dict)
+    unchanged_count: int = 0
+    # In the SDoc file but no longer in the Word document. They are kept.
+    removed_uids: List[str] = field(default_factory=list)
 
     def format(self) -> str:
         summary = (
@@ -60,6 +74,19 @@ class DocxImportReport:
             lines.append(f"  Invalid UID, requirement imported without: {uid_}")
         for uid_, name_ in self.unresolved_links:
             lines.append(f"  Unresolved link: {uid_} -> {name_}")
+        if self.merged:
+            lines.append(
+                f"  Merged into the existing file: {len(self.added_uids)} "
+                f"added, {len(self.changed_uids)} changed, "
+                f"{self.unchanged_count} unchanged, "
+                f"{len(self.removed_uids)} not in the Word document."
+            )
+            for uid_ in self.added_uids:
+                lines.append(f"  Added: {uid_}")
+            for uid_, names_ in self.changed_uids.items():
+                lines.append(f"  Changed: {uid_} ({', '.join(names_)})")
+            for uid_ in self.removed_uids:
+                lines.append(f"  Kept in '{REMOVED_SECTION_TITLE}': {uid_}")
         return "\n".join(lines)
 
 
@@ -89,10 +116,13 @@ _Item = Union[_Section, _FreeText, DocxTable, _Requirement]
 class DocxToSDocConverter:
     @staticmethod
     def convert(
-        blocks: List[DocxBlock], profile: DocxProfile, fallback_title: str
+        blocks: List[DocxBlock],
+        profile: DocxProfile,
+        fallback_title: str,
+        carry_over: Optional[CarryOver] = None,
     ) -> Tuple[SDocDocument, DocxImportReport]:
         sdoc_text, report = DocxToSDocConverter.build_sdoc_text(
-            blocks, profile, fallback_title
+            blocks, profile, fallback_title, carry_over
         )
         return DocxToSDocConverter.parse(sdoc_text), report
 
@@ -102,9 +132,19 @@ class DocxToSDocConverter:
 
     @staticmethod
     def build_sdoc_text(
-        blocks: List[DocxBlock], profile: DocxProfile, fallback_title: str
+        blocks: List[DocxBlock],
+        profile: DocxProfile,
+        fallback_title: str,
+        carry_over: Optional[CarryOver] = None,
     ) -> Tuple[str, DocxImportReport]:
+        """
+        With a carry_over (the existing SDoc file), the Word document is
+        merged into it: Word owns the profile's fields, the structure and the
+        Parent relations; extra fields and File relations are kept.
+        """
         report = DocxImportReport()
+        if carry_over is not None:
+            report.merged = True
         items = _classify_blocks(blocks, profile, report)
         known_uids = _resolve_uids(items, report)
         title = (
@@ -113,8 +153,11 @@ class DocxToSDocConverter:
             else fallback_title
         )
         parts: List[str] = [f"[DOCUMENT]\nTITLE: {_single_line(title)}\n"]
+        extra_fields = (
+            carry_over.extra_grammar_fields if carry_over is not None else []
+        )
         if profile.requirement_table is not None:
-            parts.append(_grammar_text(profile.requirement_table))
+            parts.append(_grammar_text(profile.requirement_table, extra_fields))
 
         open_sections = 0
         for item_ in items:
@@ -134,12 +177,22 @@ class DocxToSDocConverter:
                 assert profile.requirement_table is not None
                 parts.append(
                     _requirement_text(
-                        item_, profile.requirement_table, known_uids, report
+                        item_,
+                        profile.requirement_table,
+                        known_uids,
+                        report,
+                        carry_over,
                     )
                 )
         while open_sections > 0:
             parts.append("[[/SECTION]]\n")
             open_sections -= 1
+        if carry_over is not None and profile.requirement_table is not None:
+            removed_text = _removed_requirements_text(
+                profile.requirement_table, known_uids, report, carry_over
+            )
+            if len(removed_text) > 0:
+                parts.append(removed_text)
         return "\n".join(parts), report
 
 
@@ -269,7 +322,10 @@ def _resolve_uids(items: List[_Item], report: DocxImportReport) -> Set[str]:
     return known
 
 
-def _grammar_text(layout: DocxRequirementTable) -> str:
+def _grammar_text(
+    layout: DocxRequirementTable,
+    extra_fields: List[Tuple[str, List[str]]],
+) -> str:
     field_lines = ["UID"] + list(layout.meta_rows.values())
     field_lines += ["TITLE", "STATEMENT"]
     if layout.note_label is not None:
@@ -308,6 +364,8 @@ def _grammar_text(layout: DocxRequirementTable) -> str:
             "    TYPE: String",
             f"    REQUIRED: {required}",
         ]
+    for _, extra_lines_ in extra_fields:
+        lines += extra_lines_
     lines += ["  RELATIONS:", "  - TYPE: Parent", "  - TYPE: File", ""]
     return "\n".join(lines)
 
@@ -317,22 +375,52 @@ def _requirement_text(
     layout: DocxRequirementTable,
     known_uids: Set[str],
     report: DocxImportReport,
+    carry_over: Optional[CarryOver],
 ) -> str:
-    lines = ["[REQUIREMENT]"]
+    fields: List[Tuple[str, str]] = []
     if len(requirement.uid) > 0:
-        lines.append(f"UID: {requirement.uid}")
+        fields.append(("UID", requirement.uid))
     for field_name_ in layout.meta_rows.values():
         value = _single_line(requirement.fields.get(field_name_, ""))
         if len(value) > 0:
-            lines.append(f"{field_name_}: {value}")
+            fields.append((field_name_, value))
     title = _single_line(requirement.title)
-    lines.append(f"TITLE: {title if len(title) > 0 else requirement.uid}")
+    fields.append(("TITLE", title if len(title) > 0 else requirement.uid))
     statement = _join_paragraphs(requirement.statement_paragraphs)
-    lines.append("STATEMENT: " + _multiline(statement or "(no text)"))
+    fields.append(("STATEMENT", _multiline(statement or "(no text)")))
     note = _join_paragraphs(requirement.note_paragraphs)
     if len(note) > 0:
-        lines.append(f"{layout.note_field}: " + _multiline(note))
+        fields.append((layout.note_field, _multiline(note)))
 
+    parent_uids = _parent_uids(requirement, layout, known_uids, report)
+    file_relations: List[List[str]] = []
+    if carry_over is not None and len(requirement.uid) > 0:
+        old_block = carry_over.blocks.get(requirement.uid)
+        if old_block is None:
+            report.added_uids.append(requirement.uid)
+        else:
+            _note_changes(
+                requirement.uid, fields, old_block.fields, layout, report
+            )
+            extra_names = [
+                name_ for name_, _ in carry_over.extra_grammar_fields
+            ]
+            old_values = dict(old_block.fields)
+            fields += [
+                (name_, old_values[name_])
+                for name_ in extra_names
+                if name_ in old_values
+            ]
+            file_relations = old_block.file_relations
+    return _render_requirement(fields, parent_uids, file_relations)
+
+
+def _parent_uids(
+    requirement: _Requirement,
+    layout: DocxRequirementTable,
+    known_uids: Set[str],
+    report: DocxImportReport,
+) -> List[str]:
     parent_uids: List[str] = []
     for field_name_ in layout.relation_fields:
         value = requirement.fields.get(field_name_, "")
@@ -345,11 +433,77 @@ def _requirement_text(
                     parent_uids.append(name)
             elif _looks_like_known_uid(name, known_uids):
                 report.unresolved_links.append((requirement.uid, name))
-    if len(parent_uids) > 0:
+    return parent_uids
+
+
+def _render_requirement(
+    fields: List[Tuple[str, str]],
+    parent_uids: List[str],
+    file_relations: List[List[str]],
+) -> str:
+    lines = ["[REQUIREMENT]"]
+    lines += [f"{name_}: {value_}" for name_, value_ in fields]
+    if len(parent_uids) > 0 or len(file_relations) > 0:
         lines.append("RELATIONS:")
         for parent_uid_ in parent_uids:
             lines += ["- TYPE: Parent", f"  VALUE: {parent_uid_}"]
+        for relation_lines_ in file_relations:
+            lines += relation_lines_
     return "\n".join(lines) + "\n"
+
+
+def _field_text(raw_value: str) -> str:
+    if raw_value.startswith(">>>\n") and raw_value.endswith("\n<<<"):
+        raw_value = raw_value[len(">>>\n") : -len("\n<<<")]
+    return raw_value.strip()
+
+
+def _note_changes(
+    uid: str,
+    new_fields: List[Tuple[str, str]],
+    old_fields: List[Tuple[str, str]],
+    layout: DocxRequirementTable,
+    report: DocxImportReport,
+) -> None:
+    new_values = {name_: _field_text(value_) for name_, value_ in new_fields}
+    old_values = {name_: _field_text(value_) for name_, value_ in old_fields}
+    changed = [
+        name_
+        for name_ in owned_field_names(layout)
+        if name_ != "UID"
+        and new_values.get(name_, "") != old_values.get(name_, "")
+    ]
+    if len(changed) > 0:
+        report.changed_uids[uid] = changed
+    else:
+        report.unchanged_count += 1
+
+
+def _removed_requirements_text(
+    layout: DocxRequirementTable,
+    known_uids: Set[str],
+    report: DocxImportReport,
+    carry_over: CarryOver,
+) -> str:
+    """
+    Requirements that are in the existing file but no longer in the Word
+    document are kept, in a section of their own. Nothing is deleted silently.
+    """
+    removed = [uid_ for uid_ in carry_over.blocks if uid_ not in known_uids]
+    if len(removed) == 0:
+        return ""
+    report.removed_uids = removed
+    names = owned_field_names(layout) + [
+        name_ for name_, _ in carry_over.extra_grammar_fields
+    ]
+    parts = [f"[[SECTION]]\nTITLE: {REMOVED_SECTION_TITLE}\n"]
+    for uid_ in removed:
+        block = carry_over.blocks[uid_]
+        values = dict(block.fields)
+        fields = [(n_, values[n_]) for n_ in names if n_ in values]
+        parts.append(_render_requirement(fields, [], block.file_relations))
+    parts.append("[[/SECTION]]\n")
+    return "\n".join(parts)
 
 
 def _looks_like_known_uid(name: str, known_uids: Set[str]) -> bool:
