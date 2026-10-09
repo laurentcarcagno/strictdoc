@@ -1,0 +1,9 @@
+# Exporting an SDoc project to Word and importing the result gives back the
+# same SDoc file: headings, text, a table, requirements and their links.
+
+RUN: %mkdir %T
+RUN: %strictdoc export %S/input --formats=docx --output-dir %T/out
+RUN: %check_exists --file "%T/out/docx/input.docx"
+RUN: %mkdir %T/back
+RUN: %strictdoc convert %T/out/docx/input.docx %T/back --docx-profile %S/input/profile.py
+RUN: %diff %T/back/input.sdoc %S/input/input.sdoc

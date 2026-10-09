@@ -62,6 +62,10 @@ class DocxProfile:
     # Paragraphs whose style starts with one of these are skipped (tables of
     # contents and tables of figures hold generated text).
     ignored_style_prefixes: Tuple[str, ...] = ("TOC", "TableofFigures")
+    # A .docx file for the export: styles, headers, footers and front matter.
+    # A relative path is resolved against the profile file. Without it, a
+    # minimal template is built.
+    template: Optional[str] = None
 
     @staticmethod
     def generic() -> "DocxProfile":
@@ -98,6 +102,10 @@ def load_docx_profile(path: str) -> DocxProfile:
     if not isinstance(profile, DocxProfile):
         raise StrictDocException(
             f"create_profile() in {path} must return a DocxProfile."
+        )
+    if profile.template is not None and not os.path.isabs(profile.template):
+        profile.template = os.path.join(
+            os.path.dirname(os.path.abspath(path)), profile.template
         )
     profile.validate()
     return profile

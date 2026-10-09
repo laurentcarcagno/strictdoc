@@ -19,6 +19,7 @@ from tests.unit.strictdoc.backend.docx.docx_builder import (
     cell,
     paragraph,
     row,
+    run,
     table,
     write_docx,
 )
@@ -313,3 +314,28 @@ def test_018_report_summary_names_the_problems(tmp_path):
     summary = report.format()
     assert "1 requirement" in summary
     assert "REQ-0001 -> REQ-0009" in summary
+
+
+def test_019_the_note_label_is_stripped_even_inside_italic_markup(tmp_path):
+    path = os.path.join(str(tmp_path), "input.docx")
+    note_cell = cell(
+        paragraph(run("Note : see annex.", italic=True)),
+    )
+    write_docx(
+        path,
+        [
+            table(
+                row(cell(paragraph("REQ-1", style="ReqId"))),
+                row(cell(paragraph("T", style="ReqTitle"))),
+                row(cell(paragraph("Version:")), cell(paragraph("V0"))),
+                row(cell(paragraph("Linked Req:")), cell(paragraph("-"))),
+                row(cell(paragraph("Shall.", style="ReqText"))),
+                row(note_cell),
+            )
+        ],
+    )
+    blocks = DocxReader.read(path, TrackedChangesMode.ACCEPT)
+    text, _ = DocxToSDocConverter.build_sdoc_text(
+        blocks, _requirement_table_profile(), "Doc"
+    )
+    assert "NOTE: >>>\n*see annex.*\n<<<" in text

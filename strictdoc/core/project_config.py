@@ -199,6 +199,7 @@ class ProjectConfig:
         traceability_matrix_relation_columns: Optional[
             List[Tuple[str, Optional[str]]]
         ] = None,
+        docx_profile: Optional[str] = None,
         reqif_profile: str = ReqIFProfile.P01_SDOC,
         # FIXME: Change to true by default.
         reqif_multiline_is_xhtml: bool = False,
@@ -452,6 +453,9 @@ class ProjectConfig:
         #
         # ReqIF
         #
+        # Path of the Word profile used by the docx export, relative to the
+        # project root.
+        self.docx_profile: Optional[str] = docx_profile
         self.reqif_profile: str = reqif_profile
 
         assert isinstance(reqif_multiline_is_xhtml, bool), (

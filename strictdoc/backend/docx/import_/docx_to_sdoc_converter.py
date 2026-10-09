@@ -288,7 +288,13 @@ def _note_paragraphs(
             text = re.sub(
                 rf"^{re.escape(note_label)}\s*:?\s*", "", text, count=1
             )
-            rst = re.sub(rf"^{re.escape(note_label)}\s*:?\s*", "", rst, count=1)
+            # The label may sit inside the opening markup of a styled run.
+            rst = re.sub(
+                rf"^((?:\*\*|\*|``)?){re.escape(note_label)}\s*:?\s*",
+                r"\1",
+                rst,
+                count=1,
+            )
         if len(text.strip()) > 0:
             kept.append(
                 DocxParagraph(

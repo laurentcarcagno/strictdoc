@@ -3898,9 +3898,7 @@ The command ``strictdoc convert`` reads the document and writes an SDoc file.
 Headings become sections. Requirement tables become requirements. Other
 paragraphs and tables become text.
 
-.. note::
-
-    Only import is supported. Export to Word is not implemented yet.
+StrictDoc also exports an SDoc project to Word.
 <<<
 
 [[SECTION]]
@@ -4034,6 +4032,77 @@ describes the layout. It is a Python file that defines ``create_profile()``.
 The importer writes a document grammar with the fields UID, the ``meta_rows``
 fields, TITLE, STATEMENT and the note field, plus Parent and File relations.
 <<<
+
+[[/SECTION]]
+
+[[SECTION]]
+MID: 3fd016bfdeed484ba0c26584780a35d1
+TITLE: Export flow (SDoc -> Word)
+
+[TEXT]
+MID: bccc5b871cd04ed383db98395c0647d3
+STATEMENT: >>>
+.. code:: text
+
+    strictdoc export . --formats=docx --output-dir output
+
+StrictDoc writes one ``.docx`` file per document, in ``output/docx/``.
+
+The export uses the same profile as the import. Name it in the project
+configuration. The path is relative to the project root:
+
+.. code:: python
+
+    from strictdoc.core.project_config import ProjectConfig
+
+
+    def create_config() -> ProjectConfig:
+        return ProjectConfig(
+            project_title="My project",
+            docx_profile="docs/word_profile.py",
+        )
+
+Importing the exported file with the same profile gives back the same SDoc
+file.
+<<<
+
+[[SECTION]]
+MID: e81f53c5f8d24b46822c95a580bc0d8e
+TITLE: Template
+
+[TEXT]
+MID: 351f66bbb1b142018e15e65e6f795525
+STATEMENT: >>>
+The ``template`` field of the profile names a ``.docx`` file. A relative path
+is resolved against the profile file.
+
+.. code:: python
+
+    DocxProfile(
+        requirement_table=DocxRequirementTable(...),
+        template="template.docx",
+    )
+
+The template supplies:
+
+- the styles, numbering, headers, footers and page setup,
+- the front matter: everything before the first heading that follows the table
+  of contents, such as the cover page,
+- the look of a requirement: the first table of the template whose first
+  paragraph has the style ``id_style``.
+
+StrictDoc replaces the rest of the template body with the exported content.
+Tables of contents in the front matter are marked for update, and Word asks to
+update them when it opens the file.
+
+Without a template, StrictDoc builds a minimal one from the profile.
+
+Content with no place in Word is not exported: extra fields that the profile
+does not name, and File relations. A Word table is written for every
+requirement. Tables of contents have no page numbers until Word updates them.
+<<<
+
+[[/SECTION]]
 
 [[/SECTION]]
 

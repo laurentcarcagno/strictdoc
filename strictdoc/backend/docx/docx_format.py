@@ -3,6 +3,7 @@ import os
 import sys
 from typing import List
 
+from strictdoc.backend.docx.docx_export import DocxExport
 from strictdoc.backend.docx.docx_import import DocxImport, DocxImportOptions
 from strictdoc.backend.docx.import_.docx_reader import TrackedChangesMode
 from strictdoc.backend.sdoc.models.document import SDocDocument
@@ -26,7 +27,7 @@ class DocxFormat(Format):
 
     @staticmethod
     def supports_export() -> bool:
-        return False
+        return True
 
     @staticmethod
     def supports_read() -> bool:
@@ -109,4 +110,9 @@ class DocxFormat(Format):
         return os.path.splitext(os.path.basename(convert_config.input_path))[0]
 
     def export_complete_tree(self, context: ExportContext, handle: str) -> None:
-        raise NotImplementedError("Exporting to Word is not implemented yet.")
+        assert handle in self.handles(), handle
+        DocxExport.export_tree(
+            context.traceability_index,
+            os.path.join(context.project_config.output_dir, "docx"),
+            context.project_config,
+        )

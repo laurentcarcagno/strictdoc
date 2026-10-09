@@ -1,0 +1,19 @@
+# The template supplies the front matter and the look of a requirement. The
+# content of the template body from the first heading on is replaced.
+
+RUN: %mkdir %T
+RUN: %strictdoc export %S/input --formats=docx --output-dir %T/out
+RUN: python -c "import sys, zipfile; sys.stdout.write(zipfile.ZipFile(sys.argv[1]).read('word/document.xml').decode().replace('><', '>\n<'))" %T/out/docx/input.docx | filecheck %s
+CHECK: COVER PAGE
+CHECK: w:dirty="true"
+CHECK: w:fill="D9E2F3"
+CHECK: SYS-0001
+CHECK-NOT: Template chapter
+
+RUN: python -c "import sys, zipfile; sys.stdout.write(zipfile.ZipFile(sys.argv[1]).read('word/settings.xml').decode().replace('><', '>\n<'))" %T/out/docx/input.docx | filecheck %s --check-prefix CHECK-SETTINGS
+CHECK-SETTINGS: <w:updateFields w:val="true"/>
+
+# The front matter comes back as text, since it is part of the document.
+RUN: %mkdir %T/back
+RUN: %strictdoc convert %T/out/docx/input.docx %T/back --docx-profile %S/input/profile.py | filecheck %s --check-prefix CHECK-BACK
+CHECK-BACK: Word import: 2 requirement(s), 4 section(s)
