@@ -938,10 +938,7 @@ class ProjectConfig:
                 f"config: relation_policy: '{self.relation_policy}' is not "
                 f"one of {', '.join(RELATION_POLICIES)}."
             )
-        if (
-            self.relation_policy != "off"
-            and len(self.document_hierarchy) == 0
-        ):
+        if self.relation_policy != "off" and len(self.document_hierarchy) == 0:
             raise StrictDocException(
                 "config: relation_policy needs a document_hierarchy."
             )

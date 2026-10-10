@@ -19,6 +19,7 @@ The ``X-Auth-Request-*`` headers are never read: the proxy does not replace
 them when a client sends them.
 """
 
+from contextvars import ContextVar
 from dataclasses import dataclass
 from typing import Mapping, Optional, Tuple
 
@@ -28,6 +29,13 @@ HEADER_EMAIL = "x-forwarded-email"
 HEADER_GROUPS = "x-forwarded-groups"
 
 _ROLE_PREFIX = "role:"
+
+# The role of the user whose request is being served, for code that has no
+# request at hand (the can_edit_* predicates of the traceability index). Set by
+# PrincipalMiddleware for the duration of the request.
+CURRENT_ROLE: ContextVar[Optional[str]] = ContextVar(
+    "strictdoc_current_role", default=None
+)
 
 ANONYMOUS_USER = "anonymous"
 

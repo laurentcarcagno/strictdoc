@@ -27,6 +27,7 @@ from typing import (
 )
 
 from strictdoc.features.roles.principal import (
+    CURRENT_ROLE,
     Principal,
     principal_from_headers,
 )
@@ -89,7 +90,11 @@ class PrincipalMiddleware:
             await self._refuse(scope, send)
             return
         scope.setdefault("state", {})["principal"] = principal
-        await self.app(scope, receive, send)
+        token = CURRENT_ROLE.set(principal.role)
+        try:
+            await self.app(scope, receive, send)
+        finally:
+            CURRENT_ROLE.reset(token)
 
     def _principal(self, scope: Scope) -> Optional[Principal]:
         if self.auth_mode == AUTH_MODE_NONE:

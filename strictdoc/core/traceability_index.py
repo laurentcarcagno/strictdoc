@@ -42,12 +42,21 @@ from strictdoc.core.transforms.validation_error import (
 )
 from strictdoc.core.tree_cycle_detector import TreeCycleDetector
 from strictdoc.core.validation_index import ValidationIndex
+from strictdoc.features.hierarchy.levels import is_input_document
+from strictdoc.features.roles.principal import CURRENT_ROLE
+from strictdoc.features.roles.roles import ROLE_ADMINISTRATOR
 from strictdoc.helpers.cast import assert_cast, assert_optional_cast
 from strictdoc.helpers.file_modification_time import set_file_modification_time
 from strictdoc.helpers.mid import MID
 from strictdoc.helpers.ordered_set import OrderedSet
 from strictdoc.helpers.paths import SDocRelativePath
 from strictdoc.helpers.sorting import alphanumeric_sort
+
+
+def _document_of(node: Union[SDocDocument, SDocNode]) -> SDocDocument:
+    if isinstance(node, SDocDocument):
+        return node
+    return node.get_parent_or_including_document()
 
 
 class TraceabilityIndex:
@@ -74,6 +83,8 @@ class TraceabilityIndex:
         )
         self.node_filter: Optional[NodeFilter] = None
         self.pending_inline_links: List[InlineLink] = []
+        # Set by the builder from the project options (features/hierarchy).
+        self.input_documents_editable: bool = False
 
         self.index_last_updated = datetime.datetime.today()
         self.contains_included_documents = False
@@ -135,9 +146,19 @@ class TraceabilityIndex:
 
     def can_edit_document(self, document: SDocDocument) -> bool:
         assert isinstance(document, SDocDocument), document
-        return not document.autogen
+        return not document.autogen and self.input_allows_edit(document)
 
     def can_edit_node(self, node: Union[SDocDocument, SDocNode]) -> bool:
+        assert isinstance(node, (SDocDocument, SDocNode)), node
+        return self.can_comment_node(node) and self.input_allows_edit(
+            _document_of(node)
+        )
+
+    def can_comment_node(self, node: Union[SDocDocument, SDocNode]) -> bool:
+        """
+        A review comment is allowed everywhere except in generated content,
+        also in an input document that is read-only for editing.
+        """
         assert isinstance(node, (SDocDocument, SDocNode)), node
         if isinstance(node, SDocDocument):
             return not node.autogen
@@ -147,8 +168,22 @@ class TraceabilityIndex:
 
         return True
 
+    def input_allows_edit(self, document: SDocDocument) -> bool:
+        """
+        An input document (KIND: input) is read-only, unless the project allows
+        its editing and the current user is an administrator.
+        """
+        if not is_input_document(document):
+            return True
+        return (
+            self.input_documents_editable
+            and CURRENT_ROLE.get() == ROLE_ADMINISTRATOR
+        )
+
     def can_delete_node(self, node: Union[SDocDocument, SDocNode]) -> bool:
         assert isinstance(node, (SDocDocument, SDocNode)), node
+        if not self.input_allows_edit(_document_of(node)):
+            return False
         if isinstance(node, SDocDocument):
             return not node.autogen
 
@@ -166,6 +201,8 @@ class TraceabilityIndex:
 
     def can_add_node(self, node: Union[SDocDocument, SDocNode]) -> bool:
         assert isinstance(node, (SDocDocument, SDocNode)), node
+        if not self.input_allows_edit(_document_of(node)):
+            return False
         if isinstance(node, SDocDocument):
             return not node.autogen
 
@@ -178,6 +215,8 @@ class TraceabilityIndex:
         self, node: Union[SDocDocument, SDocNode]
     ) -> bool:
         assert isinstance(node, (SDocDocument, SDocNode)), node
+        if not self.input_allows_edit(_document_of(node)):
+            return False
         if isinstance(node, SDocDocument):
             return True
 

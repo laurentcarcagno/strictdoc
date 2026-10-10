@@ -360,6 +360,9 @@ class TraceabilityIndexBuilder:
             graph_database=graph_database,
             file_dependency_manager=file_dependency_manager,
         )
+        traceability_index.input_documents_editable = (
+            project_config.input_documents_editable
+        )
 
         # It seems to be impossible to accomplish everything in just one for
         # loop. One particular problem that requires two passes: it is not

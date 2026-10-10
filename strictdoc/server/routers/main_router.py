@@ -138,6 +138,7 @@ from strictdoc.export.html.generators.view_objects.server_error_view_object impo
 from strictdoc.export.html.renderers.link_renderer import LinkRenderer
 from strictdoc.export.html.renderers.markup_renderer import MarkupRenderer
 from strictdoc.features.comments.router import create_comments_routers
+from strictdoc.features.hierarchy.guard import create_input_guard
 from strictdoc.features.html2pdf.generator import (
     DocumentHTML2PDFGenerator,
 )
@@ -327,7 +328,10 @@ def create_main_router(
 
     router = APIRouter()
     read_router = APIRouter(dependencies=[Depends(read_lock)])
-    write_router = APIRouter(dependencies=[Depends(write_lock)])
+    input_guard = create_input_guard(lambda: export_action.traceability_index)
+    write_router = APIRouter(
+        dependencies=[Depends(write_lock), Depends(input_guard)]
+    )
 
     @router.get("/")
     def get_root(request: Request) -> Response:
