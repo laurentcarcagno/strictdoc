@@ -18,7 +18,6 @@ from strictdoc.features.roles.roles import (
     ROLE_ADMINISTRATOR,
     ROLE_AUTHOR,
     ROLE_READER,
-    ROLE_REVIEWER,
 )
 
 RouteKey = Tuple[str, str]
@@ -60,14 +59,20 @@ ROUTE_ROLES: Dict[RouteKey, str] = {
         "POST /docx/export",
         "WS /ws/{client_id}",
     ),
+    # Any member may reach these; the route then checks that the user is a
+    # reviewer of the document (strictdoc/features/reviewers).
     **_routes(
-        ROLE_REVIEWER,
+        ROLE_READER,
         "POST /actions/comments/add",
         "POST /actions/comments/edit",
         "POST /actions/comments/delete",
     ),
     **_routes(
         ROLE_AUTHOR,
+        "GET /actions/project_index/new_document",
+        "POST /actions/project_index/create_document",
+        "GET /actions/reviewers/form",
+        "POST /actions/reviewers/set",
         "GET /actions/document/new_requirement",
         "GET /actions/document/clone_requirement",
         "GET /actions/document/edit_requirement",
@@ -105,7 +110,6 @@ ROUTE_ROLES: Dict[RouteKey, str] = {
     ),
     **_routes(
         ROLE_ADMINISTRATOR,
-        "GET /actions/project_index/new_document",
         "GET /actions/project_index/edit_project_title_form",
         "GET /actions/project_index/import_reqif_document_form",
         "GET /actions/document/edit_config",
@@ -123,6 +127,9 @@ ROUTE_ROLES: Dict[RouteKey, str] = {
         "GET /actions/table/get_document_custom_meta_new_inline",
         "GET /__nestor",
         "GET /audit",
+        "GET /members",
+        "POST /actions/members/set",
+        "POST /actions/members/remove",
         "POST /actions/suspect/baseline",
         "POST /actions/hierarchy/resolve_references",
         # FastAPI's own documentation of the routes (disabled behind a login
@@ -132,7 +139,6 @@ ROUTE_ROLES: Dict[RouteKey, str] = {
         "GET /docs/oauth2-redirect",
         "GET /redoc",
         "POST /actions/project_index/save_project_title",
-        "POST /actions/project_index/create_document",
         "POST /actions/project_index/import_document_reqif",
         "POST /actions/document/save_config",
         "POST /actions/document/save_included_document",

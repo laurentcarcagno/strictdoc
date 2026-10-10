@@ -31,6 +31,16 @@
     data-testid="document-edit-config-action-disabled"
   {% endif %}
   >{% include "icons/ico16_edit.svg" %}</a>
+  {# REVIEWERS (project feature COMMENTS): who may comment on this document. #}
+  {%- if view_object.project_config.is_activated_comments() %}
+  <a
+    href="/actions/reviewers/form?document_mid={{ view_object.document.reserved_mid }}"
+    class="action_button"
+    title="Reviewers: {{ view_object.node_reviewers(view_object.document) or 'none' }}"
+    data-requires-role="author"
+    data-testid="document-reviewers-action"
+  >{% include "icons/ico16_comment.svg" %}</a>
+  {%- endif %}
   {%- endif -%}
 
   {# EDIT & DELETE:
@@ -87,6 +97,7 @@
     class="action_button action_button--comment"
     title="Comment (select some text first to comment on it)"
     data-testid="node-comment-action"
+    data-reviewers="{{ view_object.node_reviewers(sdoc_entity) }}"
     data-comment-open="{{ sdoc_entity.reserved_mid }}"
   >{% include "icons/ico16_comment.svg" %}</a>
 {%- endif -%}

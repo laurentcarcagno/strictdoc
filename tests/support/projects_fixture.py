@@ -77,7 +77,11 @@ def make_specs(root: Path) -> List[ProjectSpec]:
 
 
 def make_dispatcher(
-    root: Path, monkeypatch=None, proxy: bool = True
+    root: Path,
+    monkeypatch=None,
+    proxy: bool = True,
+    platform_admins=None,
+    comments: bool = False,
 ) -> ProjectDispatcher:
     if monkeypatch is not None:
         if proxy:
@@ -85,9 +89,16 @@ def make_dispatcher(
             monkeypatch.setenv("STRICTDOC_TRUSTED_PROXIES", "10.89.2.0/24")
         else:
             monkeypatch.delenv("STRICTDOC_AUTH_MODE", raising=False)
+    specs = make_specs(root)
+    if comments:
+        for spec_ in specs:
+            (Path(spec_.path) / "strictdoc.toml").write_text(
+                '[project]\nfeatures = ["COMMENTS"]\n', encoding="utf8"
+            )
     return create_projects_app(
         create_app=create_app,
-        specs=make_specs(root),
+        platform_admin_groups=platform_admins,
+        specs=specs,
         root_host=ROOT,
         output_root=str(root / "output"),
         audit_root=str(root / "audit"),

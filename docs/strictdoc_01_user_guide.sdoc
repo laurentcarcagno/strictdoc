@@ -4548,7 +4548,33 @@ the ``STRICTDOC_ROLES`` variable of a one-project deployment does not apply.
 ``STRICTDOC_AUDIT_DIR`` names the folder that holds one audit folder per project.
 ``archived=True`` makes the project read-only for everybody. The login proxy
 (``auth_mode``) is the same for all the projects. Projects are added by editing
-the registry and restarting the server.
+the registry and restarting the server, or created by an administrator from
+the portal (see below).
+
+**Projects and members created in the portal.** An administrator of the platform
+(a group that is administrator in every project of the registry, or the groups of
+``STRICTDOC_PLATFORM_ADMINS``, comma separated) sees a *New project* form on the
+portal. A project gets a name (the slug) and a title; its folder is created under
+``--data-root`` with a ``strictdoc.toml`` (tables, traceability, search and the
+``COMMENTS`` feature), it is served at once, with no restart, and the creator is
+its administrator. The projects created this way and the member lists of all the
+projects are kept in ``projects.json``, next to the registry file.
+
+The administrator of a project opens its **Members** page (the link in the portal,
+or ``/members`` in the project), adds people by their user name (the one that
+``/whoami`` shows) and gives each a role. A member has the highest role between the
+one of the list and the one of the groups of the login server. Every member reads
+all the documents of the project. The roles are: reader (reads), reviewer (reads and
+comments on every document), author (writes, creates documents and names their
+reviewers) and administrator (also manages the members).
+
+**Reviewers of a document.** With the ``COMMENTS`` feature, the form that creates a
+document has a *Reviewers* field: the user names, separated by commas. In a project
+with a member list they must be members. The names are stored in the metadata of the
+document (``REVIEWERS: ann, bob``). A reviewer may comment on that document even if
+the project role is reader; an author or administrator, and a project-wide
+reviewer, may comment on all of them. An author changes the reviewers later with the
+person icon in the document header. The server refuses a comment from anybody else.
 
 All the projects share one process: a long operation in one slows the others, and
 a crash stops all. The memory cost of one more project is small (see the plan).

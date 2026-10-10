@@ -138,6 +138,12 @@ from strictdoc.export.html.generators.view_objects.server_error_view_object impo
 from strictdoc.export.html.renderers.link_renderer import LinkRenderer
 from strictdoc.export.html.renderers.markup_renderer import MarkupRenderer
 from strictdoc.features.comments.router import create_comments_routers
+from strictdoc.features.reviewers.reviewers import (
+    parse_reviewers,
+    set_document_reviewers,
+    unknown_reviewers,
+)
+from strictdoc.features.reviewers.router import create_reviewers_routers
 from strictdoc.features.hierarchy.guard import create_input_guard
 from strictdoc.features.hierarchy.router import (
     create_baseline_sync,
@@ -3195,6 +3201,10 @@ def create_main_router(
             },
         )
 
+    def _member_names() -> List[str]:
+        members = project_config.members_admin
+        return list(members.listing()) if members is not None else []
+
     @read_router.get(
         "/actions/project_index/new_document", response_class=Response
     )
@@ -3208,6 +3218,9 @@ def create_main_router(
             error_object=ErrorObject(),
             document_title="",
             document_path="",
+            show_reviewers=project_config.is_activated_comments(),
+            reviewers="",
+            member_names=_member_names(),
             include_doc_paths=project_config.include_doc_paths,
             editable_document_extensions=(
                 project_config.get_editable_document_extensions()
@@ -3396,6 +3409,7 @@ def create_main_router(
     def document_tree__create_document(
         document_title: str = Form(""),
         document_path: str = Form(""),
+        reviewers: str = Form(""),
     ) -> Response:
         """
         @relation(SDOC-SRS-107, scope=function)
@@ -3421,6 +3435,18 @@ def create_main_router(
                         "and underscore symbols."
                     ),
                 )
+
+        reviewer_names = parse_reviewers(reviewers)
+        members = project_config.members_admin
+        not_members = unknown_reviewers(
+            reviewer_names,
+            members.is_member if members is not None else None,
+        )
+        if len(not_members) > 0:
+            error_object.add_error(
+                "reviewers",
+                "Not members of the project: " + ", ".join(not_members) + ".",
+            )
 
         if project_config.include_doc_paths is not None:
             path_filter_includes = PathFilter(
@@ -3473,6 +3499,9 @@ def create_main_router(
                 document_path=document_path
                 if document_path is not None
                 else "",
+                show_reviewers=project_config.is_activated_comments(),
+                reviewers=reviewers,
+                member_names=_member_names(),
                 include_doc_paths=project_config.include_doc_paths,
                 editable_document_extensions=editable_document_extensions,
             )
@@ -3514,6 +3543,8 @@ def create_main_router(
             grammar=DocumentGrammar.create_default(parent=None),
             section_contents=[],
         )
+        if len(reviewer_names) > 0:
+            set_document_reviewers(document, reviewer_names)
         # FIXME: Fill in the document meta correctly.
         document.meta = DocumentMeta(
             level=0,
@@ -5108,6 +5139,12 @@ def create_main_router(
     )
     read_router.include_router(comments_read_router)
     write_router.include_router(comments_write_router)
+
+    reviewers_read_router, reviewers_write_router = create_reviewers_routers(
+        context=context
+    )
+    read_router.include_router(reviewers_read_router)
+    write_router.include_router(reviewers_write_router)
 
     def rebuild_index_and_export() -> None:
         export_action.build_index()

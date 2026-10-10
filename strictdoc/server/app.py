@@ -17,7 +17,9 @@ from starlette.responses import Response
 from strictdoc import __version__
 from strictdoc.core.project_config import ProjectConfig
 from strictdoc.features.projects.app import create_projects_app
+from strictdoc.features.projects.members_router import create_members_router
 from strictdoc.features.projects.registry import load_registry
+from strictdoc.features.projects.store import ProjectStore
 from strictdoc.features.roles.audit import AuditLog, AuditMiddleware
 from strictdoc.features.roles.enforcement import RoleMiddleware
 from strictdoc.features.roles.middleware import PrincipalMiddleware
@@ -159,6 +161,7 @@ def create_app(*, project_config: ProjectConfig) -> FastAPI:
         auth_mode=project_config.auth_mode,
         trusted_proxies=project_config.trusted_proxies,
         roles=project_config.roles,
+        member_role=project_config.member_role,
     )
 
     # Outermost: every SVG file the application serves gets the safe headers.
@@ -167,6 +170,12 @@ def create_app(*, project_config: ProjectConfig) -> FastAPI:
     lock_manager = HierarchicalRWLockManager()
 
     app.include_router(create_roles_router(project_config.auth_mode, audit_log))
+    if project_config.members_admin is not None:
+        app.include_router(
+            create_members_router(
+                project_config.members_admin, project_config.project_title
+            )
+        )
 
     app.include_router(
         create_other_router(
@@ -218,13 +227,23 @@ def strictdoc_projects_app() -> Any:
     """The application of a server with several projects."""
     register_code_coverage_hook()
     data_root = os.environ.get(SDocServerEnvVariable.DATA_ROOT)
+    projects_file = os.environ[SDocServerEnvVariable.PROJECTS_FILE]
     return create_projects_app(
         create_app=create_app,
-        specs=load_registry(
-            os.environ[SDocServerEnvVariable.PROJECTS_FILE], data_root
-        ),
+        specs=load_registry(projects_file, data_root),
         root_host=os.environ[SDocServerEnvVariable.ROOT_HOST],
         output_root=os.environ[SDocServerEnvVariable.OUTPUT_ROOT],
         audit_root=os.environ.get("STRICTDOC_AUDIT_DIR"),
         data_root=data_root,
+        # The projects and members that administrators set, next to the registry.
+        store=ProjectStore(
+            os.path.join(
+                os.path.dirname(os.path.abspath(projects_file)), "projects.json"
+            )
+        ),
+        platform_admin_groups=(
+            [g_ for g_ in platform.split(",") if g_.strip()]
+            if (platform := os.environ.get("STRICTDOC_PLATFORM_ADMINS"))
+            else None
+        ),
     )

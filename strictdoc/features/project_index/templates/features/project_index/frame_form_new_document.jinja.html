@@ -67,6 +67,33 @@ Add new document
         </sdoc-form-row-main>
         <sdoc-form-row-aside></sdoc-form-row-aside>
       </sdoc-form-row>
+
+      {%- if show_reviewers %}
+      <sdoc-form-row>
+        <sdoc-form-row-aside></sdoc-form-row-aside>
+        <sdoc-form-row-main>
+          {%- with
+            field_class_name=none,
+            field_editable=true,
+            field_input_name="reviewers",
+            field_label="reviewers (user names, separated by commas)",
+            field_placeholder="Optional: who may comment on this document...",
+            field_type="singleline",
+            field_value=reviewers,
+            testid_postfix="reviewers",
+            errors=error_object.get_errors("reviewers")
+          -%}
+            {%- include "components/form/field/contenteditable/index.jinja" %}
+          {%- endwith -%}
+          {%- if member_names -%}
+          <sdoc-form-hint>
+            ☞ Members: {{ member_names | join(", ") }}
+          </sdoc-form-hint>
+          {%- endif -%}
+        </sdoc-form-row-main>
+        <sdoc-form-row-aside></sdoc-form-row-aside>
+      </sdoc-form-row>
+      {%- endif %}
     </sdoc-form-grid>
   </form>
 {% endblock modal_form__content %}

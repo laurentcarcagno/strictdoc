@@ -518,6 +518,11 @@ class ProjectConfig:
                 role_: list(groups_) for role_, groups_ in (roles or {}).items()
             }
         )
+        # Set by a server with several projects (features/projects): the role
+        # that the member list gives to a user name, and the object that
+        # changes the member list. Not options of the project file.
+        self.member_role: Optional[Callable[[str], Optional[str]]] = None
+        self.members_admin: Optional[Any] = None
         # The levels of the document hierarchy (see features/hierarchy), the
         # check of the Parent relations against them, whether an
         # administrator may edit an input document, and the short names of the

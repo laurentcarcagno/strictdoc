@@ -69,6 +69,7 @@ from strictdoc.features.comments.service import (
     supports_comments,
 )
 from strictdoc.features.hierarchy.suspect import suspect_parents
+from strictdoc.features.reviewers.reviewers import document_reviewers
 from strictdoc.helpers.cast import assert_cast
 from strictdoc.helpers.file_system import file_open_read_utf8
 from strictdoc.helpers.git_client import GitClient
@@ -191,6 +192,13 @@ class DocumentScreenViewObject:
 
     def node_supports_comments(self, node: SDocNode) -> bool:
         return supports_comments(node)
+
+    def node_reviewers(self, node: Any) -> str:
+        """The reviewers of the document of a node (or of a document)."""
+        document = (
+            node if isinstance(node, SDocDocument) else node.get_document()
+        )
+        return ",".join(document_reviewers(document)) if document else ""
 
     def suspect_parents(self, node: SDocNode) -> List[str]:
         """The parents of a node that changed since the link was reviewed."""

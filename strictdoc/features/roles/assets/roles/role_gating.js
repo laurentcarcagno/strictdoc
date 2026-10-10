@@ -4,10 +4,34 @@
 (() => {
   const KEY = 'sdoc-whoami';
   const root = document.documentElement;
+  let observing = false;
+
+  // A reader that a document names as a reviewer may comment on it: the
+  // Comment buttons of that document say who its reviewers are.
+  function markCommenters() {
+    const user = (root.dataset.user || '').toLowerCase();
+    document.querySelectorAll('[data-reviewers]').forEach((button) => {
+      const names = button.dataset.reviewers.split(',');
+      if (user && names.includes(user)) button.dataset.canComment = '1';
+    });
+  }
 
   function apply(who) {
     root.dataset.role = who.role || 'none';
     root.dataset.user = who.user || '';
+    markCommenters();
+    if (!observing) {
+      observing = true;
+      let pending = false;
+      new MutationObserver(() => {
+        if (pending) return;
+        pending = true;
+        requestAnimationFrame(() => {
+          pending = false;
+          markCommenters();
+        });
+      }).observe(document.documentElement, { childList: true, subtree: true });
+    }
   }
 
   function showBadge(who) {

@@ -158,5 +158,23 @@ P1 to P4 are done on branch `feature/projects`; the deploy support of P5 is writ
   `/etc/hosts` entries per project for the server itself, a `/healthz` check. Checked: `bash -n`, the generated Caddy block validates with Caddy, and
   **open question 1 is answered: Caddy's internal CA signs the wildcard name** (checked with a throwaway Caddy, SAN `*.strictdoc.<domain>`).
   Not checked live: the whole script in `--projects` mode, the login across two hosts (`check_login.py` for two projects).
-- Not done: the SeleniumBase end2end on two hosts (the unit_server tests and the real-process test cover the isolation); a "create project" screen (file-based, as proposed).
+- Not done: the SeleniumBase end2end on two hosts (the unit_server tests and the real-process test cover the isolation).
 - Limits: all projects share the Python process (a heavy export in one slows the others, a crash stops all); `auth_mode` is the same for every project.
+
+### Delivered later: projects and members created in the portal, reviewers per document
+
+Branch `feature/membership`. The "create project" screen that was left out is done, with members and reviewers:
+
+- `features/projects/store.py`: `ProjectStore`, one JSON file `projects.json` next to the registry (projects created by administrators, members of every project,
+  atomic write). A member is a user name (lower case) with one of the four roles.
+- `manager.py`: `ProjectManager` creates the folder and a `strictdoc.toml` (tables, traceability, search, `COMMENTS`), builds the application, adds it to the
+  dispatcher and starts its lifespan, with no restart. Platform administrators: the groups that are administrators of every registry project, or
+  `STRICTDOC_PLATFORM_ADMINS`. A project created this way takes the groups of the platform administrators as its administrators plus its member list.
+- `PrincipalMiddleware` takes the highest of the role of the groups and the role of the member list. `members_router.py`: `/members` and
+  `/actions/members/set|remove`, administrator only. The portal has a "New project" form (platform administrators) and a Members link.
+- `features/reviewers/`: the reviewers of a document are the custom metadata `REVIEWERS: ann, bob`. The comment routes now accept any member and check
+  `can_comment` (author or above, a project-wide reviewer, or a reviewer named on the document); the Comment button of a reader appears only on the
+  documents that name them. Creating a document needs the author role (it was administrator) and its form has a Reviewers field with the COMMENTS feature.
+- Tests: `tests/unit_server/.../49_membership`, `tests/unit/.../membership`, and an end2end test of the form (`create_document_with_reviewers`).
+- Not done: member names are not checked against Keycloak (a typo gives a member who never logs in); no invitation by e-mail; the live instance still runs one
+  project (`--projects` is not deployed yet).

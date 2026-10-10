@@ -31,7 +31,11 @@ from strictdoc.features.roles.principal import (
     Principal,
     principal_from_headers,
 )
-from strictdoc.features.roles.roles import resolve_role, validate_roles
+from strictdoc.features.roles.roles import (
+    resolve_role,
+    role_rank,
+    validate_roles,
+)
 
 AUTH_MODE_NONE = "none"
 AUTH_MODE_PROXY = "proxy"
@@ -58,6 +62,7 @@ class PrincipalMiddleware:
         auth_mode: str = AUTH_MODE_NONE,
         trusted_proxies: Sequence[str] = (),
         roles: Optional[Mapping[str, Sequence[str]]] = None,
+        member_role: Optional[Callable[[str], Optional[str]]] = None,
     ) -> None:
         if auth_mode not in AUTH_MODES:
             raise ValueError(
@@ -70,13 +75,19 @@ class PrincipalMiddleware:
                 "oauth2-proxy connects from."
             )
         self._roles = validate_roles(roles or {})
-        if auth_mode == AUTH_MODE_PROXY and len(self._roles) == 0:
+        if (
+            auth_mode == AUTH_MODE_PROXY
+            and len(self._roles) == 0
+            and member_role is None
+        ):
             raise ValueError(
                 "auth_mode 'proxy' needs roles: the groups of each role."
             )
         self.app = app
         self.auth_mode = auth_mode
         self._networks = networks
+        # The role that the member list of the project gives to a user name.
+        self._member_role = member_role
 
     async def __call__(
         self, scope: Scope, receive: Receive, send: Send
@@ -108,9 +119,14 @@ class PrincipalMiddleware:
         principal = principal_from_headers(headers)
         if principal is None:
             return None
-        return replace(
-            principal, role=resolve_role(principal.groups, self._roles)
-        )
+        role = resolve_role(principal.groups, self._roles)
+        if self._member_role is not None:
+            member = self._member_role(principal.user.lower())
+            if member is not None and (
+                role is None or role_rank(member) > role_rank(role)
+            ):
+                role = member
+        return replace(principal, role=role)
 
     def _is_trusted_peer(self, client: Optional[Any]) -> bool:
         if client is None:

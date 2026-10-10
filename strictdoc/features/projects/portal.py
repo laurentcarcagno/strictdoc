@@ -1,21 +1,24 @@
 """
 The portal: the page at the root host that lists the projects the user can
-open, with the role the user has in each one.
+open, with the role the user has in each one. A platform administrator also
+creates projects here; the administrator of a project reaches its members
+page from the list.
 """
 
 import datetime as dt
 import os
-from typing import Any, Dict, List, Mapping, Optional, Sequence
+from typing import Any, Dict, List, Optional
+from urllib.parse import urlsplit
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from starlette.applications import Starlette
 from starlette.requests import Request
-from starlette.responses import HTMLResponse
+from starlette.responses import HTMLResponse, RedirectResponse, Response
 from starlette.routing import Route
 
-from strictdoc.features.projects.registry import ProjectSpec
+from strictdoc.features.projects.manager import ProjectManager
 from strictdoc.features.roles.principal import Principal
-from strictdoc.features.roles.roles import ROLE_ADMINISTRATOR, resolve_role
+from strictdoc.helpers.exception import StrictDocException
 
 _TEMPLATES = Environment(
     loader=FileSystemLoader(
@@ -25,52 +28,88 @@ _TEMPLATES = Environment(
 )
 
 
-def role_in(
-    spec: ProjectSpec, principal: Principal, proxy: bool
-) -> Optional[str]:
-    """The role of the user in a project. None: the project is not for them."""
-    if not proxy:
-        return ROLE_ADMINISTRATOR
-    return resolve_role(principal.groups, spec.roles)
+def same_origin(request: Request) -> bool:
+    """False for a form posted from another site (the Origin header)."""
+    origin = request.headers.get("origin")
+    if origin is None:
+        return True
+    return urlsplit(origin).netloc == request.headers.get("host", "")
 
 
 def create_portal(
     *,
-    specs: Sequence[ProjectSpec],
-    contexts: Mapping[str, Any],
+    manager: ProjectManager,
     root_host: str,
-    proxy: bool,
 ) -> Starlette:
-    def home(request: Request) -> HTMLResponse:
-        principal: Principal = request.scope["state"]["principal"]
+    def project_url(request: Request, slug: str) -> str:
         scheme = request.headers.get("x-forwarded-proto", "http")
         port = request.headers.get("host", "").partition(":")[2]
+        return f"{scheme}://{slug}.{root_host}" + (f":{port}" if port else "")
+
+    def page(
+        request: Request,
+        error: Optional[str] = None,
+        slug: str = "",
+        title: str = "",
+        status_code: int = 200,
+    ) -> HTMLResponse:
+        principal: Principal = request.scope["state"]["principal"]
         rows: List[Dict[str, Any]] = []
-        for spec_ in specs:
-            role = role_in(spec_, principal, proxy)
+        for slug_, spec_ in manager.specs.items():
+            role = manager.role_in(slug_, principal)
             if role is None:
                 continue
-            context = contexts[spec_.slug]
-            index = context.export_action.traceability_index
+            index = manager.contexts[slug_].export_action.traceability_index
             rows.append(
                 {
                     "title": spec_.title,
-                    "slug": spec_.slug,
+                    "slug": slug_,
                     "role": role,
                     "archived": spec_.archived,
                     "documents": len(index.document_tree.document_list),
                     "last_change": _format_time(index.index_last_updated),
-                    "url": f"{scheme}://{spec_.slug}.{root_host}"
-                    + (f":{port}" if port else "")
-                    + "/",
+                    "url": project_url(request, slug_) + "/",
+                    "members_url": project_url(request, slug_) + "/members",
                 }
             )
-        page = _TEMPLATES.get_template("portal.jinja.html").render(
-            rows=rows, user=principal.user
+        output = _TEMPLATES.get_template("portal.jinja.html").render(
+            rows=rows,
+            user=principal.user,
+            can_create=manager.is_platform_admin(principal)
+            and manager.data_root is not None,
+            error=error,
+            slug=slug,
+            title=title,
         )
-        return HTMLResponse(page)
+        return HTMLResponse(output, status_code=status_code)
 
-    return Starlette(routes=[Route("/", home)])
+    def home(request: Request) -> HTMLResponse:
+        return page(request)
+
+    async def create(request: Request) -> Response:
+        principal: Principal = request.scope["state"]["principal"]
+        if not manager.is_platform_admin(principal):
+            return HTMLResponse(
+                "<h1>403</h1><p>Only an administrator creates projects.</p>",
+                status_code=403,
+            )
+        if not same_origin(request):
+            return HTMLResponse("<h1>403</h1>", status_code=403)
+        form = await request.form()
+        slug = str(form.get("slug", "")).strip().lower()
+        title = str(form.get("title", ""))
+        try:
+            await manager.create_project(slug, title, principal.user.lower())
+        except StrictDocException as exception_:
+            return page(request, str(exception_), slug, title, 422)
+        return RedirectResponse(project_url(request, slug) + "/", 303)
+
+    return Starlette(
+        routes=[
+            Route("/", home),
+            Route("/projects/create", create, methods=["POST"]),
+        ]
+    )
 
 
 def _format_time(moment: dt.datetime) -> str:

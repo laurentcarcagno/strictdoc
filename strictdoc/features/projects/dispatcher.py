@@ -41,6 +41,16 @@ class ProjectDispatcher:
         self.root_host = root_host.lower()
         self.portal = portal
         self.projects: Dict[str, ASGIApp] = dict(projects)
+        # Open while the lifespan runs: a project added then is started too.
+        self._stack: Optional[AsyncExitStack] = None
+
+    async def add_project(self, slug: str, app: ASGIApp) -> None:
+        """Serves a new project from now on, starting its lifespan."""
+        if self._stack is not None and hasattr(app, "router"):
+            await self._stack.enter_async_context(
+                app.router.lifespan_context(app)  # type: ignore[attr-defined]
+            )
+        self.projects[slug] = app
 
     def app_for(self, host: str) -> Optional[ASGIApp]:
         if host == self.root_host:
@@ -87,12 +97,14 @@ class ProjectDispatcher:
         """Starts the lifespan of every project and stops them in reverse."""
         await receive()  # lifespan.startup
         stack = AsyncExitStack()
+        self._stack = stack
         try:
             for app_ in self._lifespan_apps():
                 await stack.enter_async_context(
                     app_.router.lifespan_context(app_)
                 )
         except Exception as exception_:  # noqa: BLE001
+            self._stack = None
             await stack.aclose()
             await send(
                 {"type": "lifespan.startup.failed", "message": str(exception_)}
@@ -100,6 +112,7 @@ class ProjectDispatcher:
             return
         await send({"type": "lifespan.startup.complete"})
         await receive()  # lifespan.shutdown
+        self._stack = None
         await stack.aclose()
         await send({"type": "lifespan.shutdown.complete"})
 

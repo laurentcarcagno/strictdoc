@@ -15,3 +15,7 @@ class Form_AddDocument(Form):  # pylint: disable=invalid-name
     def do_fill_in_path(self, field_value: str) -> None:
         assert isinstance(field_value, str)
         super().do_fill_in("document_path", field_value)
+
+    def do_fill_in_reviewers(self, field_value: str) -> None:
+        assert isinstance(field_value, str)
+        super().do_fill_in("reviewers", field_value)
