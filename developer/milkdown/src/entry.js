@@ -17,6 +17,16 @@ import './sdoc_editor.css';
 const IMAGE_ERROR_CLASS = 'sdoc-markdown-editor__error';
 
 class SdocMarkdownEditor extends HTMLElement {
+  constructor() {
+    super();
+    // editable_field.js refuses every drop outside its own fields, at window
+    // level. The editor handles dropped images itself, so the drag events
+    // stop here (after the editor saw them) and never reach that guard.
+    for (const type of ['dragenter', 'dragover', 'dragleave', 'drop']) {
+      this.addEventListener(type, (event) => event.stopPropagation());
+    }
+  }
+
   connectedCallback() {
     // A generation counter makes a late create() of a removed element harmless.
     this._generation = (this._generation ?? 0) + 1;

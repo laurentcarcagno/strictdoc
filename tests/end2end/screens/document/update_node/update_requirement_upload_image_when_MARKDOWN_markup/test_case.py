@@ -48,8 +48,8 @@ class Test(E2ECase):
                 ],
             )
 
-            screen_document.assert_text("picture.svg")
-            screen_document.assert_text("picture.webp")
+            self.assert_element("sdoc-markdown-editor img[src$='picture.svg']")
+            self.assert_element("sdoc-markdown-editor img[src$='picture.webp']")
 
             form_edit_requirement.do_form_submit()
 

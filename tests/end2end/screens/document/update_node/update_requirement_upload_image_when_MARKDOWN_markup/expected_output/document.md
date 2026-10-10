@@ -8,7 +8,6 @@
 
 Requirement statement.
 
+![1.00](./_assets/a5c6b14d5ee443149687fb9be69a7ede/picture.svg)
 
-![](./_assets/a5c6b14d5ee443149687fb9be69a7ede/picture.svg)
-
-![](./_assets/a5c6b14d5ee443149687fb9be69a7ede/picture.webp)
+![1.00](./_assets/a5c6b14d5ee443149687fb9be69a7ede/picture.webp)
