@@ -104,7 +104,10 @@ def write_project(input_path: Path) -> None:
 
 
 def setup(
-    root: Path, policy: str = "off", editable: bool = False
+    root: Path,
+    policy: str = "off",
+    editable: bool = False,
+    suspect: bool = False,
 ) -> Tuple[TestClient, Path]:
     input_path = root / "input"
     write_project(input_path)
@@ -125,6 +128,7 @@ def setup(
     config.hierarchy_levels = validate_hierarchy(LEVELS)
     config.relation_policy = policy
     config.input_documents_editable = editable
+    config.suspect_links = suspect
     config.auth_mode = "proxy"
     config.trusted_proxies = ["10.89.2.0/24"]
     config.roles = ROLE_GROUPS

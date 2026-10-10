@@ -1,0 +1,11 @@
+{# suspect links #}
+{# needs sdoc_entity, see README.txt #}
+
+{% if view_object.project_config.suspect_links %}
+  {%- set suspect_uids = view_object.suspect_parents(sdoc_entity) %}
+  {%- if suspect_uids %}
+    <sdoc-suspect-badge data-testid="suspect-badge" style="display:inline-block;padding:2px 6px;border-radius:4px;background:#fde7e7;color:#a40000;font-size:12px" title="A parent changed since this link was reviewed">
+      Suspect: {{ suspect_uids|join(", ") }}
+    </sdoc-suspect-badge>
+  {%- endif %}
+{%- endif %}

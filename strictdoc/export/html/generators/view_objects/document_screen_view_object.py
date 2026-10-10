@@ -68,6 +68,7 @@ from strictdoc.features.comments.service import (
     comments_of,
     supports_comments,
 )
+from strictdoc.features.hierarchy.suspect import suspect_parents
 from strictdoc.helpers.cast import assert_cast
 from strictdoc.helpers.file_system import file_open_read_utf8
 from strictdoc.helpers.git_client import GitClient
@@ -190,6 +191,12 @@ class DocumentScreenViewObject:
 
     def node_supports_comments(self, node: SDocNode) -> bool:
         return supports_comments(node)
+
+    def suspect_parents(self, node: SDocNode) -> List[str]:
+        """The parents of a node that changed since the link was reviewed."""
+        return suspect_parents(
+            self.traceability_index, self.project_config, node
+        )
 
     def comment_panel_items(self, node: SDocNode) -> List[Dict[str, Any]]:
         """The comments of a node with their rendered text."""

@@ -219,6 +219,8 @@ class ProjectConfig:
         relation_policy: str = "off",
         input_documents_editable: bool = False,
         applicable_documents: Optional[Dict[str, str]] = None,
+        suspect_links: bool = False,
+        suspect_fields: Optional[List[str]] = None,
         reqif_profile: str = ReqIFProfile.P01_SDOC,
         # FIXME: Change to true by default.
         reqif_multiline_is_xhtml: bool = False,
@@ -524,6 +526,11 @@ class ProjectConfig:
         self.applicable_documents: Dict[str, str] = dict(
             applicable_documents or {}
         )
+        # Suspect links: a child is flagged when a parent changed after the
+        # link was reviewed. `suspect_fields` are the fields that count as the
+        # content of a parent (default: TITLE and STATEMENT).
+        self.suspect_links: bool = suspect_links
+        self.suspect_fields: List[str] = list(suspect_fields or [])
         self.reqif_profile: str = reqif_profile
 
         assert isinstance(reqif_multiline_is_xhtml, bool), (

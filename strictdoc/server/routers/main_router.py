@@ -139,6 +139,10 @@ from strictdoc.export.html.renderers.link_renderer import LinkRenderer
 from strictdoc.export.html.renderers.markup_renderer import MarkupRenderer
 from strictdoc.features.comments.router import create_comments_routers
 from strictdoc.features.hierarchy.guard import create_input_guard
+from strictdoc.features.hierarchy.router import (
+    create_baseline_sync,
+    create_hierarchy_routers,
+)
 from strictdoc.features.html2pdf.generator import (
     DocumentHTML2PDFGenerator,
 )
@@ -329,8 +333,15 @@ def create_main_router(
     router = APIRouter()
     read_router = APIRouter(dependencies=[Depends(read_lock)])
     input_guard = create_input_guard(lambda: export_action.traceability_index)
+    baseline_sync = create_baseline_sync(
+        project_config, lambda: export_action.traceability_index
+    )
     write_router = APIRouter(
-        dependencies=[Depends(write_lock), Depends(input_guard)]
+        dependencies=[
+            Depends(write_lock),
+            Depends(input_guard),
+            Depends(baseline_sync),
+        ]
     )
 
     @router.get("/")
@@ -5096,6 +5107,14 @@ def create_main_router(
     )
     read_router.include_router(comments_read_router)
     write_router.include_router(comments_write_router)
+
+    hierarchy_read_router, hierarchy_write_router = create_hierarchy_routers(
+        project_config=project_config,
+        get_index=lambda: export_action.traceability_index,
+        env=env,
+    )
+    read_router.include_router(hierarchy_read_router)
+    write_router.include_router(hierarchy_write_router)
 
     router.include_router(read_router)
     router.include_router(write_router)

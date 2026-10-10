@@ -52,6 +52,7 @@ ROUTE_ROLES: Dict[RouteKey, str] = {
         "GET /diff",
         "GET /diff_result",
         "GET /comments",
+        "GET /suspect_links",
         "GET /actions/project_index/export_docx_form",
         "POST /actions/project_index/export_docx_preview",
         "POST /docx/export",
@@ -92,6 +93,7 @@ ROUTE_ROLES: Dict[RouteKey, str] = {
         "DELETE /actions/document/delete_requirement",
         "POST /actions/comments/resolve",
         "POST /actions/comments/reopen",
+        "POST /actions/suspect/clear",
         "GET /actions/project_index/import_docx_form",
         "POST /actions/project_index/import_docx_preview",
         "POST /actions/project_index/import_docx",
@@ -116,6 +118,7 @@ ROUTE_ROLES: Dict[RouteKey, str] = {
         "GET /actions/table/get_document_custom_meta_new_inline",
         "GET /__nestor",
         "GET /audit",
+        "POST /actions/suspect/baseline",
         # FastAPI's own documentation of the routes (disabled behind a login
         # proxy, see create_app).
         "GET /openapi.json",
