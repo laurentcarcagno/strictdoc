@@ -110,6 +110,7 @@ ROUTE_ROLES: Dict[RouteKey, str] = {
         "GET /actions/table/get_document_custom_meta_inline",
         "GET /actions/table/get_document_custom_meta_new_inline",
         "GET /__nestor",
+        "GET /audit",
         # FastAPI's own documentation of the routes (disabled behind a login
         # proxy, see create_app).
         "GET /openapi.json",

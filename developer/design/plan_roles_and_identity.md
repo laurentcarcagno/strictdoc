@@ -145,6 +145,26 @@ removes the identity headers sent by clients (validated with `caddy validate`).
 and untrusted peers, forged headers, `X-Auth-Request-*` ignored, WebSocket refused, IPv4-in-IPv6 peer, configuration validation and the
 environment precedence. Not deployed yet: R5 deploys the identity together with the groups.
 
+### Delivered: R2 to R5 (2026-10-10)
+
+- **R2**: `strictdoc/features/roles/roles.py` (the four roles, `validate_roles`, `resolve_role`), `route_roles.py` (the table: 78 entries, every route has
+  one, the server refuses to start otherwise; the FastAPI documentation routes are administrator and are switched off in proxy mode),
+  `enforcement.py` (`RoleMiddleware`: 403 as a page for a browser and JSON otherwise; a WebSocket is closed with 4403). The route is found with the
+  table itself (most specific path wins), not with FastAPI's route objects, because recent FastAPI versions keep included routers in internal
+  objects; the completeness check opens them with `effective_route_contexts()` when it exists. A user in no group of the project gets 403 on
+  everything. `/whoami` shows the role. Option `roles`, environment `STRICTDOC_ROLES` (JSON); `proxy` without roles is a configuration error.
+- **R3** (changed from the plan): the pages of a document are cached and shared, so they cannot differ per user. The role is applied **in the
+  browser**: `roles/role_gating.js` sets `data-role` on `<html>` from `/whoami` and `role_gating.css` hides what the role cannot do (by `data-testid`,
+  no template change), and a badge shows the user and the role. The server remains the authority (R2).
+- **R4**: `audit.py`: `audit.jsonl`, rotated by size; one line per change (POST, PUT, PATCH, DELETE and the Nestor export) with user, role, route,
+  node or document identifier and status. **A refused attempt is logged too (status 403)**, which differs from the plan: an attempt is worth
+  knowing. Only behind the proxy. `/audit` (administrator) lists the last 200 lines, escaped. Option `audit_dir` / `STRICTDOC_AUDIT_DIR`.
+- **R5**: `strictdoc-deploy/deploy.sh` creates the Keycloak groups, passes `STRICTDOC_ROLES` and the audit folder (`~/strictdoc-audit`), recreates the
+  container when the roles change, and lets every member of a role group log in (`ROLE_GROUPS_*`; `infra-admins` stays administrator).
+  `check_roles.sh` tests the four roles on the deployed instance with temporary Keycloak users.
+- **Tests**: `tests/unit_server/strictdoc/server/41_identity` (12), `42_roles` (12, every route against every role), `43_audit_and_gating` (7),
+  and `strictdoc-dev/browser/check_roles.py` (23 checks in a real browser with one header-injecting proxy per role).
+
 ## 5. Files touched
 
 New: `strictdoc/features/roles/` (principal, dependency, classification table, audit log, templates for the audit screen), tests under

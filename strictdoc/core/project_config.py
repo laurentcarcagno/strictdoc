@@ -208,6 +208,7 @@ class ProjectConfig:
         auth_mode: str = "none",
         trusted_proxies: Optional[List[str]] = None,
         roles: Optional[Dict[str, List[str]]] = None,
+        audit_dir: Optional[str] = None,
         reqif_profile: str = ReqIFProfile.P01_SDOC,
         # FIXME: Change to true by default.
         reqif_multiline_is_xhtml: bool = False,
@@ -485,6 +486,11 @@ class ProjectConfig:
             ]
             if environment_proxies
             else list(trusted_proxies or [])
+        )
+        # Where the audit log is written (default: the output folder, which a
+        # deployment may keep on a temporary disk). STRICTDOC_AUDIT_DIR wins.
+        self.audit_dir: Optional[str] = (
+            os.environ.get("STRICTDOC_AUDIT_DIR") or audit_dir
         )
         # The groups of each role: {"author": ["strictdoc-authors"], ...}.
         # STRICTDOC_ROLES (JSON) wins over the project file, like the options

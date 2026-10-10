@@ -16,6 +16,7 @@ from starlette.responses import Response
 
 from strictdoc import __version__
 from strictdoc.core.project_config import ProjectConfig
+from strictdoc.features.roles.audit import AuditLog, AuditMiddleware
 from strictdoc.features.roles.enforcement import RoleMiddleware
 from strictdoc.features.roles.middleware import PrincipalMiddleware
 from strictdoc.features.roles.route_roles import check_routes_classified
@@ -139,6 +140,17 @@ def create_app(*, project_config: ProjectConfig) -> FastAPI:
         RoleMiddleware,
         auth_mode=project_config.auth_mode,
     )
+    audit_log = (
+        AuditLog(
+            os.path.join(
+                project_config.audit_dir or project_config.output_dir,
+                "audit.jsonl",
+            )
+        )
+        if project_config.auth_mode == "proxy"
+        else None
+    )
+    app.add_middleware(AuditMiddleware, audit_log=audit_log)
     app.add_middleware(
         PrincipalMiddleware,
         auth_mode=project_config.auth_mode,
@@ -148,7 +160,7 @@ def create_app(*, project_config: ProjectConfig) -> FastAPI:
 
     lock_manager = HierarchicalRWLockManager()
 
-    app.include_router(create_roles_router(project_config.auth_mode))
+    app.include_router(create_roles_router(project_config.auth_mode, audit_log))
 
     app.include_router(
         create_other_router(

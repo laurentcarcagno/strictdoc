@@ -1,0 +1,57 @@
+/*
+ * What a role cannot do is hidden. This is comfort only: the server refuses
+ * the action whatever the page shows (strictdoc/features/roles/enforcement.py).
+ * The attribute data-role of <html> is set by role_gating.js from /whoami.
+ */
+
+/* Needs the author role: hidden for the reader and the reviewer. */
+html[data-role="reader"] [data-testid^="node-edit-action"],
+html[data-role="reader"] [data-testid^="node-delete-action"],
+html[data-role="reader"] [data-testid^="node-move-action"],
+html[data-role="reader"] [data-testid^="node-clone-action"],
+html[data-role="reader"] [data-testid^="node-add-"],
+html[data-role="reader"] [data-testid="tree-import-docx-action"],
+html[data-role="reader"] [data-testid="table-toolbar-edit-btn"],
+html[data-role="reader"] .content-view__add_new_row-TR,
+html[data-role="reviewer"] [data-testid^="node-edit-action"],
+html[data-role="reviewer"] [data-testid^="node-delete-action"],
+html[data-role="reviewer"] [data-testid^="node-move-action"],
+html[data-role="reviewer"] [data-testid^="node-clone-action"],
+html[data-role="reviewer"] [data-testid^="node-add-"],
+html[data-role="reviewer"] [data-testid="tree-import-docx-action"],
+html[data-role="reviewer"] [data-testid="table-toolbar-edit-btn"],
+html[data-role="reviewer"] .content-view__add_new_row-TR {
+  display: none !important;
+}
+
+/* Needs the administrator role: hidden for everybody below. */
+html[data-role="reader"] [data-testid^="document-edit-config-action"],
+html[data-role="reader"] [data-testid="document-edit-grammar-action"],
+html[data-role="reader"] [data-testid="document-delete-action"],
+html[data-role="reader"] [data-testid="tree-add-document-action"],
+html[data-role="reader"] [data-testid="project-edit-title-action"],
+html[data-role="reader"] [data-testid="tree-import-reqif-action"],
+html[data-role="reviewer"] [data-testid^="document-edit-config-action"],
+html[data-role="reviewer"] [data-testid="document-edit-grammar-action"],
+html[data-role="reviewer"] [data-testid="document-delete-action"],
+html[data-role="reviewer"] [data-testid="tree-add-document-action"],
+html[data-role="reviewer"] [data-testid="project-edit-title-action"],
+html[data-role="reviewer"] [data-testid="tree-import-reqif-action"],
+html[data-role="author"] [data-testid^="document-edit-config-action"],
+html[data-role="author"] [data-testid="document-edit-grammar-action"],
+html[data-role="author"] [data-testid="document-delete-action"],
+html[data-role="author"] [data-testid="tree-add-document-action"],
+html[data-role="author"] [data-testid="project-edit-title-action"],
+html[data-role="author"] [data-testid="tree-import-reqif-action"] {
+  display: none !important;
+}
+
+.sdoc-user-badge {
+  margin-right: 8px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: #eef1f5;
+  color: #44505f;
+  font-size: 12px;
+  white-space: nowrap;
+}
