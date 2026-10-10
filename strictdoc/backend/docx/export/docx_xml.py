@@ -5,6 +5,7 @@ Small builders for WordprocessingML text. All text is escaped here.
 from typing import List, Optional
 from xml.sax.saxutils import escape
 
+from strictdoc.backend.docx.export.docx_images import drawing_xml
 from strictdoc.backend.docx.export.rst_to_paragraphs import (
     ExportParagraph,
     ExportRun,
@@ -14,6 +15,8 @@ MONOSPACE_FONT = "Courier New"
 
 
 def run_xml(run: ExportRun) -> str:
+    if run.image is not None:
+        return f"<w:r>{drawing_xml(run.image)}</w:r>"
     properties = ""
     if run.bold:
         properties += "<w:b/>"

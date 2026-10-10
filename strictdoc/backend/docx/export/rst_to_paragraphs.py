@@ -13,11 +13,29 @@ _BULLET_PATTERN = re.compile(r"^- ")
 
 
 @dataclass
+class ExportImage:
+    """An image file that is embedded in the Word document."""
+
+    # A hash of the content: two uses of the same file share one media part.
+    token: str
+    name: str
+    alt: str
+    data: bytes
+    extension: str
+    content_type: str
+    width_emu: int
+    height_emu: int
+
+
+@dataclass
 class ExportRun:
+    # For an image run, the text that stands for the image ("[image: name]"):
+    # it is what the Word text reads back as.
     text: str
     bold: bool = False
     italic: bool = False
     monospace: bool = False
+    image: Optional[ExportImage] = None
 
 
 @dataclass

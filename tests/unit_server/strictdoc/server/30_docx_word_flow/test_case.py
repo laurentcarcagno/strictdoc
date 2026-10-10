@@ -1,7 +1,11 @@
 import io
 import os
+import re
 import shutil
+import struct
 import zipfile
+import zlib
+from typing import Dict, Optional
 
 from fastapi.testclient import TestClient
 
@@ -41,6 +45,7 @@ def _client(
     activated: bool = True,
     with_profile: bool = True,
     profile: str = "profile.py",
+    extra_files: Optional[Dict[str, bytes]] = None,
 ) -> TestClient:
     input_dir = os.path.join(str(tmp_path), "input")
     shutil.copytree(
@@ -48,6 +53,11 @@ def _client(
         input_dir,
         ignore=shutil.ignore_patterns("test_case.py", "__pycache__"),
     )
+    for relative_path_, content_ in (extra_files or {}).items():
+        target = os.path.join(input_dir, relative_path_)
+        os.makedirs(os.path.dirname(target), exist_ok=True)
+        with open(target, "wb") as file_:
+            file_.write(content_)
     server_config = ServerCommandConfig(
         debug=False,
         command="server",
@@ -300,3 +310,43 @@ def test_012_a_markdown_profile_imports_markdown_and_exports_it_back(tmp_path):
         for mid_ in mids
     ]
     assert any(b"1 &lt; 2." in _document_xml(r.content) for r in exported)
+
+
+def test_013_the_export_embeds_the_images_of_a_markdown_document(tmp_path):
+    def chunk(kind: bytes, data: bytes) -> bytes:
+        body = kind + data
+        return (
+            struct.pack(">I", len(data))
+            + body
+            + struct.pack(">I", zlib.crc32(body) & 0xFFFFFFFF)
+        )
+
+    png = (
+        b"\x89PNG\r\n\x1a\n"
+        + chunk(b"IHDR", struct.pack(">IIBBBBB", 4, 4, 8, 2, 0, 0, 0))
+        + chunk(b"IDAT", zlib.compress((b"\x00" + b"\x10\x80\x20" * 4) * 4))
+        + chunk(b"IEND", b"")
+    )
+    document = (
+        "[DOCUMENT]\nTITLE: Images\nOPTIONS:\n  MARKUP: Markdown\n\n"
+        "[REQUIREMENT]\nUID: I-1\nSTATEMENT: >>>\nLook:\n\n"
+        "![p](./_assets/pic.png)\n<<<\n"
+    )
+    client = _client(
+        tmp_path,
+        profile="profile_markdown.py",
+        extra_files={
+            "images.sdoc": document.encode("utf8"),
+            "_assets/pic.png": png,
+        },
+    )
+    form = client.get("/actions/project_index/export_docx_form").text
+    options = re.findall(r'<option value="([^"]+)">([^<]+)</option>', form)
+    mid = next(mid_ for mid_, title_ in options if title_ == "Images")
+    response = client.post("/docx/export", data={"document_mid": mid})
+    assert response.status_code == 200
+    with zipfile.ZipFile(io.BytesIO(response.content)) as package_:
+        media = [n for n in package_.namelist() if n.startswith("word/media/")]
+        assert len(media) == 1
+        assert package_.read(media[0]) == png
+        assert b"<w:drawing>" in package_.read("word/document.xml")

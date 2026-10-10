@@ -12,11 +12,14 @@ import os
 import re
 from dataclasses import dataclass
 from typing import List, Optional, Union
+from urllib.parse import unquote, urlparse
 
 from markdown_it import MarkdownIt
 from markdown_it.token import Token
 
+from strictdoc.backend.docx.export.docx_images import load_image
 from strictdoc.backend.docx.export.rst_to_paragraphs import (
+    ExportImage,
     ExportParagraph,
     ExportRun,
 )
@@ -35,7 +38,8 @@ class ExportTable:
 ExportBlock = Union[ExportParagraph, ExportTable]
 
 
-def markdown_to_blocks(markdown: str) -> List[ExportBlock]:
+def markdown_to_blocks(markdown: str, base_dir: str = "") -> List[ExportBlock]:
+    """base_dir is where the relative paths of the images start."""
     tokens = _PARSER.parse(markdown)
     blocks: List[ExportBlock] = []
     lists: List[List[object]] = []  # [ordered, next number]
@@ -56,14 +60,18 @@ def markdown_to_blocks(markdown: str) -> List[ExportBlock]:
                 lists[-1][1] = int(number) + 1  # type: ignore[call-overload]
             prefix = "  " * (len(lists) - 1) + marker
         elif kind == "paragraph_open":
-            runs = _inline_runs(tokens[index + 1].children or [])
+            runs = _inline_runs(
+                tokens[index + 1].children or [], base_dir=base_dir
+            )
             if prefix is not None:
                 runs.insert(0, ExportRun(prefix))
                 prefix = None
             blocks.append(ExportParagraph(runs))
             index += 2
         elif kind == "heading_open":
-            runs = _inline_runs(tokens[index + 1].children or [], bold=True)
+            runs = _inline_runs(
+                tokens[index + 1].children or [], bold=True, base_dir=base_dir
+            )
             blocks.append(ExportParagraph(runs))
             index += 2
         elif kind in ("fence", "code_block"):
@@ -82,10 +90,12 @@ def markdown_to_blocks(markdown: str) -> List[ExportBlock]:
     return blocks
 
 
-def markdown_to_paragraphs(markdown: str) -> List[ExportParagraph]:
+def markdown_to_paragraphs(
+    markdown: str, base_dir: str = ""
+) -> List[ExportParagraph]:
     """The blocks as paragraphs: a table becomes one paragraph per row."""
     paragraphs: List[ExportParagraph] = []
-    for block_ in markdown_to_blocks(markdown):
+    for block_ in markdown_to_blocks(markdown, base_dir):
         if isinstance(block_, ExportTable):
             for row_ in block_.rows:
                 paragraphs.append(
@@ -109,7 +119,9 @@ def _table(tokens: List[Token], index: int) -> "tuple[ExportTable, int]":
     return ExportTable(rows), index
 
 
-def _inline_runs(children: List[Token], bold: bool = False) -> List[ExportRun]:
+def _inline_runs(
+    children: List[Token], bold: bool = False, base_dir: str = ""
+) -> List[ExportRun]:
     runs: List[ExportRun] = []
     bold_depth = 0
     italic_depth = 0
@@ -167,7 +179,13 @@ def _inline_runs(children: List[Token], bold: bool = False) -> List[ExportRun]:
         elif kind == "image":
             source = str(child_.attrGet("src") or "")
             name = os.path.basename(source) or child_.content
-            add(f"[image: {name}]")
+            placeholder = f"[image: {name}]"
+            image = _load(source, base_dir, child_.content)
+            if image is None:
+                add(placeholder)
+            else:
+                # Not merged with the text around it.
+                runs.append(ExportRun(placeholder, image=image))
     return runs
 
 
@@ -177,3 +195,13 @@ def _same_format(first: ExportRun, second: ExportRun) -> bool:
         second.italic,
         second.monospace,
     )
+
+
+def _load(source: str, base_dir: str, alt: str) -> "Optional[ExportImage]":
+    """The image file of a relative path, or None (the text stands in)."""
+    if len(source) == 0 or urlparse(source).scheme not in ("", "file"):
+        return None
+    path = unquote(urlparse(source).path)
+    if not os.path.isabs(path):
+        path = os.path.join(base_dir, path)
+    return load_image(os.path.normpath(path), alt)

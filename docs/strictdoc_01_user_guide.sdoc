@@ -4239,10 +4239,19 @@ For a document with ``MARKUP: Markdown`` the export writes: paragraphs, headings
 (the marker is written as text), code blocks (one monospace paragraph per
 line), links (the text and the address) and pipe tables. A table that stands on
 its own is a Word table; inside a requirement it is written as one paragraph per
-row, like a nested table is read. An image is written as the text
-``[image: file name]``: it is not embedded in the Word file. When a Word file
-is updated, the Markdown text is compared with the Word text in this form, so a
-table or an image does not show up as a change on every update.
+row, like a nested table is read.
+
+An image whose file is a PNG, a JPEG or a GIF is embedded in the Word file as a
+picture, 96 pixels per inch and at most 14 cm wide. Its path is relative to the
+folder of the SDoc document, like in the browser. Any other image (SVG, WebP,
+AVIF, a web address, a file that is missing) is written as the text
+``[image: file name]``. In an update, a new image is a tracked insertion.
+
+Reading a Word file back gives ``[image: file name]`` for the pictures that
+StrictDoc wrote, and ignores the other pictures: images are not imported from
+Word. When a Word file is updated, the Markdown text is compared with the Word
+text in this form, so a table or an image does not show up as a change on every
+update.
 <<<
 
 [[/SECTION]]

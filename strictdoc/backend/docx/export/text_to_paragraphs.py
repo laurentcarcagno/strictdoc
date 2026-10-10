@@ -14,7 +14,10 @@ from strictdoc.backend.docx.export.rst_to_paragraphs import (
 )
 
 
-def text_to_paragraphs(text: str, markup: str) -> List[ExportParagraph]:
+def text_to_paragraphs(
+    text: str, markup: str, base_dir: str = ""
+) -> List[ExportParagraph]:
+    """base_dir is where the relative paths of the images start."""
     if markup == MARKUP_MARKDOWN:
-        return markdown_to_paragraphs(text)
+        return markdown_to_paragraphs(text, base_dir)
     return rst_to_paragraphs(text)

@@ -3,6 +3,7 @@ Generates a Word document from the content of an SDoc document.
 """
 
 import dataclasses
+import os
 import re
 import zipfile
 from dataclasses import dataclass, field
@@ -13,6 +14,10 @@ from strictdoc.backend.docx.docx_profile import (
     MARKUP_RST,
     DocxProfile,
     DocxRequirementTable,
+)
+from strictdoc.backend.docx.export.docx_images import (
+    embed_images,
+    images_in,
 )
 from strictdoc.backend.docx.export.docx_template import (
     DocxTemplate,
@@ -29,6 +34,7 @@ from strictdoc.backend.docx.export.markdown_to_paragraphs import (
     markdown_to_blocks,
 )
 from strictdoc.backend.docx.export.rst_to_paragraphs import (
+    ExportImage,
     ExportParagraph,
     ExportRun,
     rst_to_paragraphs,
@@ -63,6 +69,8 @@ class ExportText:
     statement: str
     # The markup of the SDoc document that the text comes from.
     markup: str = MARKUP_RST
+    # The folder of that document: relative image paths start there.
+    base_dir: str = ""
 
 
 @dataclass
@@ -73,6 +81,7 @@ class ExportRequirement:
     fields: Dict[str, str] = field(default_factory=dict)
     note: str = ""
     markup: str = MARKUP_RST
+    base_dir: str = ""
 
 
 ExportItem = Union[ExportSection, ExportText, ExportRequirement]
@@ -94,6 +103,11 @@ def items_from_document(
         if document.config is not None
         else MARKUP_RST
     )
+    base_dir = (
+        os.path.dirname(document.meta.input_doc_full_path)
+        if document.meta is not None
+        else ""
+    )
     iterator = SDocDocumentIterator(document=document, node_filter=None)
     for node_, context_ in iterator.all_content(print_fragments=False):
         if not isinstance(node_, SDocNode):
@@ -103,7 +117,7 @@ def items_from_document(
                 ExportSection(context_.get_level(), node_.reserved_title or "")
             )
         elif node_.node_type == "TEXT":
-            items.append(ExportText(_content(node_), markup))
+            items.append(ExportText(_content(node_), markup, base_dir))
         elif node_.node_type == "REQUIREMENT":
             fields = {
                 name_: _field_value(node_, name_)
@@ -122,6 +136,7 @@ def items_from_document(
                     fields=fields,
                     note=note,
                     markup=markup,
+                    base_dir=base_dir,
                 )
             )
     return items
@@ -154,7 +169,9 @@ class DocxGenerator:
                     text_paragraph_xml(item_.title, heading_styles[level])
                 )
             elif isinstance(item_, ExportText):
-                body.extend(_text_blocks(item_.statement, item_.markup))
+                body.extend(
+                    _text_blocks(item_.statement, item_.markup, item_.base_dir)
+                )
             else:
                 body.append(
                     requirement_xml(
@@ -164,13 +181,36 @@ class DocxGenerator:
                     )
                 )
                 body.append(empty_paragraph_xml())
-        return template.build_package("".join(body))
+        package = template.build_package("".join(body))
+        embed_images(package, collect_item_images(items))
+        return package
 
     @staticmethod
     def write(package: Dict[str, bytes], path: str) -> None:
         with zipfile.ZipFile(path, "w", zipfile.ZIP_DEFLATED) as output_:
             for name_, data_ in package.items():
                 output_.writestr(name_, data_)
+
+
+def collect_item_images(items: List[ExportItem]) -> Dict[str, ExportImage]:
+    """The images that the text of the items uses, by token."""
+    paragraphs: List[ExportParagraph] = []
+    for item_ in items:
+        if isinstance(item_, ExportText):
+            if item_.markup == MARKUP_MARKDOWN:
+                paragraphs.extend(
+                    block_
+                    for block_ in markdown_to_blocks(
+                        item_.statement, item_.base_dir
+                    )
+                    if isinstance(block_, ExportParagraph)
+                )
+        elif isinstance(item_, ExportRequirement):
+            for text_ in (item_.statement, item_.note):
+                paragraphs.extend(
+                    text_to_paragraphs(text_, item_.markup, item_.base_dir)
+                )
+    return images_in(paragraphs)
 
 
 def heading_style_by_level(profile: DocxProfile) -> Dict[int, str]:
@@ -186,10 +226,12 @@ def heading_style_by_level(profile: DocxProfile) -> Dict[int, str]:
     return by_level
 
 
-def _text_blocks(statement: str, markup: str = MARKUP_RST) -> List[str]:
+def _text_blocks(
+    statement: str, markup: str = MARKUP_RST, base_dir: str = ""
+) -> List[str]:
     if markup == MARKUP_MARKDOWN:
         blocks: List[str] = []
-        for block_ in markdown_to_blocks(statement):
+        for block_ in markdown_to_blocks(statement, base_dir):
             if isinstance(block_, ExportTable):
                 blocks.append(table_xml(block_.rows))
                 blocks.append(empty_paragraph_xml())
@@ -242,12 +284,12 @@ def requirement_xml(
         elif role == "text":
             text_row_done = True
             paragraphs = text_to_paragraphs(
-                requirement.statement, requirement.markup
+                requirement.statement, requirement.markup, requirement.base_dir
             )
             out_rows.append(_fill_row(row_, [paragraphs or [_p("")]]))
         elif role == "note":
             note_paragraphs = text_to_paragraphs(
-                requirement.note, requirement.markup
+                requirement.note, requirement.markup, requirement.base_dir
             )
             out_rows.append(
                 fill_note_row(row_, note_paragraphs, layout.note_label or "")
@@ -372,6 +414,7 @@ __all__ = [
     "ExportRequirement",
     "ExportSection",
     "ExportText",
+    "collect_item_images",
     "effective_profile",
     "items_from_document",
     "split_top_level",

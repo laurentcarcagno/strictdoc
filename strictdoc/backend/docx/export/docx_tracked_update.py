@@ -28,6 +28,7 @@ from strictdoc.backend.docx.docx_profile import (
     DocxProfile,
     DocxRequirementTable,
 )
+from strictdoc.backend.docx.export.docx_images import embed_images
 from strictdoc.backend.docx.export.docx_template import (
     clean_skeleton,
     split_top_level,
@@ -42,6 +43,7 @@ from strictdoc.backend.docx.export.sdoc_to_docx_generator import (
     ExportItem,
     ExportRequirement,
     ExportSection,
+    collect_item_images,
     effective_profile,
     paragraph_like,
     requirement_xml,
@@ -171,6 +173,7 @@ class DocxUpdater:
         parts["word/document.xml"] = (
             document_xml[:body_start] + body + document_xml[body_end:]
         ).encode("utf8")
+        embed_images(parts, collect_item_images(items))
         return parts, report
 
 
@@ -345,14 +348,20 @@ def _edit_table(
             if "STATEMENT" in changed:
                 new_row = _edit_paragraph_cell(
                     row_,
-                    text_to_paragraphs(model.statement, model.markup),
+                    text_to_paragraphs(
+                        model.statement, model.markup, model.base_dir
+                    ),
                     revisions,
                 )
         elif role == "note" and layout.note_field in changed:
             new_row = _edit_paragraph_cell(
                 row_,
                 _note_paragraphs(
-                    row_, model.note, layout.note_label or "", model.markup
+                    row_,
+                    model.note,
+                    layout.note_label or "",
+                    model.markup,
+                    model.base_dir,
                 ),
                 revisions,
             )
@@ -362,7 +371,11 @@ def _edit_table(
 
 
 def _note_paragraphs(
-    row_xml: str, note: str, note_label: str, markup: str = MARKUP_RST
+    row_xml: str,
+    note: str,
+    note_label: str,
+    markup: str = MARKUP_RST,
+    base_dir: str = "",
 ) -> List[ExportParagraph]:
     cell = re.search(r"<w:tc\b.*?</w:tc>", row_xml, re.S)
     prototype = PARAGRAPH_PATTERN.search(cell.group(0)) if cell else None
@@ -374,7 +387,7 @@ def _note_paragraphs(
         else None
     )
     label = label_match.group(0).strip() if label_match else f"{note_label} :"
-    paragraphs = text_to_paragraphs(note, markup)
+    paragraphs = text_to_paragraphs(note, markup, base_dir)
     if len(paragraphs) == 0:
         return [ExportParagraph([ExportRun(label)])]
     first = ExportParagraph([ExportRun(label + " ")] + paragraphs[0].runs)

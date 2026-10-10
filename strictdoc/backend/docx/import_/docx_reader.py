@@ -13,11 +13,16 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import List, Optional, Tuple, Union
 
+from strictdoc.backend.docx.export.docx_images import IMAGE_NAME_PREFIX
 from strictdoc.helpers.exception import StrictDocException
 from strictdoc.helpers.file_system import file_open_read_bytes
 
 WORD_NAMESPACE = (
     "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}"
+)
+
+WORDPROCESSING_DRAWING_NAMESPACE = (
+    "{http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing}"
 )
 
 MONOSPACE_FONTS = ("Courier New", "Consolas", "Lucida Console", "Courier")
@@ -272,6 +277,8 @@ def _is_switched_on(element: Optional[ET.Element]) -> bool:
 
 def _run_child_text(element: ET.Element) -> Optional[str]:
     tag = element.tag
+    if tag == WORD_NAMESPACE + "drawing":
+        return _image_text(element)
     if tag in (WORD_NAMESPACE + "t", WORD_NAMESPACE + "delText"):
         return element.text if element.text is not None else ""
     if tag == WORD_NAMESPACE + "tab":
@@ -281,6 +288,20 @@ def _run_child_text(element: ET.Element) -> Optional[str]:
     if tag == WORD_NAMESPACE + "noBreakHyphen":
         return "-"
     return None
+
+
+def _image_text(drawing: ET.Element) -> Optional[str]:
+    """
+    "[image: name]" for an image that StrictDoc wrote into the document. The
+    other pictures were never part of the text and are still ignored.
+    """
+    properties = drawing.find(f".//{WORDPROCESSING_DRAWING_NAMESPACE}docPr")
+    if properties is None:
+        return None
+    name = properties.get("name", "")
+    if not name.startswith(IMAGE_NAME_PREFIX):
+        return None
+    return f"[image: {name[len(IMAGE_NAME_PREFIX) :]}]"
 
 
 def _segments_to_rst(segments: List[_Segment]) -> str:
