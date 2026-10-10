@@ -6,6 +6,7 @@ result is a valid document model by construction, and the text is what the
 user sees once the document is written to disk.
 """
 
+import hashlib
 import re
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Set, Tuple, Union
@@ -17,10 +18,17 @@ from strictdoc.backend.docx.docx_profile import (
     DocxProfile,
     DocxRequirementTable,
 )
+from strictdoc.backend.docx.export.docx_comments import (
+    comment_fingerprint,
+    comment_plain_text,
+)
 from strictdoc.backend.docx.import_.docx_reader import (
     DocxBlock,
     DocxParagraph,
     DocxTable,
+    WordComment,
+    _escape_markdown,
+    _escape_rst,
 )
 from strictdoc.backend.docx.import_.sdoc_requirement_blocks import (
     CarryOver,
@@ -28,6 +36,13 @@ from strictdoc.backend.docx.import_.sdoc_requirement_blocks import (
 )
 from strictdoc.backend.sdoc.models.document import SDocDocument
 from strictdoc.backend.sdoc.reader import SDReader
+from strictdoc.features.comments.model import (
+    STATUS_OPEN,
+    STATUS_RESOLVED,
+    Comment,
+    format_comment,
+    parse_comment,
+)
 
 REMOVED_SECTION_TITLE = "Not in the Word document"
 
@@ -55,6 +70,8 @@ class DocxImportReport:
     unchanged_count: int = 0
     # In the SDoc file but no longer in the Word document. They are kept.
     removed_uids: List[str] = field(default_factory=list)
+    # Word comments that were not in the SDoc file yet and now are.
+    comments_added: int = 0
 
     def format(self) -> str:
         summary = (
@@ -75,6 +92,8 @@ class DocxImportReport:
             lines.append(f"  Invalid UID, requirement imported without: {uid_}")
         for uid_, name_ in self.unresolved_links:
             lines.append(f"  Unresolved link: {uid_} -> {name_}")
+        if self.comments_added > 0:
+            lines.append(f"  Comments read from Word: {self.comments_added}")
         if self.merged:
             lines.append(
                 f"  Merged into the existing file: {len(self.added_uids)} "
@@ -109,6 +128,8 @@ class DocxRequirement:
     fields: Dict[str, str]
     statement_paragraphs: List[DocxParagraph]
     note_paragraphs: List[DocxParagraph]
+    # The Word comments that are anchored in the table of the requirement.
+    comments: List[WordComment] = field(default_factory=list)
 
 
 _Item = Union[_Section, _FreeText, DocxTable, DocxRequirement]
@@ -284,7 +305,9 @@ def read_requirement(
             note = _note_paragraphs(first_paragraphs, layout.note_label)
         else:
             statement.extend(first_paragraphs)
-    return DocxRequirement(uid, title, fields, statement, note)
+    return DocxRequirement(
+        uid, title, fields, statement, note, list(table.comments)
+    )
 
 
 def _note_paragraphs(
@@ -392,6 +415,13 @@ def _grammar_text(
             "    TYPE: String",
             f"    REQUIRED: {required}",
         ]
+    # Review comments (plan: comments). Every imported requirement can have
+    # some, whether the Word file holds comments or not.
+    lines += [
+        "  - TITLE: COMMENT",
+        "    TYPE: String",
+        "    REQUIRED: False",
+    ]
     for _, extra_lines_ in extra_fields:
         lines += extra_lines_
     lines += ["  RELATIONS:", "  - TYPE: Parent", "  - TYPE: File", ""]
@@ -423,6 +453,7 @@ def _requirement_text(
 
     parent_uids = _parent_uids(requirement, layout, known_uids, report)
     file_relations: List[List[str]] = []
+    old_comments: List[str] = []
     if carry_over is not None and len(requirement.uid) > 0:
         old_block = carry_over.blocks.get(requirement.uid)
         if old_block is None:
@@ -434,14 +465,75 @@ def _requirement_text(
             extra_names = [
                 name_ for name_, _ in carry_over.extra_grammar_fields
             ]
-            old_values = dict(old_block.fields)
+            # Every value of an extra field, in file order (a field such as
+            # COMMENT can be written several times).
             fields += [
-                (name_, old_values[name_])
-                for name_ in extra_names
-                if name_ in old_values
+                (name_, value_)
+                for name_, value_ in old_block.fields
+                if name_ in extra_names and name_ != "COMMENT"
+            ]
+            old_comments = [
+                value_
+                for name_, value_ in old_block.fields
+                if name_ == "COMMENT"
             ]
             file_relations = old_block.file_relations
+    fields += _comment_fields(requirement, old_comments, markup, report)
     return _render_requirement(fields, parent_uids, file_relations)
+
+
+def _comment_fields(
+    requirement: DocxRequirement,
+    old_values: List[str],
+    markup: str,
+    report: DocxImportReport,
+) -> List[Tuple[str, str]]:
+    """
+    The COMMENT fields of a requirement: the ones of the existing SDoc file,
+    unchanged, then the comments of the Word document that the file does not
+    hold yet (same author, date to the minute and text).
+    """
+    known = set()
+    for value_ in old_values:
+        comment_ = parse_comment(_field_text(value_))
+        known.add(
+            comment_fingerprint(
+                comment_.author,
+                comment_.date,
+                comment_plain_text(comment_.body, markup),
+            )
+        )
+    values = list(old_values)
+    for word_comment_ in requirement.comments:
+        fingerprint = comment_fingerprint(
+            word_comment_.author, word_comment_.date, word_comment_.text
+        )
+        if fingerprint in known:
+            continue
+        known.add(fingerprint)
+        date = word_comment_.date
+        if date and not date.endswith("Z") and "+" not in date[10:]:
+            date += "Z"
+        comment = Comment(
+            body=_escape_for_markup(word_comment_.text, markup),
+            id="w"
+            + hashlib.sha1("|".join(fingerprint).encode()).hexdigest()[:7],
+            author=word_comment_.author,
+            date=date,
+            status=STATUS_RESOLVED if word_comment_.done else STATUS_OPEN,
+            source="word",
+        )
+        values.append(_multiline(format_comment(comment, markup)))
+        report.comments_added += 1
+    return [("COMMENT", value_) for value_ in values]
+
+
+def _escape_for_markup(text: str, markup: str) -> str:
+    return (
+        _escape_markdown(text)
+        if markup == MARKUP_MARKDOWN
+        else _escape_rst(text)
+    )
 
 
 def _parent_uids(

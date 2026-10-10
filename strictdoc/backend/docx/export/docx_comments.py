@@ -59,7 +59,19 @@ class ExportComment:
     @property
     def fingerprint(self) -> Tuple[str, str, str]:
         """What identifies a comment when it goes to Word and comes back."""
-        return comment_fingerprint(self.author, self.date, self.body)
+        return comment_fingerprint(
+            self.author,
+            self.date,
+            comment_plain_text(self.body, self.markup),
+        )
+
+
+def comment_plain_text(body: str, markup: str) -> str:
+    """The text of a comment as Word holds it: the paragraphs, no markup."""
+    return " ".join(
+        "".join(run_.text for run_ in paragraph_.runs)
+        for paragraph_ in text_to_paragraphs(body, markup)
+    )
 
 
 def comment_fingerprint(

@@ -20,13 +20,19 @@ import re
 import xml.etree.ElementTree as ET
 import zipfile
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Set, Tuple
 
 from strictdoc.backend.docx.docx_profile import (
     MARKUP_MARKDOWN,
     MARKUP_RST,
     DocxProfile,
     DocxRequirementTable,
+)
+from strictdoc.backend.docx.export.docx_comments import (
+    ExportComment,
+    anchor_first_paragraph,
+    comment_fingerprint,
+    embed_comments,
 )
 from strictdoc.backend.docx.export.docx_images import embed_images
 from strictdoc.backend.docx.export.docx_template import (
@@ -54,8 +60,10 @@ from strictdoc.backend.docx.export.text_to_paragraphs import text_to_paragraphs
 from strictdoc.backend.docx.import_.docx_reader import (
     DocxTable,
     TrackedChangesMode,
+    WordComment,
     paragraph_from_segments,
     read_table_element,
+    read_word_comments,
 )
 from strictdoc.backend.docx.import_.docx_to_sdoc_converter import (
     join_paragraphs,
@@ -76,6 +84,8 @@ class DocxUpdateReport:
     # UID -> names of the fields that changed.
     changed: Dict[str, List[str]] = field(default_factory=dict)
     unchanged: int = 0
+    # Comments of the model that were added to the Word document.
+    comments_added: int = 0
 
     def format(self) -> str:
         summary = (
@@ -90,6 +100,8 @@ class DocxUpdateReport:
             for uid_, names_ in self.changed.items()
         ]
         lines += [f"  Deleted: {uid_}" for uid_ in self.deleted]
+        if self.comments_added > 0:
+            lines.append(f"  Comments added: {self.comments_added}")
         return "\n".join(lines)
 
 
@@ -122,9 +134,11 @@ class DocxUpdater:
             ),
             MARKUP_RST,
         )
+        base_comments = read_word_comments(base_path)
         base_requirements = _index_requirements(
-            chunks, document_xml[:body_start], layout, markup
+            chunks, document_xml[:body_start], layout, markup, base_comments
         )
+        anchored_comments: List[ExportComment] = []
         base_headings = _index_headings(chunks, profile)
         skeleton = _skeleton(chunks, layout)
 
@@ -153,6 +167,17 @@ class DocxUpdater:
                     report.changed[item_.uid] = changed
                 else:
                     report.unchanged += 1
+                new_comments = [
+                    comment_
+                    for comment_ in item_.comments
+                    if comment_.fingerprint not in base.comment_fingerprints
+                ]
+                if len(new_comments) > 0:
+                    chunks[base.chunk_index] = anchor_first_paragraph(
+                        chunks[base.chunk_index], new_comments
+                    )
+                    anchored_comments.extend(new_comments)
+                    report.comments_added += len(new_comments)
                 anchor = base.chunk_index
             else:
                 new_table = requirement_xml(item_, layout, skeleton)
@@ -161,6 +186,8 @@ class DocxUpdater:
                 )
                 insertions.setdefault(anchor, []).append(inserted)
                 report.added.append(item_.uid)
+                anchored_comments.extend(item_.comments)
+                report.comments_added += len(item_.comments)
 
         for uid_, base_ in base_requirements.items():
             if uid_ not in model_uids:
@@ -174,6 +201,7 @@ class DocxUpdater:
             document_xml[:body_start] + body + document_xml[body_end:]
         ).encode("utf8")
         embed_images(parts, collect_item_images(items))
+        embed_comments(parts, anchored_comments)
         return parts, report
 
 
@@ -188,6 +216,8 @@ class _BaseRequirement:
     fields: Dict[str, str]
     statement: str
     note: str
+    # What identifies the Word comments anchored in the table.
+    comment_fingerprints: Set[Tuple[str, str, str]] = field(default_factory=set)
 
 
 def _read_package(path: str) -> Dict[str, bytes]:
@@ -211,6 +241,7 @@ def _index_requirements(
     document_head: str,
     layout: DocxRequirementTable,
     markup: str,
+    base_comments: Dict[int, WordComment],
 ) -> Dict[str, _BaseRequirement]:
     marker = f'<w:pStyle w:val="{layout.id_style}"/>'
     requirements: Dict[str, _BaseRequirement] = {}
@@ -233,6 +264,13 @@ def _index_requirements(
             fields=requirement.fields,
             statement=join_paragraphs(requirement.statement_paragraphs, markup),
             note=join_paragraphs(requirement.note_paragraphs, markup),
+            comment_fingerprints={
+                comment_fingerprint(c_.author, c_.date, c_.text)
+                for id_ in re.findall(
+                    r'<w:commentReference w:id="(\d+)"', chunk_
+                )
+                if (c_ := base_comments.get(int(id_))) is not None
+            },
         )
     return requirements
 

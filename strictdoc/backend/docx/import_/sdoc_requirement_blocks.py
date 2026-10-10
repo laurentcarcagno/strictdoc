@@ -147,6 +147,11 @@ def parse_grammar_extra_fields(
     for item_ in items:
         name = item_[0][len("  - TITLE: ") :].strip()
         is_string = "    TYPE: String" in item_
-        if is_string and name not in owned_names and name != "RELATIONS":
+        # COMMENT is part of every generated grammar, so it is not an extra.
+        if (
+            is_string
+            and name not in owned_names
+            and name not in ("RELATIONS", "COMMENT")
+        ):
             extras.append((name, item_))
     return extras

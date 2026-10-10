@@ -11,7 +11,7 @@ import xml.etree.ElementTree as ET
 import zipfile
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import List, Optional, Tuple, Union
+from typing import Dict, List, Optional, Tuple, Union
 
 from strictdoc.backend.docx.export.docx_images import IMAGE_NAME_PREFIX
 from strictdoc.helpers.exception import StrictDocException
@@ -59,8 +59,22 @@ class DocxCell:
 
 
 @dataclass
+class WordComment:
+    """A comment of the Word document: who, when, what, and whether done."""
+
+    author: str
+    date: str
+    text: str
+    done: bool = False
+
+
+@dataclass
 class DocxTable:
     rows: List[List[DocxCell]] = field(default_factory=list)
+    # Identifiers of the Word comments that are referenced in the table, and
+    # the comments themselves (filled by DocxReader.read).
+    comment_ids: List[int] = field(default_factory=list)
+    comments: List[WordComment] = field(default_factory=list)
 
 
 DocxBlock = Union[DocxParagraph, DocxTable]
@@ -76,6 +90,7 @@ class DocxReader:
         body = root.find(WORD_NAMESPACE + "body")
         if body is None:
             raise StrictDocException(f"Not a Word document: {path}.")
+        word_comments = read_word_comments(path)
         blocks: List[DocxBlock] = []
         for element_ in body:
             if element_.tag == WORD_NAMESPACE + "p":
@@ -89,6 +104,11 @@ class DocxReader:
                     len(table.rows) > 0
                     or element_.find(WORD_NAMESPACE + "tr") is None
                 ):
+                    table.comments = [
+                        word_comments[id_]
+                        for id_ in table.comment_ids
+                        if id_ in word_comments
+                    ]
                     blocks.append(table)
         return blocks
 
@@ -129,6 +149,10 @@ def _parse_document_xml(path: str) -> ET.Element:
 
 def _read_table(element: ET.Element, mode: TrackedChangesMode) -> DocxTable:
     table = DocxTable()
+    for reference_ in element.iter(WORD_NAMESPACE + "commentReference"):
+        identifier = reference_.get(WORD_NAMESPACE + "id", "")
+        if identifier.isdigit():
+            table.comment_ids.append(int(identifier))
     for row_element_ in element.findall(WORD_NAMESPACE + "tr"):
         if _is_row_dropped(row_element_, mode):
             continue
@@ -391,3 +415,62 @@ def _escape_line_starts(text: str) -> str:
         lambda m: m.group(1) + "\\" + m.group(2),
         text,
     )
+
+
+_W14_NAMESPACE = "{http://schemas.microsoft.com/office/word/2010/wordml}"
+_W15_NAMESPACE = "{http://schemas.microsoft.com/office/word/2012/wordml}"
+
+
+def read_word_comments(path: str) -> Dict[int, WordComment]:
+    """
+    The comments of a Word file by identifier (empty when it has none): the
+    author, the date, the text (the paragraphs joined by a space) and whether
+    Word marks the comment as done.
+    """
+    try:
+        with file_open_read_bytes(path) as file_:
+            with zipfile.ZipFile(file_) as package_:
+                names = package_.namelist()
+                if "word/comments.xml" not in names:
+                    return {}
+                comments_xml = package_.read("word/comments.xml")
+                extended_xml = (
+                    package_.read("word/commentsExtended.xml")
+                    if "word/commentsExtended.xml" in names
+                    else None
+                )
+        comments_root = ET.fromstring(comments_xml)
+        done_by_paragraph: Dict[str, bool] = {}
+        if extended_xml is not None:
+            for entry_ in ET.fromstring(extended_xml):
+                done_by_paragraph[entry_.get(_W15_NAMESPACE + "paraId", "")] = (
+                    entry_.get(_W15_NAMESPACE + "done", "0") == "1"
+                )
+    except (zipfile.BadZipFile, KeyError, ET.ParseError):
+        return {}
+
+    comments: Dict[int, WordComment] = {}
+    for comment_ in comments_root.findall(WORD_NAMESPACE + "comment"):
+        identifier = comment_.get(WORD_NAMESPACE + "id", "")
+        if not identifier.isdigit():
+            continue
+        paragraphs = comment_.findall(WORD_NAMESPACE + "p")
+        text = " ".join(
+            "".join(
+                node_.text or ""
+                for node_ in paragraph_.iter(WORD_NAMESPACE + "t")
+            ).strip()
+            for paragraph_ in paragraphs
+        ).strip()
+        last_id = (
+            paragraphs[-1].get(_W14_NAMESPACE + "paraId", "")
+            if paragraphs
+            else ""
+        )
+        comments[int(identifier)] = WordComment(
+            author=comment_.get(WORD_NAMESPACE + "author", ""),
+            date=comment_.get(WORD_NAMESPACE + "date", ""),
+            text=text,
+            done=done_by_paragraph.get(last_id, False),
+        )
+    return comments
