@@ -35,6 +35,11 @@ _KEYS = (
     "resolved_by",
     "resolved_on",
     "source",
+    # A node drafted by a language model carries where it came from.
+    "model",
+    "provider",
+    "prompt",
+    "accepted_by",
 )
 
 
@@ -50,6 +55,10 @@ class Comment:
     # "web" for a comment written in the interface, "word" for one that was
     # read from a Word document.
     source: str = ""
+    model: str = ""
+    provider: str = ""
+    prompt: str = ""
+    accepted_by: str = ""
     # True when the value had no header.
     legacy: bool = field(default=False, compare=False)
 
@@ -105,6 +114,10 @@ def parse_comment(value: str) -> Comment:
         resolved_by=values.get("resolved_by", ""),
         resolved_on=values.get("resolved_on", ""),
         source=values.get("source", ""),
+        model=values.get("model", ""),
+        provider=values.get("provider", ""),
+        prompt=values.get("prompt", ""),
+        accepted_by=values.get("accepted_by", ""),
     )
 
 

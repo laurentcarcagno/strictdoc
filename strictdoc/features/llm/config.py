@@ -36,7 +36,18 @@ class Anthropic:
     is_local: bool = field(default=False, init=False)
 
 
-ProviderConfig = Union[OpenAICompatible, Anthropic]
+@dataclass
+class Fake:
+    """A provider that answers from a list (tests and demonstrations only)."""
+
+    answers: List[str]
+    model: str = "fake-model"
+    is_local: bool = True
+    base_url: str = "http://fake.invalid"
+    timeout: float = 1.0
+
+
+ProviderConfig = Union[OpenAICompatible, Anthropic, Fake]
 
 
 @dataclass
@@ -58,6 +69,9 @@ class LLMConfig:
     verification_methods: List[str] = field(default_factory=list)
     # The longest context sent to a model, in characters.
     max_context_chars: int = 12000
+    # The field of the requirement that holds the verification method (for
+    # REQ_02: VERIFIED_BY). Empty: the method is not stored.
+    verification_field: str = ""
 
     def validate(self) -> None:
         if len(self.providers) == 0:
