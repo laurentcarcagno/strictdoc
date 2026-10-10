@@ -46,6 +46,16 @@ html[data-role="author"] [data-testid="tree-import-reqif-action"] {
   display: none !important;
 }
 
+/* New controls name the role they need. */
+html[data-role="reader"] [data-requires-role="reviewer"],
+html[data-role="reader"] [data-requires-role="author"],
+html[data-role="reader"] [data-requires-role="administrator"],
+html[data-role="reviewer"] [data-requires-role="author"],
+html[data-role="reviewer"] [data-requires-role="administrator"],
+html[data-role="author"] [data-requires-role="administrator"] {
+  display: none !important;
+}
+
 .sdoc-user-badge {
   margin-right: 8px;
   padding: 2px 8px;

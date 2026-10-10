@@ -51,6 +51,7 @@ ROUTE_ROLES: Dict[RouteKey, str] = {
         "GET /{full_path:path}",
         "GET /diff",
         "GET /diff_result",
+        "GET /comments",
         "GET /actions/project_index/export_docx_form",
         "POST /actions/project_index/export_docx_preview",
         "POST /docx/export",
@@ -58,7 +59,9 @@ ROUTE_ROLES: Dict[RouteKey, str] = {
     ),
     **_routes(
         ROLE_REVIEWER,
-        # Filled by the comments plan: the comment-only routes.
+        "POST /actions/comments/add",
+        "POST /actions/comments/edit",
+        "POST /actions/comments/delete",
     ),
     **_routes(
         ROLE_AUTHOR,
@@ -87,6 +90,8 @@ ROUTE_ROLES: Dict[RouteKey, str] = {
         "POST /actions/table/update_node_relations",
         "DELETE /actions/table/delete_node",
         "DELETE /actions/document/delete_requirement",
+        "POST /actions/comments/resolve",
+        "POST /actions/comments/reopen",
         "GET /actions/project_index/import_docx_form",
         "POST /actions/project_index/import_docx_preview",
         "POST /actions/project_index/import_docx",

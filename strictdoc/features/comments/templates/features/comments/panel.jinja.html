@@ -1,0 +1,69 @@
+{#
+  The comments of one node. Variables: node_mid, items (a list of
+  {comment, html}), interactive (forms are shown), error (optional).
+  It is a turbo-frame, so that the routes of the feature can replace it.
+#}
+<turbo-frame id="comments-{{ node_mid }}" data-testid="comments-panel">
+  {%- if error is defined and error %}
+  <sdoc-form-error data-testid="comments-error">{{ error }}</sdoc-form-error>
+  {%- endif %}
+  {%- for item in items %}
+  {%- set comment = item.comment %}
+  <sdoc-comment
+    class="sdoc-comment sdoc-comment--{{ comment.status }}"
+    data-testid="comment"
+    data-comment-id="{{ comment.id }}"
+    data-status="{{ comment.status }}"
+  >
+    <sdoc-comment-meta>
+      <strong data-testid="comment-author">{{ comment.author_label }}</strong>
+      {%- if comment.date %}
+      <span data-testid="comment-date">{{ comment.date }}</span>
+      {%- endif %}
+      <span class="sdoc-comment__status" data-testid="comment-status">{{ comment.status }}</span>
+      {%- if comment.is_resolved and comment.resolved_by %}
+      <span data-testid="comment-resolved-by">by {{ comment.resolved_by }}</span>
+      {%- endif %}
+    </sdoc-comment-meta>
+    <sdoc-comment-body>{{ item.html }}</sdoc-comment-body>
+    {%- if interactive %}
+    <sdoc-comment-actions data-requires-role="reviewer">
+      {%- if comment.is_resolved %}
+      <form action="/actions/comments/reopen" method="POST" data-turbo="true" data-requires-role="author">
+        <input type="hidden" name="node_mid" value="{{ node_mid }}"/>
+        <input type="hidden" name="comment_id" value="{{ comment.id }}"/>
+        <button type="submit" data-testid="comment-reopen">Reopen</button>
+      </form>
+      {%- else %}
+      <form action="/actions/comments/resolve" method="POST" data-turbo="true" data-requires-role="author">
+        <input type="hidden" name="node_mid" value="{{ node_mid }}"/>
+        <input type="hidden" name="comment_id" value="{{ comment.id }}"/>
+        <button type="submit" data-testid="comment-resolve">Resolve</button>
+      </form>
+      {%- endif %}
+      <details>
+        <summary data-testid="comment-edit">Edit</summary>
+        <form action="/actions/comments/edit" method="POST" data-turbo="true">
+          <input type="hidden" name="node_mid" value="{{ node_mid }}"/>
+          <input type="hidden" name="comment_id" value="{{ comment.id }}"/>
+          <textarea name="body" required rows="3">{{ comment.body }}</textarea>
+          <button type="submit" data-testid="comment-edit-save">Save</button>
+        </form>
+      </details>
+      <form action="/actions/comments/delete" method="POST" data-turbo="true">
+        <input type="hidden" name="node_mid" value="{{ node_mid }}"/>
+        <input type="hidden" name="comment_id" value="{{ comment.id }}"/>
+        <button type="submit" data-testid="comment-delete">Delete</button>
+      </form>
+    </sdoc-comment-actions>
+    {%- endif %}
+  </sdoc-comment>
+  {%- endfor %}
+  {%- if interactive %}
+  <form action="/actions/comments/add" method="POST" data-turbo="true" data-requires-role="reviewer" class="sdoc-comment-add">
+    <input type="hidden" name="node_mid" value="{{ node_mid }}"/>
+    <textarea name="body" required rows="2" placeholder="Add a comment..." data-testid="comment-new-body"></textarea>
+    <button type="submit" data-testid="comment-add">Add comment</button>
+  </form>
+  {%- endif %}
+</turbo-frame>

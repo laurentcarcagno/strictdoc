@@ -19,6 +19,10 @@
   <script src="{{ view_object.render_static_url('roles/role_gating.js') }}"></script>
   {%- endif %}
 
+  {% if view_object.project_config.is_activated_comments() -%}
+  <link rel="stylesheet" href="{{ view_object.render_static_url('comments/comments.css') }}"/>
+  {%- endif %}
+
   {% block head_css %}
   <link rel="stylesheet" href="{{ view_object.render_static_url('base.css') }}"/>
   <link rel="stylesheet" href="{{ view_object.render_static_url('layout.css') }}"/>

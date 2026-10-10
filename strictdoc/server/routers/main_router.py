@@ -137,6 +137,7 @@ from strictdoc.export.html.generators.view_objects.server_error_view_object impo
 )
 from strictdoc.export.html.renderers.link_renderer import LinkRenderer
 from strictdoc.export.html.renderers.markup_renderer import MarkupRenderer
+from strictdoc.features.comments.router import create_comments_routers
 from strictdoc.features.html2pdf.generator import (
     DocumentHTML2PDFGenerator,
 )
@@ -5076,6 +5077,12 @@ def create_main_router(
     )
     read_router.include_router(docx_read_router)
     write_router.include_router(docx_write_router)
+
+    comments_read_router, comments_write_router = create_comments_routers(
+        context=context
+    )
+    read_router.include_router(comments_read_router)
+    write_router.include_router(comments_write_router)
 
     router.include_router(read_router)
     router.include_router(write_router)

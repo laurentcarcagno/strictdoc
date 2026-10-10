@@ -64,6 +64,10 @@ from strictdoc.export.html.renderers.html_fragment_writer import (
 )
 from strictdoc.export.html.renderers.link_renderer import LinkRenderer
 from strictdoc.export.html.renderers.markup_renderer import MarkupRenderer
+from strictdoc.features.comments.service import (
+    comments_of,
+    supports_comments,
+)
 from strictdoc.helpers.cast import assert_cast
 from strictdoc.helpers.file_system import file_open_read_utf8
 from strictdoc.helpers.git_client import GitClient
@@ -183,6 +187,21 @@ class DocumentScreenViewObject:
         if project_config.html2pdf_template is not None:
             with file_open_read_utf8(project_config.html2pdf_template) as f_:
                 self.custom_html2pdf_template = Template(f_.read())
+
+    def node_supports_comments(self, node: SDocNode) -> bool:
+        return supports_comments(node)
+
+    def comment_panel_items(self, node: SDocNode) -> List[Dict[str, Any]]:
+        """The comments of a node with their rendered text."""
+        return [
+            {
+                "comment": comment_,
+                "html": self.render_node_field(field_),
+            }
+            for comment_, field_ in zip(
+                comments_of(node), node.get_comment_fields()
+            )
+        ]
 
     def needs_markdown_editor(self) -> bool:
         """The WYSIWYG editor is only used by the web server."""

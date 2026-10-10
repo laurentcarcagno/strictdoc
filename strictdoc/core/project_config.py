@@ -112,6 +112,7 @@ class ProjectFeature(str, Enum):
     HTML2PDF = "HTML2PDF"
     REQIF = "REQIF"
     DOCX = "DOCX"
+    COMMENTS = "COMMENTS"
     DIFF = "DIFF"
     PROJECT_STATISTICS_SCREEN = "PROJECT_STATISTICS_SCREEN"
     TREE_MAP_SCREEN = "TREE_MAP_SCREEN"
@@ -1139,6 +1140,9 @@ class ProjectConfig:
 
     def is_activated_reqif(self) -> bool:
         return ProjectFeature.REQIF in self.project_features
+
+    def is_activated_comments(self) -> bool:
+        return ProjectFeature.COMMENTS in self.project_features
 
     def is_activated_docx(self) -> bool:
         return ProjectFeature.DOCX in self.project_features

@@ -1,7 +1,17 @@
 {# comments #}
 {# needs sdoc_entity, see README.txt #}
 
-{% if view_object.current_view.includes_field(sdoc_entity.node_type, "COMMENT") %}
+{% if view_object.project_config.is_activated_comments() %}
+  {%- if view_object.current_view.includes_field(sdoc_entity.node_type, "COMMENT") and view_object.node_supports_comments(sdoc_entity) %}
+    {%- with
+      node_mid=sdoc_entity.reserved_mid.get_string_value(),
+      items=view_object.comment_panel_items(sdoc_entity),
+      interactive=view_object.is_running_on_server
+    -%}
+      {%- include "features/comments/panel.jinja.html" -%}
+    {%- endwith -%}
+  {%- endif %}
+{% elif view_object.current_view.includes_field(sdoc_entity.node_type, "COMMENT") %}
   {%- for comment_field_ in sdoc_entity.get_comment_fields() %}
     <sdoc-node-field-label>{{ sdoc_entity.get_field_human_title("COMMENT") }}:</sdoc-node-field-label>
     <sdoc-node-field
