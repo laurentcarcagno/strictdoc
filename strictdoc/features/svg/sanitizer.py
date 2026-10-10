@@ -67,6 +67,7 @@ _LOCAL_HREF_ELEMENTS = frozenset(
 _DATA_IMAGE = re.compile(
     r"^data:image/(png|jpeg|gif);base64,[A-Za-z0-9+/=\s]*$"
 )
+_PROCESSING_INSTRUCTION = re.compile(rb"<\?(?!xml[\s?])", re.IGNORECASE)
 _DOCTYPE = re.compile(rb"<!\s*(DOCTYPE|ENTITY)", re.IGNORECASE)
 _URL = re.compile(r"url\(\s*(['\"]?)(.*?)\1\s*\)", re.IGNORECASE | re.DOTALL)
 _CSS_COMMENT = re.compile(r"/\*.*?\*/", re.DOTALL)
@@ -105,8 +106,13 @@ def sanitize_svg(data: bytes) -> bytes:
     if root.tag != f"{{{SVG_NS}}}svg":
         raise SvgRejected("The file is not an SVG image.")
 
-    counter = [0]
+    counter = [0, 0]  # elements seen, things removed
     _clean(root, 0, counter)
+    # A processing instruction (an xml-stylesheet, for one) is dropped by the
+    # parser: such a file is written again, not kept.
+    if counter[1] == 0 and not _PROCESSING_INSTRUCTION.search(data):
+        # Nothing had to go: the file is stored as it was written.
+        return data
     ET.register_namespace("", SVG_NS)
     ET.register_namespace("xlink", XLINK_NS)
     return ET.tostring(root, encoding="utf-8", xml_declaration=False)
@@ -127,22 +133,27 @@ def _clean(element: ET.Element, depth: int, counter: List[int]) -> None:
         raise SvgRejected("The SVG file is nested too deeply.")
 
     _, name = _local(element.tag)
-    _clean_attributes(element, name)
+    if _clean_attributes(element, name):
+        counter[1] += 1
 
     if name == "style":
         css = _clean_css(element.text or "")
+        if css != element.text:
+            counter[1] += 1
         element.text = css if css is not None else ""
     for child in list(element):
         namespace, child_name = _local(child.tag)
         if namespace != SVG_NS or child_name not in ALLOWED_ELEMENTS:
             element.remove(child)
+            counter[1] += 1
             continue
         _clean(child, depth + 1, counter)
         # Text and tail of dropped markup stays; comments and processing
         # instructions never reach the tree.
 
 
-def _clean_attributes(element: ET.Element, element_name: str) -> None:
+def _clean_attributes(element: ET.Element, element_name: str) -> bool:
+    """Cleans the attributes; True if one was removed or changed."""
     kept: Dict[str, str] = {}
     for key, value in element.attrib.items():
         namespace, name = _local(key)
@@ -169,8 +180,10 @@ def _clean_attributes(element: ET.Element, element_name: str) -> None:
         if _DANGEROUS_VALUE.search(value) or not _urls_are_local(value):
             continue
         kept[key] = value
+    changed = kept != dict(element.attrib)
     element.attrib.clear()
     element.attrib.update(kept)
+    return changed
 
 
 def _href_allowed(element_name: str, value: str) -> bool:

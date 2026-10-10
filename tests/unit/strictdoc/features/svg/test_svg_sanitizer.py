@@ -155,3 +155,22 @@ def test_011_clean_output_is_stable() -> None:
 def test_012_corpus_is_present() -> None:
     assert len(HOSTILE) >= 10 and len(NORMAL) >= 5
     assert os.path.isdir(CORPUS)
+
+
+def test_013_a_clean_file_is_stored_as_it_was_written():
+    for path in NORMAL:
+        original = path.read_bytes()
+        assert sanitize_svg(original) == original
+
+
+def test_014_a_file_that_had_something_removed_is_written_again():
+    original = (CORPUS / "hostile" / "script.svg").read_bytes()
+    assert sanitize_svg(original) != original
+
+
+def test_015_a_processing_instruction_never_survives():
+    data = (
+        b'<?xml version="1.0"?><?xml-stylesheet href="http://evil.example/a.css"?>'
+        b'<svg xmlns="http://www.w3.org/2000/svg"><rect width="1" height="1"/></svg>'
+    )
+    assert b"xml-stylesheet" not in sanitize_svg(data)
