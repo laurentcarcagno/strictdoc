@@ -1,0 +1,74 @@
+{% extends "components/modal/form.jinja" %}
+{% set form = "sdoc_modal_form" %}
+{% block modal__context %}{% endblock modal__context %}
+{% block modal_form__header %}
+Export to Word
+{% endblock modal_form__header %}
+{% block modal_form__content %}
+  <form
+    id="{{ form }}"
+    action="/docx/export"
+    method="POST"
+    enctype="multipart/form-data"
+    data-turbo="true"
+  >
+    <sdoc-form-grid>
+      <sdoc-form-row>
+        <sdoc-form-row-main>
+          <sdoc-form-field>
+            <label for="docx_document">Document</label>
+            <select
+              name="document_mid"
+              id="docx_document"
+              data-testid="form-docx-document-field"
+            >
+              {%- for document in documents %}
+              <option value="{{ document.reserved_mid }}">{{ document.title }}</option>
+              {%- endfor %}
+            </select>
+          </sdoc-form-field>
+        </sdoc-form-row-main>
+      </sdoc-form-row>
+
+      {%- with
+        field_class_name="",
+        field_input_name="base_file",
+        field_label="Word document to update (optional)",
+        errors=[]
+      -%}
+        {% include "components/form/field/file/index.jinja" %}
+      {%- endwith -%}
+
+      <sdoc-form-row>
+        <sdoc-form-row-main>
+          <p>
+            Without a Word document, a new one is built from the profile
+            template. With one, the differences are written into it as
+            tracked changes.
+          </p>
+          <div id="docx_report" data-testid="docx-report"></div>
+        </sdoc-form-row-main>
+      </sdoc-form-row>
+    </sdoc-form-grid>
+  </form>
+{% endblock modal_form__content %}
+{% block modal_form__footer_extra %}
+  <button
+    form="{{ form }}"
+    formaction="/actions/project_index/export_docx_preview"
+    data-turbo="true"
+    class="action_button"
+    type="submit"
+    data-testid="docx-preview-action"
+  >Preview</button>
+{% endblock modal_form__footer_extra %}
+{% block modal_form__footer_submit %}
+  <button
+    form="{{ form }}"
+    data-turbo="false"
+    class="action_button"
+    type="submit"
+    data-action-type="submit"
+    data-testid="form-submit-action"
+  >Download</button>
+{% endblock modal_form__footer_submit %}

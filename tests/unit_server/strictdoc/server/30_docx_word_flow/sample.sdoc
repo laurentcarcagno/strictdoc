@@ -1,0 +1,12 @@
+[DOCUMENT]
+TITLE: Sample
+
+[[SECTION]]
+TITLE: Section
+
+[REQUIREMENT]
+UID: R-1
+TITLE: Start
+STATEMENT: The system shall start.
+
+[[/SECTION]]

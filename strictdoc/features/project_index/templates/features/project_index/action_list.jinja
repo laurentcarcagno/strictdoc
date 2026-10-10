@@ -36,3 +36,25 @@
 >{% include "icons/ico16_export.svg" %} Export to ReqIF</a>
 {%- endif -%}
 {%- endif -%}
+
+{%- if view_object.project_config.is_activated_docx() -%}
+<a
+  class="dropdown_menu_item"
+  href="/actions/project_index/import_docx_form"
+  data-turbo="true"
+  title="Import a Word document"
+  data-testid="tree-import-docx-action"
+  role="menuitem"
+>{% include "icons/ico16_import.svg" %} Import from Word</a>
+
+{%- if not view_object.is_empty_tree() -%}
+<a
+  class="dropdown_menu_item"
+  href="/actions/project_index/export_docx_form"
+  data-turbo="true"
+  title="Export a document to Word"
+  data-testid="tree-export-docx-action"
+  role="menuitem"
+>{% include "icons/ico16_export.svg" %} Export to Word</a>
+{%- endif -%}
+{%- endif -%}

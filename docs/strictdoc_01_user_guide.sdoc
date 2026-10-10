@@ -4157,6 +4157,55 @@ file.
 [[/SECTION]]
 
 [[SECTION]]
+MID: d984233c5792456390dd230ce4aeb6f1
+TITLE: Word in the web interface
+
+[TEXT]
+MID: 6216ecb1419546a2854fb3a63fb4e68f
+STATEMENT: >>>
+The web interface (``strictdoc server``) has two dialogs for Word. Activate
+them with the ``DOCX`` project feature:
+
+.. code:: python
+
+    def create_config() -> ProjectConfig:
+        return ProjectConfig(
+            project_title="My project",
+            project_features=["DOCX"],
+            docx_profile="profile.py",
+        )
+
+Without the feature, the dialogs do not appear and their addresses answer
+with HTTP status 412.
+
+Both dialogs are in the menu of the project tree.
+
+**Import from Word.** Choose a ``.docx`` file, say how its tracked changes are
+read, and choose between merging into the existing SDoc file by UID (default)
+and replacing it. **Preview** shows the same report as the command line and
+writes nothing. **Import** writes ``<file name>.sdoc`` in the first input
+folder and refreshes the tree.
+
+**Export to Word.** Choose a document. With no Word file, **Download** builds a
+new one from the profile template. With a Word file, the differences are
+written into it as tracked changes, and the download is named
+``<document>_updated.docx``. **Preview** lists the requirements that would be
+added, changed and deleted.
+
+The profile is always the one set by ``docx_profile`` in the configuration
+(the generic profile when there is none). The interface does not accept an
+uploaded profile, because a profile is Python code. An upload must be a Word
+package of at most 50 MB. The Word file is kept in a temporary folder for the
+duration of the request only.
+
+Only the SDoc file with the name of the uploaded Word file, in the top input
+folder, is merged. A document in a subfolder is not found and a new file is
+written beside it.
+<<<
+
+[[/SECTION]]
+
+[[SECTION]]
 MID: 940b69be61e84c368220601248cc5846
 TITLE: Formatting and tracked changes
 

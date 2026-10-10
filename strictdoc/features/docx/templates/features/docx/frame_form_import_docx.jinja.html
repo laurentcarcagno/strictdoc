@@ -1,0 +1,81 @@
+{% extends "components/modal/form.jinja" %}
+{% set form = "sdoc_modal_form" %}
+{% block modal__context %}{% endblock modal__context %}
+{% block modal_form__header %}
+Import from Word
+{% endblock modal_form__header %}
+{% block modal_form__content %}
+  <form
+    id="{{ form }}"
+    action="/actions/project_index/import_docx"
+    method="POST"
+    enctype="multipart/form-data"
+    data-turbo="true"
+  >
+    <sdoc-form-grid>
+      {%- with
+        field_class_name="",
+        field_input_name="docx_file",
+        field_label="Word document (.docx)",
+        field_required=true,
+        errors=[]
+      -%}
+        {% include "components/form/field/file/index.jinja" %}
+      {%- endwith -%}
+
+      <sdoc-form-row>
+        <sdoc-form-row-main>
+          <sdoc-form-field>
+            <label for="docx_tracked_changes">Tracked changes in the document</label>
+            <select
+              name="tracked_changes"
+              id="docx_tracked_changes"
+              data-testid="form-docx-tracked-changes-field"
+            >
+              <option value="accept" selected>Accept them (use the new text)</option>
+              <option value="reject">Reject them (use the original text)</option>
+            </select>
+          </sdoc-form-field>
+        </sdoc-form-row-main>
+      </sdoc-form-row>
+
+      <sdoc-form-row>
+        <sdoc-form-row-main>
+          <sdoc-form-field>
+            <label for="docx_overwrite">
+              <input
+                type="checkbox"
+                name="overwrite"
+                id="docx_overwrite"
+                value="true"
+                data-testid="form-docx-overwrite-field"
+              />
+              Replace the existing SDoc file instead of merging into it by UID
+            </label>
+          </sdoc-form-field>
+        </sdoc-form-row-main>
+      </sdoc-form-row>
+
+      <sdoc-form-row>
+        <sdoc-form-row-main>
+          <div id="docx_report" data-testid="docx-report"></div>
+        </sdoc-form-row-main>
+      </sdoc-form-row>
+    </sdoc-form-grid>
+  </form>
+{% endblock modal_form__content %}
+{% block modal_form__footer_extra %}
+  <button
+    form="{{ form }}"
+    formaction="/actions/project_index/import_docx_preview"
+    data-turbo="true"
+    class="action_button"
+    type="submit"
+    data-testid="docx-preview-action"
+  >Preview</button>
+{% endblock modal_form__footer_extra %}
+{% block modal_form__footer_submit %}
+  {%- with submit_name="Import" -%}
+    {% include "components/button/submit.jinja" %}
+  {%- endwith -%}
+{% endblock modal_form__footer_submit %}

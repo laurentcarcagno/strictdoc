@@ -184,6 +184,7 @@ from strictdoc.server.helpers.hierarchical_rw_lock_manager import (
 )
 from strictdoc.server.helpers.http import request_is_for_non_modified_file
 from strictdoc.server.helpers.turbo import render_turbo_stream
+from strictdoc.server.routers.docx_router import create_docx_routers
 
 HTTP_STATUS_BAD_REQUEST = 400
 HTTP_STATUS_NOT_FOUND = 404
@@ -5142,6 +5143,15 @@ def create_main_router(
             content=output,
             status_code=200,
         )
+
+    docx_read_router, docx_write_router = create_docx_routers(
+        project_config=project_config,
+        export_action=export_action,
+        env=env,
+        write_document_to_file=write_document_to_file,
+    )
+    read_router.include_router(docx_read_router)
+    write_router.include_router(docx_write_router)
 
     router.include_router(read_router)
     router.include_router(write_router)

@@ -35,7 +35,17 @@ tree menu, in the style of the ReqIF import. Nothing else in the web interface c
 | G3 | Export dialog and download | `unit_server` test: fresh download opens and re-imports to the same model; update report equals CLI |
 | G4 | Menu entries, user guide, feature map | repo docs build |
 
+## Delivered state
+
+G1 to G4 are done. Checks: 10 HTTP tests (`tests/unit_server/strictdoc/server/30_docx_word_flow`), 7 service tests, and a manual
+check in headless Chromium (13 steps: both dialogs, preview, import, merge, fresh download, update preview and download), kept in
+`ISIS/strictdoc-dev/browser/` (image `isis-strictdoc-browser`). It is not part of the StrictDoc end2end suite, which needs
+SeleniumBase.
+
+The browser check found one defect that the HTTP tests could not: Turbo ignored the Preview button's `data-turbo="true"` inside a
+`data-turbo="false"` form. The export form is now a Turbo form and only the Download button opts out.
+
 ## Not in this plan
 
-Choosing a profile in the browser, several documents in one export, a browser (end2end) test: this machine has no browser
-driver in the dev image. The routes are tested over HTTP only; the look of the dialogs has not been checked in a real browser.
+Choosing a profile in the browser, several documents in one export, a SeleniumBase end2end test. Only Chromium was tried, not Firefox
+or Word's own handling of the downloaded file.

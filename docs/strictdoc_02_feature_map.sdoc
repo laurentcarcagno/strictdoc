@@ -760,6 +760,9 @@ headings and how a requirement table is laid out. The import merges a changed
 Word document into the existing SDoc files by UID. The export can fill a Word
 template. When a Word document is already under review, the export can instead
 update it and write the differences as Word tracked changes.
+
+The web interface offers the same actions as dialogs, with a preview of the
+report, when the ``DOCX`` feature is activated.
 <<<
 DOCUMENTATION: >>>
 - [LINK: SECTION-UG-Word-support]

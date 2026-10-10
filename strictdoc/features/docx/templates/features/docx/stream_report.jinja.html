@@ -1,0 +1,9 @@
+<turbo-stream action="update" target="docx_report">
+  <template>
+    {%- if error is defined and error %}
+    <sdoc-form-error data-testid="docx-error">{{ error }}</sdoc-form-error>
+    {%- else %}
+    <pre data-testid="docx-report-text">{{ report_text }}</pre>
+    {%- endif %}
+  </template>
+</turbo-stream>
