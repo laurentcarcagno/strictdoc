@@ -58,6 +58,23 @@ Import from Word
 
       <sdoc-form-row>
         <sdoc-form-row-main>
+          <sdoc-form-field>
+            <label for="docx_allow_empty">
+              <input
+                type="checkbox"
+                name="allow_empty"
+                id="docx_allow_empty"
+                value="true"
+                data-testid="form-docx-allow-empty-field"
+              />
+              Import even if no requirement is found
+            </label>
+          </sdoc-form-field>
+        </sdoc-form-row-main>
+      </sdoc-form-row>
+
+      <sdoc-form-row>
+        <sdoc-form-row-main>
           <div id="docx_report" data-testid="docx-report"></div>
         </sdoc-form-row-main>
       </sdoc-form-row>

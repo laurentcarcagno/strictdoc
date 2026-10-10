@@ -36,7 +36,9 @@ def _word_file(path: str, *tables: str) -> bytes:
         return file_.read()
 
 
-def _client(tmp_path, activated: bool = True) -> TestClient:
+def _client(
+    tmp_path, activated: bool = True, with_profile: bool = True
+) -> TestClient:
     input_dir = os.path.join(str(tmp_path), "input")
     shutil.copytree(
         PATH_TO_THIS_TEST_FOLDER,
@@ -56,7 +58,8 @@ def _client(tmp_path, activated: bool = True) -> TestClient:
     project_config: ProjectConfig = ProjectConfig.default_config()
     if activated:
         project_config.project_features.append(ProjectFeature.DOCX)
-    project_config.docx_profile = os.path.join(input_dir, "profile.py")
+    if with_profile:
+        project_config.docx_profile = os.path.join(input_dir, "profile.py")
     project_config.integrate_server_config(server_config)
     return TestClient(create_app(project_config=project_config))
 
@@ -111,6 +114,7 @@ def test_004_preview_shows_the_report_and_writes_nothing(tmp_path):
         files={"docx_file": _upload("Spec.docx", data)},
     )
     assert response.status_code == 200
+    assert "Profile:" in response.text and "profile.py" in response.text
     assert "Word import: 1 requirement(s)" in response.text
     assert "Nothing was written" in response.text
     assert not os.path.exists(os.path.join(str(tmp_path), "input", "Spec.sdoc"))
@@ -240,3 +244,31 @@ def test_010_export_errors_are_clear(tmp_path):
         client.post("/docx/export", data={"document_mid": "x"}).status_code
         == 404
     )
+
+
+def test_011_a_file_with_no_requirement_is_refused_unless_allowed(tmp_path):
+    client = _client(tmp_path, with_profile=False)
+    data = _word_file(
+        os.path.join(str(tmp_path), "Spec.docx"),
+        _requirement_table("W-1", "The system shall stop."),
+    )
+    files = {"docx_file": _upload("Spec.docx", data)}
+    preview = client.post(
+        "/actions/project_index/import_docx_preview", files=files
+    )
+    assert "Profile: generic" in preview.text
+    assert "WARNING: No requirement found" in preview.text
+    written = os.path.join(str(tmp_path), "input", "Spec.sdoc")
+
+    refused = client.post("/actions/project_index/import_docx", files=files)
+    assert refused.status_code == 422
+    assert "Nothing was imported" in refused.text
+    assert not os.path.exists(written)
+
+    allowed = client.post(
+        "/actions/project_index/import_docx",
+        files=files,
+        data={"allow_empty": "true"},
+    )
+    assert allowed.status_code == 200
+    assert os.path.exists(written)

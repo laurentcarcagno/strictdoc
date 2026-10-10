@@ -109,6 +109,33 @@ def import_upload(
     return DocxImportResult(document=document, report=report, stem=stem)
 
 
+def describe_profile(project_config: ProjectConfig) -> str:
+    profile_path = project_config.docx_profile
+    if profile_path is None:
+        return (
+            "Profile: generic (no docx_profile in the configuration). The "
+            "generic profile does not know requirement tables."
+        )
+    return f"Profile: {profile_path}"
+
+
+def import_warning(
+    report: DocxImportReport, project_config: ProjectConfig
+) -> str:
+    """A hint when the file gives no requirement, empty when all is fine."""
+    if report.requirement_count > 0:
+        return ""
+    if project_config.docx_profile is None:
+        return (
+            "No requirement found. Set docx_profile in strictdoc_config.py to "
+            "a profile that describes the requirement tables."
+        )
+    return (
+        "No requirement found. Check that the table styles and row labels of "
+        "the profile match this document."
+    )
+
+
 def attach_meta(document: SDocDocument, input_dir: str, stem: str) -> str:
     """Gives the document the meta that the SDoc writer needs."""
     file_name = stem + ".sdoc"

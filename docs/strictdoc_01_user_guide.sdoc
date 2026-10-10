@@ -4183,8 +4183,12 @@ Both dialogs are in the menu of the project tree.
 **Import from Word.** Choose a ``.docx`` file, say how its tracked changes are
 read, and choose between merging into the existing SDoc file by UID (default)
 and replacing it. **Preview** shows the same report as the command line and
-writes nothing. **Import** writes ``<file name>.sdoc`` in the first input
-folder and refreshes the tree.
+writes nothing, names the profile in use and warns when no requirement is
+found. **Import** writes ``<file name>.sdoc`` in the first input folder and
+refreshes the tree. A file with no requirement is refused unless the box
+"Import even if no requirement is found" is ticked: with the generic profile
+(no ``docx_profile``) that is always the case, because only a profile can say
+which tables are requirements.
 
 **Export to Word.** Choose a document. With no Word file, **Download** builds a
 new one from the profile template. With a Word file, the differences are

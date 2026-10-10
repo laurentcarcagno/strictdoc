@@ -16,9 +16,11 @@ from starlette.responses import HTMLResponse, Response
 from strictdoc.backend.docx.docx_web_service import (
     DOCX_MEDIA_TYPE,
     attach_meta,
+    describe_profile,
     export_fresh,
     export_update,
     import_upload,
+    import_warning,
     safe_stem,
 )
 from strictdoc.backend.docx.import_.docx_reader import TrackedChangesMode
@@ -125,9 +127,12 @@ def create_docx_routers(
             )
         except (StrictDocException, ValueError) as exception_:
             return error_stream(str(exception_))
-        return report_stream(
-            result.report.format() + "\n\nNothing was written."
-        )
+        lines = [describe_profile(project_config), result.report.format()]
+        warning = import_warning(result.report, project_config)
+        if warning:
+            lines.append("WARNING: " + warning)
+        lines.append("Nothing was written.")
+        return report_stream("\n\n".join(lines))
 
     @write_router.post(
         "/actions/project_index/import_docx", response_class=Response
@@ -136,6 +141,7 @@ def create_docx_routers(
         docx_file: UploadFile,
         tracked_changes: str = Form("accept"),
         overwrite: bool = Form(False),
+        allow_empty: bool = Form(False),
     ) -> Response:
         try:
             result = import_upload(
@@ -148,6 +154,13 @@ def create_docx_routers(
             )
         except (StrictDocException, ValueError) as exception_:
             return error_stream(str(exception_))
+
+        warning = import_warning(result.report, project_config)
+        if warning and not allow_empty:
+            return error_stream(
+                f"{describe_profile(project_config)}\n{warning}\nNothing was "
+                "imported. Tick the box below to import it anyway."
+            )
 
         Path(input_dir()).mkdir(parents=True, exist_ok=True)
         attach_meta(result.document, input_dir(), result.stem)
