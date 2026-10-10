@@ -79,6 +79,11 @@ class DocxProfile:
     # Which comments of the model the export writes as Word comments: "open"
     # (the ones that are not resolved), "all", or "none".
     comments: str = "open"
+    # A fresh export starts with the list of the applicable documents of the
+    # project (the input documents named by the project option
+    # applicable_documents): short name, title, reference, issuer, revision,
+    # date.
+    applicable_documents_table: bool = False
 
     @staticmethod
     def generic() -> "DocxProfile":

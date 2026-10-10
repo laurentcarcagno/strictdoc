@@ -11,7 +11,7 @@ import re
 import tempfile
 import zipfile
 from dataclasses import dataclass
-from typing import Dict, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 
 from strictdoc.backend.docx.docx_export import (
     load_project_profile,
@@ -25,6 +25,7 @@ from strictdoc.backend.docx.export.docx_tracked_update import (
 )
 from strictdoc.backend.docx.export.sdoc_to_docx_generator import (
     DocxGenerator,
+    ExportItem,
     effective_profile,
     items_from_document,
 )
@@ -159,7 +160,9 @@ def attach_meta(document: SDocDocument, input_dir: str, stem: str) -> str:
 
 
 def export_fresh(
-    document: SDocDocument, project_config: ProjectConfig
+    document: SDocDocument,
+    project_config: ProjectConfig,
+    leading_items: Optional[List[ExportItem]] = None,
 ) -> bytes:
     """A new Word file for the document, built from the profile template."""
     profile = effective_profile(load_project_profile(project_config))
@@ -169,7 +172,7 @@ def export_fresh(
         if profile.template is not None
         else DocxTemplate.minimal(profile)
     )
-    items = items_from_document(
+    items = (leading_items or []) + items_from_document(
         document, profile.requirement_table, profile.comments
     )
     return _zip(DocxGenerator.generate(items, profile, template))

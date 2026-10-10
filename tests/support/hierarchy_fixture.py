@@ -8,7 +8,11 @@ from bs4 import BeautifulSoup
 from fastapi.testclient import TestClient
 
 from strictdoc.commands.server_config import ServerCommandConfig
-from strictdoc.core.project_config import ProjectConfig, ProjectConfigLoader
+from strictdoc.core.project_config import (
+    ProjectConfig,
+    ProjectConfigLoader,
+    ProjectFeature,
+)
 from strictdoc.features.hierarchy.levels import Level, validate_hierarchy
 from strictdoc.server.app import create_app
 
@@ -47,6 +51,7 @@ def as_user(group: str, user: str = "u") -> Dict[str, str]:
 ADMIN = as_user("t-admins", "adam")
 AUTHOR = as_user("t-authors", "anna")
 READER = as_user("t-readers", "ruth")
+REVIEWER = as_user("t-reviewers", "rita")
 
 
 def _document(
@@ -109,6 +114,7 @@ def setup(
     editable: bool = False,
     suspect: bool = False,
     hierarchy: bool = True,
+    comments: bool = False,
 ) -> Tuple[TestClient, Path]:
     input_path = root / "input"
     write_project(input_path)
@@ -131,6 +137,8 @@ def setup(
     config.relation_policy = policy
     config.input_documents_editable = editable
     config.suspect_links = suspect
+    if comments:
+        config.project_features.append(ProjectFeature.COMMENTS)
     config.auth_mode = "proxy"
     config.trusted_proxies = ["10.89.2.0/24"]
     config.roles = ROLE_GROUPS

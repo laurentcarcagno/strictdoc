@@ -91,7 +91,16 @@ class ExportRequirement:
     comments: List[ExportComment] = field(default_factory=list)
 
 
-ExportItem = Union[ExportSection, ExportText, ExportRequirement]
+@dataclass
+class ExportInfoTable:
+    """A table of plain texts (the first row is the header)."""
+
+    rows: List[List[str]]
+
+
+ExportItem = Union[
+    ExportSection, ExportText, ExportRequirement, ExportInfoTable
+]
 
 
 def effective_profile(profile: DocxProfile) -> DocxProfile:
@@ -215,6 +224,9 @@ class DocxGenerator:
                 body.extend(
                     _text_blocks(item_.statement, item_.markup, item_.base_dir)
                 )
+            elif isinstance(item_, ExportInfoTable):
+                body.append(table_xml(item_.rows))
+                body.append(empty_paragraph_xml())
             else:
                 body.append(
                     requirement_xml(
@@ -466,6 +478,7 @@ def paragraph_like(prototype: str, paragraph: ExportParagraph) -> str:
 
 __all__ = [
     "DocxGenerator",
+    "ExportInfoTable",
     "ExportItem",
     "ExportRequirement",
     "ExportSection",

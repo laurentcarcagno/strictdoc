@@ -149,3 +149,23 @@ Edited: `strictdoc/core/traceability_index.py` (three predicates), `strictdoc/co
 - REQ_02 migrated on a copy: the number of `Linked Req` references, resolved, unresolved, and the coverage of the input documents are
   reported and reviewed by the user.
 - A deliberate change to a DA2 requirement shows the downstream requirements as suspect in the deployed instance.
+
+## 9. Delivered
+
+H1 to H7 are done on branch `feature/hierarchy`. Unit and `unit_server` tests cover each step (levels and config validation; relation policy;
+403 on every write route of an input document; baseline, badge, screen and clearing; the parser on the 131 real `Linked Req` values of REQ_02;
+the Word import, the index-backed resolver and the one-off action; the hierarchy screen; the applicable-documents table).
+
+Differences from the plan:
+
+- **Input documents**: the can_edit predicates of the traceability index carry the rule, and a guard on the write router covers the routes that do not call a
+  predicate. "Administrator" is known to the predicates through a context variable set by the identity middleware. Review comments stay possible.
+- **Relation policy `warn`** has no effect in the form. The Word import creates relations to applicable documents only through the resolver, which
+  does not check levels; the check of imported relations is not done.
+- **Suspect links**: a link without baseline entry is not suspect (the baseline is created by an administrator and then kept up to date after each write).
+  A parent changed on disk by a re-import is expected to show at the next read once the file watcher has rebuilt the index (not tested). The re-import report does not list the impact: the page `/suspect_links` grouped by parent
+  is the impact list.
+- **References**: roles on relations (`ROLE: derived from`) are not written, because the importer generates its own grammar. A reference to a section
+  whose heading has no UID is reported ("has no UID to link to"); importing the input documents with UIDs on sections is a profile matter.
+- **Word table**: written in fresh exports only, as a heading and a table at the start; update mode does not touch it.
+- Not verified: the migration of the live REQ_02 (needs DA1 and DA2 imported as input documents); the end2end browser tests of the new screens.

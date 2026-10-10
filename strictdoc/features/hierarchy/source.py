@@ -33,6 +33,10 @@ class IndexReferenceSource(ReferenceSource):
         self._uids: Dict[str, List[str]] = {}
         self._sections: Dict[str, Dict[str, Optional[str]]] = {}
 
+    @property
+    def documents(self) -> Dict[str, SDocDocument]:
+        return self._documents
+
     def _find_document(self, location: str) -> Optional[SDocDocument]:
         wanted = os.path.splitext(location.replace("\\", "/").strip("/"))[0]
         for document_ in self._index.document_tree.document_list:

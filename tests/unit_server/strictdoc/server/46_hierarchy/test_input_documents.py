@@ -5,6 +5,7 @@ from tests.support.hierarchy_fixture import (
     AUTHOR,
     DA_1,
     INPUT_DOC,
+    REVIEWER,
     SOFTWARE_DOC,
     SW_1,
     edit_form,
@@ -133,3 +134,15 @@ def test_008_other_documents_are_still_editable_by_an_author(tmp_path):
         "/actions/document/update_requirement", data=values, headers=AUTHOR
     )
     assert response.status_code == 200, response.text
+
+
+def test_009_a_reviewer_can_still_comment_on_an_input_document(tmp_path):
+    client, input_path = setup(tmp_path, comments=True)
+    response = client.post(
+        "/actions/comments/add",
+        data={"node_mid": DA_1, "body": "Is this testable?"},
+        headers=REVIEWER,
+    )
+    assert response.status_code == 200, response.text
+    text = (input_path / "da.sdoc").read_text(encoding="utf8")
+    assert "Is this testable?" in text

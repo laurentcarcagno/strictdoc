@@ -19,6 +19,8 @@ from strictdoc.helpers.mid import MID
 if TYPE_CHECKING:
     from strictdoc.core.traceability_index import TraceabilityIndex
 
+COMMENT_ROUTES = "/actions/comments/"
+
 # The parameters that name the node or the document a route works on.
 MID_PARAMETERS = (
     "document_mid",
@@ -37,6 +39,10 @@ def create_input_guard(
     get_index: Callable[[], "TraceabilityIndex"],
 ) -> Callable[[Request], Awaitable[None]]:
     async def guard(request: Request) -> None:
+        # A review comment is not an edit of the document: reviewers comment
+        # on the customer's text (the comments feature checks its own role).
+        if request.url.path.startswith(COMMENT_ROUTES):
+            return
         index = get_index()
         values: List[str] = list(_values(request.query_params))
         content_type = request.headers.get("content-type", "")

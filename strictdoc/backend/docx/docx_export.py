@@ -15,6 +15,9 @@ from strictdoc.backend.sdoc.models.document import SDocDocument
 from strictdoc.core.document_meta import DocumentMeta
 from strictdoc.core.project_config import ProjectConfig
 from strictdoc.core.traceability_index import TraceabilityIndex
+from strictdoc.features.hierarchy.applicable_table import (
+    applicable_documents_items,
+)
 from strictdoc.helpers.cast import assert_cast
 from strictdoc.helpers.exception import StrictDocException
 
@@ -43,6 +46,16 @@ class DocxExport:
             items = items_from_document(
                 document, profile.requirement_table, profile.comments
             )
+            if (
+                project_config.docx_base is None
+                and profile.applicable_documents_table
+            ):
+                items = (
+                    applicable_documents_items(
+                        project_config, traceability_index
+                    )
+                    + items
+                )
             output_path = os.path.join(
                 output_docx_root, f"{document_meta.document_filename_base}.docx"
             )

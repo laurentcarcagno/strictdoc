@@ -13,6 +13,7 @@ from typing import Callable, List, Optional, Tuple
 from fastapi import APIRouter, Depends, Form, HTTPException, UploadFile
 from starlette.responses import HTMLResponse, Response
 
+from strictdoc.backend.docx.docx_export import load_project_profile
 from strictdoc.backend.docx.docx_web_service import (
     DOCX_MEDIA_TYPE,
     attach_meta,
@@ -23,11 +24,15 @@ from strictdoc.backend.docx.docx_web_service import (
     import_warning,
     safe_stem,
 )
+from strictdoc.backend.docx.export.sdoc_to_docx_generator import ExportItem
 from strictdoc.backend.docx.import_.docx_reader import TrackedChangesMode
 from strictdoc.backend.sdoc.models.document import SDocDocument
 from strictdoc.core.project_config import ProjectConfig
 from strictdoc.export.html.html_templates import JinjaEnvironment
 from strictdoc.features.export.export_action import ExportAction
+from strictdoc.features.hierarchy.applicable_table import (
+    applicable_documents_items,
+)
 from strictdoc.features.hierarchy.references import ResolverFunction
 from strictdoc.features.hierarchy.source import build_reference_resolver
 from strictdoc.features.project_index.view_object import (
@@ -58,6 +63,14 @@ def create_docx_routers(
 
     read_router = APIRouter(dependencies=[Depends(require_feature)])
     write_router = APIRouter(dependencies=[Depends(require_feature)])
+
+    def leading_items() -> List[ExportItem]:
+        """The applicable-documents table, when the profile asks for it."""
+        if not load_project_profile(project_config).applicable_documents_table:
+            return []
+        return applicable_documents_items(
+            project_config, export_action.traceability_index
+        )
 
     def resolver() -> Optional[ResolverFunction]:
         """Links to applicable documents, when the project names some."""
@@ -230,7 +243,9 @@ def create_docx_routers(
         name = safe_stem(document.meta.document_filename_base)
         try:
             if len(base) == 0:
-                content = export_fresh(document, project_config)
+                content = export_fresh(
+                    document, project_config, leading_items()
+                )
                 file_name = f"{name}.docx"
             else:
                 content, _ = export_update(document, base, project_config)

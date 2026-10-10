@@ -4397,6 +4397,94 @@ to the minute and its text, so it is not duplicated.
 [[/SECTION]]
 
 [[SECTION]]
+MID: 4378a1236db5498881a56dbfb8631ea9
+UID: SECTION-UG-Document-hierarchy
+TITLE: Document hierarchy and input documents (experimental)
+
+[TEXT]
+MID: 9743611862264259adf41d3efb934677
+STATEMENT: >>>
+A project is a chain of documents: the customer specification and the interface
+documents come in from outside (input documents), system and software
+requirements answer them, design and tests answer those. This feature adds the
+levels of the chain, read-only input documents, suspect links and a screen of
+coverage.
+
+**Kind of a document.** A document declares its kind in its ``METADATA``:
+
+.. code:: text
+
+    [DOCUMENT]
+    TITLE: Customer specification
+    METADATA:
+      KIND: input
+      ISSUER: Customer
+      REFERENCE: SPEC-1
+      REVISION: B
+
+**Levels.** The project lists the levels and the levels that a node may point
+its ``Parent`` relations to:
+
+.. code:: python
+
+    from strictdoc.features.hierarchy.levels import Level
+
+    def create_config() -> ProjectConfig:
+        return ProjectConfig(
+            project_title="My project",
+            document_hierarchy=[
+                Level("input", label="Applicable documents"),
+                Level("system", label="System requirements", parents=["input"]),
+                Level("software", parents=["system", "input"]),
+            ],
+            relation_policy="enforce",
+        )
+
+``relation_policy`` is ``"off"`` (default), ``"warn"`` or ``"enforce"``. With
+``"enforce"``, saving a relation to a node in a level that is not allowed gives an
+error in the form. A document without a kind is not constrained. A cycle, an
+unknown parent level or a duplicate level is a configuration error.
+
+**Input documents.** A document of kind ``input`` is read-only in the interface:
+the edit, delete, move and add controls disappear and every route that changes
+it answers HTTP status 403 ("Import a new revision to change it"). Review
+comments are still possible. With ``input_documents_editable=True`` an
+administrator may edit it. The usual way to change an input document is to
+import a new revision from Word.
+
+**Suspect links.** With ``suspect_links=True``, the file ``trace_baseline.json``
+at the project root records, for each link between a child and a parent, the
+SHA-1 of the parent as it was reviewed (``suspect_fields``: ``TITLE`` and
+``STATEMENT`` by default). The file has one sorted line per link. When a parent
+changes, its children are suspect: they show a badge, and the page
+``/suspect_links`` lists them by parent. An author clears a link after review
+(the baseline takes the parent as it is now). A link created in the interface
+gets its entry at once. An administrator creates the baseline from the current
+state on the same page; nothing is checked before it exists.
+
+**Applicable documents.** ``applicable_documents={"DA1": "inputs/pus-standard"}``
+gives each input document a short name (a path in the project, or a document UID).
+When a Word table has a column such as ``Linked Req``, named in the profile
+by ``relation_fields``, the import reads its references, for example
+``[DA1] §5.14.1 ; [DA2] REQ-106005, REQ-0280``. A reference to a requirement
+(its UID, or its short form when the UID is longer) or to a numbered section that
+has a UID becomes a ``Parent`` relation; what cannot be resolved stays in the text
+and is listed in the report. The action ``POST /actions/hierarchy/resolve_references``
+(administrator; send ``apply=true`` to write) does the same for requirements
+that are already in the project.
+
+With ``applicable_documents_table=True`` in the Word profile, a fresh export
+starts with the list of the applicable documents (short name, title,
+reference, issuer, revision, date).
+
+**Hierarchy screen.** ``/hierarchy`` shows, for each level, the documents, the
+nodes, the nodes that have a parent in an allowed level, the orphans and the
+nodes that nobody answers, with links.
+<<<
+
+[[/SECTION]]
+
+[[SECTION]]
 MID: 241afbf6b7af40189eec8054d0d0201c
 UID: SECTION-UG-Project-statistics-screen
 TITLE: Project statistics screen
