@@ -77,3 +77,31 @@ def run_strictdoc_server(
             reload_includes=reload_config.reload_includes,
             reload_excludes=reload_config.reload_excludes,
         )
+
+
+def run_strictdoc_projects_server(
+    *, server_config: ServerCommandConfig
+) -> None:
+    """One process for the projects of a registry (features/projects)."""
+    assert server_config.projects is not None
+    assert server_config.root_host is not None
+    os.environ[SDocServerEnvVariable.PROJECTS_FILE] = os.path.abspath(
+        server_config.projects
+    )
+    os.environ[SDocServerEnvVariable.ROOT_HOST] = server_config.root_host
+    if server_config.data_root is not None:
+        os.environ[SDocServerEnvVariable.DATA_ROOT] = os.path.abspath(
+            server_config.data_root
+        )
+    os.environ[SDocServerEnvVariable.OUTPUT_ROOT] = os.path.abspath(
+        server_config.output_path or "output/server"
+    )
+    uvicorn.run(
+        "strictdoc.server.app:strictdoc_projects_app",
+        app_dir=".",
+        factory=True,
+        host=server_config.host or "127.0.0.1",
+        log_level="info",
+        port=server_config.port or 5111,
+        reload=False,
+    )

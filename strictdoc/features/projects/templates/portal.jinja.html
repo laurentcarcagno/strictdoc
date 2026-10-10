@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <title>StrictDoc projects</title>
+  <style>
+    body { font-family: sans-serif; margin: 24px; }
+    table { border-collapse: collapse; }
+    th, td { border: 1px solid #ccc; padding: 4px 8px; text-align: left; }
+  </style>
+</head>
+<body>
+  <h1>Projects</h1>
+  {%- if rows %}
+  <table data-testid="portal-table">
+    <tr><th>Project</th><th>Your role</th><th>Documents</th><th>Last change</th></tr>
+    {%- for row in rows %}
+    <tr data-testid="portal-row" data-slug="{{ row.slug }}">
+      <td><a href="{{ row.url }}">{{ row.title }}</a>{% if row.archived %} (archived){% endif %}</td>
+      <td>{{ row.role }}</td>
+      <td>{{ row.documents }}</td>
+      <td>{{ row.last_change }}</td>
+    </tr>
+    {%- endfor %}
+  </table>
+  {%- else %}
+  <p data-testid="portal-empty">You are not a member of any project{% if user %} ({{ user }}){% endif %}. Ask an administrator to add you to a project group.</p>
+  {%- endif %}
+</body>
+</html>

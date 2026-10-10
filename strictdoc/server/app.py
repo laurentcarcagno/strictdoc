@@ -7,7 +7,7 @@ import logging
 import os
 import sys
 import time
-from typing import Awaitable, Callable, Generator
+from typing import Any, Awaitable, Callable, Generator
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -16,6 +16,8 @@ from starlette.responses import Response
 
 from strictdoc import __version__
 from strictdoc.core.project_config import ProjectConfig
+from strictdoc.features.projects.app import create_projects_app
+from strictdoc.features.projects.registry import load_registry
 from strictdoc.features.roles.audit import AuditLog, AuditMiddleware
 from strictdoc.features.roles.enforcement import RoleMiddleware
 from strictdoc.features.roles.middleware import PrincipalMiddleware
@@ -172,12 +174,15 @@ def create_app(*, project_config: ProjectConfig) -> FastAPI:
             lock_manager=lock_manager,
         )
     )
+    context = ProjectContext.create(project_config)
+    # The portal of a server with several projects reads it.
+    app.state.project_context = context
     app.include_router(
         create_main_router(
             project_config=project_config,
             app=app,
             lock_manager=lock_manager,
-            context=ProjectContext.create(project_config),
+            context=context,
         )
     )
 
@@ -206,4 +211,20 @@ def strictdoc_production_app() -> FastAPI:
 
     return create_app(
         project_config=project_config,
+    )
+
+
+def strictdoc_projects_app() -> Any:
+    """The application of a server with several projects."""
+    register_code_coverage_hook()
+    data_root = os.environ.get(SDocServerEnvVariable.DATA_ROOT)
+    return create_projects_app(
+        create_app=create_app,
+        specs=load_registry(
+            os.environ[SDocServerEnvVariable.PROJECTS_FILE], data_root
+        ),
+        root_host=os.environ[SDocServerEnvVariable.ROOT_HOST],
+        output_root=os.environ[SDocServerEnvVariable.OUTPUT_ROOT],
+        audit_root=os.environ.get("STRICTDOC_AUDIT_DIR"),
+        data_root=data_root,
     )

@@ -4485,6 +4485,67 @@ nodes that nobody answers, with links.
 [[/SECTION]]
 
 [[SECTION]]
+MID: 3399dcc1853d41469fc9ecfd110d3e48
+UID: SECTION-UG-Several-projects
+TITLE: Several projects in one server (experimental)
+
+[TEXT]
+MID: 2b805fe46bc34a748049aa52a007d0d0
+STATEMENT: >>>
+One server process can serve several projects. Each project has its own
+documents, configuration, Word profile, roles, output folder and audit log;
+nothing of one project shows in another.
+
+A registry file, a Python file like ``strictdoc_config.py``, lists them:
+
+.. code:: python
+
+    from strictdoc.features.projects.registry import ProjectSpec
+
+
+    def create_projects():
+        return [
+            ProjectSpec(
+                slug="revalto",
+                title="Revalto flight software",
+                path="/data/revalto",
+                roles={
+                    "administrator": ["revalto-admins"],
+                    "author": ["revalto-authors"],
+                    "reviewer": ["revalto-reviewers"],
+                    "reader": ["revalto-readers"],
+                },
+            ),
+        ]
+
+Start the server with:
+
+.. code:: text
+
+    strictdoc server --projects projects.py --root-host strictdoc.example.org --data-root /data
+
+The portal is at ``strictdoc.example.org`` and lists the projects that the user
+may open, with the user's role in each. A project is served at
+``<slug>.strictdoc.example.org``: the host name selects the project, so the links
+of its pages are unchanged and two browser tabs on two projects never mix. An
+unknown host name gets a bare "Not found". ``/healthz`` answers "ok" on every host.
+
+A slug has 1 to 32 lower case letters, digits or ``-``. Each project folder must
+exist, be inside ``--data-root`` when it is given (links that leave it are
+refused) and be used by one project only. The ``roles`` of a project are its own:
+the ``STRICTDOC_ROLES`` variable of a one-project deployment does not apply.
+``STRICTDOC_AUDIT_DIR`` names the folder that holds one audit folder per project.
+``archived=True`` makes the project read-only for everybody. The login proxy
+(``auth_mode``) is the same for all the projects. Projects are added by editing
+the registry and restarting the server.
+
+All the projects share one process: a long operation in one slows the others, and
+a crash stops all. The memory cost of one more project is small (see the plan).
+<<<
+
+[[/SECTION]]
+
+[[SECTION]]
 MID: 241afbf6b7af40189eec8054d0d0201c
 UID: SECTION-UG-Project-statistics-screen
 TITLE: Project statistics screen

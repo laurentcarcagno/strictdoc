@@ -130,3 +130,33 @@ the worker), `strictdoc/commands/server_config.py`, `strictdoc/core/project_conf
 - The tests above; the whole end2end families still pass with a one-project registry (equivalent to today).
 - Deployed with two projects: three users in different groups, checked with a headless browser; no cross-over; the journal shows no secret.
 - Memory table in section 3.5 filled with measured numbers.
+
+## 9. Delivered
+
+P1 to P4 are done on branch `feature/projects`; the deploy support of P5 is written and partly checked; P6 is covered by server tests, not by a browser.
+
+- P1 `features/projects/registry.py`: `ProjectSpec`, `load_registry`, validation (slug, duplicate slug, missing folder or configuration, folder outside the
+  data root including links that leave it, two projects on one folder, bad roles), `build_project_config` (own output folder, own audit folder, own roles; the
+  `STRICTDOC_ROLES` of a one-project deployment does not apply). `archived=True` is implemented (open question 3): every group becomes `reader`.
+- P2 `dispatcher.py`: host to application, lifespan of every project started and stopped, bare 404 on an unknown host (and a closed WebSocket), `/healthz` on
+  every host. `strictdoc server --projects FILE --root-host HOST [--data-root DIR]`; the input path is optional then.
+- P3 `portal.py`: lists the projects whose roles contain a group of the user, with role, documents and last change; a message for a user in no project.
+  Each project enforces its own roles (a user of alpha gets 403 on beta).
+- P4 tests: a change in alpha leaves the files and the output folder of beta untouched; one audit log per project, a refusal is audited in the project that refused;
+  a real `strictdoc server --projects` process serves two projects on one port.
+- Memory (`developer/design/measure_projects_memory.py`, resident memory of the server process after one page request per project, Python 3.12, Linux):
+
+| Projects | 131 nodes each (size of REQ_02) | 3,000 nodes each |
+|---|---|---|
+| 1 | 150 MB | 327 MB |
+| 2 | 160 MB | 404 MB |
+| 5 | 181 MB | 533 MB |
+
+  One more small project costs about 8 MB; one more 3,000-node project about 45 to 75 MB. The host has about 8 GB free: not a limit for this use.
+- P5 `strictdoc-deploy/deploy.sh --projects`: registry in `~/strictdoc-projects/projects.py` (seeded with one project, `isis`), Keycloak groups and oauth2-proxy
+  allowed groups taken from the registry, `--cookie-domain` and `--whitelist-domain` on the parent domain, Caddy block with `strictdoc.<domain>, *.strictdoc.<domain>`,
+  `/etc/hosts` entries per project for the server itself, a `/healthz` check. Checked: `bash -n`, the generated Caddy block validates with Caddy, and
+  **open question 1 is answered: Caddy's internal CA signs the wildcard name** (checked with a throwaway Caddy, SAN `*.strictdoc.<domain>`).
+  Not checked live: the whole script in `--projects` mode, the login across two hosts (`check_login.py` for two projects).
+- Not done: the SeleniumBase end2end on two hosts (the unit_server tests and the real-process test cover the isolation); a "create project" screen (file-based, as proposed).
+- Limits: all projects share the Python process (a heavy export in one slows the others, a crash stops all); `auth_mode` is the same for every project.

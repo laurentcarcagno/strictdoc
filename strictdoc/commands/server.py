@@ -5,7 +5,10 @@ from strictdoc.cli.base_command import BaseCommand, CLIValidationError
 from strictdoc.commands.server_config import ServerCommandConfig
 from strictdoc.core.project_config import ProjectConfigLoader
 from strictdoc.helpers.parallelizer import Parallelizer
-from strictdoc.server.server import run_strictdoc_server
+from strictdoc.server.server import (
+    run_strictdoc_projects_server,
+    run_strictdoc_server,
+)
 
 
 class ServerCommand(BaseCommand):
@@ -16,7 +19,31 @@ class ServerCommand(BaseCommand):
     def add_arguments(cls, parser: argparse.ArgumentParser) -> None:
         command_parser_server = parser
 
-        command_parser_server.add_argument("input_path")
+        command_parser_server.add_argument("input_path", nargs="?")
+        command_parser_server.add_argument(
+            "--projects",
+            type=str,
+            help=(
+                "Serve several projects of a registry file (a Python file "
+                "with create_projects()) instead of one input path."
+            ),
+        )
+        command_parser_server.add_argument(
+            "--root-host",
+            type=str,
+            help=(
+                "With --projects: the host name of the portal. A project is "
+                "served at <slug>.<root host>."
+            ),
+        )
+        command_parser_server.add_argument(
+            "--data-root",
+            type=str,
+            help=(
+                "With --projects: the folder that every project folder must "
+                "be inside."
+            ),
+        )
         command_parser_server.add_argument("--output-path", type=str)
         command_parser_server.add_argument("--host", type=str)
         command_parser_server.add_argument("--port", type=IntRange(1024, 65000))
@@ -61,6 +88,9 @@ class ServerCommand(BaseCommand):
             server_config.validate()
         except CLIValidationError as exception_:
             raise exception_
+        if server_config.projects is not None:
+            run_strictdoc_projects_server(server_config=server_config)
+            return
         project_config = ProjectConfigLoader.load_using_server_config(
             server_config
         )
