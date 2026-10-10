@@ -76,6 +76,9 @@ class DocxProfile:
     # The author of the tracked changes that an update of a Word document
     # writes.
     revision_author: str = "StrictDoc"
+    # Which comments of the model the export writes as Word comments: "open"
+    # (the ones that are not resolved), "all", or "none".
+    comments: str = "open"
 
     @staticmethod
     def generic() -> "DocxProfile":
@@ -86,6 +89,11 @@ class DocxProfile:
             raise StrictDocException(
                 f"Invalid free_text value in the profile: '{self.free_text}'."
                 f" Use '{FREE_TEXT_TEXT}' or '{FREE_TEXT_DROP}'."
+            )
+        if self.comments not in ("open", "all", "none"):
+            raise StrictDocException(
+                f"Invalid comments value in the profile: '{self.comments}'."
+                " Use 'open', 'all' or 'none'."
             )
         if self.markup not in (MARKUP_RST, MARKUP_MARKDOWN):
             raise StrictDocException(

@@ -40,7 +40,9 @@ class DocxExport:
         document: SDocDocument
         for document in traceability_index.document_tree.document_list:
             document_meta = assert_cast(document.meta, DocumentMeta)
-            items = items_from_document(document, profile.requirement_table)
+            items = items_from_document(
+                document, profile.requirement_table, profile.comments
+            )
             output_path = os.path.join(
                 output_docx_root, f"{document_meta.document_filename_base}.docx"
             )

@@ -15,6 +15,11 @@ from strictdoc.backend.docx.docx_profile import (
     DocxProfile,
     DocxRequirementTable,
 )
+from strictdoc.backend.docx.export.docx_comments import (
+    ExportComment,
+    anchor_first_paragraph,
+    embed_comments,
+)
 from strictdoc.backend.docx.export.docx_images import (
     embed_images,
     images_in,
@@ -43,6 +48,7 @@ from strictdoc.backend.docx.export.text_to_paragraphs import text_to_paragraphs
 from strictdoc.backend.sdoc.models.document import SDocDocument
 from strictdoc.backend.sdoc.models.node import SDocNode
 from strictdoc.core.document_iterator import SDocDocumentIterator
+from strictdoc.features.comments.model import parse_comment
 
 # A paragraph is either self-closing or has content. "<w:pPr>" does not match.
 PARAGRAPH_PATTERN = re.compile(
@@ -82,6 +88,7 @@ class ExportRequirement:
     note: str = ""
     markup: str = MARKUP_RST
     base_dir: str = ""
+    comments: List[ExportComment] = field(default_factory=list)
 
 
 ExportItem = Union[ExportSection, ExportText, ExportRequirement]
@@ -94,8 +101,41 @@ def effective_profile(profile: DocxProfile) -> DocxProfile:
     return dataclasses.replace(profile, requirement_table=DEFAULT_EXPORT_LAYOUT)
 
 
+def _export_comments(
+    node: SDocNode, mode: str, markup: str, base_dir: str
+) -> List[ExportComment]:
+    """The comments of a node that go to Word, as the profile says."""
+    if mode == "none":
+        return []
+    prefix = re.sub(
+        r"[^0-9A-Za-z_-]",
+        "_",
+        node.reserved_uid or node.reserved_mid.get_string_value(),
+    )
+    comments: List[ExportComment] = []
+    for index_, field_ in enumerate(node.get_comment_fields()):
+        comment = parse_comment(field_.get_text_value())
+        if comment.is_resolved and mode != "all":
+            continue
+        identifier = comment.id or f"legacy{index_}"
+        comments.append(
+            ExportComment(
+                key=f"{prefix}-{identifier}",
+                author=comment.author,
+                date=comment.date,
+                body=comment.body,
+                resolved=comment.is_resolved,
+                markup=markup,
+                base_dir=base_dir,
+            )
+        )
+    return comments
+
+
 def items_from_document(
-    document: SDocDocument, layout: DocxRequirementTable
+    document: SDocDocument,
+    layout: DocxRequirementTable,
+    comments: str = "none",
 ) -> List[ExportItem]:
     items: List[ExportItem] = []
     markup = (
@@ -137,6 +177,9 @@ def items_from_document(
                     note=note,
                     markup=markup,
                     base_dir=base_dir,
+                    comments=_export_comments(
+                        node_, comments, markup, base_dir
+                    ),
                 )
             )
     return items
@@ -183,6 +226,7 @@ class DocxGenerator:
                 body.append(empty_paragraph_xml())
         package = template.build_package("".join(body))
         embed_images(package, collect_item_images(items))
+        embed_comments(package, collect_item_comments(items))
         return package
 
     @staticmethod
@@ -211,6 +255,16 @@ def collect_item_images(items: List[ExportItem]) -> Dict[str, ExportImage]:
                     text_to_paragraphs(text_, item_.markup, item_.base_dir)
                 )
     return images_in(paragraphs)
+
+
+def collect_item_comments(items: List[ExportItem]) -> List[ExportComment]:
+    """The comments of the requirements of the items."""
+    return [
+        comment_
+        for item_ in items
+        if isinstance(item_, ExportRequirement)
+        for comment_ in item_.comments
+    ]
 
 
 def heading_style_by_level(profile: DocxProfile) -> Dict[int, str]:
@@ -296,7 +350,9 @@ def requirement_xml(
             )
         elif role == "keep":
             out_rows.append(row_)
-    return head + "".join(out_rows) + "</w:tbl>"
+    return anchor_first_paragraph(
+        head + "".join(out_rows) + "</w:tbl>", requirement.comments
+    )
 
 
 def _p(text: str) -> ExportParagraph:

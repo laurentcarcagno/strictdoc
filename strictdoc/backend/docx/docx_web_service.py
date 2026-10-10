@@ -166,7 +166,9 @@ def export_fresh(
         if profile.template is not None
         else DocxTemplate.minimal(profile)
     )
-    items = items_from_document(document, profile.requirement_table)
+    items = items_from_document(
+        document, profile.requirement_table, profile.comments
+    )
     return _zip(DocxGenerator.generate(items, profile, template))
 
 
@@ -177,7 +179,9 @@ def export_update(
     check_upload(base)
     profile = effective_profile(load_project_profile(project_config))
     assert profile.requirement_table is not None
-    items = items_from_document(document, profile.requirement_table)
+    items = items_from_document(
+        document, profile.requirement_table, profile.comments
+    )
     with tempfile.TemporaryDirectory() as temporary_dir_:
         base_path = os.path.join(temporary_dir_, "base.docx")
         with open(base_path, "wb") as file_:
