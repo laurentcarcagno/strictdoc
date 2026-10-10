@@ -45,6 +45,7 @@ from strictdoc.core.traceability_index import (
     TraceabilityIndex,
 )
 from strictdoc.core.tree_cycle_detector import SingleShotTreeCycleDetector
+from strictdoc.features.hierarchy.policy import policy_message
 from strictdoc.helpers.auto_described import auto_described
 from strictdoc.helpers.cast import assert_cast
 from strictdoc.helpers.form_data import ParsedFormData, parse_form_data
@@ -959,6 +960,22 @@ class RequirementFormObject(ErrorObject):
                         reference_field.validation_messages.append(
                             f'Parent requirement with an UID "{link_uid}" '
                             f"does not exist."
+                        )
+                        continue
+
+                    policy_message_ = policy_message(
+                        config=config,
+                        traceability_index=traceability_index,
+                        node_document=context_document,
+                        target_uid=link_uid,
+                        relation_type=reference_field.field_type,
+                    )
+                    if (
+                        policy_message_ is not None
+                        and config.relation_policy == "enforce"
+                    ):
+                        reference_field.validation_messages.append(
+                            policy_message_
                         )
                         continue
 
