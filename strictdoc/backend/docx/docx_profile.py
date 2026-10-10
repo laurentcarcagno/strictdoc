@@ -17,6 +17,9 @@ from strictdoc.helpers.exception import StrictDocException
 FREE_TEXT_TEXT = "text"
 FREE_TEXT_DROP = "drop"
 
+MARKUP_RST = "RST"
+MARKUP_MARKDOWN = "Markdown"
+
 
 @dataclass
 class DocxRequirementTable:
@@ -58,6 +61,10 @@ class DocxProfile:
     requirement_table: Optional[DocxRequirementTable] = None
     # "text": keep running paragraphs as TEXT nodes. "drop": count only.
     free_text: str = FREE_TEXT_TEXT
+    # How the import writes the text of the SDoc nodes: "RST" (default) or
+    # "Markdown" (the document then gets MARKUP: Markdown). The export reads
+    # the markup of each SDoc document, not this value.
+    markup: str = MARKUP_RST
     document_title: Optional[str] = None
     # Paragraphs whose style starts with one of these are skipped (tables of
     # contents and tables of figures hold generated text).
@@ -79,6 +86,11 @@ class DocxProfile:
             raise StrictDocException(
                 f"Invalid free_text value in the profile: '{self.free_text}'."
                 f" Use '{FREE_TEXT_TEXT}' or '{FREE_TEXT_DROP}'."
+            )
+        if self.markup not in (MARKUP_RST, MARKUP_MARKDOWN):
+            raise StrictDocException(
+                f"Invalid markup value in the profile: '{self.markup}'."
+                f" Use '{MARKUP_RST}' or '{MARKUP_MARKDOWN}'."
             )
         if self.requirement_table is not None:
             for field_name_ in self.requirement_table.meta_rows.values():

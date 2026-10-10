@@ -354,3 +354,73 @@ def test_020_a_table_without_rows_is_ignored(tmp_path):
     assert report.free_table_count == 0
     assert text.count("\n\n\n") == 0
     DocxToSDocConverter.parse(text)
+
+
+def test_markdown_profile_writes_a_markdown_document(tmp_path):
+    blocks = [
+        paragraph("Section", style="Heading1"),
+        _requirement(
+            "R-1", text=("The system shall use snake_case, a*b and 1 &lt; 2.",)
+        ),
+    ]
+    sdoc_text, document, _ = _convert(
+        tmp_path, blocks, _requirement_table_profile(markup="Markdown")
+    )
+    assert "OPTIONS:\n  MARKUP: Markdown\n" in sdoc_text
+    assert document.config.markup == "Markdown"
+    assert "snake_case, a\\*b and 1 \\< 2." in sdoc_text
+
+
+def test_markdown_profile_keeps_bold_italic_code_and_lists(tmp_path):
+    runs = (
+        run("Use ")
+        + run("bold", bold=True)
+        + run(" and ")
+        + run("italic", italic=True)
+        + run(" and ")
+        + run("a_b", font="Courier New")
+    )
+    blocks = [
+        _requirement(
+            "R-1",
+            text=(),
+        ).replace(
+            "<w:tc></w:tc>",
+            "<w:tc>"
+            + paragraph(runs, style="ReqText")
+            + paragraph("one", style="ReqText", list_item=True)
+            + paragraph("two", style="ReqText", list_item=True)
+            + "</w:tc>",
+        )
+    ]
+    sdoc_text, _, _ = _convert(
+        tmp_path, blocks, _requirement_table_profile(markup="Markdown")
+    )
+    assert "Use **bold** and *italic* and `a_b`" in sdoc_text
+    assert "- one\n- two" in sdoc_text
+
+
+def test_markdown_profile_writes_a_pipe_table_and_escapes_the_closing_marker(
+    tmp_path,
+):
+    blocks = [
+        table(
+            row(cell(paragraph("h1")), cell(paragraph("h2"))),
+            row(cell(paragraph("a|b")), cell(paragraph("c"))),
+        ),
+        paragraph("Line &lt;&lt;&lt; here"),
+    ]
+    sdoc_text, document, _ = _convert(
+        tmp_path, blocks, _requirement_table_profile(markup="Markdown")
+    )
+    assert "| h1 | h2 |\n| --- | --- |\n| a\\|b | c |" in sdoc_text
+    assert "Line \\<\\<\\< here" in sdoc_text
+    assert document is not None
+
+
+def test_default_profile_is_still_rst(tmp_path):
+    sdoc_text, document, _ = _convert(
+        tmp_path, [_requirement("R-1")], _requirement_table_profile()
+    )
+    assert "MARKUP" not in sdoc_text
+    assert document.config.markup is None

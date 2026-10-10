@@ -36,6 +36,16 @@ class DocxParagraph:
     # The same text with RST inline markup for bold, italic and monospace.
     rst: str
     is_list_item: bool = False
+    # The same text with Markdown inline markup.
+    markdown: str = ""
+
+    def marked_up(self, markup: str) -> str:
+        """The text in the given markup ("RST" or "Markdown")."""
+        if markup == "Markdown":
+            return (
+                self.markdown if self.markdown else _escape_markdown(self.text)
+            )
+        return self.rst
 
 
 @dataclass
@@ -76,6 +86,21 @@ class DocxReader:
                 ):
                     blocks.append(table)
         return blocks
+
+
+def paragraph_from_segments(
+    segments: List[Tuple[str, bool, bool, bool]],
+) -> DocxParagraph:
+    """
+    A paragraph made of (text, bold, italic, monospace) pieces, with the
+    same markup that reading a Word paragraph with these runs gives.
+    """
+    return DocxParagraph(
+        style="",
+        text="".join(segment_[0] for segment_ in segments),
+        rst=_segments_to_rst(segments),
+        markdown=_segments_to_markdown(segments),
+    )
 
 
 def read_table_element(
@@ -133,7 +158,12 @@ def _read_cell(element: ET.Element, mode: TrackedChangesMode) -> DocxCell:
                 ]
                 text = " | ".join(texts)
                 cell.paragraphs.append(
-                    DocxParagraph("", text, _escape_rst(text))
+                    DocxParagraph(
+                        "",
+                        text,
+                        _escape_rst(text),
+                        markdown=_escape_markdown(text),
+                    )
                 )
     return cell
 
@@ -176,6 +206,7 @@ def _read_paragraph(
         text=text,
         rst=_segments_to_rst(segments),
         is_list_item=is_list_item,
+        markdown=_segments_to_markdown(segments),
     )
 
 
@@ -283,3 +314,59 @@ def _escape_rst(text: str) -> str:
     text = text.replace("*", "\\*")
     text = text.replace("`", "\\`")
     return re.sub(r"(?<=\w)_(?=\W|$)", r"\\_", text)
+
+
+def _segments_to_markdown(segments: List[_Segment]) -> str:
+    merged: List[_Segment] = []
+    for segment_ in segments:
+        if len(merged) > 0 and merged[-1][1:] == segment_[1:]:
+            previous = merged[-1]
+            merged[-1] = (previous[0] + segment_[0], *previous[1:])
+        else:
+            merged.append(segment_)
+
+    pieces: List[str] = []
+    for text_, bold_, italic_, monospace_ in merged:
+        core = text_.strip(" ")
+        if len(core) == 0 or not (bold_ or italic_ or monospace_):
+            pieces.append(_escape_markdown(text_))
+            continue
+        leading = text_[: len(text_) - len(text_.lstrip(" "))]
+        trailing = text_[len(text_.rstrip(" ")) :]
+        if monospace_:
+            fence = "`" * (_longest_backtick_run(core) + 1)
+            padding = " " if core.startswith("`") or core.endswith("`") else ""
+            marked = f"{fence}{padding}{core}{padding}{fence}"
+        elif bold_ and italic_:
+            marked = "***" + _escape_markdown(core) + "***"
+        else:
+            marker = "**" if bold_ else "*"
+            marked = marker + _escape_markdown(core) + marker
+        pieces.append(leading + marked + trailing)
+    return _escape_line_starts("".join(pieces))
+
+
+def _longest_backtick_run(text: str) -> int:
+    runs = re.findall(r"`+", text)
+    return max((len(run_) for run_ in runs), default=0)
+
+
+def _escape_markdown(text: str) -> str:
+    """Escapes what Markdown would read as markup in running text."""
+    text = text.replace("\\", "\\\\")
+    text = text.replace("*", "\\*")
+    text = text.replace("`", "\\`")
+    text = text.replace("<", "\\<")
+    # An underscore inside a word is not emphasis, the others may be.
+    text = re.sub(r"(?<!\w)_|_(?!\w)", r"\\_", text)
+    text = text.replace("\n", "\\\n")
+    return _escape_line_starts(text)
+
+
+def _escape_line_starts(text: str) -> str:
+    """Escapes a line that would start a heading, a quote, a list or a rule."""
+    return re.sub(
+        r"(?m)^(\s*)(#{1,6}\s|>|[-+*]\s|\d+[.)]\s|={2,}\s*$|-{3,}\s*$)",
+        lambda m: m.group(1) + "\\" + m.group(2),
+        text,
+    )

@@ -37,7 +37,10 @@ def _word_file(path: str, *tables: str) -> bytes:
 
 
 def _client(
-    tmp_path, activated: bool = True, with_profile: bool = True
+    tmp_path,
+    activated: bool = True,
+    with_profile: bool = True,
+    profile: str = "profile.py",
 ) -> TestClient:
     input_dir = os.path.join(str(tmp_path), "input")
     shutil.copytree(
@@ -59,7 +62,7 @@ def _client(
     if activated:
         project_config.project_features.append(ProjectFeature.DOCX)
     if with_profile:
-        project_config.docx_profile = os.path.join(input_dir, "profile.py")
+        project_config.docx_profile = os.path.join(input_dir, profile)
     project_config.integrate_server_config(server_config)
     return TestClient(create_app(project_config=project_config))
 
@@ -272,3 +275,28 @@ def test_011_a_file_with_no_requirement_is_refused_unless_allowed(tmp_path):
     )
     assert allowed.status_code == 200
     assert os.path.exists(written)
+
+
+def test_012_a_markdown_profile_imports_markdown_and_exports_it_back(tmp_path):
+    client = _client(tmp_path, profile="profile_markdown.py")
+    data = _word_file(
+        os.path.join(str(tmp_path), "Spec.docx"),
+        _requirement_table("W-1", "Use snake_case and 1 &lt; 2."),
+    )
+    response = client.post(
+        "/actions/project_index/import_docx",
+        files={"docx_file": _upload("Spec.docx", data)},
+    )
+    assert response.status_code == 200
+    with open(os.path.join(str(tmp_path), "input", "Spec.sdoc")) as file_:
+        written = file_.read()
+    assert "MARKUP: Markdown" in written
+    assert "Use snake_case and 1 \\< 2." in written
+
+    form = client.get("/actions/project_index/export_docx_form").text
+    mids = [part.split('"')[0] for part in form.split('<option value="')[1:]]
+    exported = [
+        client.post("/docx/export", data={"document_mid": mid_})
+        for mid_ in mids
+    ]
+    assert any(b"1 &lt; 2." in _document_xml(r.content) for r in exported)

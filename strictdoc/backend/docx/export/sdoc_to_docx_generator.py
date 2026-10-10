@@ -9,6 +9,8 @@ from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Union
 
 from strictdoc.backend.docx.docx_profile import (
+    MARKUP_MARKDOWN,
+    MARKUP_RST,
     DocxProfile,
     DocxRequirementTable,
 )
@@ -22,11 +24,16 @@ from strictdoc.backend.docx.export.docx_xml import (
     table_xml,
     text_paragraph_xml,
 )
+from strictdoc.backend.docx.export.markdown_to_paragraphs import (
+    ExportTable,
+    markdown_to_blocks,
+)
 from strictdoc.backend.docx.export.rst_to_paragraphs import (
     ExportParagraph,
     ExportRun,
     rst_to_paragraphs,
 )
+from strictdoc.backend.docx.export.text_to_paragraphs import text_to_paragraphs
 from strictdoc.backend.sdoc.models.document import SDocDocument
 from strictdoc.backend.sdoc.models.node import SDocNode
 from strictdoc.core.document_iterator import SDocDocumentIterator
@@ -54,6 +61,8 @@ class ExportSection:
 @dataclass
 class ExportText:
     statement: str
+    # The markup of the SDoc document that the text comes from.
+    markup: str = MARKUP_RST
 
 
 @dataclass
@@ -63,6 +72,7 @@ class ExportRequirement:
     statement: str
     fields: Dict[str, str] = field(default_factory=dict)
     note: str = ""
+    markup: str = MARKUP_RST
 
 
 ExportItem = Union[ExportSection, ExportText, ExportRequirement]
@@ -79,6 +89,11 @@ def items_from_document(
     document: SDocDocument, layout: DocxRequirementTable
 ) -> List[ExportItem]:
     items: List[ExportItem] = []
+    markup = (
+        document.config.get_markup()
+        if document.config is not None
+        else MARKUP_RST
+    )
     iterator = SDocDocumentIterator(document=document, node_filter=None)
     for node_, context_ in iterator.all_content(print_fragments=False):
         if not isinstance(node_, SDocNode):
@@ -88,7 +103,7 @@ def items_from_document(
                 ExportSection(context_.get_level(), node_.reserved_title or "")
             )
         elif node_.node_type == "TEXT":
-            items.append(ExportText(_content(node_)))
+            items.append(ExportText(_content(node_), markup))
         elif node_.node_type == "REQUIREMENT":
             fields = {
                 name_: _field_value(node_, name_)
@@ -106,6 +121,7 @@ def items_from_document(
                     statement=_content(node_),
                     fields=fields,
                     note=note,
+                    markup=markup,
                 )
             )
     return items
@@ -138,7 +154,7 @@ class DocxGenerator:
                     text_paragraph_xml(item_.title, heading_styles[level])
                 )
             elif isinstance(item_, ExportText):
-                body.extend(_text_blocks(item_.statement))
+                body.extend(_text_blocks(item_.statement, item_.markup))
             else:
                 body.append(
                     requirement_xml(
@@ -170,7 +186,16 @@ def heading_style_by_level(profile: DocxProfile) -> Dict[int, str]:
     return by_level
 
 
-def _text_blocks(statement: str) -> List[str]:
+def _text_blocks(statement: str, markup: str = MARKUP_RST) -> List[str]:
+    if markup == MARKUP_MARKDOWN:
+        blocks: List[str] = []
+        for block_ in markdown_to_blocks(statement):
+            if isinstance(block_, ExportTable):
+                blocks.append(table_xml(block_.rows))
+                blocks.append(empty_paragraph_xml())
+            else:
+                blocks.append(paragraph_xml(block_))
+        return blocks
     if statement.lstrip().startswith(".. list-table::"):
         return [table_xml(_parse_list_table(statement)), empty_paragraph_xml()]
     return [paragraph_xml(p_) for p_ in rst_to_paragraphs(statement)]
@@ -216,10 +241,14 @@ def requirement_xml(
             out_rows.append(_fill_row(row_, [None, [_p(value)]]))
         elif role == "text":
             text_row_done = True
-            paragraphs = rst_to_paragraphs(requirement.statement)
+            paragraphs = text_to_paragraphs(
+                requirement.statement, requirement.markup
+            )
             out_rows.append(_fill_row(row_, [paragraphs or [_p("")]]))
         elif role == "note":
-            note_paragraphs = rst_to_paragraphs(requirement.note)
+            note_paragraphs = text_to_paragraphs(
+                requirement.note, requirement.markup
+            )
             out_rows.append(
                 fill_note_row(row_, note_paragraphs, layout.note_label or "")
             )

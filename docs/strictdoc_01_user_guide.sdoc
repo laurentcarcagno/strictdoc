@@ -4013,6 +4013,10 @@ describes the layout. It is a Python file that defines ``create_profile()``.
 - ``free_text``: ``"text"`` keeps paragraphs outside requirements as text
   nodes. ``"drop"`` counts them in the report and skips them.
 - ``document_title``: the title of the SDoc document. Default: the file name.
+- ``markup``: ``"RST"`` (default) or ``"Markdown"``. It sets how the import
+  writes the text of the nodes. With ``"Markdown"`` the SDoc document gets
+  ``MARKUP: Markdown``, which the web interface edits with the WYSIWYG editor.
+  The export does not use this value: it reads the markup of each SDoc document.
 - ``ignored_style_prefixes``: paragraph styles to skip. Default: tables of
   contents and tables of figures.
 
@@ -4223,6 +4227,22 @@ Characters that RST treats as markup (``*``, backquote, backslash and a
 trailing underscore) are escaped.
 
 Nested tables are flattened. Images, comments and footnotes are not imported.
+
+**Markdown.** With ``markup="Markdown"`` the same runs become ``**bold**``,
+``*italic*`` and a backquoted ``code``, a list item becomes ``- item`` (a
+paragraph that starts with a number keeps it as ``1. item``), a table outside a
+requirement becomes a pipe table (its first row is the header), and the
+characters that Markdown reads as markup are escaped.
+
+For a document with ``MARKUP: Markdown`` the export writes: paragraphs, headings
+(a bold paragraph), bold, italic and monospace runs, bullet and numbered lists
+(the marker is written as text), code blocks (one monospace paragraph per
+line), links (the text and the address) and pipe tables. A table that stands on
+its own is a Word table; inside a requirement it is written as one paragraph per
+row, like a nested table is read. An image is written as the text
+``[image: file name]``: it is not embedded in the Word file. When a Word file
+is updated, the Markdown text is compared with the Word text in this form, so a
+table or an image does not show up as a change on every update.
 <<<
 
 [[/SECTION]]

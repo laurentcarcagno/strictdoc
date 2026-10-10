@@ -24,10 +24,12 @@ def run_xml(run: ExportRun) -> str:
             f'<w:rFonts w:ascii="{MONOSPACE_FONT}" w:hAnsi="{MONOSPACE_FONT}"/>'
         )
     properties_xml = f"<w:rPr>{properties}</w:rPr>" if properties else ""
-    return (
-        f'<w:r>{properties_xml}<w:t xml:space="preserve">'
-        f"{escape(run.text)}</w:t></w:r>"
+    # A newline in the text is a line break of the paragraph.
+    pieces = "<w:br/>".join(
+        f'<w:t xml:space="preserve">{escape(piece_)}</w:t>'
+        for piece_ in run.text.split("\n")
     )
+    return f"<w:r>{properties_xml}{pieces}</w:r>"
 
 
 def paragraph_xml(
