@@ -39,6 +39,11 @@ from strictdoc.commands.server_config import ServerCommandConfig
 from strictdoc.core.environment import SDocRuntimeEnvironment
 from strictdoc.core.feature import Feature
 from strictdoc.core.plugin import StrictDocPlugin
+from strictdoc.features.hierarchy.levels import (
+    RELATION_POLICIES,
+    Level,
+    validate_hierarchy,
+)
 from strictdoc.features.roles.roles import validate_roles
 from strictdoc.helpers.auto_described import auto_described
 from strictdoc.helpers.deprecation_engine import DEPRECATION_ENGINE
@@ -210,6 +215,10 @@ class ProjectConfig:
         trusted_proxies: Optional[List[str]] = None,
         roles: Optional[Dict[str, List[str]]] = None,
         audit_dir: Optional[str] = None,
+        document_hierarchy: Optional[List[Level]] = None,
+        relation_policy: str = "off",
+        input_documents_editable: bool = False,
+        applicable_documents: Optional[Dict[str, str]] = None,
         reqif_profile: str = ReqIFProfile.P01_SDOC,
         # FIXME: Change to true by default.
         reqif_multiline_is_xhtml: bool = False,
@@ -503,6 +512,17 @@ class ProjectConfig:
             else {
                 role_: list(groups_) for role_, groups_ in (roles or {}).items()
             }
+        )
+        # The levels of the document hierarchy (see features/hierarchy), the
+        # check of the Parent relations against them, whether an
+        # administrator may edit an input document, and the short names of the
+        # input documents ({"DA1": "inputs/pus-standard"}).
+        self.document_hierarchy: List[Level] = list(document_hierarchy or [])
+        self.hierarchy_levels: Dict[str, Level] = {}
+        self.relation_policy: str = relation_policy
+        self.input_documents_editable: bool = input_documents_editable
+        self.applicable_documents: Dict[str, str] = dict(
+            applicable_documents or {}
         )
         self.reqif_profile: str = reqif_profile
 
@@ -905,6 +925,25 @@ class ProjectConfig:
             raise StrictDocException(
                 "config: auth_mode 'proxy' needs roles, the groups of each "
                 "role (reader, reviewer, author, administrator)."
+            )
+
+        try:
+            self.hierarchy_levels = validate_hierarchy(self.document_hierarchy)
+        except ValueError as exception_:
+            raise StrictDocException(
+                f"config: document_hierarchy: {exception_}"
+            ) from exception_
+        if self.relation_policy not in RELATION_POLICIES:
+            raise StrictDocException(
+                f"config: relation_policy: '{self.relation_policy}' is not "
+                f"one of {', '.join(RELATION_POLICIES)}."
+            )
+        if (
+            self.relation_policy != "off"
+            and len(self.document_hierarchy) == 0
+        ):
+            raise StrictDocException(
+                "config: relation_policy needs a document_hierarchy."
             )
 
         #
