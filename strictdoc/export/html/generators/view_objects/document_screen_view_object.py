@@ -23,6 +23,7 @@ from jinja2 import Template
 from markupsafe import Markup, escape
 
 from strictdoc import __version__
+from strictdoc.backend.sdoc.constants import SDocMarkup
 from strictdoc.backend.sdoc.free_text_reader import SDFreeTextReader
 from strictdoc.backend.sdoc.models.anchor import Anchor
 from strictdoc.backend.sdoc.models.document import SDocDocument
@@ -171,6 +172,15 @@ class DocumentScreenViewObject:
         if project_config.html2pdf_template is not None:
             with file_open_read_utf8(project_config.html2pdf_template) as f_:
                 self.custom_html2pdf_template = Template(f_.read())
+
+    def needs_markdown_editor(self) -> bool:
+        """The WYSIWYG editor is only used by the web server."""
+        if not self.is_running_on_server:
+            return False
+        if self.has_included_document():
+            return True
+        config = self.document.config
+        return config is not None and config.markup == SDocMarkup.MARKDOWN
 
     def has_included_document(self) -> bool:
         return len(self.document.included_documents) > 0

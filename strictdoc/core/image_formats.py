@@ -44,3 +44,7 @@ def is_supported_image_format(filename: str, content_type: str | None) -> bool:
     return expected_content_type is not None and (
         content_type == expected_content_type
     )
+
+
+# Largest image the web interface accepts for one upload.
+MAX_IMAGE_SIZE_BYTES = 10 * 1024 * 1024
