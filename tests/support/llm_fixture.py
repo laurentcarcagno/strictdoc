@@ -3,9 +3,16 @@
 from pathlib import Path
 from typing import Any, Dict, Optional
 
+from fastapi.testclient import TestClient
+
 from strictdoc.commands.server_config import ServerCommandConfig
-from strictdoc.core.project_config import ProjectConfig, ProjectConfigLoader
+from strictdoc.core.project_config import (
+    ProjectConfig,
+    ProjectConfigLoader,
+    ProjectFeature,
+)
 from strictdoc.features.llm.config import LLMConfig, OpenAICompatible
+from strictdoc.server.app import create_app
 from strictdoc.server.project_context import ProjectContext
 
 CUSTOMER_DOC = "c" * 32
@@ -149,3 +156,46 @@ def make_llm(**kwargs: Any) -> LLMConfig:
 def make_index(root: Path, llm: Optional[LLMConfig] = None) -> Any:
     config = make_config(root, llm or make_llm())
     return ProjectContext.create(config).export_action.traceability_index
+
+
+ROLE_GROUPS = {
+    "administrator": ["t-admins"],
+    "author": ["t-authors"],
+    "reviewer": ["t-reviewers"],
+    "reader": ["t-readers"],
+}
+PROXY = ("10.89.2.7", 40000)
+
+
+def as_user(group: str, user: str) -> Dict[str, str]:
+    return {
+        "X-Forwarded-Preferred-Username": user,
+        "X-Forwarded-User": f"id-{user}",
+        "X-Forwarded-Groups": group,
+    }
+
+
+AUTHOR = as_user("t-authors", "anna")
+REVIEWER = as_user("t-reviewers", "rita")
+READER = as_user("t-readers", "ruth")
+ADMIN = as_user("t-admins", "adam")
+
+
+def make_client(
+    root: Path,
+    llm: Optional[LLMConfig],
+    feature: bool = True,
+    extra_docs: bool = True,
+) -> Any:
+    config = make_config(root, llm, extra_docs=extra_docs)
+    if feature:
+        config.project_features.append(ProjectFeature.LLM)
+    config.auth_mode = "proxy"
+    config.trusted_proxies = ["10.89.2.0/24"]
+    config.roles = ROLE_GROUPS
+    config.audit_dir = str(root / "audit")
+    return TestClient(
+        create_app(project_config=config),
+        client=PROXY,
+        raise_server_exceptions=False,
+    )

@@ -150,6 +150,7 @@ from strictdoc.features.html2pdf.pdf_print_driver import (
     PDFPrintDriver,
     PDFPrintDriverException,
 )
+from strictdoc.features.llm.router import create_llm_routers
 from strictdoc.features.nestor.view_object import (
     NestorViewObject,
 )
@@ -5117,6 +5118,10 @@ def create_main_router(
     )
     read_router.include_router(hierarchy_read_router)
     write_router.include_router(hierarchy_write_router)
+
+    llm_read_router, llm_write_router, _ = create_llm_routers(context=context)
+    read_router.include_router(llm_read_router)
+    write_router.include_router(llm_write_router)
 
     router.include_router(read_router)
     router.include_router(write_router)

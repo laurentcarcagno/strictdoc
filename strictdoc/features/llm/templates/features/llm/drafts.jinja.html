@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <title>Drafts of the assistant</title>
+  <style>
+    body { font-family: sans-serif; margin: 24px; }
+    table { border-collapse: collapse; }
+    th, td { border: 1px solid #ccc; padding: 4px 8px; text-align: left; }
+  </style>
+</head>
+<body>
+  <h1>Drafts written by a model, not yet Active</h1>
+  <p>{{ rows|length }} node(s).</p>
+  <table data-testid="llm-drafts-table">
+    <tr><th>Node</th><th>Title</th><th>Document</th><th>Status</th><th>Model</th><th>Accepted by</th><th>Date</th></tr>
+    {%- for row in rows %}
+    <tr data-testid="llm-drafts-row">
+      <td><a href="/UID/{{ row.uid }}">{{ row.uid }}</a></td>
+      <td>{{ row.title }}</td><td>{{ row.document }}</td><td>{{ row.status }}</td>
+      <td>{{ row.provider }} / {{ row.model }}</td><td>{{ row.accepted_by }}</td><td>{{ row.date }}</td>
+    </tr>
+    {%- endfor %}
+  </table>
+</body>
+</html>

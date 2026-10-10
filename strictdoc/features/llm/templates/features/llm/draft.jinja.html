@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <title>Draft with AI</title>
+  <style>
+    body { font-family: sans-serif; margin: 24px; max-width: 960px; }
+    label { display: block; margin-top: 8px; font-weight: bold; }
+    textarea, input[type=text], select { width: 100%; box-sizing: border-box; }
+    textarea { min-height: 70px; }
+    .error { background: #fde7e7; color: #a40000; padding: 8px; margin: 12px 0; }
+    .card { border: 1px solid #aaa; padding: 8px 12px; margin: 12px 0; }
+    .note { color: #555; font-size: 13px; }
+    pre { background: #f4f4f4; padding: 8px; white-space: pre-wrap; max-height: 320px; overflow: auto; }
+  </style>
+</head>
+<body>
+  <h1>Draft with AI</h1>
+  <p class="note">The model proposes, you decide. Nothing is saved before you press Create, and every proposal can be edited.</p>
+  {%- if error %}
+  <div class="error" data-testid="llm-error">{{ error }}</div>
+  {%- endif %}
+
+  {%- if confirm %}
+  <div class="card" data-testid="llm-confirm">
+    <h2>This will leave the network</h2>
+    <p>Provider <strong>{{ confirm.provider }}</strong> (model {{ confirm.model }}) is a cloud provider.
+       It will receive the text below ({{ confirm.chars }} characters)
+       {%- if confirm.node_uids %}, made from the nodes {{ confirm.node_uids|join(", ") }}{% endif %}.
+       The call is recorded in the audit log.</p>
+    <pre data-testid="llm-confirm-prompt">{{ confirm.prompt }}</pre>
+  </div>
+  {%- endif %}
+
+  <form method="POST" action="/actions/llm/draft">
+    <input type="hidden" name="reference_mid" value="{{ reference_mid }}"/>
+    <label for="instruction">Instruction</label>
+    <textarea id="instruction" name="instruction" data-testid="llm-instruction">{{ instruction }}</textarea>
+    <label for="pattern">Template</label>
+    <select id="pattern" name="pattern">
+      {%- for name in patterns %}<option value="{{ name }}"{% if name == pattern %} selected{% endif %}>{{ name }}</option>{% endfor %}
+    </select>
+    <label>Context to send</label>
+    <label><input type="checkbox" name="include_node" value="true"{% if include_node %} checked{% endif %}/> the current node</label>
+    <label><input type="checkbox" name="include_parents" value="true"{% if include_parents %} checked{% endif %}/> its parent requirements</label>
+    <label for="input_refs">Sections or nodes of input documents (one per line: a UID, or [DA1] §5.14.1)</label>
+    <textarea id="input_refs" name="input_refs">{{ input_refs }}</textarea>
+    <label for="neighbours">Neighbouring requirements for style (0 to 5)</label>
+    <input type="text" id="neighbours" name="neighbours" value="{{ neighbours }}"/>
+    <label for="provider">Provider</label>
+    <select id="provider" name="provider" data-testid="llm-provider">
+      {%- for name, model in providers.items() %}<option value="{{ name }}"{% if name == provider %} selected{% endif %}>{{ name }} ({{ model }})</option>{% endfor %}
+    </select>
+    {%- if confirm %}
+    <input type="hidden" name="confirm_cloud" value="true"/>
+    <p><button type="submit" data-testid="llm-send-cloud">Send to {{ confirm.provider }}</button></p>
+    {%- else %}
+    <p><button type="submit" data-testid="llm-ask">Draft</button></p>
+    {%- endif %}
+  </form>
+
+  {%- if proposals %}
+  <h2>Proposals</h2>
+  <form method="POST" action="/actions/llm/create" data-testid="llm-proposals">
+    <input type="hidden" name="reference_mid" value="{{ reference_mid }}"/>
+    <input type="hidden" name="provider" value="{{ provider }}"/>
+    <input type="hidden" name="model" value="{{ model }}"/>
+    <input type="hidden" name="template" value="{{ template }}"/>
+    <input type="hidden" name="known_uids" value="{{ known_uids|join(',') }}"/>
+    <input type="hidden" name="count" value="{{ proposals|length }}"/>
+    {%- for proposal in proposals %}
+    {%- set number = loop.index0 %}
+    <div class="card" data-testid="llm-card">
+      <label><input type="checkbox" name="accept_{{ number }}" value="1" checked/> Create this requirement</label>
+      <label>Title</label>
+      <input type="text" name="title_{{ number }}" value="{{ proposal.title }}"/>
+      <label>Statement</label>
+      <textarea name="statement_{{ number }}">{{ proposal.statement }}</textarea>
+      <label>Rationale</label>
+      <textarea name="rationale_{{ number }}">{{ proposal.rationale }}</textarea>
+      {%- if verification_methods %}
+      <label>Verification method</label>
+      <select name="verification_method_{{ number }}">
+        {%- for method in verification_methods %}<option value="{{ method }}"{% if method == proposal.verification_method %} selected{% endif %}>{{ method }}</option>{% endfor %}
+      </select>
+      {%- endif %}
+      <label>Linked to (UIDs of the context, separated by commas)</label>
+      <input type="text" name="linked_to_{{ number }}" value="{{ proposal.linked_to|join(', ') }}"/>
+    </div>
+    {%- endfor %}
+    <p><button type="submit" data-testid="llm-create">Create the ticked requirements as drafts</button></p>
+  </form>
+  {%- endif %}
+</body>
+</html>
