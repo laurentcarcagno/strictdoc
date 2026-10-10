@@ -4,8 +4,10 @@ from pathlib import Path
 from fastapi.testclient import TestClient
 
 from strictdoc.features.projects.app import create_projects_app
+from strictdoc.features.projects.directory import KeycloakDirectory
 from strictdoc.features.projects.registry import ProjectSpec
 from strictdoc.server.app import create_app
+from tests.support.fake_keycloak import SECRET, FakeKeycloak
 from tests.support.projects_fixture import (
     ALPHA_DOC,
     ALPHA_REQ,
@@ -13,6 +15,7 @@ from tests.support.projects_fixture import (
     as_user,
     client_for,
     make_dispatcher,
+    make_specs,
     roles,
 )
 
@@ -307,3 +310,96 @@ def test_009_a_project_created_while_running_gets_its_lifespan(
         assert "gamma" in dispatcher.projects
         assert dispatcher._stack is not None
     assert dispatcher._stack is None
+
+
+def _with_directory(tmp_path, monkeypatch, keycloak):
+    monkeypatch.setenv("STRICTDOC_AUTH_MODE", "proxy")
+    monkeypatch.setenv("STRICTDOC_TRUSTED_PROXIES", "10.89.2.0/24")
+    return create_projects_app(
+        create_app=create_app,
+        specs=make_specs(tmp_path),
+        root_host=ROOT,
+        output_root=str(tmp_path / "output"),
+        audit_root=str(tmp_path / "audit"),
+        data_root=str(tmp_path / "data"),
+        platform_admin_groups=["platform-admins"],
+        directory=KeycloakDirectory(
+            base_url=keycloak.url,
+            realm="infra",
+            client_id="strictdoc-directory",
+            client_secret=SECRET,
+        ),
+    )
+
+
+def test_010_the_members_page_suggests_and_checks_keycloak_accounts(
+    tmp_path, monkeypatch
+):
+    users = [
+        {
+            "username": "carol",
+            "firstName": "Carol",
+            "lastName": "Dupont",
+            "email": "carol@example.org",
+            "enabled": True,
+        },
+    ]
+    with FakeKeycloak(users) as keycloak:
+        dispatcher = _with_directory(tmp_path, monkeypatch, keycloak)
+        alpha = client_for(dispatcher, f"alpha.{ROOT}")
+        page = alpha.get("/members", headers=ANN).text
+        assert "<option value='carol'>Carol Dupont carol@example.org" in page
+        # An account that does not exist is refused, a real one accepted.
+        refused = alpha.post(
+            "/actions/members/set",
+            data={"user": "zoe", "role": "reader"},
+            headers=ANN,
+        )
+        assert refused.status_code == 422
+        assert "not an account of the login server" in refused.text
+        assert (
+            alpha.post(
+                "/actions/members/set",
+                data={"user": "carol", "role": "reader"},
+                headers=ANN,
+                follow_redirects=False,
+            ).status_code
+            == 303
+        )
+        # Somebody who is not an administrator of the project sees nothing.
+        assert alpha.get("/members", headers=CAROL).status_code == 403
+
+
+def test_012_when_keycloak_is_down_the_name_is_typed_by_hand(
+    tmp_path, monkeypatch
+):
+    with FakeKeycloak([]) as keycloak:
+        keycloak.down = True
+        dispatcher = _with_directory(tmp_path, monkeypatch, keycloak)
+        alpha = client_for(dispatcher, f"alpha.{ROOT}")
+        assert "does not answer" in alpha.get("/members", headers=ANN).text
+        assert (
+            alpha.post(
+                "/actions/members/set",
+                data={"user": "carol", "role": "reader"},
+                headers=ANN,
+                follow_redirects=False,
+            ).status_code
+            == 303
+        )
+
+
+def test_011_without_keycloak_the_page_still_works(tmp_path, monkeypatch):
+    dispatcher = _dispatcher(tmp_path, monkeypatch)
+    alpha = client_for(dispatcher, f"alpha.{ROOT}")
+    page = alpha.get("/members", headers=ANN).text
+    assert "directory-users" in page
+    assert (
+        alpha.post(
+            "/actions/members/set",
+            data={"user": "anyone", "role": "reader"},
+            headers=ANN,
+            follow_redirects=False,
+        ).status_code
+        == 303
+    )

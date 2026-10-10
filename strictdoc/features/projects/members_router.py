@@ -15,6 +15,7 @@ from fastapi import APIRouter, Form, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from starlette.responses import Response
 
+from strictdoc.features.projects.directory import DirectoryError
 from strictdoc.features.projects.manager import ProjectMembers
 from strictdoc.features.projects.portal import same_origin
 from strictdoc.features.roles.roles import ROLES
@@ -26,6 +27,24 @@ def create_members_router(members: ProjectMembers, title: str) -> APIRouter:
 
     def page(error: Optional[str] = None, status: int = 200) -> HTMLResponse:
         options = "".join(f"<option>{role_}</option>" for role_ in ROLES)
+        suggestions = ""
+        directory_note = ""
+        if members.directory is not None:
+            try:
+                suggestions = "".join(
+                    f"<option value='{escape(user_.username)}'>"
+                    f"{escape(user_.label())}</option>"
+                    for user_ in members.directory.users()
+                )
+                directory_note = (
+                    "Start typing: the accounts of the login server are "
+                    "suggested, and only they are accepted."
+                )
+            except DirectoryError:
+                directory_note = (
+                    "The login server does not answer: type the user name "
+                    "by hand, it is not checked."
+                )
         rows = ""
         for user_, role_ in members.listing().items():
             selected = "".join(
@@ -61,9 +80,12 @@ def create_members_router(members: ProjectMembers, title: str) -> APIRouter:
             "<h2>Add a member</h2>"
             "<form method='post' action='/actions/members/set' "
             "data-testid='members-add'>"
-            "<label>User name <input name='user' required/></label> "
+            "<label>User name <input name='user' required "
+            "list='directory-users' autocomplete='off'/></label> "
+            f"<datalist id='directory-users'>{suggestions}</datalist> "
             f"<select name='role'>{options}</select> "
             "<button>Add</button></form>"
+            f"<p data-testid='directory-note'>{directory_note}</p>"
             "<p>The user name is the one shown after the login "
             "(see <a href='/whoami'>/whoami</a>). Every member reads all "
             "the documents. The author of a document names its reviewers."
@@ -83,6 +105,17 @@ def create_members_router(members: ProjectMembers, title: str) -> APIRouter:
         if not same_origin(request):
             return HTMLResponse("<h1>403</h1>", status_code=403)
         try:
+            if members.directory is not None:
+                try:
+                    known = members.directory.has(user)
+                except DirectoryError:
+                    known = True  # Keycloak is down: the name is not checked.
+                if not known:
+                    return page(
+                        f"'{user.strip()}' is not an account of the login "
+                        "server.",
+                        422,
+                    )
             members.set(user, role)
         except StrictDocException as exception_:
             return page(str(exception_), 422)

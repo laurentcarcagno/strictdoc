@@ -9,6 +9,7 @@ from typing import Callable, List, Optional, Sequence
 
 from fastapi import FastAPI
 
+from strictdoc.features.projects.directory import KeycloakDirectory
 from strictdoc.features.projects.dispatcher import ProjectDispatcher
 from strictdoc.features.projects.manager import ProjectManager
 from strictdoc.features.projects.portal import create_portal
@@ -31,6 +32,7 @@ def create_projects_app(
     data_root: Optional[str] = None,
     store: Optional[ProjectStore] = None,
     platform_admin_groups: Optional[Sequence[str]] = None,
+    directory: Optional[KeycloakDirectory] = None,
 ) -> ProjectDispatcher:
     validate_specs(specs, data_root)
     manager = ProjectManager(
@@ -42,6 +44,7 @@ def create_projects_app(
         data_root=data_root,
         proxy=_proxy(),
         platform_admin_groups=platform_admin_groups,
+        directory=directory,
     )
     for spec_ in specs:
         manager.build(spec_)

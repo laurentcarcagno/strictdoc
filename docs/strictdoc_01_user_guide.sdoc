@@ -4568,6 +4568,11 @@ all the documents of the project. The roles are: reader (reads), reviewer (reads
 comments on every document), author (writes, creates documents and names their
 reviewers) and administrator (also manages the members).
 
+When the deployment gives the server access to the users of the login server
+(Keycloak; see the deployment notes), the user name field suggests the accounts
+and accepts only them; only the administrators of the project see the list. If
+the login server does not answer, the name is typed by hand and not checked.
+
 **Reviewers of a document.** With the ``COMMENTS`` feature, the form that creates a
 document has a *Reviewers* field: the user names, separated by commas. In a project
 with a member list they must be members. The names are stored in the metadata of the

@@ -176,5 +176,6 @@ Branch `feature/membership`. The "create project" screen that was left out is do
   `can_comment` (author or above, a project-wide reviewer, or a reviewer named on the document); the Comment button of a reader appears only on the
   documents that name them. Creating a document needs the author role (it was administrator) and its form has a Reviewers field with the COMMENTS feature.
 - Tests: `tests/unit_server/.../49_membership`, `tests/unit/.../membership`, and an end2end test of the form (`create_document_with_reviewers`).
-- Not done: member names are not checked against Keycloak (a typo gives a member who never logs in); no invitation by e-mail; the live instance still runs one
+- Keycloak directory (`features/projects/directory.py`): service account `strictdoc-directory` (role `view-users`), users read through the admin API with a cache of 5 minutes, suggested and checked on the members page (project administrators only); with Keycloak down the name is typed by hand. Checked against the real Keycloak of the platform with a throwaway client, directly and through the relay. `deploy.sh --projects` itself is not run live. The old `alpine/socat` relay could not be pulled (no access to docker.io), so both relays now run `relay.py` in the app image.
+- Not done: no invitation by e-mail; the live instance still runs one
   project (`--projects` is not deployed yet).

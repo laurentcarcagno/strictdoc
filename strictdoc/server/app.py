@@ -17,6 +17,7 @@ from starlette.responses import Response
 from strictdoc import __version__
 from strictdoc.core.project_config import ProjectConfig
 from strictdoc.features.projects.app import create_projects_app
+from strictdoc.features.projects.directory import directory_from_environment
 from strictdoc.features.projects.members_router import create_members_router
 from strictdoc.features.projects.registry import load_registry
 from strictdoc.features.projects.store import ProjectStore
@@ -241,6 +242,7 @@ def strictdoc_projects_app() -> Any:
                 os.path.dirname(os.path.abspath(projects_file)), "projects.json"
             )
         ),
+        directory=directory_from_environment(),
         platform_admin_groups=(
             [g_ for g_ in platform.split(",") if g_.strip()]
             if (platform := os.environ.get("STRICTDOC_PLATFORM_ADMINS"))

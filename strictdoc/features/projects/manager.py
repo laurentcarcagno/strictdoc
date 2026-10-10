@@ -21,6 +21,7 @@ from typing import Any, Callable, Dict, List, Optional, Sequence
 from fastapi import FastAPI
 from starlette.concurrency import run_in_threadpool
 
+from strictdoc.features.projects.directory import KeycloakDirectory
 from strictdoc.features.projects.dispatcher import ProjectDispatcher
 from strictdoc.features.projects.registry import (
     SLUG_PATTERN,
@@ -54,9 +55,16 @@ NO_GROUP = "__members_only__"
 class ProjectMembers:
     """The member list of one project, as the project application sees it."""
 
-    def __init__(self, store: ProjectStore, slug: str) -> None:
+    def __init__(
+        self,
+        store: ProjectStore,
+        slug: str,
+        directory: Optional[KeycloakDirectory] = None,
+    ) -> None:
         self._store = store
         self.slug = slug
+        # The users of the login server, when the deployment gives access.
+        self.directory = directory
 
     def role_of(self, user: str) -> Optional[str]:
         return self._store.role_of(self.slug, user)
@@ -87,6 +95,7 @@ class ProjectManager:
         proxy: bool,
         features: Sequence[str] = DEFAULT_FEATURES,
         platform_admin_groups: Optional[Sequence[str]] = None,
+        directory: Optional[KeycloakDirectory] = None,
     ) -> None:
         self._create_app = create_app
         self.store = store
@@ -94,6 +103,7 @@ class ProjectManager:
         self.audit_root = audit_root
         self.data_root = data_root
         self.proxy = proxy
+        self.directory = directory
         self.features = list(features)
         self.specs: Dict[str, ProjectSpec] = {s_.slug: s_ for s_ in specs}
         self.static_slugs = set(self.specs)
@@ -158,7 +168,7 @@ class ProjectManager:
             audit_root=self.audit_root,
             proxy=self.proxy,
         )
-        members = ProjectMembers(self.store, spec.slug)
+        members = ProjectMembers(self.store, spec.slug, self.directory)
         config.member_role = members.role_of
         config.members_admin = members
         app = self._create_app(project_config=config)
