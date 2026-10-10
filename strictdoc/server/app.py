@@ -16,6 +16,8 @@ from starlette.responses import Response
 
 from strictdoc import __version__
 from strictdoc.core.project_config import ProjectConfig
+from strictdoc.features.roles.middleware import PrincipalMiddleware
+from strictdoc.features.roles.router import create_roles_router
 from strictdoc.helpers.coverage import register_code_coverage_hook
 from strictdoc.helpers.deprecation_engine import DEPRECATION_ENGINE
 from strictdoc.helpers.pickle import pickle_load
@@ -122,7 +124,16 @@ def create_app(*, project_config: ProjectConfig) -> FastAPI:
         allow_headers=["*"],
     )
 
+    # Outermost: who is acting is decided before any route runs.
+    app.add_middleware(
+        PrincipalMiddleware,
+        auth_mode=project_config.auth_mode,
+        trusted_proxies=project_config.trusted_proxies,
+    )
+
     lock_manager = HierarchicalRWLockManager()
+
+    app.include_router(create_roles_router(project_config.auth_mode))
 
     app.include_router(
         create_other_router(

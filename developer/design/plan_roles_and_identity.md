@@ -41,9 +41,11 @@ A role includes the ones below it. A user has the highest role granted by any of
 
 ### 3.2 Identity
 
-- `Principal(user, email, groups)` is built by a FastAPI dependency from the headers that oauth2-proxy sends to its upstream
-  (`X-Forwarded-User`, `X-Forwarded-Email`, `X-Forwarded-Groups`, produced by `--pass-user-headers`, on by default). Step R1 starts with a short
-  spike that records the exact header names and values on the deployed proxy before code is written.
+- `Principal(user, subject, email, groups)` is built by a middleware from the headers that oauth2-proxy sends to its upstream. The spike of
+  step R1 (below) recorded what it really sends: `X-Forwarded-User` is the **Keycloak identifier (a UUID)**, not the name; the user name is in
+  `X-Forwarded-Preferred-Username`; `X-Forwarded-Email`; `X-Forwarded-Groups` lists the groups **and the realm roles** (prefixed `role:`), comma
+  separated. The name shown and logged is the preferred username (then the email, then the identifier); the identifier is kept as `subject` because
+  names can change.
 - The headers are trusted only when the project option `auth_mode` is `proxy`. The default is `none`, which keeps today's behaviour and
   gives every caller the administrator role (used by the tests and by `strictdoc server` on a laptop). `deploy.sh` sets `proxy`; its `--no-auth`
   flag keeps `none` and prints the existing warning.
@@ -119,6 +121,29 @@ about 140 lines and an alias block). Checked by: the 917 unit and server tests, 
 and the end2end families `screens/document` (297 passed, the 5 PDF-export tests that fail in the container fail as before), `screens/table` (61),
 `screens/project_index` (18) and `navigation` (15), identical to the results before the change. What is still in the closure of
 `create_main_router` and moves later: the lock key helpers, the error response, the watcher callbacks that need `app.state.event_loop`.
+
+### Delivered: R1 (2026-10-10)
+
+**Spike on the real proxy** (temporary second oauth2-proxy with its own Keycloak client and an echo server, all removed afterwards):
+
+| Observation | Consequence |
+|---|---|
+| `X-Forwarded-User` = Keycloak subject (UUID); `X-Forwarded-Preferred-Username` = `infra-admin`; `X-Forwarded-Email`; `X-Forwarded-Groups` = `infra-admins,role:offline_access,role:uma_authorization,...` | The principal uses the preferred username; groups are the entries without the `role:` prefix |
+| A client that sends its own `X-Forwarded-User`, `-Groups` or `-Email` through the proxy: the proxy **replaces** them with the real values | The headers are safe to read when the request comes from the proxy |
+| A client that sends `X-Auth-Request-User` through the proxy: it reaches the upstream **unchanged** | The application never reads `X-Auth-Request-*`; Caddy also removes them |
+
+**Code**: `strictdoc/features/roles/` (`principal.py`, `middleware.py`, `router.py`). `PrincipalMiddleware` is the outermost ASGI layer
+(`strictdoc/server/app.py`) and covers HTTP and WebSocket. In `auth_mode="none"` (default) everybody is the anonymous principal and nothing changes.
+In `auth_mode="proxy"` a request is served only if its peer address is inside `trusted_proxies` and the identity headers are present; otherwise
+401 (HTTP) or a close with code 4401 (WebSocket), for every path including static files. `GET /whoami` returns the principal. Options
+`auth_mode` and `trusted_proxies` in `ProjectConfig`, validated in `validate_and_finalize`; the environment variables `STRICTDOC_AUTH_MODE` and
+`STRICTDOC_TRUSTED_PROXIES` win over the project file, so that a project file cannot weaken a deployment. `strictdoc-deploy/deploy.sh` passes
+them to the app container (subnet of `strictdoc_internal`), recreates the container when they change (label `strictdoc.auth`), and the Caddy block
+removes the identity headers sent by clients (validated with `caddy validate`).
+
+**Tests**: `tests/unit/strictdoc/features/roles/test_principal.py` (6) and `tests/unit_server/strictdoc/server/41_identity/` (11): modes, trusted
+and untrusted peers, forged headers, `X-Auth-Request-*` ignored, WebSocket refused, IPv4-in-IPv6 peer, configuration validation and the
+environment precedence. Not deployed yet: R5 deploys the identity together with the groups.
 
 ## 5. Files touched
 

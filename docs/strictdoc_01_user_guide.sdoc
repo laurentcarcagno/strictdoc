@@ -4259,6 +4259,51 @@ update.
 [[/SECTION]]
 
 [[SECTION]]
+MID: 680da32c60004f4583a3bfe4d384e4d3
+UID: SECTION-UG-User-identity
+TITLE: User identity behind a login proxy (experimental)
+
+[TEXT]
+MID: c1358344679f4e1ba9fabc27d673f119
+STATEMENT: >>>
+The web server has no login of its own. It can run behind a login proxy such as
+oauth2-proxy and read the name of the user from the headers that the proxy adds
+to every request.
+
+.. code:: python
+
+    def create_config() -> ProjectConfig:
+        return ProjectConfig(
+            project_title="My project",
+            auth_mode="proxy",
+            trusted_proxies=["10.89.1.0/24"],
+        )
+
+``auth_mode`` is ``"none"`` (default: nobody is identified, every request is
+anonymous) or ``"proxy"``. With ``"proxy"``, the server serves a request only if
+it comes from one of the ``trusted_proxies`` networks and carries the identity
+headers; anything else is refused with HTTP status 401, including the static
+files, and a WebSocket connection is closed. ``"proxy"`` without
+``trusted_proxies`` is a configuration error.
+
+The server reads ``X-Forwarded-Preferred-Username`` (the name),
+``X-Forwarded-User`` (the identifier), ``X-Forwarded-Email`` and
+``X-Forwarded-Groups`` (groups separated by commas; the entries that start with
+``role:`` are Keycloak roles and are dropped). It never reads the
+``X-Auth-Request-*`` headers, which the proxy does not replace when a client
+sends them. The page ``/whoami`` shows what the server knows about the caller.
+
+A deployment can set ``STRICTDOC_AUTH_MODE`` and ``STRICTDOC_TRUSTED_PROXIES``
+(networks separated by commas) in the environment. They win over the
+configuration file, so that a project file cannot weaken a deployment.
+
+Make the server reachable only through the proxy (a private network), and have
+the front web server remove the identity headers that clients send.
+<<<
+
+[[/SECTION]]
+
+[[SECTION]]
 MID: 241afbf6b7af40189eec8054d0d0201c
 UID: SECTION-UG-Project-statistics-screen
 TITLE: Project statistics screen

@@ -3,6 +3,7 @@
 """
 
 import datetime
+import ipaddress
 import mimetypes
 import os
 import re
@@ -202,6 +203,8 @@ class ProjectConfig:
         ] = None,
         docx_profile: Optional[str] = None,
         docx_base: Optional[str] = None,
+        auth_mode: str = "none",
+        trusted_proxies: Optional[List[str]] = None,
         reqif_profile: str = ReqIFProfile.P01_SDOC,
         # FIXME: Change to true by default.
         reqif_multiline_is_xhtml: bool = False,
@@ -462,6 +465,24 @@ class ProjectConfig:
         # documents, to update with tracked changes instead of writing a new
         # file. Relative to the project root.
         self.docx_base: Optional[str] = docx_base
+
+        # Who is acting: "none" (no login in front of the server) or "proxy"
+        # (behind oauth2-proxy, which names the user in request headers).
+        # The environment wins over the project file, so that a project file
+        # cannot weaken a deployment: STRICTDOC_AUTH_MODE and
+        # STRICTDOC_TRUSTED_PROXIES (comma separated networks) are set by the
+        # deployment script.
+        self.auth_mode: str = os.environ.get("STRICTDOC_AUTH_MODE") or auth_mode
+        environment_proxies = os.environ.get("STRICTDOC_TRUSTED_PROXIES")
+        self.trusted_proxies: List[str] = (
+            [
+                item_.strip()
+                for item_ in environment_proxies.split(",")
+                if item_.strip()
+            ]
+            if environment_proxies
+            else list(trusted_proxies or [])
+        )
         self.reqif_profile: str = reqif_profile
 
         assert isinstance(reqif_multiline_is_xhtml, bool), (
@@ -831,6 +852,28 @@ class ProjectConfig:
 
     def validate_and_finalize(self) -> None:
         project_path = self.get_project_root_path()
+
+        #
+        # Validate the authentication options.
+        #
+        if self.auth_mode not in ("none", "proxy"):
+            raise StrictDocException(
+                f"config: auth_mode: expected 'none' or 'proxy', got "
+                f"'{self.auth_mode}'."
+            )
+        for network_ in self.trusted_proxies:
+            try:
+                ipaddress.ip_network(network_, strict=False)
+            except ValueError as exception_:
+                raise StrictDocException(
+                    f"config: trusted_proxies: '{network_}' is not a network "
+                    f"(example: 10.89.0.0/24)."
+                ) from exception_
+        if self.auth_mode == "proxy" and len(self.trusted_proxies) == 0:
+            raise StrictDocException(
+                "config: auth_mode 'proxy' needs trusted_proxies, the "
+                "networks that oauth2-proxy connects from."
+            )
 
         #
         # Validate source nodes config.
