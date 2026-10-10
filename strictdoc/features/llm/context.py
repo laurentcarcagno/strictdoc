@@ -17,6 +17,7 @@ from strictdoc.features.llm.config import LLMConfig
 from strictdoc.features.llm.prompts import PromptTemplate, load_template
 from strictdoc.features.llm.schema import output_schema
 from strictdoc.features.llm.types import LLMRequest
+from strictdoc.helpers.cast import assert_cast
 from strictdoc.helpers.mid import MID
 
 KIND_NODE = "node"
@@ -180,7 +181,9 @@ def _find_node(index: Any, mid: Optional[str]) -> Optional[SDocNode]:
 
 
 def _item(kind: str, node: SDocNode) -> ContextItem:
-    document = node.get_parent_or_including_document()
+    document = assert_cast(
+        node.get_parent_or_including_document(), SDocDocument
+    )
     classification = ""
     if document.config is not None and document.config.classification:
         classification = document.config.classification
@@ -229,7 +232,9 @@ def _section_children(section: SDocNode) -> List[ContextItem]:
 
 
 def _neighbours(node: SDocNode, count: int) -> List[SDocNode]:
-    document = node.get_parent_or_including_document()
+    document = assert_cast(
+        node.get_parent_or_including_document(), SDocDocument
+    )
     previous: List[SDocNode] = []
     iterator = SDocDocumentIterator(document=document, node_filter=None)
     for candidate_, _ in iterator.all_content(print_fragments=False):

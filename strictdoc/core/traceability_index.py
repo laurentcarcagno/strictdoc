@@ -56,7 +56,7 @@ from strictdoc.helpers.sorting import alphanumeric_sort
 def _document_of(node: Union[SDocDocument, SDocNode]) -> SDocDocument:
     if isinstance(node, SDocDocument):
         return node
-    return node.get_parent_or_including_document()
+    return assert_cast(node.get_parent_or_including_document(), SDocDocument)
 
 
 class TraceabilityIndex:

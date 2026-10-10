@@ -32,6 +32,7 @@ from strictdoc.features.hierarchy.suspect import (
     suspect_fields,
     suspect_links,
     sync_new_links,
+    uid_of,
 )
 from strictdoc.features.roles.roles import ROLE_AUTHOR, role_allows
 from strictdoc.features.roles.router import get_principal
@@ -114,7 +115,7 @@ def create_hierarchy_routers(
             for link_ in suspect_links(
                 get_index(), baseline, suspect_fields(project_config)
             ):
-                parent_uid = link_.parent.reserved_uid
+                parent_uid = uid_of(link_.parent)
                 group = groups.setdefault(
                     parent_uid, {"parent": link_.parent, "children": []}
                 )
@@ -173,7 +174,7 @@ def create_hierarchy_routers(
             path = baseline_path(project_config)
             if os.path.isfile(path):
                 suspect_children = [
-                    link_.child.reserved_uid
+                    uid_of(link_.child)
                     for link_ in suspect_links(
                         get_index(),
                         load_cached(path),

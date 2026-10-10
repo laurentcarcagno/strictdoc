@@ -121,7 +121,7 @@ def _resolve_node(
         return
     report.requirements_with_references += 1
     for message_ in resolved.unresolved:
-        report.unresolved.append((node.reserved_uid, message_))
+        report.unresolved.append((node.reserved_uid or "", message_))
     existing = {
         relation_.ref_uid
         for relation_ in node.relations

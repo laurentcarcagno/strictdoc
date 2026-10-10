@@ -14,6 +14,7 @@ from fastapi import HTTPException, Request
 
 from strictdoc.backend.sdoc.models.document import SDocDocument
 from strictdoc.backend.sdoc.models.node import SDocNode
+from strictdoc.helpers.cast import assert_cast
 from strictdoc.helpers.mid import MID
 
 if TYPE_CHECKING:
@@ -53,7 +54,9 @@ def create_input_guard(
         for mid in values:
             node: Any = index.get_node_by_mid_weak(MID(mid))
             if isinstance(node, SDocNode):
-                document = node.get_parent_or_including_document()
+                document = assert_cast(
+                    node.get_parent_or_including_document(), SDocDocument
+                )
             elif isinstance(node, SDocDocument):
                 document = node
             else:

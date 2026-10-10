@@ -8,7 +8,7 @@ provider, model, prompt version and the person who accepted it.
 """
 
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, List, Optional, Sequence
+from typing import TYPE_CHECKING, Any, List, Optional, Sequence, Union
 
 from strictdoc.backend.sdoc.models.document import SDocDocument
 from strictdoc.backend.sdoc.models.node import SDocNode
@@ -65,7 +65,7 @@ def create_proposal_nodes(
     """
     index = context.export_action.traceability_index
     result = CreationResult()
-    reference: object = index.get_node_by_mid(MID(reference_mid))
+    reference: Any = index.get_node_by_mid(MID(reference_mid))
     where = whereto
     for proposal_ in proposals:
         if not isinstance(reference, (SDocDocument, SDocNode)):
@@ -86,7 +86,7 @@ def create_proposal_nodes(
     return result
 
 
-def _document_for(reference: object) -> SDocDocument:
+def _document_for(reference: Union[SDocDocument, SDocNode]) -> SDocDocument:
     if isinstance(reference, SDocDocument):
         return reference
     node = assert_cast(reference, SDocNode)
@@ -96,7 +96,7 @@ def _document_for(reference: object) -> SDocDocument:
 def _next_uid(
     context: "ProjectContext",
     document: SDocDocument,
-    reference: object,
+    reference: Union[SDocDocument, SDocNode],
 ) -> Optional[str]:
     index = context.export_action.traceability_index
     config = context.project_config
@@ -129,7 +129,7 @@ def _next_uid(
 def _create_one(
     context: "ProjectContext",
     document: SDocDocument,
-    reference: object,
+    reference: Union[SDocDocument, SDocNode],
     whereto: str,
     proposal: Proposal,
     origin: DraftOrigin,
@@ -224,7 +224,7 @@ def _create_one(
     return "", assert_cast(node, SDocNode)
 
 
-def _mid_of(reference: object) -> str:
+def _mid_of(reference: Union[SDocDocument, SDocNode]) -> str:
     mid = assert_cast(reference, (SDocDocument, SDocNode)).reserved_mid
     return mid if isinstance(mid, str) else mid.get_string_value()
 

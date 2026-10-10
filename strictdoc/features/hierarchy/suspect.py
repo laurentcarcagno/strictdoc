@@ -46,6 +46,13 @@ class SuspectLink:
     parent: SDocNode
 
 
+def uid_of(node: SDocNode) -> str:
+    """The UID of a node that is part of a link (iter_links only gives those)."""
+    uid = node.reserved_uid
+    assert uid, node
+    return uid
+
+
 def content_hash(node: SDocNode, fields: Sequence[str]) -> str:
     """The SHA-1 of the fields of a node that count as its reviewed content."""
     digest = hashlib.sha1()
@@ -135,9 +142,7 @@ def suspect_links(
     """
     result: List[SuspectLink] = []
     for child, parent in iter_links(traceability_index):
-        reviewed = baseline.entries.get(
-            link_key(child.reserved_uid, parent.reserved_uid)
-        )
+        reviewed = baseline.entries.get(link_key(uid_of(child), uid_of(parent)))
         if reviewed is not None and reviewed != content_hash(parent, fields):
             result.append(SuspectLink(child=child, parent=parent))
     return result
@@ -154,7 +159,7 @@ def sync_new_links(
     changed = False
     current = set()
     for child, parent in iter_links(traceability_index):
-        key = link_key(child.reserved_uid, parent.reserved_uid)
+        key = link_key(uid_of(child), uid_of(parent))
         current.add(key)
         if key not in baseline.entries:
             baseline.entries[key] = content_hash(parent, fields)
@@ -172,8 +177,8 @@ def clear_link(
     fields: Sequence[str],
 ) -> None:
     """The review of a suspect link is done: take the parent as it is now."""
-    baseline.entries[link_key(child.reserved_uid, parent.reserved_uid)] = (
-        content_hash(parent, fields)
+    baseline.entries[link_key(uid_of(child), uid_of(parent))] = content_hash(
+        parent, fields
     )
 
 
@@ -184,7 +189,7 @@ def baseline_all(
     baseline.entries.clear()
     count = 0
     for child, parent in iter_links(traceability_index):
-        baseline.entries[link_key(child.reserved_uid, parent.reserved_uid)] = (
+        baseline.entries[link_key(uid_of(child), uid_of(parent))] = (
             content_hash(parent, fields)
         )
         count += 1
@@ -198,9 +203,9 @@ def impact_of(
     wanted = set(parent_uids)
     impact: Dict[str, List[str]] = {}
     for link_ in suspects:
-        if link_.parent.reserved_uid in wanted:
-            impact.setdefault(link_.parent.reserved_uid, []).append(
-                link_.child.reserved_uid
+        if uid_of(link_.parent) in wanted:
+            impact.setdefault(uid_of(link_.parent), []).append(
+                uid_of(link_.child)
             )
     return {key_: sorted(value_) for key_, value_ in impact.items()}
 
@@ -245,7 +250,7 @@ def suspect_parents(
         return []
     fields = suspect_fields(project_config)
     return sorted(
-        link_.parent.reserved_uid
+        uid_of(link_.parent)
         for link_ in suspect_links(traceability_index, baseline, fields)
         if link_.child is node
     )
