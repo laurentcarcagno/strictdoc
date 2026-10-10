@@ -39,6 +39,7 @@ from strictdoc.commands.server_config import ServerCommandConfig
 from strictdoc.core.environment import SDocRuntimeEnvironment
 from strictdoc.core.feature import Feature
 from strictdoc.core.plugin import StrictDocPlugin
+from strictdoc.features.llm.config import LLMConfig
 from strictdoc.features.hierarchy.levels import (
     RELATION_POLICIES,
     Level,
@@ -118,6 +119,7 @@ class ProjectFeature(str, Enum):
     REQIF = "REQIF"
     DOCX = "DOCX"
     COMMENTS = "COMMENTS"
+    LLM = "LLM"
     DIFF = "DIFF"
     PROJECT_STATISTICS_SCREEN = "PROJECT_STATISTICS_SCREEN"
     TREE_MAP_SCREEN = "TREE_MAP_SCREEN"
@@ -221,6 +223,7 @@ class ProjectConfig:
         applicable_documents: Optional[Dict[str, str]] = None,
         suspect_links: bool = False,
         suspect_fields: Optional[List[str]] = None,
+        llm: Optional[LLMConfig] = None,
         reqif_profile: str = ReqIFProfile.P01_SDOC,
         # FIXME: Change to true by default.
         reqif_multiline_is_xhtml: bool = False,
@@ -531,6 +534,8 @@ class ProjectConfig:
         # content of a parent (default: TITLE and STATEMENT).
         self.suspect_links: bool = suspect_links
         self.suspect_fields: List[str] = list(suspect_fields or [])
+        # The assistant that drafts requirements with a language model.
+        self.llm: Optional[LLMConfig] = llm
         self.reqif_profile: str = reqif_profile
 
         assert isinstance(reqif_multiline_is_xhtml, bool), (
@@ -950,6 +955,9 @@ class ProjectConfig:
                 "config: relation_policy needs a document_hierarchy."
             )
 
+        if self.llm is not None:
+            self.llm.validate()
+
         #
         # Validate source nodes config.
         #
@@ -1186,6 +1194,11 @@ class ProjectConfig:
 
     def is_activated_comments(self) -> bool:
         return ProjectFeature.COMMENTS in self.project_features
+
+    def is_activated_llm(self) -> bool:
+        return (
+            ProjectFeature.LLM in self.project_features and self.llm is not None
+        )
 
     def is_activated_docx(self) -> bool:
         return ProjectFeature.DOCX in self.project_features
