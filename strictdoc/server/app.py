@@ -23,6 +23,7 @@ from strictdoc.server.config import SDocServerEnvVariable
 from strictdoc.server.helpers.hierarchical_rw_lock_manager import (
     HierarchicalRWLockManager,
 )
+from strictdoc.server.project_context import ProjectContext
 from strictdoc.server.routers.main_router import create_main_router
 from strictdoc.server.routers.other_router import create_other_router
 
@@ -134,6 +135,7 @@ def create_app(*, project_config: ProjectConfig) -> FastAPI:
             project_config=project_config,
             app=app,
             lock_manager=lock_manager,
+            context=ProjectContext.create(project_config),
         )
     )
 

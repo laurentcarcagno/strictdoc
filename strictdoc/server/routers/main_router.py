@@ -38,14 +38,12 @@ from starlette.responses import (
 from starlette.websockets import WebSocket, WebSocketDisconnect
 
 from strictdoc.backend.json.json_generator import JSONGenerator
-from strictdoc.backend.markdown.writer import SDMarkdownWriter
 from strictdoc.backend.reqif.p01_sdoc.reqif_to_sdoc_converter import (
     P01_ReqIFToSDocConverter,
 )
 from strictdoc.backend.reqif.p01_sdoc.sdoc_to_reqif_converter import (
     P01_SDocToReqIFObjectConverter,
 )
-from strictdoc.backend.sdoc.errors.document_tree_error import DocumentTreeError
 from strictdoc.backend.sdoc.models.document import SDocDocument
 from strictdoc.backend.sdoc.models.document_grammar import (
     DocumentGrammar,
@@ -62,7 +60,6 @@ from strictdoc.backend.sdoc.models.model import (
 from strictdoc.backend.sdoc.models.node import (
     SDocNode,
 )
-from strictdoc.backend.sdoc.writer import SDWriter
 from strictdoc.backend.sdoc_source_code.models.source_file_info import (
     SourceFileTraceabilityInfo,
 )
@@ -70,7 +67,7 @@ from strictdoc.core.analyzers.document_stats import DocumentTreeStats
 from strictdoc.core.analyzers.document_uid_analyzer import DocumentUIDAnalyzer
 from strictdoc.core.document_meta import DocumentMeta
 from strictdoc.core.document_tree import DocumentTree
-from strictdoc.core.feature import Feature, FeatureContext
+from strictdoc.core.feature import FeatureContext
 from strictdoc.core.image_formats import (
     MAX_IMAGE_SIZE_BYTES,
     SUPPORTED_IMAGE_FORMAT_NAMES,
@@ -80,7 +77,6 @@ from strictdoc.core.image_formats import (
 from strictdoc.core.project_config import ProjectConfig
 from strictdoc.core.query_engine.query_object import Query, QueryObject
 from strictdoc.core.query_engine.query_reader import QueryReader
-from strictdoc.core.traceability_index_builder import TraceabilityIndexBuilder
 from strictdoc.core.transforms.constants import NodeCreationOrder
 from strictdoc.core.transforms.delete_requirement import (
     DeleteRequirementCommand,
@@ -139,11 +135,8 @@ from strictdoc.export.html.generators.view_objects.document_screen_view_object i
 from strictdoc.export.html.generators.view_objects.server_error_view_object import (
     ServerErrorViewObject,
 )
-from strictdoc.export.html.html_generator import HTMLGenerator
-from strictdoc.export.html.html_templates import HTMLTemplates, JinjaEnvironment
 from strictdoc.export.html.renderers.link_renderer import LinkRenderer
 from strictdoc.export.html.renderers.markup_renderer import MarkupRenderer
-from strictdoc.features.export.export_action import ExportAction
 from strictdoc.features.html2pdf.generator import (
     DocumentHTML2PDFGenerator,
 )
@@ -166,7 +159,6 @@ from strictdoc.helpers.file_modification_time import (
     set_file_modification_time,
 )
 from strictdoc.helpers.mid import MID
-from strictdoc.helpers.parallelizer import NullParallelizer
 from strictdoc.helpers.path_filter import PathFilter
 from strictdoc.helpers.paths import SDocRelativePath
 from strictdoc.helpers.string import (
@@ -185,6 +177,7 @@ from strictdoc.server.helpers.hierarchical_rw_lock_manager import (
 )
 from strictdoc.server.helpers.http import request_is_for_non_modified_file
 from strictdoc.server.helpers.turbo import render_turbo_stream
+from strictdoc.server.project_context import ProjectContext
 from strictdoc.server.routers.docx_router import create_docx_routers
 
 HTTP_STATUS_BAD_REQUEST = 400
@@ -292,99 +285,21 @@ def create_main_router(
     *,
     app: FastAPI,
     lock_manager: HierarchicalRWLockManager,
+    context: Optional[ProjectContext] = None,
 ) -> APIRouter:
-    parallelizer = NullParallelizer()
-
-    # This dictionary is used to track conflicts between concurrently edited
-    # versions of the same nodes. If a saved node has a version that is older
-    # than one tracked in this dictionary, StrictDoc raises a validation to a
-    # user.
-    # Type signature: [MID, version number]
-    revisions: Dict[str, int] = defaultdict(int)
-
-    project_config.is_running_on_server = True
-
-    export_action = ExportAction(
-        project_config=project_config,
-        parallelizer=parallelizer,
+    # The state of the project lives in the context; the routes below use it
+    # through these names.
+    if context is None:
+        context = ProjectContext.create(project_config)
+    revisions = context.revisions
+    export_action = context.export_action
+    html_templates = context.html_templates
+    html_generator = context.html_generator
+    server_features_by_screen_filename = (
+        context.server_features_by_screen_filename
     )
-
-    is_small_project = export_action.traceability_index.is_small_project()
-
-    html_templates: HTMLTemplates = HTMLTemplates.create(
-        project_config=project_config,
-        enable_caching=not is_small_project,
-        strictdoc_last_update=export_action.traceability_index.strictdoc_last_update,
-    )
-
-    html_generator = HTMLGenerator(project_config, html_templates)
-
-    # Server screens contributed by built-in Features (e.g.
-    # ProjectStatisticsFeature), keyed by the screen_filename() each one
-    # owns. Built from *all* built-in Features regardless of activation
-    # (not just project_config.get_features(), which only resolves
-    # activated ones) so that a request for a known-but-not-activated
-    # screen can be told apart from an unknown path: the former must
-    # still return 412, the latter 404. Dispatched from within
-    # generate_document() below, so every Feature-contributed screen
-    # still goes through the same shared caching/locking machinery as
-    # every other document.
-    server_features_by_screen_filename: Dict[str, Feature] = {
-        feature_.screen_filename(): feature_
-        for feature_ in ProjectConfig._builtin_features_by_handle().values()
-        if feature_.supports_server()
-    }
-
-    html_generator.export_strictdoc_assets(
-        project_config=project_config,
-        html_templates=html_templates,
-        export_output_html_root=project_config.export_output_html_root,
-    )
-
-    html_generator.export_project_assets(
-        traceability_index=export_action.traceability_index,
-        export_output_html_root=project_config.export_output_html_root,
-    )
-
-    sdoc_writer = SDWriter(project_config)
-
-    def write_document_to_file(document: SDocDocument) -> None:
-        """
-        FIXME: Factorize this into an OOP class.
-
-        FIXME: The writer dispatch below is hardcoded to ".md"/".markdown"
-        vs. everything else, not derived from project_config.formats /
-        Format.supports_edit(). Document creation now accepts any editable
-        format's extension (see ProjectConfig.get_editable_document_extensions()),
-        so a third editable format would pass creation validation but get
-        silently mis-written here.
-        """
-
-        assert isinstance(document, SDocDocument)
-
-        # Inhibit before writing so the watcher's debounce always fires into
-        # an already-suppressed state — no race window between write and hash.
-        if document.meta is not None:
-            document_watcher = getattr(app.state, "document_watcher", None)
-            if document_watcher is not None:
-                document_watcher.inhibit_next_change(
-                    document.meta.input_doc_full_path
-                )
-
-        if (
-            document.meta is not None
-            and document.meta.input_doc_full_path.lower().endswith(
-                (".md", ".markdown")
-            )
-        ):
-            SDMarkdownWriter.write_to_file(
-                document, line_width=project_config.document_line_width
-            )
-        else:
-            sdoc_writer.write_to_file(document)
-
-    def env() -> JinjaEnvironment:
-        return html_templates.jinja_environment()
+    write_document_to_file = context.write_document_to_file
+    env = context.env
 
     @app.exception_handler(404)
     async def not_found_handler(request: Request, exc: Exception) -> Response:  # noqa: ARG001
@@ -5479,45 +5394,10 @@ def create_main_router(
             media_type="text/html",
         )
 
-    # Websockets solution based on:
-    # https://fastapi.tiangolo.com/advanced/websockets/
-    class ConnectionManager:
-        def __init__(self) -> None:
-            self.active_connections: List[WebSocket] = []
-            self._lock = asyncio.Lock()
-
-        async def connect(self, websocket: WebSocket) -> None:
-            await websocket.accept()
-            async with self._lock:
-                self.active_connections.append(websocket)
-
-        async def disconnect(self, websocket: WebSocket) -> None:
-            async with self._lock:
-                if websocket in self.active_connections:
-                    self.active_connections.remove(websocket)
-
-        async def broadcast(self, message: str) -> None:
-            async with self._lock:
-                connections = list(self.active_connections)
-            for connection in connections:
-                await connection.send_text(message)
-
-    manager = ConnectionManager()
+    manager = context.connections
 
     def rebuild_index_after_file_change() -> Optional[str]:
-        try:
-            with lock_manager.acquire_global_write():
-                export_action.traceability_index = (
-                    TraceabilityIndexBuilder.create(
-                        project_config=project_config,
-                        parallelizer=parallelizer,
-                    )
-                )
-            return None
-        except DocumentTreeError as document_tree_error:
-            return document_tree_error.to_print_message()
-        except Exception as build_error:  # noqa: BLE001
-            return str(build_error)
+        return context.rebuild_index(lock_manager)
 
     def notify_clients_after_file_change() -> None:
         build_error = rebuild_index_after_file_change()
@@ -5531,12 +5411,13 @@ def create_main_router(
             )
 
     if project_config.watch_enabled:
-        app.state.document_watcher = DocumentWatcher(
+        context.document_watcher = DocumentWatcher(
             watch_paths=project_config.input_paths or [],
             output_dir_abs_path=project_config.output_dir,
             on_documents_changed=notify_clients_after_file_change,
             watched_extensions=get_watched_document_extensions(project_config),
         )
+        app.state.document_watcher = context.document_watcher
 
     @router.websocket("/ws/{client_id}")
     async def websocket_endpoint(websocket: WebSocket, client_id: int) -> None:

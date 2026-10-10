@@ -109,6 +109,17 @@ Each step ends with the tests named in it and a commit on `feature/roles-<name>`
 | R4 | Audit log and its screen | Unit: one line per write with the right user; no line for a refused request; rotation |
 | R5 | `deploy.sh`: Keycloak groups and role mapping, oauth2-proxy flags, `auth_mode=proxy` in the generated config | `check_login.py` extended: user in `strictdoc-readers` cannot open an edit form; user without group gets 403 |
 
+### Delivered: R0 (2026-10-10)
+
+`strictdoc/server/project_context.py` now holds the state of one project: `project_config`, `revisions`, `export_action` (traceability index),
+`html_templates`, `html_generator`, `server_features_by_screen_filename`, `sdoc_writer`, `connections` (the browsers connected for live reload),
+`document_watcher`, with `env()`, `write_document_to_file()` and `rebuild_index()`. `create_main_router` takes an optional `context` (`create_app`
+passes one) and aliases its fields to the names the routes already use, so **no route body changed** (the diff of `main_router.py` is a removal of
+about 140 lines and an alias block). Checked by: the 917 unit and server tests, 6 new tests of the context (`tests/unit_server/strictdoc/server/40_project_context/`),
+and the end2end families `screens/document` (297 passed, the 5 PDF-export tests that fail in the container fail as before), `screens/table` (61),
+`screens/project_index` (18) and `navigation` (15), identical to the results before the change. What is still in the closure of
+`create_main_router` and moves later: the lock key helpers, the error response, the watcher callbacks that need `app.state.event_loop`.
+
 ## 5. Files touched
 
 New: `strictdoc/features/roles/` (principal, dependency, classification table, audit log, templates for the audit screen), tests under
