@@ -14,12 +14,23 @@ Two modes (project option ``auth_mode``):
 
 import ipaddress
 import json
-from typing import Any, Awaitable, Callable, Dict, List, Optional, Sequence
+from dataclasses import replace
+from typing import (
+    Any,
+    Awaitable,
+    Callable,
+    Dict,
+    List,
+    Mapping,
+    Optional,
+    Sequence,
+)
 
 from strictdoc.features.roles.principal import (
     Principal,
     principal_from_headers,
 )
+from strictdoc.features.roles.roles import resolve_role, validate_roles
 
 AUTH_MODE_NONE = "none"
 AUTH_MODE_PROXY = "proxy"
@@ -45,6 +56,7 @@ class PrincipalMiddleware:
         *,
         auth_mode: str = AUTH_MODE_NONE,
         trusted_proxies: Sequence[str] = (),
+        roles: Optional[Mapping[str, Sequence[str]]] = None,
     ) -> None:
         if auth_mode not in AUTH_MODES:
             raise ValueError(
@@ -55,6 +67,11 @@ class PrincipalMiddleware:
             raise ValueError(
                 "auth_mode 'proxy' needs trusted_proxies, the networks that "
                 "oauth2-proxy connects from."
+            )
+        self._roles = validate_roles(roles or {})
+        if auth_mode == AUTH_MODE_PROXY and len(self._roles) == 0:
+            raise ValueError(
+                "auth_mode 'proxy' needs roles: the groups of each role."
             )
         self.app = app
         self.auth_mode = auth_mode
@@ -83,7 +100,12 @@ class PrincipalMiddleware:
             name_.decode("latin-1").lower(): value_.decode("latin-1")
             for name_, value_ in scope.get("headers", [])
         }
-        return principal_from_headers(headers)
+        principal = principal_from_headers(headers)
+        if principal is None:
+            return None
+        return replace(
+            principal, role=resolve_role(principal.groups, self._roles)
+        )
 
     def _is_trusted_peer(self, client: Optional[Any]) -> bool:
         if client is None:

@@ -4,6 +4,7 @@
 
 import datetime
 import ipaddress
+import json
 import mimetypes
 import os
 import re
@@ -38,6 +39,7 @@ from strictdoc.commands.server_config import ServerCommandConfig
 from strictdoc.core.environment import SDocRuntimeEnvironment
 from strictdoc.core.feature import Feature
 from strictdoc.core.plugin import StrictDocPlugin
+from strictdoc.features.roles.roles import validate_roles
 from strictdoc.helpers.auto_described import auto_described
 from strictdoc.helpers.deprecation_engine import DEPRECATION_ENGINE
 from strictdoc.helpers.exception import StrictDocException
@@ -205,6 +207,7 @@ class ProjectConfig:
         docx_base: Optional[str] = None,
         auth_mode: str = "none",
         trusted_proxies: Optional[List[str]] = None,
+        roles: Optional[Dict[str, List[str]]] = None,
         reqif_profile: str = ReqIFProfile.P01_SDOC,
         # FIXME: Change to true by default.
         reqif_multiline_is_xhtml: bool = False,
@@ -482,6 +485,17 @@ class ProjectConfig:
             ]
             if environment_proxies
             else list(trusted_proxies or [])
+        )
+        # The groups of each role: {"author": ["strictdoc-authors"], ...}.
+        # STRICTDOC_ROLES (JSON) wins over the project file, like the options
+        # above.
+        environment_roles = os.environ.get("STRICTDOC_ROLES")
+        self.roles: Dict[str, List[str]] = (
+            json.loads(environment_roles)
+            if environment_roles
+            else {
+                role_: list(groups_) for role_, groups_ in (roles or {}).items()
+            }
         )
         self.reqif_profile: str = reqif_profile
 
@@ -873,6 +887,17 @@ class ProjectConfig:
             raise StrictDocException(
                 "config: auth_mode 'proxy' needs trusted_proxies, the "
                 "networks that oauth2-proxy connects from."
+            )
+        try:
+            self.roles = validate_roles(self.roles)
+        except ValueError as exception_:
+            raise StrictDocException(
+                f"config: roles: {exception_}"
+            ) from exception_
+        if self.auth_mode == "proxy" and len(self.roles) == 0:
+            raise StrictDocException(
+                "config: auth_mode 'proxy' needs roles, the groups of each "
+                "role (reader, reviewer, author, administrator)."
             )
 
         #

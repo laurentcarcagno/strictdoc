@@ -16,7 +16,9 @@ from starlette.responses import Response
 
 from strictdoc import __version__
 from strictdoc.core.project_config import ProjectConfig
+from strictdoc.features.roles.enforcement import RoleMiddleware
 from strictdoc.features.roles.middleware import PrincipalMiddleware
+from strictdoc.features.roles.route_roles import check_routes_classified
 from strictdoc.features.roles.router import create_roles_router
 from strictdoc.helpers.coverage import register_code_coverage_hook
 from strictdoc.helpers.deprecation_engine import DEPRECATION_ENGINE
@@ -90,7 +92,14 @@ def create_app(*, project_config: ProjectConfig) -> FastAPI:
         if document_watcher is not None:
             document_watcher.stop()
 
-    app = FastAPI(lifespan=lifespan)
+    # Behind a login proxy the generated documentation of the routes is off:
+    # it lists every route to whoever opens it.
+    documentation_urls = (
+        {"docs_url": None, "redoc_url": None, "openapi_url": None}
+        if project_config.auth_mode == "proxy"
+        else {}
+    )
+    app = FastAPI(lifespan=lifespan, **documentation_urls)  # type: ignore[arg-type]
 
     origins = [
         "http://localhost",
@@ -124,11 +133,17 @@ def create_app(*, project_config: ProjectConfig) -> FastAPI:
         allow_headers=["*"],
     )
 
-    # Outermost: who is acting is decided before any route runs.
+    # Who is acting is decided before any route runs (outermost), then the
+    # role that the route needs is checked.
+    app.add_middleware(
+        RoleMiddleware,
+        auth_mode=project_config.auth_mode,
+    )
     app.add_middleware(
         PrincipalMiddleware,
         auth_mode=project_config.auth_mode,
         trusted_proxies=project_config.trusted_proxies,
+        roles=project_config.roles,
     )
 
     lock_manager = HierarchicalRWLockManager()
@@ -149,6 +164,9 @@ def create_app(*, project_config: ProjectConfig) -> FastAPI:
             context=ProjectContext.create(project_config),
         )
     )
+
+    # A route that has no role stops the server, so that none is forgotten.
+    check_routes_classified(app.router.routes)
 
     return app
 

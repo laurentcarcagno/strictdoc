@@ -28,6 +28,7 @@ def create_roles_router(auth_mode: str) -> APIRouter:
             "email": principal.email,
             "groups": list(principal.groups),
             "authenticated": principal.authenticated,
+            "role": principal.role,
             "auth_mode": auth_mode,
         }
 

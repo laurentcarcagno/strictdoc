@@ -15,6 +15,7 @@ from strictdoc.server.app import create_app
 
 PATH_TO_THIS_TEST_FOLDER = Path(__file__).parent
 PROXY_NETWORK = "10.89.2.0/24"
+ROLES = {"author": ["strictdoc-authors"], "reader": ["strictdoc-readers"]}
 PROXY_ADDRESS = ("10.89.2.7", 40000)
 OUTSIDE_ADDRESS = ("192.168.1.50", 40000)
 IDENTITY = {
@@ -47,6 +48,7 @@ def _project_config(
     project_config = ProjectConfigLoader.load_using_server_config(server_config)
     project_config.auth_mode = auth_mode
     project_config.trusted_proxies = list(trusted)
+    project_config.roles = ROLES
     return project_config
 
 
@@ -80,6 +82,7 @@ def test_002_proxy_mode_reads_the_identity_from_a_trusted_proxy(tmp_path):
         "email": "laurent.carcagno@hemeria-group.com",
         "groups": ["strictdoc-authors"],
         "authenticated": True,
+        "role": "author",
         "auth_mode": "proxy",
     }
     page = client.get("/input/document.html", headers=IDENTITY)
@@ -141,9 +144,15 @@ def test_008_the_middleware_refuses_a_bad_configuration():
     with pytest.raises(ValueError, match="auth_mode"):
         PrincipalMiddleware(app, auth_mode="open")
     with pytest.raises(ValueError, match="trusted_proxies"):
-        PrincipalMiddleware(app, auth_mode="proxy")
+        PrincipalMiddleware(app, auth_mode="proxy", roles=ROLES)
+    with pytest.raises(ValueError, match="roles"):
+        PrincipalMiddleware(
+            app, auth_mode="proxy", trusted_proxies=[PROXY_NETWORK]
+        )
     with pytest.raises(ValueError):
-        PrincipalMiddleware(app, auth_mode="proxy", trusted_proxies=["nope"])
+        PrincipalMiddleware(
+            app, auth_mode="proxy", trusted_proxies=["nope"], roles=ROLES
+        )
 
 
 def test_009_the_middleware_sets_the_principal_for_the_application():
@@ -153,7 +162,10 @@ def test_009_the_middleware_sets_the_principal_for_the_application():
         seen.append(scope["state"]["principal"])
 
     middleware = PrincipalMiddleware(
-        app, auth_mode="proxy", trusted_proxies=[PROXY_NETWORK]
+        app,
+        auth_mode="proxy",
+        trusted_proxies=[PROXY_NETWORK],
+        roles={"reader": ["g1"]},
     )
     scope = {
         "type": "http",
@@ -164,7 +176,7 @@ def test_009_the_middleware_sets_the_principal_for_the_application():
         ],
     }
     asyncio.run(middleware(scope, None, None))  # type: ignore[arg-type]
-    assert seen == [Principal(user="anna", groups=("g1",))]
+    assert seen == [Principal(user="anna", groups=("g1",), role="reader")]
 
 
 def test_010_project_config_validates_the_authentication_options(tmp_path):
@@ -185,6 +197,11 @@ def test_010_project_config_validates_the_authentication_options(tmp_path):
         config.validate_and_finalize()
 
     config.trusted_proxies = [PROXY_NETWORK]
+    config.roles = {}
+    with pytest.raises(StrictDocException, match="roles"):
+        config.validate_and_finalize()
+
+    config.roles = ROLES
     config.validate_and_finalize()
 
 

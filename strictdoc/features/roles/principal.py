@@ -42,10 +42,15 @@ class Principal:
     groups: Tuple[str, ...] = ()
     # False for the anonymous principal of the "none" authentication mode.
     authenticated: bool = True
+    # The highest role that one of the groups gives (roles.py), or None.
+    role: Optional[str] = None
 
     @staticmethod
     def anonymous() -> "Principal":
-        return Principal(user=ANONYMOUS_USER, authenticated=False)
+        # With no login in front of the server everybody is administrator.
+        return Principal(
+            user=ANONYMOUS_USER, authenticated=False, role="administrator"
+        )
 
 
 def groups_from_header(value: str) -> Tuple[str, ...]:
