@@ -114,12 +114,30 @@ def build_prompt(
         ):
             items.append(_item(KIND_NEIGHBOUR, neighbour_))
 
-    items = _dedupe(items)
+    return build_prompt_from_items(
+        items=_dedupe(items),
+        llm=llm,
+        instruction=instruction,
+        pattern=pattern,
+        template=template,
+    )
+
+
+def build_prompt_from_items(
+    *,
+    items: List[ContextItem],
+    llm: LLMConfig,
+    instruction: str,
+    pattern: str = "free",
+    template: Optional[PromptTemplate] = None,
+) -> BuiltPrompt:
+    """The prompt for context that is already chosen (the golden set uses it)."""
+    template = template or load_template()
     blocks, kept = _render_blocks(items, llm.max_context_chars)
     methods = llm.verification_methods
     user_parts = [
         "Pattern: " + template.patterns[pattern],
-        "Instruction:\n" + instruction,
+        "Instruction:\n" + instruction.strip(),
     ]
     if methods:
         user_parts.append(

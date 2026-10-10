@@ -146,8 +146,8 @@ def test_010_a_long_context_is_cut_and_the_cut_is_marked(tmp_path):
 
 def test_011_the_template_version_is_recorded(tmp_path):
     built = _build(make_index(tmp_path))
-    assert built.template.label == "draft@1"
-    assert load_template().version == 1
+    assert built.template.label == "draft@2"
+    assert load_template().version == 2
 
 
 def test_012_every_pattern_has_a_text_and_an_unknown_one_is_refused(tmp_path):
