@@ -15,8 +15,12 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from markupsafe import Markup
 from starlette.responses import Response
 
+from strictdoc.backend.sdoc.models.document import SDocDocument
 from strictdoc.backend.sdoc.models.node import SDocNode
 from strictdoc.core.project_config import ProjectConfig
+from strictdoc.features.hierarchy.resolve_action import (
+    resolve_project_references,
+)
 from strictdoc.features.hierarchy.suspect import (
     Baseline,
     baseline_all,
@@ -30,6 +34,7 @@ from strictdoc.features.hierarchy.suspect import (
 )
 from strictdoc.features.roles.roles import ROLE_AUTHOR, role_allows
 from strictdoc.features.roles.router import get_principal
+from strictdoc.helpers.exception import StrictDocException
 
 HTTP_STATUS_PRECONDITION_FAILED = 412
 
@@ -60,7 +65,12 @@ def create_baseline_sync(
 
 
 def create_hierarchy_routers(
-    *, project_config: ProjectConfig, get_index: Callable[[], Any], env: Any
+    *,
+    project_config: ProjectConfig,
+    get_index: Callable[[], Any],
+    env: Any,
+    write_document: Callable[[SDocDocument], None],
+    rebuild: Callable[[], None],
 ) -> Tuple[APIRouter, APIRouter]:
     def require_feature() -> None:
         if not project_config.suspect_links:
@@ -71,7 +81,7 @@ def create_hierarchy_routers(
             )
 
     read_router = APIRouter(dependencies=[Depends(require_feature)])
-    write_router = APIRouter(dependencies=[Depends(require_feature)])
+    write_router = APIRouter()
 
     def find_link(child_uid: str, parent_uid: str) -> Tuple[SDocNode, SDocNode]:
         for child_, parent_ in iter_links(get_index()):
@@ -112,7 +122,11 @@ def create_hierarchy_routers(
         )
         return HTMLResponse(content=output, status_code=200)
 
-    @write_router.post("/actions/suspect/clear", response_class=Response)
+    @write_router.post(
+        "/actions/suspect/clear",
+        response_class=Response,
+        dependencies=[Depends(require_feature)],
+    )
     def clear(
         child_uid: str = Form(...), parent_uid: str = Form(...)
     ) -> Response:
@@ -123,12 +137,38 @@ def create_hierarchy_routers(
         baseline.save(path)
         return RedirectResponse("/suspect_links", status_code=303)
 
-    @write_router.post("/actions/suspect/baseline", response_class=Response)
+    @write_router.post(
+        "/actions/suspect/baseline",
+        response_class=Response,
+        dependencies=[Depends(require_feature)],
+    )
     def baseline_everything() -> Response:
         path = baseline_path(project_config)
         baseline = Baseline()
         baseline_all(get_index(), baseline, suspect_fields(project_config))
         baseline.save(path)
         return RedirectResponse("/suspect_links", status_code=303)
+
+    @write_router.post(
+        "/actions/hierarchy/resolve_references", response_class=Response
+    )
+    def resolve_references(apply: bool = Form(False)) -> Response:
+        try:
+            report = resolve_project_references(
+                traceability_index=get_index(),
+                project_config=project_config,
+                write_document=write_document,
+                apply=apply,
+            )
+        except StrictDocException as exception_:
+            raise HTTPException(
+                status_code=400, detail=str(exception_)
+            ) from exception_
+        if apply and report.documents_changed:
+            rebuild()
+        return Response(
+            content=report.format() + "\n",
+            media_type="text/plain; charset=utf-8",
+        )
 
     return read_router, write_router

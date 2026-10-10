@@ -28,6 +28,8 @@ from strictdoc.backend.sdoc.models.document import SDocDocument
 from strictdoc.core.project_config import ProjectConfig
 from strictdoc.export.html.html_templates import JinjaEnvironment
 from strictdoc.features.export.export_action import ExportAction
+from strictdoc.features.hierarchy.references import ResolverFunction
+from strictdoc.features.hierarchy.source import build_reference_resolver
 from strictdoc.features.project_index.view_object import (
     ProjectTreeViewObject,
 )
@@ -56,6 +58,13 @@ def create_docx_routers(
 
     read_router = APIRouter(dependencies=[Depends(require_feature)])
     write_router = APIRouter(dependencies=[Depends(require_feature)])
+
+    def resolver() -> Optional[ResolverFunction]:
+        """Links to applicable documents, when the project names some."""
+        return build_reference_resolver(
+            project_config.applicable_documents,
+            export_action.traceability_index,
+        )
 
     def stream(
         template: str, status_code: int = 200, **context: object
@@ -124,6 +133,7 @@ def create_docx_routers(
                 input_dir(),
                 TrackedChangesMode(tracked_changes),
                 overwrite,
+                resolver(),
             )
         except (StrictDocException, ValueError) as exception_:
             return error_stream(str(exception_))
@@ -151,6 +161,7 @@ def create_docx_routers(
                 input_dir(),
                 TrackedChangesMode(tracked_changes),
                 overwrite,
+                resolver(),
             )
         except (StrictDocException, ValueError) as exception_:
             return error_stream(str(exception_))

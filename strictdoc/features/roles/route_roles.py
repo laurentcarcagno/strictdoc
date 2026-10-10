@@ -119,6 +119,7 @@ ROUTE_ROLES: Dict[RouteKey, str] = {
         "GET /__nestor",
         "GET /audit",
         "POST /actions/suspect/baseline",
+        "POST /actions/hierarchy/resolve_references",
         # FastAPI's own documentation of the routes (disabled behind a login
         # proxy, see create_app).
         "GET /openapi.json",

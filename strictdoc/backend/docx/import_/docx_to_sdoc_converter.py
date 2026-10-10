@@ -43,6 +43,7 @@ from strictdoc.features.comments.model import (
     format_comment,
     parse_comment,
 )
+from strictdoc.features.hierarchy.references import ResolverFunction
 
 REMOVED_SECTION_TITLE = "Not in the Word document"
 
@@ -72,6 +73,8 @@ class DocxImportReport:
     removed_uids: List[str] = field(default_factory=list)
     # Word comments that were not in the SDoc file yet and now are.
     comments_added: int = 0
+    # Parent relations written from references to applicable documents.
+    references_resolved: int = 0
 
     def format(self) -> str:
         summary = (
@@ -92,6 +95,10 @@ class DocxImportReport:
             lines.append(f"  Invalid UID, requirement imported without: {uid_}")
         for uid_, name_ in self.unresolved_links:
             lines.append(f"  Unresolved link: {uid_} -> {name_}")
+        if self.references_resolved > 0:
+            lines.append(
+                f"  Links to applicable documents: {self.references_resolved}"
+            )
         if self.comments_added > 0:
             lines.append(f"  Comments read from Word: {self.comments_added}")
         if self.merged:
@@ -142,9 +149,10 @@ class DocxToSDocConverter:
         profile: DocxProfile,
         fallback_title: str,
         carry_over: Optional[CarryOver] = None,
+        reference_resolver: Optional[ResolverFunction] = None,
     ) -> Tuple[SDocDocument, DocxImportReport]:
         sdoc_text, report = DocxToSDocConverter.build_sdoc_text(
-            blocks, profile, fallback_title, carry_over
+            blocks, profile, fallback_title, carry_over, reference_resolver
         )
         return DocxToSDocConverter.parse(sdoc_text), report
 
@@ -158,6 +166,7 @@ class DocxToSDocConverter:
         profile: DocxProfile,
         fallback_title: str,
         carry_over: Optional[CarryOver] = None,
+        reference_resolver: Optional[ResolverFunction] = None,
     ) -> Tuple[str, DocxImportReport]:
         """
         With a carry_over (the existing SDoc file), the Word document is
@@ -211,6 +220,7 @@ class DocxToSDocConverter:
                         report,
                         carry_over,
                         markup,
+                        reference_resolver,
                     )
                 )
         while open_sections > 0:
@@ -435,6 +445,7 @@ def _requirement_text(
     report: DocxImportReport,
     carry_over: Optional[CarryOver],
     markup: str = MARKUP_RST,
+    reference_resolver: Optional[ResolverFunction] = None,
 ) -> str:
     fields: List[Tuple[str, str]] = []
     if len(requirement.uid) > 0:
@@ -451,7 +462,9 @@ def _requirement_text(
     if len(note) > 0:
         fields.append((layout.note_field, _multiline(note)))
 
-    parent_uids = _parent_uids(requirement, layout, known_uids, report)
+    parent_uids = _parent_uids(
+        requirement, layout, known_uids, report, reference_resolver
+    )
     file_relations: List[List[str]] = []
     old_comments: List[str] = []
     if carry_over is not None and len(requirement.uid) > 0:
@@ -541,10 +554,22 @@ def _parent_uids(
     layout: DocxRequirementTable,
     known_uids: Set[str],
     report: DocxImportReport,
+    reference_resolver: Optional[ResolverFunction] = None,
 ) -> List[str]:
     parent_uids: List[str] = []
     for field_name_ in layout.relation_fields:
         value = requirement.fields.get(field_name_, "")
+        if reference_resolver is not None:
+            # Links inside the document and links to applicable documents.
+            resolved = reference_resolver(value, known_uids)
+            for uid_ in resolved.uids:
+                if uid_ not in parent_uids and uid_ != requirement.uid:
+                    parent_uids.append(uid_)
+                    if uid_ not in known_uids:
+                        report.references_resolved += 1
+            for message_ in resolved.unresolved:
+                report.unresolved_links.append((requirement.uid, message_))
+            continue
         for token_ in re.split(r"[\s,;]+", value):
             name = token_.strip().rstrip(".")
             if len(name) == 0 or name == requirement.uid:

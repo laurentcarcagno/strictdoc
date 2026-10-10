@@ -35,6 +35,7 @@ from strictdoc.backend.docx.import_.docx_to_sdoc_converter import (
 from strictdoc.backend.sdoc.models.document import SDocDocument
 from strictdoc.core.document_meta import DocumentMeta
 from strictdoc.core.project_config import ProjectConfig
+from strictdoc.features.hierarchy.references import ResolverFunction
 from strictdoc.helpers.exception import StrictDocException
 from strictdoc.helpers.paths import SDocRelativePath
 
@@ -88,6 +89,7 @@ def import_upload(
     input_dir: str,
     tracked_changes: TrackedChangesMode,
     overwrite: bool,
+    reference_resolver: Optional[ResolverFunction] = None,
 ) -> DocxImportResult:
     """Converts the Word file. Nothing is written to the project."""
     check_upload(data)
@@ -104,6 +106,7 @@ def import_upload(
                 dry_run=False,
                 output_path=input_dir,
                 overwrite=overwrite,
+                reference_resolver=reference_resolver,
             )
         )
     return DocxImportResult(document=document, report=report, stem=stem)

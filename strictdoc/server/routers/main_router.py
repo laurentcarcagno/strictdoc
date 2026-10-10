@@ -5112,6 +5112,8 @@ def create_main_router(
         project_config=project_config,
         get_index=lambda: export_action.traceability_index,
         env=env,
+        write_document=write_document_to_file,
+        rebuild=lambda: (export_action.build_index(), export_action.export()),
     )
     read_router.include_router(hierarchy_read_router)
     write_router.include_router(hierarchy_write_router)

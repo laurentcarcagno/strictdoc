@@ -16,6 +16,7 @@ from strictdoc.backend.docx.import_.sdoc_requirement_blocks import (
     build_carry_over,
 )
 from strictdoc.backend.sdoc.models.document import SDocDocument
+from strictdoc.features.hierarchy.references import ResolverFunction
 from strictdoc.helpers.file_system import file_open_read_utf8
 
 
@@ -29,6 +30,8 @@ class DocxImportOptions:
     # in it is merged with the Word document, unless overwrite is set.
     output_path: str
     overwrite: bool
+    # Turns the text of a relation column into links to applicable documents.
+    reference_resolver: Optional[ResolverFunction] = None
 
 
 class DocxImport:
@@ -51,7 +54,11 @@ class DocxImport:
             import_options, profile, fallback_title
         )
         return DocxToSDocConverter.convert(
-            blocks, profile, fallback_title, carry_over
+            blocks,
+            profile,
+            fallback_title,
+            carry_over,
+            import_options.reference_resolver,
         )
 
 
