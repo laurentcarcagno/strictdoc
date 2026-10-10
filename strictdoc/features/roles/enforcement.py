@@ -81,7 +81,7 @@ class RoleMiddleware:
             await send({"type": "websocket.close", "code": 4403})
             return
         if principal.role is None:
-            detail = "Your account belongs to no group of this project."
+            detail = "Your account is not a member of this project."
         elif required is None:
             detail = "This route has no role: it is refused."
         else:
