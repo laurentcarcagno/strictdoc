@@ -4244,9 +4244,25 @@ row, like a nested table is read.
 
 An image whose file is a PNG, a JPEG or a GIF is embedded in the Word file as a
 picture, 96 pixels per inch and at most 14 cm wide. Its path is relative to the
-folder of the SDoc document, like in the browser. Any other image (SVG, WebP,
-AVIF, a web address, a file that is missing) is written as the text
+folder of the SDoc document, like in the browser. Any other image (WebP, AVIF,
+a web address, a file that is missing) is written as the text
 ``[image: file name]``. In an update, a new image is a tracked insertion.
+
+An SVG file is embedded twice: as the SVG itself, which Word 2016 and later
+(Microsoft 365) show as a vector drawing, and as a PNG at twice the display
+size, which every other reader shows. The display size comes from ``width`` and
+``height`` (``px``, ``pt``, ``mm``, ``cm``, ``in``) or from the ``viewBox``. The
+PNG draws text with the fonts of the server (Liberation fonts in the container
+image), so it can differ from the vector in Word.
+
+An SVG is cleaned before it is stored and again before it is used: only
+drawing elements are kept; scripts, event attributes, ``foreignObject``,
+animations, links to other files or addresses and style rules that load
+something are removed. A file with a DTD or entities, an invalid file, or a
+file that is too large or nested too deeply is refused with HTTP status 400 at
+upload and stays text in the Word export. The server sends every SVG file
+with a policy that forbids script and any loading (``Content-Security-Policy``
+and ``X-Content-Type-Options: nosniff``).
 
 Reading a Word file back gives ``[image: file name]`` for the pictures that
 StrictDoc wrote, and ignores the other pictures: images are not imported from

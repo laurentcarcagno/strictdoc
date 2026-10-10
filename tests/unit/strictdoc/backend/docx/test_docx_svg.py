@@ -1,13 +1,23 @@
+import os
 import re
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
+import pytest
+
 from strictdoc.backend.docx.export.docx_images import load_image
+from strictdoc.backend.docx.export.docx_tracked_update import DocxUpdater
+from strictdoc.backend.docx.export.sdoc_to_docx_generator import DocxGenerator
+from strictdoc.backend.docx.import_.docx_reader import (
+    DocxReader,
+    TrackedChangesMode,
+)
 from strictdoc.features.svg.rasterizer import (
     rasterize_svg,
     svg_display_size,
 )
 from tests.unit.strictdoc.backend.docx.test_docx_images import (
+    PROFILE,
     _document_xml,
     _generate,
     _parts,
@@ -135,3 +145,53 @@ def test_007_the_same_svg_is_stored_once(tmp_path):
     assert len([n for n in parts if n.startswith("word/media/")]) == 2
     ids = re.findall(r'<wp:docPr id="(\d+)"', _document_xml(parts))
     assert len(ids) == 3 and len(set(ids)) == 3
+
+
+def _texts(path: str, mode: TrackedChangesMode) -> list:
+    return [
+        row_
+        for block_ in DocxReader.read(path, mode)
+        for row_ in getattr(block_, "rows", [])
+    ]
+
+
+def test_008_update_inserts_an_svg_as_a_tracked_change(tmp_path):
+    _write_image(tmp_path, "d.svg", STATE_MACHINE)
+    plain = [_requirement("Text only.", str(tmp_path))]
+    base = _generate(tmp_path, plain, "base.docx")
+    with_svg = [_requirement("Text only.\n\n![d](./d.svg)", str(tmp_path))]
+    package, report = DocxUpdater.update(base, with_svg, PROFILE)
+    assert report.changed == {"R-1": ["STATEMENT"]}
+
+    xml = package["word/document.xml"].decode("utf8")
+    assert re.search(r"<w:ins [^>]*>(?:(?!</w:ins>).)*<asvg:svgBlip", xml, re.S)
+    assert "@@" not in xml
+    assert len([n for n in package if n.startswith("word/media/")]) == 2
+
+    updated = os.path.join(str(tmp_path), "updated.docx")
+    DocxGenerator.write(package, updated)
+    assert _texts(updated, TrackedChangesMode.REJECT) == _texts(
+        base, TrackedChangesMode.REJECT
+    )
+    assert "[image: d.svg]" in str(_texts(updated, TrackedChangesMode.ACCEPT))
+
+
+def test_009_a_second_update_finds_nothing_to_change(tmp_path):
+    _write_image(tmp_path, "d.svg", STATE_MACHINE)
+    items = [_requirement("Text\n\n![d](./d.svg)", str(tmp_path))]
+    base = _generate(tmp_path, items, "base.docx")
+    _, report = DocxUpdater.update(base, items, PROFILE)
+    assert report.changed == {} and report.unchanged == 1
+
+
+def test_010_text_in_a_drawing_is_rendered_when_the_fonts_exist(
+    monkeypatch,
+):
+    fonts = "/usr/share/fonts/truetype/liberation"
+    if not os.path.isdir(fonts):
+        pytest.skip("fonts-liberation is not installed")
+    text_svg = (CORPUS / "text.svg").read_bytes()
+    monkeypatch.setenv("STRICTDOC_SVG_FONT_DIRS", "/nonexistent")
+    without = rasterize_svg(text_svg)
+    monkeypatch.setenv("STRICTDOC_SVG_FONT_DIRS", fonts)
+    assert len(rasterize_svg(text_svg)) > len(without) * 3

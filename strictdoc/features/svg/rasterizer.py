@@ -88,6 +88,12 @@ def rasterize_svg(data: bytes, width_px: Optional[int] = None) -> bytes:
                 svg_string=cleaned.decode("utf-8"),
                 width=width,
                 font_dirs=font_dirs or None,
+                # The generic families are mapped to fonts that the server
+                # image installs (fonts-liberation).
+                font_family="Liberation Sans",
+                sans_serif_family="Liberation Sans",
+                serif_family="Liberation Serif",
+                monospace_family="Liberation Mono",
             )
         )
     except ValueError as exception_:

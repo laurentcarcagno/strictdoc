@@ -114,3 +114,33 @@ the static file response (headers), `strictdoc/backend/docx/export/docx_images.p
 - All tests above; `screens/document/update_node/update_requirement_upload_image*` end2end family stays green.
 - A real SVG diagram in a REQ_02 requirement: export, open in LibreOffice (fallback visible), inspect the package (two media parts).
 - The user opens the sample in Word 365 to confirm that the vector shows and that zooming stays sharp.
+
+## 9. Delivered
+
+### S0 spike result (rasterizer)
+
+Chosen: **resvg-py 0.5.0** (a Rust wheel; no system library, no network access, installs with pip behind the proxy). CairoSVG needs `libcairo2`,
+LibreOffice is too heavy for the server image. Measured in the dev container (Python 3.12), render at 2x:
+
+| Diagram | SVG bytes | PNG bytes | Time |
+|---|---|---|---|
+| state machine | 902 | 3,921 | 4 ms |
+| timing | 322 | 1,431 | 3 ms |
+| text | 226 | 2,088 with fonts, 245 without | 1 ms |
+| gradient | 334 | 5,568 | 5 ms |
+| large (2,500 rectangles) | 151,997 | 41,934 | 65 ms |
+
+Findings that changed the design:
+
+- resvg-py **reads a plain file path** given in an image reference (`href="/tmp/x.png"`, `href="x.png"`); only `file://` URLs are ignored. The
+  rasterizer is therefore only called on output of `sanitize_svg`, and a test checks that a hostile reference gives a blank image.
+- The slim server image has **no fonts**, so text vanishes silently. The Containerfile installs `fonts-dejavu-core` and `fonts-liberation`; the
+  generic families are mapped to Liberation (`STRICTDOC_SVG_FONT_DIRS` adds font folders).
+- Licence: resvg is MPL-2.0 and resvg-py is MIT-style (the package metadata has no licence text): to confirm before a public release.
+
+### Steps
+
+S1 to S3 are done (sanitizer with a hostile corpus, upload refuses what it cannot clean, asset headers, SVG with PNG fallback and `svgBlip` in
+fresh export and update). LibreOffice renders the drawing from the exported file. Deviation: an SVG without the SVG namespace is refused
+(`<svg/>` is not an image for a browser either); the existing upload test was changed to use a namespaced file.
+Not verified: display in Word 365 (vector, zoom), to be checked by the user with a sample.
