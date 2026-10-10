@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <title>Document hierarchy</title>
+  <style>
+    body { font-family: sans-serif; margin: 24px; }
+    table { border-collapse: collapse; margin-bottom: 16px; }
+    th, td { border: 1px solid #ccc; padding: 4px 8px; vertical-align: top; text-align: left; }
+    td.num { text-align: right; }
+    details { margin: 4px 0; }
+  </style>
+</head>
+<body>
+  <h1>Document hierarchy</h1>
+  <table data-testid="hierarchy-table">
+    <tr>
+      <th>Level</th><th>Documents</th><th>Nodes</th>
+      <th>With a parent in an allowed level</th><th>Coverage</th>
+      <th>Orphans</th><th>Not answered</th>
+      {%- if suspect_links %}<th>Suspect</th>{% endif %}
+    </tr>
+    {%- for level in stats.levels %}
+    <tr data-testid="hierarchy-level" data-level="{{ level.level.name }}">
+      <td>{{ level.level.title }}</td>
+      <td>{% for title in level.documents %}{{ title }}{% if not loop.last %}, {% endif %}{% endfor %}</td>
+      <td class="num">{{ level.nodes|length }}</td>
+      <td class="num">{{ level.answering|length }}</td>
+      <td class="num">{{ level.coverage_percent }} %</td>
+      <td class="num">{{ level.orphans|length }}</td>
+      <td class="num">{{ level.unanswered|length }}</td>
+      {%- if suspect_links %}<td class="num">{{ level.suspect }}</td>{% endif %}
+    </tr>
+    {%- endfor %}
+  </table>
+  {%- for level in stats.levels %}
+    {%- if level.orphans %}
+  <details><summary>Orphans: {{ level.level.title }} ({{ level.orphans|length }})</summary>
+    <ul data-testid="hierarchy-orphans">
+      {%- for node in level.orphans %}<li><a href="/UID/{{ node.reserved_uid }}">{{ node.reserved_uid }}</a> {{ node.reserved_title or "" }}</li>{% endfor %}
+    </ul>
+  </details>
+    {%- endif %}
+    {%- if level.unanswered %}
+  <details><summary>Not answered: {{ level.level.title }} ({{ level.unanswered|length }})</summary>
+    <ul data-testid="hierarchy-unanswered">
+      {%- for node in level.unanswered %}<li><a href="/UID/{{ node.reserved_uid }}">{{ node.reserved_uid }}</a> {{ node.reserved_title or "" }}</li>{% endfor %}
+    </ul>
+  </details>
+    {%- endif %}
+  {%- endfor %}
+  {%- if stats.unclassified_documents %}
+  <p data-testid="hierarchy-unclassified">Documents without a known kind:
+    {{ stats.unclassified_documents|join(", ") }}</p>
+  {%- endif %}
+</body>
+</html>

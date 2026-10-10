@@ -108,6 +108,7 @@ def setup(
     policy: str = "off",
     editable: bool = False,
     suspect: bool = False,
+    hierarchy: bool = True,
 ) -> Tuple[TestClient, Path]:
     input_path = root / "input"
     write_project(input_path)
@@ -124,8 +125,9 @@ def setup(
     config: ProjectConfig = ProjectConfigLoader.load_using_server_config(
         server_config
     )
-    config.document_hierarchy = LEVELS
-    config.hierarchy_levels = validate_hierarchy(LEVELS)
+    if hierarchy:
+        config.document_hierarchy = LEVELS
+        config.hierarchy_levels = validate_hierarchy(LEVELS)
     config.relation_policy = policy
     config.input_documents_editable = editable
     config.suspect_links = suspect

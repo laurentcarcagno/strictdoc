@@ -53,6 +53,7 @@ ROUTE_ROLES: Dict[RouteKey, str] = {
         "GET /diff_result",
         "GET /comments",
         "GET /suspect_links",
+        "GET /hierarchy",
         "GET /actions/project_index/export_docx_form",
         "POST /actions/project_index/export_docx_preview",
         "POST /docx/export",

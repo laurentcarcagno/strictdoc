@@ -8,7 +8,7 @@ each route needs is in strictdoc/features/roles/route_roles.py.
 """
 
 import os
-from typing import Any, Callable, Dict, Iterator, Tuple
+from typing import Any, Callable, Dict, Iterator, List, Tuple
 
 from fastapi import APIRouter, Depends, Form, HTTPException, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
@@ -21,6 +21,7 @@ from strictdoc.core.project_config import ProjectConfig
 from strictdoc.features.hierarchy.resolve_action import (
     resolve_project_references,
 )
+from strictdoc.features.hierarchy.stats import compute_hierarchy_stats
 from strictdoc.features.hierarchy.suspect import (
     Baseline,
     baseline_all,
@@ -80,7 +81,15 @@ def create_hierarchy_routers(
                 "(project option suspect_links).",
             )
 
-    read_router = APIRouter(dependencies=[Depends(require_feature)])
+    def require_hierarchy() -> None:
+        if len(project_config.document_hierarchy) == 0:
+            raise HTTPException(
+                status_code=HTTP_STATUS_PRECONDITION_FAILED,
+                detail="The project declares no document hierarchy "
+                "(project option document_hierarchy).",
+            )
+
+    read_router = APIRouter()
     write_router = APIRouter()
 
     def find_link(child_uid: str, parent_uid: str) -> Tuple[SDocNode, SDocNode]:
@@ -91,7 +100,11 @@ def create_hierarchy_routers(
                 return child_, parent_
         raise HTTPException(status_code=404, detail="This link does not exist.")
 
-    @read_router.get("/suspect_links", response_class=Response)
+    @read_router.get(
+        "/suspect_links",
+        response_class=Response,
+        dependencies=[Depends(require_feature)],
+    )
     def suspect_links_screen(request: Request) -> Response:
         path = baseline_path(project_config)
         has_baseline = os.path.isfile(path)
@@ -148,6 +161,34 @@ def create_hierarchy_routers(
         baseline_all(get_index(), baseline, suspect_fields(project_config))
         baseline.save(path)
         return RedirectResponse("/suspect_links", status_code=303)
+
+    @read_router.get(
+        "/hierarchy",
+        response_class=Response,
+        dependencies=[Depends(require_hierarchy)],
+    )
+    def hierarchy_screen() -> Response:
+        suspect_children: List[str] = []
+        if project_config.suspect_links:
+            path = baseline_path(project_config)
+            if os.path.isfile(path):
+                suspect_children = [
+                    link_.child.reserved_uid
+                    for link_ in suspect_links(
+                        get_index(),
+                        load_cached(path),
+                        suspect_fields(project_config),
+                    )
+                ]
+        stats = compute_hierarchy_stats(
+            get_index(), project_config.hierarchy_levels, suspect_children
+        )
+        output = Markup(
+            env()
+            .get_template("features/hierarchy/hierarchy.jinja.html")
+            .render(stats=stats, suspect_links=project_config.suspect_links)
+        )
+        return HTMLResponse(content=output, status_code=200)
 
     @write_router.post(
         "/actions/hierarchy/resolve_references", response_class=Response
