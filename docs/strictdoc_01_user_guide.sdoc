@@ -5585,6 +5585,38 @@ to a requirement statement.
 <<<
 
 [[SECTION]]
+MID: 5bf99b072e4b4aa08c14f2f776a57f49
+TITLE: Editing Markdown in the web interface
+
+[TEXT]
+MID: b85cab87fa7443899fa0cb9b3a2d7e66
+STATEMENT: >>>
+When a document has ``MARKUP: Markdown``, the web interface edits the content of
+a node (the ``STATEMENT``, ``DESCRIPTION`` or ``CONTENT`` field of a requirement,
+and the text of a ``TEXT`` node) in a WYSIWYG editor with a toolbar. The editor
+handles headings, bold, italic, code, lists, quotes, links, tables and images.
+Documents with another markup, and all other fields, keep the plain text editor.
+
+Images are uploaded to the ``_assets`` folder of the document, next to the
+document, and written as ordinary Markdown images. An image can only be uploaded
+for a node that exists; if ``ENABLE_MID`` is off, save a new node first.
+
+The inline links and anchors of StrictDoc (the ``LINK`` and ``ANCHOR`` markers)
+stay as they are and appear as small labels in the editor.
+
+The field is written again by the editor only if its text was changed. When it
+is, the text is normalised: for example a table is re-aligned, a hard break
+becomes a backslash at the end of the line, and an empty paragraph becomes
+``<br />``. A line that starts with ``<<<`` is refused in any multiline field
+because it would end the field in the ``.sdoc`` file.
+
+The editor is a script bundle that is committed with StrictDoc. To rebuild it,
+see ``developer/milkdown/README.md`` in the repository.
+<<<
+
+[[/SECTION]]
+
+[[SECTION]]
 MID: 02948e1a50634a3ba993500500380c9e
 TITLE: PREFIX
 

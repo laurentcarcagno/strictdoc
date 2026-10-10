@@ -2,6 +2,7 @@
 @relation(SDOC-SRS-55, scope=file)
 """
 
+import re
 from collections import defaultdict
 from enum import Enum
 from typing import Dict, Iterator, List, Optional, Set, Tuple, Union
@@ -686,6 +687,19 @@ class RequirementFormObject(ErrorObject):
             )
             yield relation_.relation_type, relation_.relation_role, is_current
 
+    def uses_markdown_editor(self, field: RequirementFormField) -> bool:
+        """
+        The WYSIWYG Markdown editor edits the content field (STATEMENT,
+        DESCRIPTION, CONTENT) of a node of a Markdown document. Every other
+        field keeps the plain editor.
+        """
+        if self.document_markup != SDocMarkup.MARKDOWN:
+            return False
+        if not field.is_multiline() or not field.is_editable:
+            return False
+        element = self.grammar.elements_by_type[self.element_type]
+        return field.field_name == element.content_field[0]
+
     def validate(
         self,
         *,
@@ -816,6 +830,21 @@ class RequirementFormObject(ErrorObject):
                         if is_multi_instance
                         else grammar_element_field_.title
                     )
+
+                    # A line that starts with "<<<" would close the multiline
+                    # field in the .sdoc file and corrupt it.
+                    if form_field_.is_multiline() and re.search(
+                        r"^<<<", field_value, flags=re.MULTILINE
+                    ):
+                        self.add_error(
+                            error_key,
+                            (
+                                "A line must not start with '<<<' because it "
+                                "marks the end of a multiline field. Indent "
+                                "the line or remove the characters."
+                            ),
+                        )
+                        continue
 
                     # If field not empty, validate its markup syntax using the
                     # writer that matches the document's markup (RST by

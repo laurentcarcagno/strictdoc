@@ -1,0 +1,16 @@
+{#
+  The table has no row for a section, but the table of contents links to the
+  anchor of every section. This zero-height row keeps the anchor in the table,
+  just before the first requirement of the section.
+
+  Variable: section_anchors, the sections (or included documents) to anchor.
+#}
+{%- for section in section_anchors %}
+  <tr class="content-view__section-anchor-TR" aria-hidden="true">
+    <td class="content-view__section-anchor-TD" colspan="100%">
+      {%- with sdoc_entity=section -%}
+        {% include "components/anchor/index.jinja" %}
+      {%- endwith %}
+    </td>
+  </tr>
+{%- endfor %}

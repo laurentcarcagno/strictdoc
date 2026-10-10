@@ -1,0 +1,31 @@
+[DOCUMENT]
+MID: 398e37d756ea406f87ca83ec8e29c178
+TITLE: Document
+OPTIONS:
+  ENABLE_MID: True
+
+[[SECTION]]
+MID: 0aa11111111111111111111111111111
+TITLE: First section
+
+[TEXT]
+MID: 0bb22222222222222222222222222222
+STATEMENT: >>>
+A free paragraph.
+<<<
+
+[REQUIREMENT]
+MID: a5c6b14d5ee443149687fb9be69a7ede
+UID: R-1
+STATEMENT: >>>
+The system shall start.
+<<<
+
+[[/SECTION]]
+
+[REQUIREMENT]
+MID: b6d7c25e6ff5541a9798c8af7bf8afef
+UID: R-2
+STATEMENT: >>>
+The system shall stop.
+<<<

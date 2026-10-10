@@ -3,9 +3,7 @@ TITLE: Document
 
 [GRAMMAR]
 ELEMENTS:
-- TAG: SECTION
-  PROPERTIES:
-    IS_COMPOSITE: True
+- TAG: NOTE
   FIELDS:
   - TITLE: TITLE
     TYPE: String
@@ -21,10 +19,8 @@ ELEMENTS:
   RELATIONS:
   - TYPE: Parent
 
-[[SECTION]]
-TITLE: Section title
-
-[[/SECTION]]
+[NOTE]
+TITLE: Note title
 
 [REQUIREMENT]
 UID: REQ-001

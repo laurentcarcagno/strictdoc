@@ -74,6 +74,8 @@
         {% set text_field_row_context.field = field_ %}
         {% set text_field_row_context.field_editable = field_.is_editable %}
         {% set text_field_row_context.field_type = "multiline" %}
+        {% set text_field_row_context.markdown_editor = form_object.uses_markdown_editor(field_) %}
+        {% set text_field_row_context.upload_url = "/actions/document/upload_asset?document_mid=" ~ form_object.document_mid ~ "&requirement_mid=" ~ form_object.requirement_mid %}
         {% include "components/form/row/row_with_text_field.jinja" %}
       {%- endif -%}
     {%- endfor -%}

@@ -155,15 +155,35 @@ class Form:  # pylint: disable=invalid-name
         assert isinstance(field_value, str)
 
         field_order_str = "last()" if field_order == -1 else str(field_order)
-
-        self.test_case.type(
-            (
-                f"(//*[@data-testid='form-field-{field_name}'])"
-                f"[{field_order_str}]"
-            ),
-            f"{field_value}",
-            by=By.XPATH,
+        field_xpath = (
+            f"(//*[@data-testid='form-field-{field_name}'])[{field_order_str}]"
         )
+
+        if self.test_case.is_element_present(
+            field_xpath + "[self::sdoc-markdown-editor]", by=By.XPATH
+        ):
+            self._do_fill_in_markdown_editor(field_xpath, field_value)
+            return
+
+        self.test_case.type(field_xpath, f"{field_value}", by=By.XPATH)
+
+    def _do_fill_in_markdown_editor(
+        self, field_xpath: str, field_value: str
+    ) -> None:
+        """Types into the WYSIWYG Markdown editor, one paragraph at a time."""
+        prose_mirror_xpath = (
+            f"{field_xpath}[@data-ready='true']"
+            "//*[contains(@class, 'ProseMirror')]"
+        )
+        self.test_case.wait_for_element(prose_mirror_xpath, by=By.XPATH)
+        editor = self.test_case.find_element(prose_mirror_xpath, by=By.XPATH)
+        editor.click()
+        editor.send_keys(Keys.CONTROL, "a")
+        editor.send_keys(Keys.DELETE)
+        for index, paragraph in enumerate(field_value.split("\n\n")):
+            if index > 0:
+                editor.send_keys(Keys.ENTER)
+            editor.send_keys(paragraph)
 
     def do_fill_in_mid(self, mid: MID, test_id: str, field_value: str) -> None:
         assert isinstance(mid, MID)

@@ -1,0 +1,26 @@
+[DOCUMENT]
+MID: 398e37d756ea406f87ca83ec8e29c178
+TITLE: Markdown document
+OPTIONS:
+  ENABLE_MID: True
+  MARKUP: Markdown
+
+[TEXT]
+MID: 7a8e7ed4f4a94e9e8a8d7a0c21d1d001
+STATEMENT: >>>
+A **free** paragraph.
+<<<
+
+[REQUIREMENT]
+MID: a5c6b14d5ee443149687fb9be69a7ede
+UID: R-1
+STATEMENT: >>>
+The system shall start.
+<<<
+
+[REQUIREMENT]
+MID: b6d7c25e6ff5541a9798c8af7bf8afef
+UID: R-2
+STATEMENT: >>>
+See [LINK: R-1] for the start.
+<<<

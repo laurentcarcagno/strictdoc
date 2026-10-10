@@ -1,0 +1,34 @@
+/* StrictDoc-specific rules on top of the Crepe theme. */
+sdoc-markdown-editor {
+  display: block;
+}
+
+.sdoc-markdown-editor__host {
+  border: 1px solid var(--color-border, #d0d7de);
+  border-radius: 4px;
+  background: #fff;
+}
+
+.sdoc-markdown-editor__error {
+  margin-bottom: 4px;
+  padding: 4px 8px;
+  color: #a40000;
+  background: #fdecea;
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+.sdoc-marker {
+  display: inline-block;
+  padding: 0 6px;
+  border-radius: 10px;
+  background: #e8f0fe;
+  color: #1a4d9c;
+  font-size: 0.9em;
+  white-space: nowrap;
+}
+
+.sdoc-marker-anchor {
+  background: #fff4d6;
+  color: #7a5a00;
+}

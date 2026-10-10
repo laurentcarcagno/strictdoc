@@ -1,10 +1,9 @@
 [DOCUMENT]
 TITLE: Document 1
 
-[[SECTION]]
-TITLE: Existing section
+[REQUIREMENT]
+TITLE: Existing requirement
+STATEMENT: Existing statement.
 
 [REQUIREMENT]
 UID: REQ-1
-
-[[/SECTION]]

@@ -1,0 +1,36 @@
+{#
+  WYSIWYG Markdown editor (Milkdown) for the content field of a node in a
+  Markdown document. Same variables as the contenteditable component, plus
+  upload_url (where images are sent). The hidden textarea is what the form
+  submits; strictdoc/features/milkdown/assets/milkdown/milkdown.js keeps it in
+  step with the editor, and only when the text was edited.
+#}
+{%- assert field_input_name is defined, "field_input_name is defined" -%}
+{%- assert field_label is defined, "field_label is defined" -%}
+{%- assert field_value is defined, "field_value is defined" -%}
+{%- assert testid_postfix is defined, "testid_postfix is defined" -%}
+
+<sdoc-form-field>
+  <sdoc-markdown-editor
+    {% if errors is defined and errors|length -%}
+      errors="true"
+    {%- endif %}
+    id="{{ field_input_name }}"
+    data-field-label="{{ field_label }}"
+    {% if upload_url is defined -%}
+      data-upload-url="{{ upload_url }}"
+    {%- endif %}
+    data-testid="form-field-{{ testid_postfix }}"
+  ></sdoc-markdown-editor>
+  <textarea hidden name="{{ field_input_name }}">
+    {{- field_value -}}
+  </textarea>
+
+  {%- if errors is defined and errors|length > 0 -%}
+    {%- for error_ in errors -%}
+    <sdoc-form-error>
+      {{ error_ }}
+    </sdoc-form-error>
+    {%- endfor -%}
+  {%- endif -%}
+</sdoc-form-field>

@@ -28,18 +28,18 @@ class Test(E2ECase):
             screen_table = viewtype_selector.do_go_to_table()
             screen_table.assert_on_screen_table()
 
-            # Hide "SECTION" rows via the panel — written to localStorage.
+            # Hide "NEED" rows via the panel — written to localStorage.
             screen_table.do_open_rows_toolbar_panel()
-            screen_table.do_toggle_row_type("SECTION")
-            screen_table.assert_rows_of_type_hidden("SECTION")
+            screen_table.do_toggle_row_type("NEED")
+            screen_table.assert_rows_of_type_hidden("NEED")
 
             # Reload the page — state must be restored from localStorage.
             self.reload_page_without_query()
             screen_table.assert_on_screen_table()
-            screen_table.assert_rows_of_type_hidden("SECTION")
+            screen_table.assert_rows_of_type_hidden("NEED")
             screen_table.assert_rows_of_type_visible("REQUIREMENT")
 
-            # This test intentionally leaves "SECTION" rows hidden in
+            # This test intentionally leaves "NEED" rows hidden in
             # localStorage to verify persistence. Clear it so it doesn't
             # leak into other tests sharing this browser session
             # (--reuse-session).

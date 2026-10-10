@@ -5,7 +5,7 @@
   <tr class="content-view__empty-row-TR" data-testid="table-empty-placeholder">
     <td class="content-view__empty-row-TD" colspan="100%">
       <sdoc-main-placeholder data-testid="empty-table-placeholder">
-        This table is empty because the document has no content.
+        This table is empty because the document has no requirements.
       </sdoc-main-placeholder>
     </td>
   </tr>
@@ -20,7 +20,8 @@
   {%- endwith -%}
   {%- endif %}
 
-{%- for node, _ in content_entries %}
+{%- for node, _, section_anchors in content_entries %}
+  {%- include "screens/document/table/section_anchors.jinja" %}
 
   {# ============================================================ #}
   {# REQUIREMENT ROW                                              #}
@@ -199,61 +200,10 @@
     {%- endwith -%}
     {%- endif %}
 
-  {# ============================================================ #}
-  {# INCLUDED DOCUMENT ROW                                        #}
-  {# ============================================================ #}
-  {%- elif node.is_document_node() %}
-    {%- set section = node %}
-    {%- set ns_span = namespace(count=0, counting=false) %}
-    {%- for column in view_object.enumerate_table_columns() %}
-      {%- if column == "TITLE" %}
-        {%- set ns_span.counting = true %}
-      {%- endif %}
-      {%- if ns_span.counting %}
-        {%- set ns_span.count = ns_span.count + 1 %}
-      {%- endif %}
-    {%- endfor %}
-
-    <tr data-row-type="SECTION" data-node-mid="{{ section.reserved_mid }}">
-      {%- with node=section -%}
-        {%- include "screens/document/table/type_cell.jinja" %}
-      {%- endwith -%}
-      <td class="content-view-td content-view-td-meta">{{ section.context.title_number_string }}</td>
-
-      {%- set ns_sec = namespace(past_title=false) %}
-      {%- for column in view_object.enumerate_table_columns() %}
-        {%- if ns_sec.past_title %}
-        {%- elif column == "TITLE" %}
-          {%- set ns_sec.past_title = true %}
-          <td class="content-view-td content-view-td-title" colspan="{{ ns_span.count if ns_span.count > 0 else 1 }}">
-            {%- if section.title %}
-              {%- with sdoc_entity=section -%}
-                {% include "components/anchor/index.jinja" %}
-              {%- endwith %}
-              <sdoc-node-title>
-                {%- with field_content = section.title %}
-                  {%- include "screens/document/table/field_display_mode/_base_field_component.jinja" -%}
-                {%- endwith -%}
-              </sdoc-node-title>
-            {%- endif -%}
-          </td>
-        {%- else %}
-          <td class="content-view-td content-view-td-meta"></td>
-        {%- endif %}
-      {%- endfor %}
-
-    </tr>
-
-    {%- if is_server %}
-    {%- with
-      prev_node=node,
-      next_node=loop.nextitem[0] if loop.nextitem is defined else none
-    -%}
-      {%- include "screens/document/table/row_add_new_node.jinja" -%}
-    {%- endwith -%}
-    {%- endif %}
-
   {%- endif %}
 
 {%- endfor %}
+{%- with section_anchors=view_object.table_trailing_section_anchors() %}
+  {%- include "screens/document/table/section_anchors.jinja" %}
+{%- endwith %}
 </tbody>

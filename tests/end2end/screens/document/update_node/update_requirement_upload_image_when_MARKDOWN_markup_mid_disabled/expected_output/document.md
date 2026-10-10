@@ -8,5 +8,4 @@
 
 Requirement statement.
 
-
-![](./_assets/REQ-1/picture.svg)
+![1.00](./_assets/REQ-1/picture.svg)

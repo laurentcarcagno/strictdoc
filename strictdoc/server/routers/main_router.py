@@ -72,6 +72,7 @@ from strictdoc.core.document_meta import DocumentMeta
 from strictdoc.core.document_tree import DocumentTree
 from strictdoc.core.feature import Feature, FeatureContext
 from strictdoc.core.image_formats import (
+    MAX_IMAGE_SIZE_BYTES,
     SUPPORTED_IMAGE_FORMAT_NAMES,
     SUPPORTED_IMAGE_FORMATS,
     is_supported_image_format,
@@ -1205,7 +1206,7 @@ def create_main_router(
                 "screens/document/table/body.jinja",
                 view_object=table_view_object,
                 content_entries=list(
-                    table_view_object.document_content_iterator()
+                    table_view_object.table_content_iterator()
                 ),
             ),
             action="replace",
@@ -1417,7 +1418,7 @@ def create_main_router(
                 "screens/document/table/body.jinja",
                 view_object=table_view_object,
                 content_entries=list(
-                    table_view_object.document_content_iterator()
+                    table_view_object.table_content_iterator()
                 ),
             ),
             action="replace",
@@ -1525,7 +1526,7 @@ def create_main_router(
         if field_name == "TITLE":
             title_presence_changed = bool(old_title) != bool(sanitized_value)
             content_entries = (
-                list(table_view_object.document_content_iterator())
+                list(table_view_object.table_content_iterator())
                 if title_presence_changed
                 else []
             )
@@ -2898,6 +2899,14 @@ def create_main_router(
             if len(file_contents) == 0:
                 raise HTTPException(
                     status_code=400, detail="Image has no content"
+                )
+            if len(file_contents) > MAX_IMAGE_SIZE_BYTES:
+                raise HTTPException(
+                    status_code=400,
+                    detail=(
+                        f"Image {original_filename} is larger than "
+                        f"{MAX_IMAGE_SIZE_BYTES // (1024 * 1024)} MB."
+                    ),
                 )
             with open(full_file_save_path, "wb") as buffer:
                 buffer.write(file_contents)

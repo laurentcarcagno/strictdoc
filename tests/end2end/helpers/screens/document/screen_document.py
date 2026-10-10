@@ -1299,6 +1299,14 @@ class Screen_Document(Screen):  # pylint: disable=invalid-name
             f"(//*[@data-testid='form-field-{field_name}'])[{field_order_str}]"
         )
         target_element = self.test_case.find_element(By.XPATH, xpath_field)
+        is_markdown_editor = target_element.tag_name == "sdoc-markdown-editor"
+        if is_markdown_editor:
+            # The WYSIWYG editor handles the drop on its ProseMirror element.
+            target_element = self.test_case.find_element(
+                By.XPATH,
+                f"({xpath_field})[@data-ready='true']"
+                "//*[contains(@class, 'ProseMirror')]",
+            )
 
         # Use a JS script to simulate the drop event.
         # Selenium cannot drag from the OS, so we need to simulate the DataTransfer object.
@@ -1340,6 +1348,31 @@ class Screen_Document(Screen):  # pylint: disable=invalid-name
             return input;
         """
 
+        if is_markdown_editor:
+            # The editor reads the dropped files from a real FileList.
+            js_drop_files = (
+                js_drop_files.replace(
+                    "var dataTransfer = { files: files, types: ['Files'], "
+                    "dropEffect: 'copy' };",
+                    "var dataTransfer = new DataTransfer();"
+                    "files.forEach(function (f) { dataTransfer.items.add(f); });",
+                )
+                .replace(
+                    "var offsetY = 0;",
+                    # Drop below the text: the images go to the end of the field.
+                    "var offsetY = target.getBoundingClientRect().height - 2;",
+                )
+                .replace(
+                    """var evt = document.createEvent('MouseEvent');
+                evt.initMouseEvent(name, true, true, window, 0, 0, 0, x, y, false, false, false, false, 0, null);
+                evt.dataTransfer = dataTransfer;
+                target.dispatchEvent(evt);""",
+                    """target.dispatchEvent(new DragEvent(name, {
+                    bubbles: true, cancelable: true, clientX: x, clientY: y,
+                    dataTransfer: dataTransfer }));""",
+                )
+            )
+
         # Execute the script to create the input, then "upload" the file to it
         file_input = self.test_case.driver.execute_script(
             js_drop_files, target_element, uploaded_filenames
@@ -1347,6 +1380,19 @@ class Screen_Document(Screen):  # pylint: disable=invalid-name
         file_input.send_keys("\n".join(absolute_image_paths))
 
         if not wait_for_upload:
+            return
+
+        if is_markdown_editor:
+            # The WYSIWYG editor shows every uploaded image as an image.
+            start_time = datetime.now()
+            while len(
+                target_element.find_elements(By.CSS_SELECTOR, "img")
+            ) < len(absolute_image_paths):
+                if (datetime.now() - start_time).total_seconds() > 10:
+                    raise TimeoutError(
+                        "The images never appeared in the Markdown editor."
+                    )
+                self.test_case.sleep(0.5)
             return
 
         # Wait for the UI to update

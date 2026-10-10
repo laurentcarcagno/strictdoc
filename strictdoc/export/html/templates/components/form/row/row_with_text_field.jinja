@@ -57,6 +57,10 @@
       %}
         {%- include "components/form/field/autocompletable/index.jinja" %}
       {%- endwith -%}
+    {%- elif text_field_row_context.markdown_editor is defined and text_field_row_context.markdown_editor -%}
+      {%- with upload_url = text_field_row_context.upload_url -%}
+        {%- include "components/form/field/markdown_editor/index.jinja" %}
+      {%- endwith -%}
     {%- else -%}
       {%- include "components/form/field/contenteditable/index.jinja" %}
     {%- endif -%}

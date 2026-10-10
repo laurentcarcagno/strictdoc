@@ -1,11 +1,29 @@
 [DOCUMENT]
 TITLE: Document
 
-[[SECTION]]
-TITLE: First section
+[GRAMMAR]
+ELEMENTS:
+- TAG: NEED
+  FIELDS:
+  - TITLE: TITLE
+    TYPE: String
+    REQUIRED: False
+  - TITLE: STATEMENT
+    TYPE: String
+    REQUIRED: False
+- TAG: REQUIREMENT
+  FIELDS:
+  - TITLE: TITLE
+    TYPE: String
+    REQUIRED: False
+  - TITLE: STATEMENT
+    TYPE: String
+    REQUIRED: False
+
+[NEED]
+TITLE: First need
+STATEMENT: Statement of the first need.
 
 [REQUIREMENT]
 TITLE: First requirement
 STATEMENT: Statement of the first requirement.
-
-[[/SECTION]]

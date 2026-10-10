@@ -41,7 +41,7 @@ class Test(E2ECase):
             screen_table.assert_col_sort_state("Title", "asc")
 
             screen_table.do_open_rows_toolbar_panel()
-            screen_table.do_toggle_row_type("SECTION")
+            screen_table.do_toggle_row_type("NEED")
 
             screen_table.do_toggle_edit_mode()
             screen_table.assert_edit_mode_on()
@@ -86,7 +86,7 @@ class Test(E2ECase):
                 blocker="rows",
                 row_order=None,
             )
-            screen_table.assert_rows_of_type_visible("SECTION")
+            screen_table.assert_rows_of_type_visible("NEED")
             menu_position_after_rows_reset = (
                 screen_table.get_open_add_node_menu_viewport_position()
             )
@@ -125,7 +125,7 @@ class Test(E2ECase):
             row_position_before_filter = (
                 screen_table.get_node_row_viewport_position(active_node_mid)
             )
-            screen_table.do_toggle_row_type("SECTION")
+            screen_table.do_toggle_row_type("NEED")
             screen_table.wait_for_cell_not_editing(active_node_mid, "TITLE")
             screen_table.assert_cell_is_not_inline_editing(
                 active_node_mid,

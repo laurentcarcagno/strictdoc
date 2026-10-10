@@ -99,7 +99,7 @@
           "RATIONALE": "Rationale",
           "COMMENT":   "Comment"
         } -%}
-        {%- set content_entries = view_object.document_content_iterator() | list -%}
+        {%- set content_entries = view_object.table_content_iterator() | list -%}
         <table class="content-view-table" js-table_view_edit-table>
 
           {# -- Header row ------------------------------------------------ #}
