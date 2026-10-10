@@ -1205,7 +1205,7 @@ def create_main_router(
                 "screens/document/table/body.jinja",
                 view_object=table_view_object,
                 content_entries=list(
-                    table_view_object.document_content_iterator()
+                    table_view_object.table_content_iterator()
                 ),
             ),
             action="replace",
@@ -1417,7 +1417,7 @@ def create_main_router(
                 "screens/document/table/body.jinja",
                 view_object=table_view_object,
                 content_entries=list(
-                    table_view_object.document_content_iterator()
+                    table_view_object.table_content_iterator()
                 ),
             ),
             action="replace",
@@ -1525,7 +1525,7 @@ def create_main_router(
         if field_name == "TITLE":
             title_presence_changed = bool(old_title) != bool(sanitized_value)
             content_entries = (
-                list(table_view_object.document_content_iterator())
+                list(table_view_object.table_content_iterator())
                 if title_presence_changed
                 else []
             )

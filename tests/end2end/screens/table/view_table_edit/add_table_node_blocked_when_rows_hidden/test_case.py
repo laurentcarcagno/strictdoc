@@ -30,7 +30,7 @@ class Test(E2ECase):
             screen_table.assert_not_empty_view()
 
             screen_table.do_open_rows_toolbar_panel()
-            screen_table.do_toggle_row_type("SECTION")
+            screen_table.do_toggle_row_type("NEED")
 
             screen_table.do_toggle_edit_mode()
             screen_table.assert_edit_mode_on()
@@ -41,7 +41,7 @@ class Test(E2ECase):
                 row_order=1,
             )
 
-            # "SECTION" rows are left hidden, which persists to
+            # "NEED" rows are left hidden, which persists to
             # localStorage. Clear it so it doesn't leak into other tests
             # sharing this browser session (--reuse-session).
             self.clear_local_storage()

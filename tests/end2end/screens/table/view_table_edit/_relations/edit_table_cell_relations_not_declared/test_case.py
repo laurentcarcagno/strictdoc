@@ -28,15 +28,15 @@ class Test(E2ECase):
             screen_table = viewtype_selector.do_go_to_table()
             screen_table.assert_on_screen_table()
 
-            section_mid = screen_table.get_node_mid_from_row(row_order=1)
-            assert section_mid is not None
+            note_mid = screen_table.get_node_mid_from_row(row_order=1)
+            assert note_mid is not None
 
             screen_table.do_toggle_edit_mode()
             screen_table.assert_edit_mode_on()
 
-            screen_table.assert_table_cell_is_dimmed("SECTION", "RELATIONS")
+            screen_table.assert_table_cell_is_dimmed("NOTE", "RELATIONS")
             self.assert_element_not_present(
-                f'//tr[@data-node-mid="{section_mid}"]'
+                f'//tr[@data-node-mid="{note_mid}"]'
                 '//td[@data-field-name="RELATIONS"]'
                 '[@js-table_view_edit-field="relations"]',
                 by=By.XPATH,

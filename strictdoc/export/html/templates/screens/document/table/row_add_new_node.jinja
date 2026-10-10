@@ -46,7 +46,7 @@
             </p>
             <ul class="table-add-node__actions"
                 js-table_view_edit-add-node-actions>
-              {%- for element in view_object.get_grammar_elements() -%}
+              {%- for element in view_object.get_table_grammar_elements() -%}
                 <li class="table-add-node__element">{{ element.tag }}:</li>
                 {%- if can_add_first_node -%}
                   <li class="table-add-node__action" data-whereto="child">

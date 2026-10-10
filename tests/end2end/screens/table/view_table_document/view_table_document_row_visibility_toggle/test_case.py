@@ -39,14 +39,14 @@ class Test(E2ECase):
             # Open rows panel — Show all disabled, both types present
             screen_table.do_open_rows_toolbar_panel()
             screen_table.assert_rows_show_all_disabled()
-            self.assert_element('[data-testid="row-checkbox-SECTION"]')
+            self.assert_element('[data-testid="row-checkbox-NEED"]')
             self.assert_element('[data-testid="row-checkbox-REQUIREMENT"]')
 
             #
-            # Hide "SECTION" rows
+            # Hide "NEED" rows
             #
-            screen_table.do_toggle_row_type("SECTION")
-            screen_table.assert_rows_of_type_hidden("SECTION")
+            screen_table.do_toggle_row_type("NEED")
+            screen_table.assert_rows_of_type_hidden("NEED")
             screen_table.assert_rows_of_type_visible("REQUIREMENT")
             screen_table.assert_rows_toolbar_btn_label("NODES • 1 hidden")
             screen_table.assert_rows_show_all_enabled()
@@ -60,14 +60,14 @@ class Test(E2ECase):
                 ");"
                 "tbody.replaceWith(tbody.cloneNode(true));"
             )
-            screen_table.wait_for_rows_of_type_hidden("SECTION")
-            screen_table.assert_rows_of_type_hidden("SECTION")
+            screen_table.wait_for_rows_of_type_hidden("NEED")
+            screen_table.assert_rows_of_type_hidden("NEED")
             screen_table.assert_rows_of_type_visible("REQUIREMENT")
 
-            screen_table.do_toggle_row_type("SECTION")
-            screen_table.assert_rows_of_type_visible("SECTION")
-            screen_table.do_toggle_row_type("SECTION")
-            screen_table.assert_rows_of_type_hidden("SECTION")
+            screen_table.do_toggle_row_type("NEED")
+            screen_table.assert_rows_of_type_visible("NEED")
+            screen_table.do_toggle_row_type("NEED")
+            screen_table.assert_rows_of_type_hidden("NEED")
 
             #
             # Hide "REQUIREMENT" rows
@@ -80,7 +80,7 @@ class Test(E2ECase):
             # Show all
             #
             screen_table.do_click_rows_show_all()
-            screen_table.assert_rows_of_type_visible("SECTION")
+            screen_table.assert_rows_of_type_visible("NEED")
             screen_table.assert_rows_of_type_visible("REQUIREMENT")
             screen_table.assert_rows_toolbar_btn_label("NODES")
             screen_table.assert_rows_show_all_disabled()

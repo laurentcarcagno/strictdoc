@@ -36,7 +36,7 @@ class Test(E2ECase):
             screen_table.do_open_add_node_menu(row_order=2)
             screen_table.do_click_add_node_action(
                 element_type="REQUIREMENT",
-                whereto="child",
+                whereto="after",
                 row_order=2,
             )
             screen_table.wait_for_table_row_count(2)

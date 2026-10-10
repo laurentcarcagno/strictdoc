@@ -168,6 +168,17 @@ class DocumentScreenViewObject:
         self._chunked_rendering: Optional[bool] = None
         self._chunk_index_by_mid: Optional[Dict[str, int]] = None
 
+        self._table_content_cache: Optional[
+            Tuple[
+                List[
+                    Tuple[
+                        SDocNode, DocumentIterationContext, List[SDocElementIF]
+                    ]
+                ],
+                List[SDocElementIF],
+            ]
+        ] = None
+
         self.custom_html2pdf_template: Optional[Template] = None
         if project_config.html2pdf_template is not None:
             with file_open_read_utf8(project_config.html2pdf_template) as f_:
@@ -560,6 +571,52 @@ class DocumentScreenViewObject:
         yield from self.document_iterator.all_content(
             print_fragments=True,
         )
+
+    def table_content_iterator(
+        self,
+    ) -> Iterator[
+        Tuple[SDocNode, DocumentIterationContext, List[SDocElementIF]]
+    ]:
+        """
+        The rows of the table view: the requirements only. Each one comes with
+        the sections that start just before it, because the table of contents
+        links to the anchors of the sections and the table has no row for them.
+        """
+        yield from self._table_content()[0]
+
+    def table_trailing_section_anchors(self) -> List[SDocElementIF]:
+        """The sections that are followed by no requirement."""
+        return self._table_content()[1]
+
+    def _table_content(
+        self,
+    ) -> Tuple[
+        List[Tuple[SDocNode, DocumentIterationContext, List[SDocElementIF]]],
+        List[SDocElementIF],
+    ]:
+        if self._table_content_cache is None:
+            entries: List[
+                Tuple[SDocNode, DocumentIterationContext, List[SDocElementIF]]
+            ] = []
+            pending: List[SDocElementIF] = []
+            for node_, context_ in self.document_content_iterator():
+                if isinstance(node_, SDocNode) and node_.is_text_node():
+                    continue
+                if isinstance(node_, SDocNode) and node_.is_normative_node():
+                    entries.append((node_, context_, pending))
+                    pending = []
+                else:
+                    pending.append(node_)
+            self._table_content_cache = (entries, pending)
+        return self._table_content_cache
+
+    def get_table_grammar_elements(self) -> List[GrammarElement]:
+        """The node types that can be added from the table view."""
+        return [
+            element_
+            for element_ in self.get_grammar_elements()
+            if element_.tag not in ("SECTION", "TEXT")
+        ]
 
     def is_chunked_rendering(self) -> bool:
         """

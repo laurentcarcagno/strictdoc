@@ -986,3 +986,21 @@ tr[data-node-created="true"] {
   cursor: not-allowed;
   opacity: 0.4;
 }
+
+/*
+ * The table has no row for a section. The row below only carries the anchor
+ * that the table of contents links to, so it takes no room.
+ */
+.content-view__section-anchor-TR,
+.content-view__section-anchor-TD {
+  height: 0;
+  padding: 0;
+  border: 0;
+  line-height: 0;
+}
+
+.content-view__section-anchor-TD sdoc-anchor {
+  display: block;
+  height: 0;
+  overflow: hidden;
+}
