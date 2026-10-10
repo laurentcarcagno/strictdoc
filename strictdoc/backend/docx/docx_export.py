@@ -27,7 +27,7 @@ class DocxExport:
         project_config: ProjectConfig,
     ) -> None:
         Path(output_docx_root).mkdir(parents=True, exist_ok=True)
-        profile = effective_profile(_load_profile(project_config))
+        profile = effective_profile(load_project_profile(project_config))
         assert profile.requirement_table is not None
         template: Optional[DocxTemplate] = None
         if project_config.docx_base is None:
@@ -70,12 +70,20 @@ def _base_path(project_config: ProjectConfig, document_name: str) -> str:
     return base
 
 
-def _load_profile(project_config: ProjectConfig) -> DocxProfile:
+def resolve_profile_path(project_config: ProjectConfig) -> Optional[str]:
+    """The profile file of the project, or None for the generic profile."""
     profile_path: Optional[str] = project_config.docx_profile
     if profile_path is None:
-        return DocxProfile.generic()
+        return None
     if not os.path.isabs(profile_path):
         profile_path = os.path.join(
             project_config.get_project_root_path(), profile_path
         )
+    return profile_path
+
+
+def load_project_profile(project_config: ProjectConfig) -> DocxProfile:
+    profile_path = resolve_profile_path(project_config)
+    if profile_path is None:
+        return DocxProfile.generic()
     return load_docx_profile(profile_path)

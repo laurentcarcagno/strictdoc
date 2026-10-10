@@ -108,6 +108,7 @@ class ProjectFeature(str, Enum):
     SEARCH = "SEARCH"
     HTML2PDF = "HTML2PDF"
     REQIF = "REQIF"
+    DOCX = "DOCX"
     DIFF = "DIFF"
     PROJECT_STATISTICS_SCREEN = "PROJECT_STATISTICS_SCREEN"
     TREE_MAP_SCREEN = "TREE_MAP_SCREEN"
@@ -1064,6 +1065,9 @@ class ProjectConfig:
 
     def is_activated_reqif(self) -> bool:
         return ProjectFeature.REQIF in self.project_features
+
+    def is_activated_docx(self) -> bool:
+        return ProjectFeature.DOCX in self.project_features
 
     def is_activated_mathjax(self) -> bool:
         # FIXME: Refactor Jinja templates to not rely on the MathJax feature
