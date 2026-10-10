@@ -4546,6 +4546,96 @@ a crash stops all. The memory cost of one more project is small (see the plan).
 [[/SECTION]]
 
 [[SECTION]]
+MID: 830c77e219e24ca897c9ffdd842608a6
+UID: SECTION-UG-LLM-assistant
+TITLE: Drafting requirements with a language model (experimental)
+
+[TEXT]
+MID: c0c675c672d74051a30cc8f0e7f6bf03
+STATEMENT: >>>
+An author can ask a language model for a first draft of requirements: restate
+a customer paragraph as "shall" requirements, split it into atomic ones, propose
+a verification method. The model proposes; the author reads, edits and accepts;
+nothing is saved before that decision.
+
+Activate the ``LLM`` project feature and declare the providers:
+
+.. code:: python
+
+    from strictdoc.features.llm.config import Anthropic, LLMConfig, OpenAICompatible
+
+    def create_config() -> ProjectConfig:
+        return ProjectConfig(
+            project_title="My project",
+            project_features=["LLM"],
+            llm=LLMConfig(
+                default="local",
+                providers={
+                    "local": OpenAICompatible(
+                        base_url="http://llm:11434/v1",
+                        model="qwen2.5:3b",
+                        is_local=True,
+                    ),
+                    "claude": Anthropic(
+                        model="claude-sonnet-5-5", api_key_env="ANTHROPIC_API_KEY"
+                    ),
+                },
+                allow_cloud=False,
+                cloud_blocked_classifications=["Restricted"],
+                verification_methods=["T", "A", "R", "I"],
+                verification_field="VERIFIED_BY",
+            ),
+        )
+
+``OpenAICompatible`` speaks the chat-completions protocol (Ollama through its ``/v1``
+address, OpenAI, many gateways); ``Anthropic`` speaks the Messages API. A key is
+never written in the configuration: ``api_key_env`` is the NAME of an environment
+variable. The address of a provider comes only from this configuration, never from
+a request.
+
+**Using it.** A node of the document view has an "AI" button (authors only; the
+page ``/llm/draft?reference_mid=...``). The author gives an instruction, picks a
+template (free, or one of the EARS patterns: ubiquitous, event-driven,
+state-driven, unwanted behaviour, optional feature), and ticks the context to send:
+the current node, its parent requirements, sections or nodes of input documents (a
+UID, or ``[DA1] §5.14.1``), and a few neighbouring requirements for style. The
+server builds the prompt from exactly that choice. The proposals appear as editable
+cards (title, statement, rationale, verification method, links to the UIDs of the
+context). **Create** writes the ticked cards through the normal creation code, so
+every validation of the form applies. Each node gets ``STATUS: Draft`` (when the
+grammar has it) and a comment ``source=llm`` with the provider, the model, the
+prompt version and the person who accepted it. The page ``/llm/drafts`` lists
+the nodes written by a model that nobody has made Active.
+
+**What leaves the network.** A local model keeps the data on the network. Cloud
+providers are closed unless the project sets ``allow_cloud=True``. Even then:
+
+- a context that holds a node of a document whose ``CLASSIFICATION`` is in
+  ``cloud_blocked_classifications`` is refused for a cloud provider (the server
+  refuses, whatever the browser sends);
+- each use shows the text that will be sent and waits for a click;
+- ``cloud_token_budget_per_month`` (tokens counted from the audit log) closes the
+  cloud providers when it is used up;
+- ``rate_limit_per_minute`` limits each user.
+
+Every call writes one line to ``llm_audit.jsonl`` (next to the audit log): user,
+role, provider, model, whether it was local, the SHA-256 of the prompt, the sizes,
+the UIDs that were sent, the latency, the token counts, the outcome. The text of the
+prompt is kept only with ``audit_store_prompts=True``.
+
+**Limits.** The text of documents can contain sentences that look like instructions.
+The prompt tells the model to treat it as data, the model has no tool and no network
+access, its answer is validated against a schema (a verification method of the
+project, only UIDs that were in the context), and it is only a proposal that a person
+reads. A draft can still look right and be wrong, for instance a wrong number: read
+it. The quality depends on the model; ``python -m strictdoc.features.llm.golden`` runs
+a set of 20 cases (10 French, 10 English) with rule checks against a model of your
+choice and prints a report.
+<<<
+
+[[/SECTION]]
+
+[[SECTION]]
 MID: 241afbf6b7af40189eec8054d0d0201c
 UID: SECTION-UG-Project-statistics-screen
 TITLE: Project statistics screen

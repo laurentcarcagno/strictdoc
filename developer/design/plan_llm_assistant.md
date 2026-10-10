@@ -157,3 +157,46 @@ Edited (shared, small): `strictdoc/core/project_config.py` (option `llm`, projec
 - All tests above with the fake provider; the real-model golden-set report attached to this plan.
 - Deployed: an author drafts from a parent requirement with the local model and creates two nodes, both `Draft` with the mark comment; a reader
   gets 403; a forced cloud call is refused with `allow_cloud=false`; the audit shows each call; no key or prompt in the system journal.
+
+## 9. Delivered
+
+L0 to L7 are done on branch `feature/llm`, with the limits below.
+
+### L0 spike (this host, 2026-10-10)
+
+The host has 30 GB of RAM with about 7 GB available (swap 4.5 of 8 GB already in use) and no NVIDIA card; Ollama reports `100% GPU` for the small model
+(an integrated GPU). **The two installed models were not loaded**: `qwen3-coder:30b` (18.6 GB) and `devstral-small-2` (15.2 GB) do not fit next to the
+running stack, and the host already restarted once under memory pressure. A small instruction model was added instead (`ollama pull qwen2.5:3b`, 1.9 GB,
+2.8 GB loaded) and the golden set was run against it through the real client.
+
+| Run | Prompt | Result | Time for 20 cases | Memory |
+|---|---|---|---|---|
+| qwen2.5:3b | version 1 | 8 of 20 pass the rules | 16 s | 2.8 GB |
+| qwen2.5:3b | version 2 (modal verb rule made explicit) | 11 of 20 | 17 s | 2.8 GB |
+
+English cases: 7 of 10 (version 2: the misses are one statement with two "shall" and two without it). French cases: 4 of 10 (the model often writes the
+requirement without "doit" or splits badly). Latency is not a problem (about 1 s per draft). **The quality of a 3B model is enough to try the feature and
+too weak to rely on it.** The decision about a larger model needs a host with more memory or a machine with a GPU: the model name is configuration.
+`python -m strictdoc.features.llm.golden --base-url ... --model ...` gives the same table for any model.
+
+How the container reaches Ollama (open question 1): Ollama on the host listens on 127.0.0.1 and uses the integrated GPU, which a container would not
+reach, so option (b) (Ollama in a container) is not chosen. The app is on the internal network `strictdoc_internal`, so `deploy.sh --llm-relay HOST:PORT`
+starts a relay container (`llm`) on both networks; **Ollama must be made to listen on an address that containers reach, which is a change of the host
+service that is not done here.**
+
+### Steps
+
+- L1 provider interface, `Proposal`, JSON schema, validation (a verification method of the project, only known UIDs, sizes), one retry with the reason,
+  `FakeProvider`, option `llm` (`LLMConfig`, `OpenAICompatible`, `Anthropic`, `Fake` for tests).
+- L2 OpenAI-compatible client (JSON-schema output, timeout, no redirect, size limit, no key in messages), tested against a local fake HTTP server;
+  one run against the real Ollama (the 3B model above).
+- L3 context builder and versioned prompt (`prompts/draft.md`, version 2): the prompt holds exactly the chosen context, document text is quoted between
+  BEGIN and END lines and cannot forge them, long contexts are cut and marked.
+- L4 page `/llm/draft`, cards, `POST /actions/llm/create` through the normal creation code, `STATUS: Draft` and the comment mark, `/llm/drafts`.
+  Author only; nothing is saved before Create; the browser cannot add a UID, a method or a provider address.
+- L5 policy (closed cloud, classification gate, confirmation page that shows the prompt, monthly budget from the audit, rate limit), `llm_audit.jsonl`.
+- L6 Anthropic client (Messages API with a forced tool), keys from OpenBao to Podman secrets in `deploy.sh`.
+- L7 golden set (20 cases), runner and report, user guide.
+
+Not done or not verified: a browser end2end test of the page; the deployed check of the assistant (relay and a key); the cloud clients against the real
+APIs (only against fake servers, no key was available); a general model of 7 to 14 B (not run, memory).
