@@ -4226,7 +4226,8 @@ Bold, italic and monospace runs become RST ``**bold**``, ``*italic*`` and
 Characters that RST treats as markup (``*``, backquote, backslash and a
 trailing underscore) are escaped.
 
-Nested tables are flattened. Images, comments and footnotes are not imported.
+Nested tables are flattened. Images and footnotes are not imported. Word
+comments are (see *Review comments*).
 
 **Markdown.** With ``markup="Markdown"`` the same runs become ``**bold**``,
 ``*italic*`` and a backquoted ``code``, a list item becomes ``- item`` (a
@@ -4299,6 +4300,82 @@ configuration file, so that a project file cannot weaken a deployment.
 
 Make the server reachable only through the proxy (a private network), and have
 the front web server remove the identity headers that clients send.
+
+**Roles.** With ``auth_mode="proxy"`` the server maps the groups of the user to
+one of four roles, given in ``roles``:
+
+.. code:: python
+
+    roles={
+        "administrator": ["strictdoc-admins"],
+        "author": ["strictdoc-authors"],
+        "reviewer": ["strictdoc-reviewers"],
+        "reader": ["strictdoc-readers"],
+    },
+
+A role includes the ones below it. A reader reads. A reviewer also adds
+comments. An author also edits documents, imports and exports Word files and
+resolves comments. An administrator also reads the audit log (``/audit``).
+A group belongs to one role only, and a user in no group is refused.
+``"proxy"`` without ``roles`` is a configuration error. The environment
+variable ``STRICTDOC_ROLES`` (a JSON object) wins over the configuration file.
+
+The server decides for every request: each route has a required role, a route
+without one is refused, and a refused request answers HTTP status 403. The
+buttons a user cannot use are hidden by the page, but this is only a
+convenience. Changes and refused attempts are written to ``audit.jsonl`` in the
+output folder (``audit_dir`` or ``STRICTDOC_AUDIT_DIR`` to move it).
+<<<
+
+[[/SECTION]]
+
+[[SECTION]]
+MID: e9d82b27343e4aa3b7204bca58d2d295
+UID: SECTION-UG-Review-comments
+TITLE: Review comments (experimental)
+
+[TEXT]
+MID: cc4a91d9005641b28ef53a5b15926d0d
+STATEMENT: >>>
+A ``COMMENT`` of a requirement can carry an author, a date and a state (open
+or resolved). Activate the screens with the ``COMMENTS`` project feature:
+
+.. code:: python
+
+    def create_config() -> ProjectConfig:
+        return ProjectConfig(
+            project_title="My project",
+            project_features=["COMMENTS"],
+        )
+
+Each requirement then shows its comments with the author, the date and the
+state. A reviewer adds a comment. The author of a comment, or an author or
+administrator, edits or deletes it. An author or administrator resolves and
+reopens it. The author and the date are set by the server from the identity of
+the user, never by the browser. The page ``/comments`` lists the comments of
+the project and can show the open ones only. Without the feature, the
+addresses answer with HTTP status 412.
+
+**Storage.** There is no grammar change. The first line of the ``COMMENT``
+value is a header that renders as nothing:
+
+.. code:: text
+
+    .. sdoc-comment: id=c7f3a9 author=jane date=2026-10-10T12:00:00Z status=open
+
+In a Markdown document the header is ``<!-- sdoc-comment id=... -->``. A
+comment without a header is a legacy comment: it is shown without author and
+date, as open, and it gets a header when someone edits it.
+
+**Word.** The export writes the comments as native Word comments, anchored on
+the requirement, with author, date and initials. They show in the review pane.
+The ``comments`` option of the profile chooses which ones: ``"open"``
+(default), ``"all"`` (resolved ones are marked as done) or ``"none"``.
+When a Word file is updated, the comments it already has are kept and the
+missing ones are added. When a Word file is imported, its comments become
+``COMMENT`` fields with ``source=word`` and the state of the Word comment. A
+comment that went to Word and comes back is recognised by its author, its date
+to the minute and its text, so it is not duplicated.
 <<<
 
 [[/SECTION]]

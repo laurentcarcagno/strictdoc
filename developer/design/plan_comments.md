@@ -115,3 +115,12 @@ tree templates (counts), `strictdoc/backend/docx/docx_profile.py` (option `comme
 - A Word export of REQ_02 with a comment on three requirements opens in LibreOffice with the comments in the review pane (PDF export with
   margin comments shows them), and the XML check passes.
 - Deployed: two users (reviewer, author) comment and resolve; the audit log (plan 1) names them.
+
+## 9. Delivered
+
+- C1 to C6 are done on branch `feature/comments`. Header format, Word export (`comments` profile option: `open`, `all`, `none`), update mode and
+  import follow sections 3.1 to 3.4. The identity rule of open question 1 is (author lower-cased, date to the minute, SHA-1 of the plain text);
+  the round-trip tests show no duplicates.
+- Differences from the plan: the new `/comments` screen lists comments of the project; resolve and reopen need the author role.
+- Not verified: the Word output was checked with LibreOffice only; one sample still has to be opened in Word by the user.
+- User guide: section "Review comments (experimental)" and the "Roles" paragraph of the identity section.
