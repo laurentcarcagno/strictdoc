@@ -1,6 +1,7 @@
 from strictdoc.features.comments.model import (
     STATUS_RESOLVED,
     Comment,
+    clean_anchor,
     format_comment,
     initials,
     parse_comment,
@@ -90,3 +91,17 @@ def test_008_initials():
     assert initials("x") == "X"
     assert initials("") == "?"
     assert initials("a.b.c.d") == "ABC"
+
+
+def test_anchor_is_stored_in_the_header_and_read_back():
+    comment = Comment.new(
+        "anna", "Why?", anchor="start  within\n2 s", anchor_n=2
+    )
+    assert comment.anchor == "start within 2 s" and comment.anchor_n == "2"
+    for markup in ("RST", "Markdown"):
+        read = parse_comment(format_comment(comment, markup))
+        assert (read.anchor, read.anchor_n) == ("start within 2 s", "2")
+    plain = Comment.new("anna", "Why?")
+    assert plain.anchor == "" and plain.anchor_n == ""
+    assert "anchor" not in format_comment(plain, "RST")
+    assert len(clean_anchor("x" * 500)) == 200

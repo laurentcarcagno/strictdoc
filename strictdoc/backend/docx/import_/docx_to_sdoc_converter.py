@@ -415,6 +415,9 @@ def _grammar_text(
         "  - TITLE: STATEMENT",
         "    TYPE: String",
         "    REQUIRED: True",
+        "  - TITLE: COMMENT",
+        "    TYPE: String",
+        "    REQUIRED: False",
         "- TAG: REQUIREMENT",
         "  FIELDS:",
     ]

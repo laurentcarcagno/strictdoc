@@ -129,13 +129,17 @@ def create_comments_routers(
         request: Request,
         node_mid: str = Form(...),
         body: str = Form(...),
+        anchor: str = Form(""),
+        anchor_n: int = Form(0),
     ) -> Response:
         principal = get_principal(request)
         node = find_node(node_mid)
         if len(body.strip()) == 0:
             return panel(node, "A comment cannot be empty.")
         comments = comments_of(node)
-        comments.append(Comment.new(principal.user, body))
+        comments.append(
+            Comment.new(principal.user, body, anchor=anchor, anchor_n=anchor_n)
+        )
         return panel(node, save_comments(context, node, comments))
 
     @write_router.post("/actions/comments/edit", response_class=Response)

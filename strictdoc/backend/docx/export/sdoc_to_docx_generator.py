@@ -77,6 +77,7 @@ class ExportText:
     markup: str = MARKUP_RST
     # The folder of that document: relative image paths start there.
     base_dir: str = ""
+    comments: List[ExportComment] = field(default_factory=list)
 
 
 @dataclass
@@ -166,7 +167,16 @@ def items_from_document(
                 ExportSection(context_.get_level(), node_.reserved_title or "")
             )
         elif node_.node_type == "TEXT":
-            items.append(ExportText(_content(node_), markup, base_dir))
+            items.append(
+                ExportText(
+                    _content(node_),
+                    markup,
+                    base_dir,
+                    comments=_export_comments(
+                        node_, comments, markup, base_dir
+                    ),
+                )
+            )
         elif node_.node_type == "REQUIREMENT":
             fields = {
                 name_: _field_value(node_, name_)
@@ -221,9 +231,15 @@ class DocxGenerator:
                     text_paragraph_xml(item_.title, heading_styles[level])
                 )
             elif isinstance(item_, ExportText):
-                body.extend(
-                    _text_blocks(item_.statement, item_.markup, item_.base_dir)
+                blocks = _text_blocks(
+                    item_.statement, item_.markup, item_.base_dir
                 )
+                if item_.comments and blocks:
+                    # The comments of a paragraph sit on its first block.
+                    blocks[0] = anchor_first_paragraph(
+                        blocks[0], item_.comments
+                    )
+                body.extend(blocks)
             elif isinstance(item_, ExportInfoTable):
                 body.append(table_xml(item_.rows))
                 body.append(empty_paragraph_xml())
@@ -270,11 +286,11 @@ def collect_item_images(items: List[ExportItem]) -> Dict[str, ExportImage]:
 
 
 def collect_item_comments(items: List[ExportItem]) -> List[ExportComment]:
-    """The comments of the requirements of the items."""
+    """The comments of the requirements and the paragraphs of the items."""
     return [
         comment_
         for item_ in items
-        if isinstance(item_, ExportRequirement)
+        if isinstance(item_, (ExportRequirement, ExportText))
         for comment_ in item_.comments
     ]
 

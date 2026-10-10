@@ -40,6 +40,10 @@ _KEYS = (
     "provider",
     "prompt",
     "accepted_by",
+    # The words of the text that the comment is about, and which occurrence of
+    # them in the node (0 for the first): the page highlights them.
+    "anchor",
+    "anchor_n",
 )
 
 
@@ -59,6 +63,8 @@ class Comment:
     provider: str = ""
     prompt: str = ""
     accepted_by: str = ""
+    anchor: str = ""
+    anchor_n: str = ""
     # True when the value had no header.
     legacy: bool = field(default=False, compare=False)
 
@@ -71,7 +77,14 @@ class Comment:
         return self.author if self.author else "unknown"
 
     @staticmethod
-    def new(author: str, body: str, source: str = "web") -> "Comment":
+    def new(
+        author: str,
+        body: str,
+        source: str = "web",
+        anchor: str = "",
+        anchor_n: int = 0,
+    ) -> "Comment":
+        anchor = clean_anchor(anchor)
         return Comment(
             body=body.strip(),
             id=uuid.uuid4().hex[:8],
@@ -79,7 +92,17 @@ class Comment:
             date=now_iso(),
             status=STATUS_OPEN,
             source=source,
+            anchor=anchor,
+            anchor_n=str(max(0, anchor_n)) if anchor else "",
         )
+
+
+MAX_ANCHOR = 200
+
+
+def clean_anchor(text: str) -> str:
+    """The selected words of a comment: one line, at most MAX_ANCHOR characters."""
+    return " ".join(text.split())[:MAX_ANCHOR]
 
 
 def now_iso() -> str:
@@ -118,6 +141,8 @@ def parse_comment(value: str) -> Comment:
         provider=values.get("provider", ""),
         prompt=values.get("prompt", ""),
         accepted_by=values.get("accepted_by", ""),
+        anchor=values.get("anchor", ""),
+        anchor_n=values.get("anchor_n", ""),
     )
 
 

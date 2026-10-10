@@ -21,6 +21,7 @@
 
   {% if view_object.project_config.is_activated_comments() -%}
   <link rel="stylesheet" href="{{ view_object.render_static_url('comments/comments.css') }}"/>
+  <script src="{{ view_object.render_static_url('comments/comments.js') }}" defer></script>
   {%- endif %}
 
   {% block head_css %}
@@ -74,7 +75,7 @@
       {% block tree_content %}{% endblock tree_content %}
     </aside>
 
-    {%- with toc_position = "right" -%}
+    {%- with toc_position = "left" -%}
       <aside
         data-position="{{ toc_position }}"
         class="layout_toc"

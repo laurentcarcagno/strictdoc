@@ -284,3 +284,32 @@ def test_012_the_changes_are_in_the_audit_log(tmp_path):
         "/actions/comments/add" in line_ and '"rita"' in line_
         for line_ in lines
     )
+
+
+def test_a_comment_can_carry_the_words_it_is_about(tmp_path):
+    client, path = _setup(tmp_path)
+    response = client.post(
+        "/actions/comments/add",
+        data={
+            "node_mid": R1,
+            "body": "Why?",
+            "anchor": "shall   start\nsoon",
+            "anchor_n": "1",
+        },
+        headers=REVIEWER,
+    )
+    assert response.status_code == 200, response.text
+    (comment,) = _comments(path)
+    assert comment.anchor == "shall start soon" and comment.anchor_n == "1"
+    assert 'data-anchor="shall start soon"' in response.text
+    assert 'data-anchor-n="1"' in response.text
+
+
+def test_the_page_has_the_comment_button_and_a_hidden_form(tmp_path):
+    client, _ = _setup(tmp_path)
+    page = client.get("/input/document.html", headers=REVIEWER).text
+    assert 'data-testid="node-comment-action"' in page
+    assert (
+        'class="sdoc-comment-add"' in page
+        and "hidden" in page.split('class="sdoc-comment-add"')[1][:200]
+    )

@@ -5,6 +5,7 @@
  */
 
 /* Needs the author role: hidden for the reader and the reviewer. */
+html[data-role="reader"] [data-testid="node-comment-action"],
 html[data-role="reader"] [data-testid^="node-edit-action"],
 html[data-role="reader"] [data-testid^="node-delete-action"],
 html[data-role="reader"] [data-testid^="node-move-action"],

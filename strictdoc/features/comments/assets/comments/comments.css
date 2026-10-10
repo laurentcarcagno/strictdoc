@@ -1,19 +1,63 @@
+turbo-frame[id^="comments-"] { display: block; }
+
+/* A comment, as a balloon in the margin of the node it is about (like Word). */
 sdoc-comment {
   display: block;
-  margin: 6px 0;
+  margin: 0 0 6px 0;
   padding: 6px 10px;
   border-left: 3px solid #5b8def;
   background: #f5f8ff;
+  border-radius: 3px;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 12%);
+  font-size: 13px;
 }
 sdoc-comment.sdoc-comment--resolved {
   border-left-color: #9aa5b1;
   background: #f4f4f4;
   color: #666;
 }
+sdoc-comment.sdoc-comment--active { outline: 2px solid #5b8def; }
 sdoc-comment-meta { display: block; font-size: 12px; color: #55606e; }
 sdoc-comment-meta > * { margin-right: 8px; }
 .sdoc-comment__status { text-transform: uppercase; font-size: 11px; }
-sdoc-comment-actions { display: flex; gap: 8px; align-items: flex-start; font-size: 12px; margin-top: 4px; }
+sdoc-comment-actions { display: flex; gap: 8px; align-items: flex-start; font-size: 12px; margin-top: 4px; flex-wrap: wrap; }
 sdoc-comment-actions form, sdoc-comment-actions details { margin: 0; }
 sdoc-comment textarea, .sdoc-comment-add textarea { width: 100%; box-sizing: border-box; }
-.sdoc-comment-add { margin: 6px 0; }
+.sdoc-comment-add { margin: 6px 0; padding: 6px 10px; background: #fffbe6; border-left: 3px solid #e0a800; border-radius: 3px; }
+.sdoc-comment-add[hidden], sdoc-comment-quote[hidden] { display: none; }
+sdoc-comment-quote { display: block; font-size: 12px; font-style: italic; color: #6b5a00; margin-bottom: 4px; }
+
+/* The words that a comment is about. */
+mark.sdoc-comment-anchor { background: #fff1a8; color: inherit; padding: 0; }
+mark.sdoc-comment-anchor--resolved { background: #ececec; }
+mark.sdoc-comment-anchor--active, mark.sdoc-comment-anchor--pending { background: #ffd54a; }
+
+.sdoc-comment-lines {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 5;
+  overflow: visible;
+}
+.sdoc-comment-lines path { fill: none; stroke: #e0a800; stroke-width: 1; }
+.sdoc-comment-lines path.sdoc-comment-line--resolved { stroke: #b0b0b0; }
+.sdoc-comment-lines path.sdoc-comment-line--active { stroke: #5b8def; stroke-width: 1.5; }
+
+/* Wide screens: the comments of a node are in the margin to its right. */
+@media (min-width: 1100px) {
+  .main:has(turbo-frame[id^="comments-"]) {
+    padding-right: calc(var(--base-rhythm) * 6 + var(--sdoc-comment-width, 320px) + 56px);
+  }
+  turbo-frame[id^="comments-"] {
+    position: absolute;
+    left: calc(100% + 56px);
+    top: 0;
+    width: var(--sdoc-comment-width, 320px);
+    z-index: 6;
+  }
+}
+
+/* The body of a comment is plain text in its balloon. */
+sdoc-comment-body { display: block; }
+sdoc-comment-body * { border: none !important; outline: none !important; }

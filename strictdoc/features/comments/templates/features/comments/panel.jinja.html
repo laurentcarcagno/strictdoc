@@ -14,6 +14,10 @@
     data-testid="comment"
     data-comment-id="{{ comment.id }}"
     data-status="{{ comment.status }}"
+    {%- if comment.anchor %}
+    data-anchor="{{ comment.anchor }}"
+    data-anchor-n="{{ comment.anchor_n or 0 }}"
+    {%- endif %}
   >
     <sdoc-comment-meta>
       <strong data-testid="comment-author">{{ comment.author_label }}</strong>
@@ -60,10 +64,15 @@
   </sdoc-comment>
   {%- endfor %}
   {%- if interactive %}
-  <form action="/actions/comments/add" method="POST" data-turbo="true" data-requires-role="reviewer" class="sdoc-comment-add">
+  {#- Hidden until the Comment button of the node controls opens it. -#}
+  <form action="/actions/comments/add" method="POST" data-turbo="true" data-requires-role="reviewer" class="sdoc-comment-add" data-testid="comment-form"{% if not (error is defined and error) %} hidden{% endif %}>
     <input type="hidden" name="node_mid" value="{{ node_mid }}"/>
-    <textarea name="body" required rows="2" placeholder="Add a comment..." data-testid="comment-new-body"></textarea>
+    <input type="hidden" name="anchor" value="" data-comment-anchor-text/>
+    <input type="hidden" name="anchor_n" value="0" data-comment-anchor-n/>
+    <sdoc-comment-quote data-comment-quote hidden></sdoc-comment-quote>
+    <textarea name="body" required rows="3" placeholder="Add a comment..." data-testid="comment-new-body"></textarea>
     <button type="submit" data-testid="comment-add">Add comment</button>
+    <button type="button" data-comment-cancel data-testid="comment-cancel">Cancel</button>
   </form>
   {%- endif %}
 </turbo-frame>

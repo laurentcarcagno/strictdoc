@@ -4364,7 +4364,18 @@ or resolved). Activate the screens with the ``COMMENTS`` project feature:
             project_features=["COMMENTS"],
         )
 
-Each requirement then shows its comments with the author, the date and the
+The node controls (the toolbox that appears when the mouse is over a requirement
+or a paragraph) get a **Comment** button, and the comments stand in the **margin to
+the right** of the node, like in Word. Select some words first and press Comment:
+the words are highlighted and a thin line joins them to the comment (the selection
+is stored in the header of the comment, ``anchor`` and ``anchor_n``, the number of
+the occurrence of the words in the node). Without a selection the comment is about
+the whole node. Comments never overlap; on a narrow window (under 1100 pixels) they
+go below the node. The node must have a ``COMMENT`` field in its grammar, for a
+paragraph (``TEXT``) as well as for a requirement. The table of contents is on the
+left of the document view.
+
+Each node shows its comments with the author, the date and the
 state. A reviewer adds a comment. The author of a comment, or an author or
 administrator, edits or deletes it. An author or administrator resolves and
 reopens it. The author and the date are set by the server from the identity of

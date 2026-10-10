@@ -16,6 +16,7 @@ from strictdoc.backend.docx.export.docx_template import DocxTemplate
 from strictdoc.backend.docx.export.sdoc_to_docx_generator import (
     DocxGenerator,
     ExportRequirement,
+    ExportText,
     items_from_document,
 )
 from strictdoc.backend.docx.import_.docx_to_sdoc_converter import (
@@ -484,3 +485,15 @@ def test_019_sdoc_to_word_to_sdoc_gives_the_same_comments(tmp_path):
     comments = _comment_values(again)
     assert report.comments_added == 0
     assert [(c.id, c.body) for c in comments] == [("c1", "Use **bold** here.")]
+
+
+def test_a_comment_on_a_paragraph_is_anchored_on_its_first_paragraph(tmp_path):
+    text = ExportText(
+        "A free paragraph.", comments=[_comment("p1", body="Which text?")]
+    )
+    parts = _package(tmp_path, [text, _requirement("R-1")])
+    xml = parts["word/document.xml"].decode()
+    assert "@@" not in xml
+    paragraph = re.search(r"<w:p[ >].*?</w:p>", xml, re.S).group(0)
+    assert paragraph.index("commentRangeStart") < paragraph.index("A free")
+    assert "Which text?" in parts["word/comments.xml"].decode()

@@ -80,6 +80,17 @@
   {% endif %}
 {% endif %}
 
+  {# COMMENT (project feature COMMENTS): opens the form in the margin; selected text becomes its anchor. #}
+{%- if view_object.project_config.is_activated_comments() and sdoc_entity.get_type_string() != 'document' and sdoc_entity.get_type_string() != 'section' and not sdoc_entity.is_root_included_document and view_object.node_supports_comments(sdoc_entity) -%}
+  <a
+    href="#"
+    class="action_button action_button--comment"
+    title="Comment (select some text first to comment on it)"
+    data-testid="node-comment-action"
+    data-comment-open="{{ sdoc_entity.reserved_mid }}"
+  >{% include "icons/ico16_comment.svg" %}</a>
+{%- endif -%}
+
   {# DRAFT WITH AI (project feature LLM): add requirements after this node. #}
 {%- if view_object.project_config.is_activated_llm() and sdoc_entity.get_type_string() != 'document' and not sdoc_entity.is_root_included_document and view_object.can_edit_node(sdoc_entity) -%}
   <a
