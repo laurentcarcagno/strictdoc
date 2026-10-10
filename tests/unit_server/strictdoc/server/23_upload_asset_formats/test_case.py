@@ -12,6 +12,9 @@ PATH_TO_THIS_TEST_FOLDER = Path(__file__).parent
 DOCUMENT_MID = "398e37d756ea406f87ca83ec8e29c178"
 REQUIREMENT_MID = "a5c6b14d5ee443149687fb9be69a7ede"
 UNKNOWN_DOCUMENT_MID = "ffffffffffffffffffffffffffffffff"
+# An SVG upload is cleaned by the server: a file needs the SVG namespace.
+SVG = b'<svg xmlns="http://www.w3.org/2000/svg"/>'
+SAFE_SVG = b'<svg xmlns="http://www.w3.org/2000/svg"><title>safe</title></svg>'
 
 
 def test_upload_asset_endpoint(tmp_path: Path) -> None:
@@ -69,7 +72,7 @@ def test_upload_asset_endpoint(tmp_path: Path) -> None:
         assert not (input_path / "_assets").exists()
 
     response = upload(
-        [("picture.svg", b"<svg/>", "image/svg+xml")],
+        [("picture.svg", SVG, "image/svg+xml")],
         requirement_mid="invalid-mid",
     )
     assert response.status_code == 400
@@ -77,7 +80,7 @@ def test_upload_asset_endpoint(tmp_path: Path) -> None:
     assert not (input_path / "_assets").exists()
 
     response = upload(
-        [("picture.svg", b"<svg/>", "image/svg+xml")],
+        [("picture.svg", SVG, "image/svg+xml")],
         document_mid=UNKNOWN_DOCUMENT_MID,
     )
     assert response.status_code == 404
@@ -88,12 +91,12 @@ def test_upload_asset_endpoint(tmp_path: Path) -> None:
 
     response = upload(
         [
-            ("pair.svg", b"<svg/>", "image/svg+xml"),
+            ("pair.svg", SVG, "image/svg+xml"),
             ("pair.png", b"png", "image/png"),
             ("separate.gif", b"gif", "image/gif"),
             ("raster.jpg", b"jpg", "image/jpeg"),
             ("raster.png", b"png", "image/png"),
-            ("second.svg", b"<svg/>", "image/svg+xml"),
+            ("second.svg", SVG, "image/svg+xml"),
             ("second.webp", b"webp", "image/webp"),
         ]
     )
@@ -135,18 +138,18 @@ def test_upload_asset_endpoint(tmp_path: Path) -> None:
         "images": {"incremental.png": f"{uri_base}/incremental.png"}
     }
 
-    response = upload([("incremental.svg", b"<svg/>", "image/svg+xml")])
+    response = upload([("incremental.svg", SVG, "image/svg+xml")])
     assert response.status_code == 200
     assert response.json() == {
         "images": {"incremental.svg": f"{uri_base}/incremental.*"}
     }
 
-    response = upload(
-        [("../../outside.svg", b"<svg>safe</svg>", "image/svg+xml")]
-    )
+    response = upload([("../../outside.svg", SAFE_SVG, "image/svg+xml")])
     assert response.status_code == 200
     assert response.json() == {
         "images": {"outside.svg": f"{uri_base}/outside.svg"}
     }
-    assert (asset_directory / "outside.svg").read_bytes() == b"<svg>safe</svg>"
+    assert (
+        b"<title>safe</title>" in (asset_directory / "outside.svg").read_bytes()
+    )
     assert not (tmp_path / "outside.svg").exists()

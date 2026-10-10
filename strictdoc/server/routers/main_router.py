@@ -154,6 +154,7 @@ from strictdoc.features.project_index.view_object import (
 from strictdoc.features.search.view_object import (
     SearchScreenViewObject,
 )
+from strictdoc.features.svg.sanitizer import SvgRejected, sanitize_svg
 from strictdoc.helpers.cast import assert_cast
 from strictdoc.helpers.file_modification_time import (
     get_file_modification_time,
@@ -2824,6 +2825,14 @@ def create_main_router(
                         f"{MAX_IMAGE_SIZE_BYTES // (1024 * 1024)} MB."
                     ),
                 )
+            if original_filename.lower().endswith(".svg"):
+                try:
+                    file_contents = sanitize_svg(file_contents)
+                except SvgRejected as svg_exception_:
+                    raise HTTPException(
+                        status_code=400,
+                        detail=f"{original_filename}: {svg_exception_}",
+                    ) from svg_exception_
             with open(full_file_save_path, "wb") as buffer:
                 buffer.write(file_contents)
 

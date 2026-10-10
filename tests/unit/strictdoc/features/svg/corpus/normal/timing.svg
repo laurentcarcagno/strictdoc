@@ -1,0 +1,1 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 120"><polyline points="10,90 60,90 60,30 140,30 140,90 220,90 220,30 300,30 300,90 390,90" fill="none" stroke="#c00" stroke-width="2"/><line x1="10" y1="100" x2="390" y2="100" stroke="#999" stroke-dasharray="4 2"/><text x="12" y="15" font-size="12">CLK</text></svg>

@@ -21,6 +21,7 @@ from strictdoc.features.roles.enforcement import RoleMiddleware
 from strictdoc.features.roles.middleware import PrincipalMiddleware
 from strictdoc.features.roles.route_roles import check_routes_classified
 from strictdoc.features.roles.router import create_roles_router
+from strictdoc.features.svg.headers import SvgHeadersMiddleware
 from strictdoc.helpers.coverage import register_code_coverage_hook
 from strictdoc.helpers.deprecation_engine import DEPRECATION_ENGINE
 from strictdoc.helpers.pickle import pickle_load
@@ -157,6 +158,9 @@ def create_app(*, project_config: ProjectConfig) -> FastAPI:
         trusted_proxies=project_config.trusted_proxies,
         roles=project_config.roles,
     )
+
+    # Outermost: every SVG file the application serves gets the safe headers.
+    app.add_middleware(SvgHeadersMiddleware)
 
     lock_manager = HierarchicalRWLockManager()
 

@@ -69,6 +69,9 @@ dependencies = [
     # Parsing and rendering RST.
     "docutils >= 0.22.2, == 0.*",
 
+    # SVG to PNG for the Word export: a self-contained wheel, no system library.
+    "resvg-py >= 0.5.0",
+
     # Parsing Markdown in CommonMark mode. Converting Markdown to HTML.
     "markdown-it-py >= 4.0.0, == 4.*",
 

@@ -25,6 +25,9 @@ class ExportImage:
     content_type: str
     width_emu: int
     height_emu: int
+    # For an SVG, its rasterization: the picture for readers that do not show
+    # SVG. `data` stays the SVG.
+    fallback_png: Optional[bytes] = None
 
 
 @dataclass
