@@ -93,6 +93,9 @@ which lists the items that were added, removed or changed.
 button switches between the content of the screen and the menu (the
 sidebar, the tree and the table of contents). The screens that open in the
 frame of the project no longer scroll sideways.
+
+8\) The Document screen no longer offers or accepts Clone for sections and
+other composite nodes. Users can still clone regular document nodes.
 <<<
 
 [[/SECTION]]
