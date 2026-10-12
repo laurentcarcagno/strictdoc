@@ -34,7 +34,7 @@
 {% endblock %}
 
 {% block nav_items %}
-  <a class="nav_button" data-link="projects" href="/" title="Projects" data-testid="nav-projects">
+  <a class="nav_button" data-link="projects" href="/_projects" title="Projects" data-testid="nav-projects">
     <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 3h5l1 2h6v8H2z" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
     <span class="nav_button__label">Projects</span>
   </a>
@@ -76,7 +76,7 @@
   {%- if can_create %}
   <section class="hem-card">
     <div class="hem-card__header"><span class="hem-label">New project</span></div>
-    <form class="hem-form" method="post" action="/projects/create" data-testid="portal-create">
+    <form class="hem-form" method="post" action="/_projects/create" data-testid="portal-create">
       {%- if error %}<p class="hem-error" data-testid="portal-error">{{ error }}</p>{% endif %}
       <label class="hem-field">
         <span class="hem-field__label">Name (in the address)</span>

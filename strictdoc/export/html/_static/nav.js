@@ -36,20 +36,44 @@
 
   apply(read());
 
-  // In a project of a registry, the portal is the parent host:
-  // <slug>.<root> gives <root>.
-  document.querySelectorAll('[data-portal-link]').forEach((link) => {
-    const parts = window.location.hostname.split('.');
-    if (parts.length < 2) return;
-    const port = window.location.port ? `:${window.location.port}` : '';
-    link.href = `${window.location.protocol}//${parts.slice(1).join('.')}${port}/`;
-  });
-
   if (toggle) {
     toggle.addEventListener('click', () => {
       const collapsed = root.dataset.nav !== 'collapsed';
       apply(collapsed);
       write(collapsed);
     });
+  }
+
+  // The project picker of a server with several projects: the projects of
+  // the user, the current one selected; choosing one opens it.
+  const picker = document.querySelector('[data-project-picker]');
+  if (picker) {
+    fetch(picker.dataset.src, { credentials: 'same-origin' })
+      .then((response) => (response.ok ? response.json() : []))
+      .then((projects) => {
+        if (projects.length === 0) return;
+        if (!projects.some((project) => project.current)) {
+          const choose = document.createElement('option');
+          choose.textContent = 'Choose a project';
+          choose.value = '';
+          choose.selected = true;
+          choose.disabled = true;
+          picker.append(choose);
+        }
+        projects.forEach((project) => {
+          const option = document.createElement('option');
+          option.value = project.url;
+          option.textContent = project.title;
+          option.selected = project.current;
+          picker.append(option);
+        });
+        picker.addEventListener('change', () => {
+          if (picker.value) window.location.assign(picker.value);
+        });
+        picker.closest('[data-project-picker-box]').hidden = false;
+      })
+      .catch(() => {
+        // No list: the picker stays hidden, the Projects page still works.
+      });
   }
 })();

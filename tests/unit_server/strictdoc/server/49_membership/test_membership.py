@@ -37,7 +37,7 @@ def _dispatcher(tmp_path, monkeypatch, comments=False):
 
 def _create(portal, slug="gamma", title="Gamma program", headers=ROOT_ADMIN):
     return portal.post(
-        "/projects/create",
+        "/_projects/create",
         data={"slug": slug, "title": title},
         headers=headers,
         follow_redirects=False,
@@ -47,13 +47,12 @@ def _create(portal, slug="gamma", title="Gamma program", headers=ROOT_ADMIN):
 def test_001_an_administrator_creates_a_project(tmp_path, monkeypatch):
     dispatcher = _dispatcher(tmp_path, monkeypatch)
     portal = client_for(dispatcher, ROOT)
-    assert "portal-create" in portal.get("/", headers=ROOT_ADMIN).text
+    assert "portal-create" in portal.get("/_projects", headers=ROOT_ADMIN).text
 
     response = _create(portal)
     assert response.status_code == 303
-    assert response.headers["location"].startswith(
-        "http://gamma.strictdoc.test"
-    )
+    # The new project becomes the current one.
+    assert response.headers["location"] == "/_projects/select/gamma"
 
     folder = tmp_path / "data" / "gamma"
     assert (folder / "strictdoc.toml").is_file()
@@ -64,13 +63,13 @@ def test_001_an_administrator_creates_a_project(tmp_path, monkeypatch):
 
     gamma = client_for(dispatcher, f"gamma.{ROOT}")
     assert gamma.get("/", headers=ROOT_ADMIN).status_code == 200
-    assert "Gamma program" in portal.get("/", headers=ROOT_ADMIN).text
+    assert "Gamma program" in portal.get("/_projects", headers=ROOT_ADMIN).text
 
 
 def test_002_somebody_else_cannot_create_a_project(tmp_path, monkeypatch):
     dispatcher = _dispatcher(tmp_path, monkeypatch)
     portal = client_for(dispatcher, ROOT)
-    assert "portal-create" not in portal.get("/", headers=ANN).text
+    assert "portal-create" not in portal.get("/_projects", headers=ANN).text
     assert _create(portal, headers=ANN).status_code == 403
     assert not (tmp_path / "data" / "gamma").exists()
 
@@ -98,7 +97,7 @@ def test_004_the_administrator_adds_members_who_read_everything(
 
     # Nobody knows carol yet.
     assert gamma.get("/", headers=CAROL).status_code == 403
-    assert "gamma" not in portal.get("/", headers=CAROL).text
+    assert "gamma" not in portal.get("/_projects", headers=CAROL).text
 
     response = gamma.post(
         "/actions/members/set",
@@ -108,7 +107,7 @@ def test_004_the_administrator_adds_members_who_read_everything(
     )
     assert response.status_code == 303
     assert gamma.get("/", headers=CAROL).status_code == 200
-    assert 'data-slug="gamma"' in portal.get("/", headers=CAROL).text
+    assert 'data-slug="gamma"' in portal.get("/_projects", headers=CAROL).text
     assert "carol" in gamma.get("/members", headers=ROOT_ADMIN).text
 
     # A reader writes nothing and does not manage the members.

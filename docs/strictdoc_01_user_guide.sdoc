@@ -4309,6 +4309,9 @@ The server reads ``X-Forwarded-Preferred-Username`` (the name),
 ``role:`` are Keycloak roles and are dropped). It never reads the
 ``X-Auth-Request-*`` headers, which the proxy does not replace when a client
 sends them. The page ``/whoami`` shows what the server knows about the caller.
+*Log out*, at the bottom of the sidebar, opens ``/oauth2/sign_out`` of the
+proxy; to also end the session of the login server, give oauth2-proxy its
+logout address (``--backend-logout-url``).
 
 A deployment can set ``STRICTDOC_AUTH_MODE`` and ``STRICTDOC_TRUSTED_PROXIES``
 (networks separated by commas) in the environment. They win over the
@@ -4535,11 +4538,15 @@ Start the server with:
 
     strictdoc server --projects projects.py --root-host strictdoc.example.org --data-root /data
 
-The portal is at ``strictdoc.example.org`` and lists the projects that the user
-may open, with the user's role in each. A project is served at
-``<slug>.strictdoc.example.org``: the host name selects the project, so the links
-of its pages are unchanged and two browser tabs on two projects never mix. An
-unknown host name gets a bare "Not found". ``/healthz`` answers "ok" on every host.
+All the projects share one address, ``strictdoc.example.org``. The page
+``/_projects`` lists the projects that the user may open, with the user's role
+in each. Opening a project, from that list or from the project picker at the top
+of the sidebar, makes it the current project of the browser (a cookie); the same
+addresses then show that project, so the links of its pages are unchanged. With
+no current project, the server shows the list. Every request still checks the
+role of the user in the current project. Two browser tabs show the project
+chosen last. Another host name gets a bare "Not found". ``/healthz`` answers "ok"
+on every host.
 
 A slug has 1 to 32 lower case letters, digits or ``-``. Each project folder must
 exist, be inside ``--data-root`` when it is given (links that leave it are
@@ -4554,14 +4561,15 @@ the portal (see below).
 **Projects and members created in the portal.** An administrator of the platform
 (a group that is administrator in every project of the registry, or the groups of
 ``STRICTDOC_PLATFORM_ADMINS``, comma separated) sees a *New project* form on the
-portal. A project gets a name (the slug) and a title; its folder is created under
+``/_projects`` page (*Projects* in the sidebar). A project gets a name (the slug) and a title; its folder is created under
 ``--data-root`` with a ``strictdoc.toml`` (tables, traceability, search and the
 ``COMMENTS`` feature), it is served at once, with no restart, and the creator is
-its administrator. The projects created this way and the member lists of all the
+its administrator and its current project. The projects created this way and the member lists of all the
 projects are kept in ``projects.json``, next to the registry file.
 
-The administrator of a project opens its **Members** page (the link in the portal,
-or ``/members`` in the project), adds people by their user name (the one that
+The administrator of a project opens its **Members** page (*Members* in the
+sidebar, the button of its row on the ``/_projects`` page, or ``/members``), adds
+people by their user name (the one that
 ``/whoami`` shows) and gives each a role. A member has the highest role between the
 one of the list and the one of the groups of the login server. Every member reads
 all the documents of the project. The roles are: reader (reads), reviewer (reads and

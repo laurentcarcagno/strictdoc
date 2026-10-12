@@ -765,6 +765,62 @@ html[data-nav="collapsed"] .nav__lockup_short {
   display: inline;
 }
 
+/* Project picker (a server with several projects). */
+
+.nav__picker {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: var(--hem-space-md) 16px;
+  border-bottom: 1px solid rgb(252 253 254 / 8%);
+}
+
+.nav__picker[hidden] {
+  display: none;
+}
+
+.nav__picker_label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: var(--hem-track-eyebrow);
+  text-transform: uppercase;
+  color: rgb(252 253 254 / 45%);
+}
+
+.nav__picker_select {
+  width: 100%;
+  height: var(--hem-control-height);
+  padding: 5px 8px;
+  border: 1px solid rgb(252 253 254 / 20%);
+  border-radius: 0;
+  background-color: rgb(252 253 254 / 6%);
+  color: var(--hem-white);
+  font-family: var(--hem-font-body);
+  font-size: var(--hem-size-body);
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color var(--hem-transition), background-color var(--hem-transition);
+}
+
+.nav__picker_select:hover {
+  border-color: rgb(252 253 254 / 45%);
+}
+
+.nav__picker_select:focus-visible {
+  outline: 2px solid var(--hem-sky);
+  outline-offset: -2px;
+}
+
+/* The open list is drawn by the system: dark text on white. */
+.nav__picker_select option {
+  color: var(--hem-ink);
+  background-color: var(--hem-white);
+}
+
+html[data-nav="collapsed"] .nav__picker {
+  display: none;
+}
+
 /* Items */
 
 .nav__items {

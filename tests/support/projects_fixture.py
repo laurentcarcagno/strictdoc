@@ -6,7 +6,10 @@ from typing import Dict, List, Tuple
 from fastapi.testclient import TestClient
 
 from strictdoc.features.projects.app import create_projects_app
-from strictdoc.features.projects.dispatcher import ProjectDispatcher
+from strictdoc.features.projects.dispatcher import (
+    PROJECT_COOKIE,
+    ProjectDispatcher,
+)
 from strictdoc.features.projects.registry import ProjectSpec
 from strictdoc.server.app import create_app
 
@@ -109,12 +112,22 @@ def make_dispatcher(
 def client_for(
     dispatcher: ProjectDispatcher, host: str, proxy: bool = True
 ) -> TestClient:
-    return TestClient(
+    """
+    A client of the server. "<slug>.<ROOT>" names a project: the client is on
+    the one address of the server with that project as the current one (the
+    cookie of the dispatcher). Any other host is used as it is.
+    """
+    suffix = "." + ROOT
+    slug = host[: -len(suffix)] if host.endswith(suffix) else None
+    client = TestClient(
         dispatcher,
-        base_url=f"http://{host}",
+        base_url=f"http://{ROOT if slug else host}",
         client=PROXY if proxy else ("127.0.0.1", 40000),
         raise_server_exceptions=False,
     )
+    if slug:
+        client.cookies.set(PROJECT_COOKIE, slug)
+    return client
 
 
 def clients(

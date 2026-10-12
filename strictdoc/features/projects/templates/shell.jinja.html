@@ -28,6 +28,12 @@
         <span class="nav__subtitle">{% block nav_subtitle %}Projects{% endblock %}</span>
       </div>
 
+      {#- The project picker: nav.js fills it with the projects of the user. -#}
+      <label class="nav__picker" data-project-picker-box hidden>
+        <span class="nav__picker_label">Project</span>
+        <select class="nav__picker_select" data-project-picker data-src="/_projects/mine.json" data-testid="project-picker" aria-label="Current project"></select>
+      </label>
+
       <div class="nav__items">
         {% block nav_items %}{% endblock %}
       </div>

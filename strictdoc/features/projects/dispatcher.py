@@ -1,22 +1,30 @@
 """
-An ASGI application in front of the applications of the projects: it picks the
-application by the Host header and runs the lifespan of each one.
+An ASGI application in front of the applications of the projects: one address
+for every project. It runs the lifespan of each project and picks the
+application of a request:
 
-    <root host>          -> the portal
-    <slug>.<root host>   -> the application of the project <slug>
-    anything else        -> 404, with no information
+    /_projects...   -> the portal (list, creation, selection of the project)
+    anything else   -> the application of the current project, named by the
+                       cookie sdoc_project; without a known project, a
+                       redirection to the portal
+    another host    -> 404, with no information
 
 Each project keeps its own application as it is, so every absolute URL of its
-pages (/actions/..., /_static/...) stays valid: the project is the host name.
+pages (/actions/..., /_static/...) stays valid. The cookie only chooses the
+application: the project still checks the role of the user on every request.
 """
 
 from contextlib import AsyncExitStack
+from http.cookies import CookieError, SimpleCookie
 from typing import Any, Awaitable, Callable, Dict, List, Mapping, Optional
 
 Scope = Dict[str, Any]
 Receive = Callable[[], Awaitable[Dict[str, Any]]]
 Send = Callable[[Dict[str, Any]], Awaitable[None]]
 ASGIApp = Callable[[Scope, Receive, Send], Awaitable[None]]
+
+PORTAL_PREFIX = "/_projects"
+PROJECT_COOKIE = "sdoc_project"
 
 
 def host_of(scope: Scope) -> str:
@@ -28,6 +36,24 @@ def host_of(scope: Scope) -> str:
                 return host.split("]")[0] + "]"
             return host.split(":")[0]
     return ""
+
+
+def cookie_of(scope: Scope, name: str) -> Optional[str]:
+    """The value of a cookie of the request, or None."""
+    for name_, value_ in scope.get("headers", []):
+        if name_ == b"cookie":
+            jar: SimpleCookie = SimpleCookie()
+            try:
+                jar.load(value_.decode("latin-1"))
+            except CookieError:
+                return None
+            if name in jar:
+                return jar[name].value
+    return None
+
+
+def is_portal_path(path: str) -> bool:
+    return path == PORTAL_PREFIX or path.startswith(PORTAL_PREFIX + "/")
 
 
 class ProjectDispatcher:
@@ -52,13 +78,17 @@ class ProjectDispatcher:
             )
         self.projects[slug] = app
 
-    def app_for(self, host: str) -> Optional[ASGIApp]:
-        if host == self.root_host:
+    def app_for(self, scope: Scope) -> Optional[ASGIApp]:
+        """
+        The portal or the current project; None for another host or for
+        a request with no known project.
+        """
+        if host_of(scope) != self.root_host:
+            return None
+        if is_portal_path(scope.get("path", "")):
             return self.portal
-        suffix = "." + self.root_host
-        if host.endswith(suffix):
-            return self.projects.get(host[: -len(suffix)])
-        return None
+        slug = cookie_of(scope, PROJECT_COOKIE)
+        return self.projects.get(slug) if slug else None
 
     async def __call__(
         self, scope: Scope, receive: Receive, send: Send
@@ -69,15 +99,33 @@ class ProjectDispatcher:
         if scope["type"] == "http" and scope.get("path") == "/healthz":
             await self._respond(send, 200, b"ok")
             return
-        app = self.app_for(host_of(scope))
+        app = self.app_for(scope)
         if app is None:
             if scope["type"] == "websocket":
                 await receive()
                 await send({"type": "websocket.close", "code": 1008})
-            else:
+            elif host_of(scope) != self.root_host:
                 await self._respond(send, 404, b"Not found")
+            else:
+                # No project chosen yet, or one that does not exist (any
+                # more): the list of the projects.
+                await self._redirect(send, PORTAL_PREFIX)
             return
         await app(scope, receive, send)
+
+    @staticmethod
+    async def _redirect(send: Send, location: str) -> None:
+        await send(
+            {
+                "type": "http.response.start",
+                "status": 303,
+                "headers": [
+                    (b"location", location.encode()),
+                    (b"content-length", b"0"),
+                ],
+            }
+        )
+        await send({"type": "http.response.body", "body": b""})
 
     @staticmethod
     async def _respond(send: Send, status: int, body: bytes) -> None:

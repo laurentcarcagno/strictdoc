@@ -12,6 +12,14 @@
     </span>
     <span class="nav__subtitle">{{ view_object.project_config.project_title }}</span>
   </div>
+{%- if view_object.project_config.is_running_on_server and view_object.project_config.members_admin is not none %}
+
+  {#- The project picker: nav.js fills it with the projects of the user. -#}
+      <label class="nav__picker" data-project-picker-box hidden>
+        <span class="nav__picker_label">Project</span>
+        <select class="nav__picker_select" data-project-picker data-src="/_projects/mine.json" data-testid="project-picker" aria-label="Current project"></select>
+      </label>
+{%- endif %}
 
   <div class="nav__items">
   <a
@@ -126,13 +134,12 @@
   <a
     data-link="projects"
     class="nav_button"
-    href="/"
-    data-portal-link
-    title="All projects"
+    href="/_projects"
+    title="Projects"
     data-testid="nav-projects"
   >
     <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 3h5l1 2h6v8H2z" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
-    <span class="nav_button__label">All projects</span>
+    <span class="nav_button__label">Projects</span>
   </a>
 {%- endif -%}
   </div>
