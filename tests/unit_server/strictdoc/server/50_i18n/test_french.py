@@ -26,6 +26,7 @@ def test_001_the_portal_and_the_project_speak_french(tmp_path, monkeypatch):
     page = portal.get("/_projects", headers=ALPHA_ADMIN).text
     assert '<html lang="fr">' in page
     assert '<span class="hem-label">Vos projets</span>' in page
+    assert '<span class="nav__subtitle">Projets</span>' in page
     # Only the texts of the scripts are embedded in the page.
     assert "Your projects" not in page
     assert "<td>administrateur</td>" in page

@@ -213,5 +213,26 @@ def test_011_a_server_without_a_login_proxy_shows_every_project(
     assert alpha.get("/alpha/alpha_doc.html").status_code == 200
 
 
+def test_011b_the_avatar_shows_one_initial_per_part_of_the_name(
+    tmp_path, monkeypatch
+):
+    """The same initials as role_gating.js on the screens of a project."""
+    dispatcher = make_dispatcher(tmp_path, monkeypatch)
+    portal, _, _ = clients(dispatcher)
+
+    def avatar(user):
+        page = portal.get(
+            "/_projects", headers=as_user("alpha-admins", user=user)
+        ).text
+        return re.search(
+            r'<span class="nav__avatar" aria-hidden="true">([^<]*)</span>',
+            page,
+        ).group(1)
+
+    assert avatar("jean.dupont") == "jd"
+    assert avatar("ann") == "a"
+    assert avatar("anne-marie_de.la-tour") == "am"
+
+
 def test_012_constants_are_distinct():
     assert ALPHA_DOC != BETA_DOC and ALPHA_REQ

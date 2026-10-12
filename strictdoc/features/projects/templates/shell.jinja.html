@@ -33,7 +33,7 @@
           <span class="nav__lockup_full">STRICTDOC<span class="nav__lockup_dot"></span>HEMERIA</span>
           <span class="nav__lockup_short">S<span class="nav__lockup_dot"></span>H</span>
         </span>
-        <span class="nav__subtitle">{% block nav_subtitle %}Projects{% endblock %}</span>
+        <span class="nav__subtitle">{% block nav_subtitle %}{{ _("Projects") }}{% endblock %}</span>
       </div>
 
       {#- The project picker: nav.js fills it with the projects of the user. -#}
@@ -48,7 +48,8 @@
 
       {%- if user and user != "anonymous" %}
       <div class="nav__user" id="nav-user" title="{{ user }}{% if role %} ({{ role }}){% endif %}">
-        <span class="nav__avatar" aria-hidden="true">{{ user[:2] }}</span>
+        {#- The initials, as role_gating.js makes them: one per part of the name. -#}
+        <span class="nav__avatar" aria-hidden="true">{{ (user.replace(".", " ").replace("_", " ").replace("-", " ").split()|map("first")|join)[:2] or "?" }}</span>
         <span class="nav__identity" data-testid="user-badge">
           <span class="nav__user_name">{{ user }}</span>
           {%- if role %}<span class="nav__user_role">{{ role }}</span>{% endif %}
