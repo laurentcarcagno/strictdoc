@@ -1,0 +1,259 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-04-30T00:00:00Z",
+  "title": "Design System: THOR · Hemeria",
+  "extensions": {
+    "colorMeta": {
+      "sovereign-deep-blue": {
+        "role": "primary",
+        "displayName": "Sovereign Deep Blue",
+        "canonical": "oklch(28% 0.045 235)",
+        "tonalRamp": ["#06121C", "#0A1B27", "#0E2230", "#12293A", "#1B3850", "#264E6E", "#3B6F95", "#5C95BB"]
+      },
+      "console-sky": {
+        "role": "primary",
+        "displayName": "Console Sky",
+        "canonical": "oklch(52% 0.135 235)",
+        "tonalRamp": ["#001F35", "#003157", "#004679", "#006EB1", "#1F8AC9", "#4DA8DD", "#7EC4EC", "#B2DDF6"]
+      },
+      "tricolor-blue": {
+        "role": "tertiary",
+        "displayName": "Tricolor Blue",
+        "canonical": "oklch(40% 0.165 270)",
+        "tonalRamp": ["#0B1E40", "#0F2A5C", "#133672", "#174082", "#2856A0", "#4675BD", "#7298D2", "#A4BCE2"]
+      },
+      "tricolor-red": {
+        "role": "tertiary",
+        "displayName": "Tricolor Red",
+        "canonical": "oklch(48% 0.205 25)",
+        "tonalRamp": ["#3F0411", "#680717", "#92091F", "#C80A26", "#DC384F", "#E76C7C", "#F09EA8", "#F8CFD4"]
+      },
+      "cold-mist": {
+        "role": "neutral",
+        "displayName": "Cold Mist",
+        "canonical": "oklch(97% 0.012 235)",
+        "tonalRamp": ["#1B2A33", "#2E4554", "#506E7E", "#7C99A7", "#A8C0CB", "#C7DAE2", "#DDE9EE", "#F0F7FC"]
+      },
+      "instrument-white": {
+        "role": "neutral",
+        "displayName": "Instrument White",
+        "canonical": "oklch(99% 0.005 235)",
+        "tonalRamp": ["#0E1D2A", "#243845", "#3F5664", "#5E7787", "#82989D", "#A6BBC8", "#C8D8E1", "#FCFDFE"]
+      },
+      "hover-mist": {
+        "role": "neutral",
+        "displayName": "Hover Mist",
+        "canonical": "oklch(95% 0.018 235)",
+        "tonalRamp": ["#152229", "#284149", "#48676F", "#6E8C94", "#9BB6BD", "#BCD2D9", "#D3E4EB", "#E6F3FA"]
+      },
+      "muted-mist": {
+        "role": "neutral",
+        "displayName": "Muted Mist",
+        "canonical": "oklch(91% 0.018 230)",
+        "tonalRamp": ["#101920", "#1F2E37", "#3B5662", "#607F8C", "#88A6B3", "#ADC4CD", "#C6D7DE", "#DBE7F0"]
+      },
+      "selection-veil": {
+        "role": "neutral",
+        "displayName": "Selection Veil",
+        "canonical": "oklch(91% 0.038 240)",
+        "tonalRamp": ["#0F1A2A", "#1E2F47", "#3B4F6E", "#637A9A", "#8DA3C0", "#B0C4D9", "#C5D6E8", "#CEE5FC"]
+      },
+      "console-border": {
+        "role": "neutral",
+        "displayName": "Console Border",
+        "canonical": "oklch(89% 0.035 235)",
+        "tonalRamp": ["#0A1620", "#1A2A38", "#34495C", "#5A7188", "#869BAF", "#A9BDCD", "#B9CDDD", "#C2DDF0"]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "canonical": "oklch(15% 0.02 235)",
+        "tonalRamp": ["#001423", "#031C2F", "#0A2940", "#173C56", "#34556F", "#577291", "#8093AB", "#AAB7C5"]
+      },
+      "dim-ink": {
+        "role": "neutral",
+        "displayName": "Dim Ink",
+        "canonical": "oklch(35% 0.005 240)",
+        "tonalRamp": ["#15171A", "#22262B", "#33383F", "#43474C", "#5C6168", "#7C828B", "#A1A6AD", "#C9CCD0"]
+      },
+      "mute-ink": {
+        "role": "neutral",
+        "displayName": "Mute Ink",
+        "canonical": "oklch(52% 0.005 240)",
+        "tonalRamp": ["#1B1D20", "#2D3034", "#43474C", "#5A5E64", "#73777D", "#999DA3", "#BBBEC2", "#DCDDE0"]
+      },
+      "signal-success": {
+        "role": "secondary",
+        "displayName": "Signal Success",
+        "canonical": "oklch(53% 0.13 150)",
+        "tonalRamp": ["#062513", "#0A3A1F", "#10532D", "#1F8A4C", "#3CA567", "#65BD86", "#92D2AC", "#C2E6CF"]
+      },
+      "signal-warning": {
+        "role": "secondary",
+        "displayName": "Signal Warning",
+        "canonical": "oklch(63% 0.13 80)",
+        "tonalRamp": ["#2D1D00", "#4A3000", "#6B4500", "#C68A00", "#DCA52C", "#E9BD5E", "#F1D38A", "#F8E6B5"]
+      },
+      "signal-danger": {
+        "role": "secondary",
+        "displayName": "Signal Danger",
+        "canonical": "oklch(50% 0.18 25)",
+        "tonalRamp": ["#3A0808", "#600C0E", "#891315", "#BA1A1A", "#D2403D", "#E16E6A", "#EE9C99", "#F7CDCB"]
+      }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Largest page hero titles. Rare; reserved for the dashboard and hero contexts. Orbitron carries the mission-console identity." },
+      "h1": { "displayName": "H1", "purpose": "Page title rendered by <PageHeader> on every screen. Orbitron 600 26px in Sovereign Deep Blue." },
+      "h2": { "displayName": "H2", "purpose": "Section headings within a page." },
+      "h3": { "displayName": "H3", "purpose": "Subsection headings, modal titles. Steps down to Ink color." },
+      "body": { "displayName": "Body", "purpose": "All running text, form values, table cells. Cap prose at 65-75ch; tables and dense panels may exceed." },
+      "label": { "displayName": "Label", "purpose": "Card titles, buttons, status pills, chips, table headers. The mission-patch typography: Ubuntu 700 0.12em UPPERCASE." },
+      "eyebrow": { "displayName": "Eyebrow", "purpose": "The line above a page title (e.g. 'Mission Console' over the dashboard). Wider tracking (0.18em) than Label." },
+      "mono": { "displayName": "Mono", "purpose": "Part numbers, document references, codes, timestamps. Ubuntu Mono with tabular-nums; identifier-is-mono is non-negotiable." }
+    },
+    "shadows": [],
+    "motion": [
+      { "name": "ease-default", "value": "120ms linear", "purpose": "Default transition for filter, background, and color across all interactive primitives. No transforms." }
+    ],
+    "breakpoints": [
+      { "name": "md", "value": "768px", "purpose": "Sidebar visible vs mobile drawer (Bootstrap d-none d-md-flex breakpoint inherited from the existing layout)." }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The default action button. Console Sky solid, uppercase wide-tracked label, 32px tall, sharp corners.",
+      "html": "<button class=\"ds-btn ds-btn-primary\"><svg width=\"13\" height=\"13\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 5v14M5 12h14\"/></svg>NEW AFFAIRE</button>",
+      "css": ".ds-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 32px; padding: 0 14px; font-family: 'Ubuntu', system-ui, sans-serif; font-weight: 700; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer; border-radius: 0; border: 1px solid; transition: filter 120ms; } .ds-btn:disabled { opacity: 0.55; cursor: not-allowed; } .ds-btn-primary { background: #006EB1; color: #FFFFFF; border-color: #006EB1; } .ds-btn-primary:hover:not(:disabled) { filter: brightness(1.07); } .ds-btn-primary:focus-visible { outline: 2px solid #12293A; outline-offset: 2px; }"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Secondary action button. Transparent fill, Sovereign Deep Blue outline and text. Hover fills with Hover Mist.",
+      "html": "<button class=\"ds-btn ds-btn-ghost\"><svg width=\"13\" height=\"13\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4\"/><polyline points=\"7 10 12 15 17 10\"/><line x1=\"12\" y1=\"15\" x2=\"12\" y2=\"3\"/></svg>EXPORT</button>",
+      "css": ".ds-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 32px; padding: 0 14px; font-family: 'Ubuntu', system-ui, sans-serif; font-weight: 700; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer; border-radius: 0; border: 1px solid; transition: filter 120ms, background 120ms; } .ds-btn-ghost { background: transparent; color: #12293A; border-color: #12293A; } .ds-btn-ghost:hover:not(:disabled) { background: #E6F3FA; } .ds-btn-ghost:focus-visible { outline: 2px solid #006EB1; outline-offset: 2px; }"
+    },
+    {
+      "name": "Search Input",
+      "kind": "input",
+      "refersTo": "input-search",
+      "description": "Toolbar search field with leading icon and trailing keyboard-shortcut hint. Sits inside a Hover Mist surface; no border on the input itself.",
+      "html": "<div class=\"ds-search\"><svg width=\"13\" height=\"13\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"ds-search-icon\"><circle cx=\"11\" cy=\"11\" r=\"7\"/><path d=\"m21 21-4.3-4.3\"/></svg><input class=\"ds-search-input\" placeholder=\"Search part number, document, affaire…\"/><span class=\"ds-search-hint\">⌘K</span></div>",
+      "css": ".ds-search { display: inline-flex; align-items: center; gap: 8px; min-width: 260px; padding: 5px 10px; background: #E6F3FA; border: 1px solid #C2DDF0; } .ds-search-icon { color: #73777D; flex: none; } .ds-search-input { flex: 1; min-width: 0; border: 0; background: transparent; outline: none; font-family: 'Ubuntu', system-ui, sans-serif; font-size: 12px; color: #001423; } .ds-search-input::placeholder { color: #73777D; } .ds-search:focus-within { border-color: #006EB1; } .ds-search-hint { font-family: 'Ubuntu Mono', ui-monospace, monospace; font-size: 10px; color: #73777D; }"
+    },
+    {
+      "name": "Status Pill (Success)",
+      "kind": "chip",
+      "refersTo": "pill-success",
+      "description": "State indicator pill with a square dot. Sharp corners, tinted background, matching signal color for border and text. Square dot, not round.",
+      "html": "<span class=\"ds-pill ds-pill-success\"><span class=\"ds-pill-dot\"></span>OPERATIONAL</span>",
+      "css": ".ds-pill { display: inline-flex; align-items: center; gap: 6px; padding: 2px 8px; font-family: 'Ubuntu', system-ui, sans-serif; font-weight: 700; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; border: 1px solid; border-radius: 0; line-height: 1.4; } .ds-pill-dot { width: 7px; height: 7px; background: currentColor; display: inline-block; } .ds-pill-success { background: #EAF6EE; color: #1F8A4C; border-color: #1F8A4C; }"
+    },
+    {
+      "name": "Filter Chip (Active)",
+      "kind": "chip",
+      "refersTo": "chip-active",
+      "description": "Active table-filter chip in the toolbar. Sovereign Deep Blue background, white text, label and value pair. The 'select' state turns ceremonial.",
+      "html": "<span class=\"ds-chip ds-chip-active\"><span class=\"ds-chip-label\">FAMILLE</span><span class=\"ds-chip-value\">ELEC</span><span class=\"ds-chip-clear\" aria-label=\"Clear filter\">×</span></span>",
+      "css": ".ds-chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; font-family: 'Ubuntu', system-ui, sans-serif; font-weight: 700; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; border: 1px solid; border-radius: 0; cursor: pointer; transition: background 120ms, color 120ms; } .ds-chip-active { background: #12293A; color: #FFFFFF; border-color: #12293A; } .ds-chip-label { opacity: 0.7; } .ds-chip-value { opacity: 1; } .ds-chip-clear { margin-left: 2px; cursor: pointer; opacity: 0.85; } .ds-chip-clear:hover { opacity: 1; }"
+    },
+    {
+      "name": "Stat Card",
+      "kind": "card",
+      "refersTo": "stat-card",
+      "description": "Dashboard metric card. Signature: a 3px Console Sky stripe across the top edge — the only 'decoration' in the system. Big Orbitron value in Sovereign Deep Blue, small uppercase label, optional delta and right-side icon framed in a 1px square.",
+      "html": "<div class=\"ds-statcard\"><div class=\"ds-statcard-row\"><div><div class=\"ds-statcard-label\">TOTAL PRODUITS</div><div class=\"ds-statcard-value\">12 487</div><div class=\"ds-statcard-delta\">▲ 312 cette semaine</div></div><div class=\"ds-statcard-icon\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M16.5 9.4 7.55 4.24M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z\"/><polyline points=\"3.27 6.96 12 12.01 20.73 6.96\"/><line x1=\"12\" y1=\"22.08\" x2=\"12\" y2=\"12\"/></svg></div></div></div>",
+      "css": ".ds-statcard { background: #FFFFFF; border: 1px solid #C2DDF0; padding: 18px 20px; position: relative; } .ds-statcard::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: #006EB1; } .ds-statcard-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; } .ds-statcard-label { font-family: 'Ubuntu', system-ui, sans-serif; font-weight: 700; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: #73777D; } .ds-statcard-value { margin-top: 6px; font-family: 'Orbitron', 'Eurostile', sans-serif; font-weight: 700; font-size: 30px; letter-spacing: 0.02em; color: #12293A; line-height: 1; font-variant-numeric: tabular-nums; } .ds-statcard-delta { margin-top: 8px; font-family: 'Ubuntu Mono', ui-monospace, monospace; font-size: 11px; color: #1F8A4C; } .ds-statcard-icon { width: 40px; height: 40px; border: 1px solid #12293A; display: flex; align-items: center; justify-content: center; color: #12293A; flex: none; }"
+    },
+    {
+      "name": "Tricolor Page Header",
+      "kind": "custom",
+      "refersTo": "page-header",
+      "description": "The project's signature: every page opens with a 4px vertical tricolor stripe (blue / white-with-border / red) followed by an optional eyebrow, the page title in Orbitron, an optional sub-line, and right-aligned actions. The header is the brand on every screen.",
+      "html": "<header class=\"ds-pageheader\"><div class=\"ds-pageheader-left\"><div class=\"ds-pageheader-stripe\"><div class=\"ds-stripe-blue\"></div><div class=\"ds-stripe-white\"></div><div class=\"ds-stripe-red\"></div></div><div class=\"ds-pageheader-title-block\"><p class=\"ds-pageheader-eyebrow\">MISSION CONSOLE</p><h1 class=\"ds-pageheader-title\">Dashboard</h1><div class=\"ds-pageheader-sub\">Vue d'ensemble · 14:32:08 · auto every 60s</div></div></div><div class=\"ds-pageheader-actions\"><button class=\"ds-btn ds-btn-ghost\">EXPORT</button><button class=\"ds-btn ds-btn-primary\">NEW AFFAIRE</button></div></header>",
+      "css": ".ds-pageheader { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; padding-bottom: 14px; border-bottom: 1px solid #C2DDF0; margin-bottom: 20px; } .ds-pageheader-left { display: flex; align-items: stretch; gap: 14px; min-width: 0; } .ds-pageheader-stripe { width: 4px; align-self: stretch; display: flex; flex-direction: column; flex: none; min-height: 56px; } .ds-pageheader-stripe > div { flex: 1; } .ds-stripe-blue { background: #174082; } .ds-stripe-white { background: #FFFFFF; border: 1px solid #C2DDF0; } .ds-stripe-red { background: #C80A26; } .ds-pageheader-title-block { min-width: 0; } .ds-pageheader-eyebrow { margin: 0 0 4px 0; font-family: 'Ubuntu', system-ui, sans-serif; font-weight: 700; font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: #73777D; } .ds-pageheader-title { margin: 0 0 6px 0; font-family: 'Orbitron', 'Eurostile', sans-serif; font-weight: 600; font-size: 26px; letter-spacing: 0.04em; color: #12293A; line-height: 1.15; } .ds-pageheader-sub { font-size: 13px; color: #43474C; font-family: 'Ubuntu', system-ui, sans-serif; } .ds-pageheader-actions { display: flex; gap: 8px; flex: none; } .ds-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 32px; padding: 0 14px; font-family: 'Ubuntu', system-ui, sans-serif; font-weight: 700; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer; border-radius: 0; border: 1px solid; transition: filter 120ms, background 120ms; } .ds-btn-primary { background: #006EB1; color: #FFFFFF; border-color: #006EB1; } .ds-btn-primary:hover { filter: brightness(1.07); } .ds-btn-ghost { background: transparent; color: #12293A; border-color: #12293A; } .ds-btn-ghost:hover { background: #E6F3FA; }"
+    },
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": "input-text",
+      "description": "Form text input with always-visible uppercase label. Sharp corners, 1px Console Border default, Console Sky 2px on focus, no glow or shadow ring.",
+      "html": "<label class=\"ds-field\"><span class=\"ds-field-label\">RÉFÉRENCE PRODUIT</span><input class=\"ds-field-input\" type=\"text\" placeholder=\"PN ELEC0001\" value=\"PN ELEC0142\"/></label>",
+      "css": ".ds-field { display: inline-flex; flex-direction: column; gap: 6px; min-width: 240px; } .ds-field-label { font-family: 'Ubuntu', system-ui, sans-serif; font-weight: 700; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: #43474C; } .ds-field-input { font-family: 'Ubuntu Mono', ui-monospace, monospace; font-weight: 500; font-size: 13px; color: #001423; background: #FFFFFF; border: 1px solid #C2DDF0; border-radius: 0; padding: 6px 10px; outline: none; transition: border-color 120ms; } .ds-field-input::placeholder { color: #73777D; } .ds-field-input:hover { border-color: #12293A; } .ds-field-input:focus { border: 2px solid #006EB1; padding: 5px 9px; } .ds-field-input:disabled { background: #E6F3FA; color: #73777D; cursor: not-allowed; }"
+    },
+    {
+      "name": "Modal",
+      "kind": "custom",
+      "refersTo": "modal",
+      "description": "Doctrinal Hemeria modal (proposed; not yet implemented). Sharp Sovereign Deep Blue header bar with Orbitron title, Instrument White body, right-aligned ghost+primary footer buttons, Ink-tinted backdrop. Replaces Bootstrap modal residue.",
+      "html": "<div class=\"ds-modal-backdrop\"><div class=\"ds-modal\" role=\"dialog\" aria-modal=\"true\" aria-labelledby=\"ds-modal-title\"><header class=\"ds-modal-header\"><h3 id=\"ds-modal-title\" class=\"ds-modal-title\">CONFIRM DELETE AFFAIRE</h3><button class=\"ds-modal-close\" aria-label=\"Close\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><line x1=\"18\" y1=\"6\" x2=\"6\" y2=\"18\"/><line x1=\"6\" y1=\"6\" x2=\"18\" y2=\"18\"/></svg></button></header><div class=\"ds-modal-body\"><p class=\"ds-modal-text\">L'affaire <span class=\"ds-modal-mono\">AF001</span> contient 18 produits liés. Sa suppression est irréversible.</p></div><footer class=\"ds-modal-footer\"><button class=\"ds-btn ds-btn-ghost\">ANNULER</button><button class=\"ds-btn ds-btn-danger-solid\">SUPPRIMER</button></footer></div></div>",
+      "css": ".ds-modal-backdrop { position: fixed; inset: 0; background: rgba(0, 20, 35, 0.55); display: flex; align-items: center; justify-content: center; z-index: 1000; } .ds-modal { width: 480px; background: #FFFFFF; border: 1px solid #12293A; border-radius: 0; } .ds-modal-header { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 14px; background: #12293A; color: #FFFFFF; } .ds-modal-title { margin: 0; font-family: 'Orbitron', 'Eurostile', sans-serif; font-weight: 600; font-size: 15px; letter-spacing: 0.04em; color: #FFFFFF; text-transform: uppercase; } .ds-modal-close { width: 24px; height: 24px; border: 1px solid rgba(255, 255, 255, 0.4); background: transparent; color: #FFFFFF; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; border-radius: 0; transition: background 120ms; } .ds-modal-close:hover { background: rgba(255, 255, 255, 0.12); } .ds-modal-body { padding: 18px; } .ds-modal-text { margin: 0; font-family: 'Ubuntu', system-ui, sans-serif; font-size: 13px; color: #001423; line-height: 1.45; } .ds-modal-mono { font-family: 'Ubuntu Mono', ui-monospace, monospace; font-weight: 500; color: #12293A; } .ds-modal-footer { display: flex; justify-content: flex-end; gap: 8px; padding: 12px; border-top: 1px solid #C2DDF0; } .ds-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 32px; padding: 0 14px; font-family: 'Ubuntu', system-ui, sans-serif; font-weight: 700; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer; border-radius: 0; border: 1px solid; transition: filter 120ms, background 120ms; } .ds-btn-ghost { background: transparent; color: #12293A; border-color: #12293A; } .ds-btn-ghost:hover { background: #E6F3FA; } .ds-btn-danger-solid { background: #BA1A1A; color: #FFFFFF; border-color: #BA1A1A; } .ds-btn-danger-solid:hover { filter: brightness(1.07); }"
+    },
+    {
+      "name": "Toast (Success)",
+      "kind": "custom",
+      "refersTo": "toast-success",
+      "description": "Doctrinal Hemeria toast (proposed; not yet implemented). Sharp tinted-bg pill with signal icon + message + close. Replaces Bootstrap toast residue.",
+      "html": "<div class=\"ds-toast ds-toast-success\" role=\"status\" aria-live=\"polite\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"ds-toast-icon\"><path d=\"M22 11.08V12a10 10 0 1 1-5.93-9.14\"/><polyline points=\"22 4 12 14.01 9 11.01\"/></svg><span class=\"ds-toast-msg\">Préférences enregistrées.</span><button class=\"ds-toast-close\" aria-label=\"Dismiss\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><line x1=\"18\" y1=\"6\" x2=\"6\" y2=\"18\"/><line x1=\"6\" y1=\"6\" x2=\"18\" y2=\"18\"/></svg></button></div>",
+      "css": ".ds-toast { display: inline-flex; align-items: center; gap: 10px; min-width: 280px; max-width: 420px; padding: 10px 14px; border: 1px solid; border-radius: 0; background: #FFFFFF; } .ds-toast-success { background: #EAF6EE; border-color: #1F8A4C; color: #1F8A4C; } .ds-toast-icon { flex: none; } .ds-toast-msg { flex: 1; font-family: 'Ubuntu', system-ui, sans-serif; font-size: 13px; color: #001423; } .ds-toast-close { width: 22px; height: 22px; padding: 0; background: transparent; border: 0; cursor: pointer; color: #73777D; display: inline-flex; align-items: center; justify-content: center; transition: color 120ms; } .ds-toast-close:hover { color: #001423; }"
+    },
+    {
+      "name": "Reticle Corner Frame",
+      "kind": "custom",
+      "refersTo": "corner-frame",
+      "description": "Aerospace-instrument tick frame: four 12px corner brackets in Sovereign Deep Blue around content. Signature element, used sparingly — typically once per page on the most important content region.",
+      "html": "<div class=\"ds-corner\"><span class=\"ds-corner-tl\"></span><span class=\"ds-corner-tr\"></span><span class=\"ds-corner-bl\"></span><span class=\"ds-corner-br\"></span><div class=\"ds-corner-content\"><div class=\"ds-corner-eyebrow\">PRIMARY READOUT</div><div class=\"ds-corner-value\">PN ELEC0142</div><div class=\"ds-corner-meta\">Famille ELEC · Affaire AF001 · created 2026-04-30</div></div></div>",
+      "css": ".ds-corner { position: relative; padding: 24px; background: #FFFFFF; border: 1px solid #C2DDF0; } .ds-corner-tl, .ds-corner-tr, .ds-corner-bl, .ds-corner-br { content: ''; position: absolute; width: 12px; height: 12px; border-color: #12293A; border-style: solid; } .ds-corner-tl { top: 0; left: 0; border-width: 2px 0 0 2px; } .ds-corner-tr { top: 0; right: 0; border-width: 2px 2px 0 0; } .ds-corner-bl { bottom: 0; left: 0; border-width: 0 0 2px 2px; } .ds-corner-br { bottom: 0; right: 0; border-width: 0 2px 2px 0; } .ds-corner-content { } .ds-corner-eyebrow { font-family: 'Ubuntu', system-ui, sans-serif; font-weight: 700; font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: #73777D; margin-bottom: 8px; } .ds-corner-value { font-family: 'Ubuntu Mono', ui-monospace, monospace; font-weight: 500; font-size: 22px; color: #12293A; letter-spacing: 0.02em; font-variant-numeric: tabular-nums; margin-bottom: 6px; } .ds-corner-meta { font-family: 'Ubuntu', system-ui, sans-serif; font-size: 12px; color: #43474C; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Tricolor Console",
+    "overview": "THOR is built like an instrument panel for engineers, not a card library for managers. The Hemeria visual language fuses the ceremonial weight of a tricolor (blue, white, red) with the live posture of a mission console. The page header is literally a 4px tricolor stripe; the sidebar is sovereign deep blue; the primary action color is a saturated console-sky that reads as 'live signal.' The work surface is an off-white tinted toward sky-blue, so even at rest the screen feels as if it sits inside a console rather than on a marketing site. The system is sharp by doctrine: every primitive ships with border-radius 0, no shadows anywhere, depth coming from tonal layering and 1px borders. Type does most of the talking: Orbitron for headings, Ubuntu for body, Ubuntu Mono for identifiers, with uppercase wide-tracked labels acting as small mission patches across cards, tabs, and table headers. Hemeria explicitly rejects the soft-SaaS aesthetic and the opposite trap of Bloomberg-Terminal black-and-amber maximalism. The palette is bright and instrumented, contrast is calm, the dominant color in any given screen is white space, and the brand red appears only as ceremony.",
+    "keyCharacteristics": [
+      "Sharp corners everywhere. No border-radius on any primitive.",
+      "Flat surfaces. No shadows. Depth via 1px borders and tonal layering.",
+      "Tricolor stripe as the page-level signature.",
+      "Orbitron headings + Ubuntu body + Ubuntu Mono for identifiers.",
+      "Uppercase wide-tracked labels as mission-patch chrome.",
+      "Sky-blue is the only action color. Red is ceremonial only."
+    ],
+    "rules": [
+      { "name": "The Sky-Is-Action Rule", "body": "Console Sky (#006EB1) means 'do something' or 'this is selected/active.' Reserved for primary buttons, the stat-card top stripe, the sidebar active indicator, focus rings, links, and the info status. Never used as a decorative fill, gradient stop, or background tint.", "section": "colors" },
+      { "name": "The Red-Is-Ceremony Rule", "body": "Tricolor Red (#C80A26) appears only in the page-header stripe and the sidebar brand-lockup dot. Not the danger color. Not the destructive-action color. Engineers should not see it move or change in response to interaction.", "section": "colors" },
+      { "name": "The Tinted-Neutrals Rule", "body": "Every gray-feeling color in the system is tinted sky-blue at very low chroma. Pure neutral gray belongs to other systems, not this one.", "section": "colors" },
+      { "name": "The Identifier-Is-Mono Rule", "body": "Every part number, document reference, affaire code, user UUID, timestamp, and tabular numeric is rendered in Ubuntu Mono with font-variant-numeric tabular-nums. Non-negotiable. Identifiers are the lingua franca of THOR; they must be visually distinguishable from prose at a glance and column-alignable in tables.", "section": "typography" },
+      { "name": "The Orbitron-For-Officialdom Rule", "body": "Orbitron renders only headings (H1-H3, Display) and a few labels where the eyebrow tracking is needed. Body text, button labels, form inputs, table cells, error messages, toasts: never Orbitron. Using Orbitron for body text breaks the system.", "section": "typography" },
+      { "name": "The Wide-Track Caps Rule", "body": "All uppercase text in the system uses 0.12em-0.18em letter-spacing depending on size. Uppercase without wide tracking looks shouty; with the tracking it reads as official.", "section": "typography" },
+      { "name": "The No-Shadow Rule", "body": "No element in the Hemeria layer carries a box-shadow. If something needs to feel raised, step its surface tone (Instrument White on Cold Mist) or strengthen its border (Sovereign Deep Blue instead of Console Border). Drop shadows are forbidden, even subtle ones.", "section": "elevation" },
+      { "name": "The Reticle Rule", "body": "The CornerFrame primitive draws four 12px corner brackets in Sovereign Deep Blue around its content. It is a heavy signature; use it sparingly, typically once per page on the most important content region. Wrapping every panel in it is wrong.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do use the PageHeader (via PreferencesHeader) as the top of every page. The tricolor stripe is the project's signature.",
+      "Do render every part number, document reference, affaire code, user ID, and timestamp in Ubuntu Mono with tabular-nums.",
+      "Do use sharp corners on every primitive. border-radius: 0 is the default; do not introduce radius on new components.",
+      "Do use 1px borders and tonal layering for depth. Cold Mist beneath Instrument White beneath Hover Mist beneath Selection Veil.",
+      "Do stack toolbar / table / footrow with margin-bottom: -1px so adjacent panels share their edges into one continuous frame.",
+      "Do write button labels and pill text in Ubuntu 700, 0.12em UPPERCASE.",
+      "Do keep transitions at 120ms on filter, background, and color. No transforms, no orchestration.",
+      "Do use StatusPill with semantic kind for any state indication. success / warning / danger / info are the only options.",
+      "Do use Hover Mist for interactive feedback (table-row hover, ghost-button hover, search-field background)."
+    ],
+    "donts": [
+      "Don't use glassmorphism. No backdrop-filter: blur, no frosted panels, no semi-transparent surfaces stacked over content.",
+      "Don't use gradients. Not on buttons, not on backgrounds, not on text, not on accent decoration. Every fill is a single solid color.",
+      "Don't introduce border-radius on any new component. The system is sharp-cornered as doctrine.",
+      "Don't add box-shadow for elevation. Use tonal layering or border weight instead.",
+      "Don't use Tricolor Red (#C80A26) for danger semantics, delete buttons, or error states. Red is ceremonial only.",
+      "Don't use Orbitron for body text, button text below 11px, table cells, form inputs, error messages, or toasts.",
+      "Don't use pure neutral gray. Every neutral in the system is tinted sky-blue at low chroma.",
+      "Don't stack StatCard four-up in a uniform metric grid (the SaaS hero-metric template).",
+      "Don't wrap Card inside Card. Nested cards are always wrong.",
+      "Don't use side-stripe colored borders on cards, callouts, alerts, or list items as decoration. The sidebar nav-active indicator is a documented functional exception.",
+      "Don't write apologetic, warm, or chatty UX copy. No 'Désolé,' no 'Oops,' no exclamation marks, no friendly suggestions.",
+      "Don't use the CornerFrame reticle on every panel. It is a heavy signature."
+    ]
+  }
+}
