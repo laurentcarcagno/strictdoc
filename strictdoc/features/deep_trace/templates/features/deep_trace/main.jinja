@@ -38,8 +38,8 @@
   </div> {# /.main #}
 {%- else -%}
   <sdoc-main-placeholder data-testid="document-main-placeholder">
-    This view is empty because
+    {{ _("This view is empty because") }}
     <br/>
-    the document has no requirements.
+    {{ _("the document has no requirements.") }}
   </sdoc-main-placeholder>
 {%- endif -%}

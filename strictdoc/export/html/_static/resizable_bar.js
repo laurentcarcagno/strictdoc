@@ -231,13 +231,13 @@ class ResizableBar {
     const border = document.createElement('div');
     border.setAttribute(`${this.barAttribute}-border`, '');
     border.dataset.content = id;
-    border.title = `Resize ${id}`;
+    border.title = window.sdocT('Resize') + ` ${id}`;
     border.addEventListener('mousedown', this._mouseDownHandler);
 
     const button = document.createElement('div');
     button.setAttribute(`${this.barAttribute}-button`, '');
     button.dataset.content = id;
-    button.title = `Toggle ${id}`;
+    button.title = window.sdocT('Toggle') + ` ${id}`;
     button.addEventListener('mousedown', this._toggleHandler);
 
     // Add testIDs:

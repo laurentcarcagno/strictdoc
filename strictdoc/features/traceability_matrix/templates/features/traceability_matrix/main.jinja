@@ -7,7 +7,7 @@
     <thead class="traceability_matrix__thead">
       <tr>
         <th>
-          Node
+          {{ _("Node") }}
         </th>
 
         {% for known_relation_ in view_object.known_relations_list %}
@@ -85,7 +85,7 @@
 
       {%- if not document.has_any_requirements() %}
         <tr>
-          <td colspan="100"><div class="traceability_matrix__placeholder">No traceable content.</div></td>
+          <td colspan="100"><div class="traceability_matrix__placeholder">{{ _("No traceable content.") }}</div></td>
         </tr>
       {%- endif %}
 

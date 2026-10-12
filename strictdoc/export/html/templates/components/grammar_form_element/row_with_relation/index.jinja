@@ -41,7 +41,7 @@
     {%- endif -%}
 
     <sdoc-form-field field-type="select">
-      <label for="relation_type_{{ form_object.relation.relation_mid }}">Relation type</label>
+      <label for="relation_type_{{ form_object.relation.relation_mid }}">{{ _("Relation type") }}</label>
         <select
           class="sdoc-form-select"
           name="{{ form_object.relation.relation_type_input_name() }}"
@@ -52,15 +52,15 @@
           <option
             value="Parent"
             {{ "selected" if form_object.relation.relation_type == "Parent" else "" }}
-          >Parent</option>
+          >{{ _("Parent") }}</option>
           <option
             value="Child"
             {{ "selected" if form_object.relation.relation_type == "Child" else "" }}
-          >Child</option>
+          >{{ _("Child") }}</option>
           <option
             value="File"
             {{ "selected" if form_object.relation.relation_type == "File" else "" }}
-          >File</option>
+          >{{ _("File") }}</option>
         </select>
     </sdoc-form-field>
 

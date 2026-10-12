@@ -3,7 +3,7 @@
   class="dropdown_menu_item"
   data-turbo="true"
   data-turbo-action="replace"
-  title="Edit document grammar"
+  title="{{ _("Edit document grammar") }}"
   data-testid="document-edit-grammar-action"
   role="menuitem"
 >{% include "icons/ico16_gear.svg" %} Edit grammar</a>
@@ -31,7 +31,7 @@
   href="/actions/document/delete_document?document_mid={{ view_object.document.reserved_mid }}"
   data-turbo="true"
   data-turbo-method="delete"
-  title="Delete document"
+  title="{{ _("Delete document") }}"
   data-testid="document-delete-action"
   role="menuitem"
->Delete document</a>
+>{{ _("Delete document") }}</a>

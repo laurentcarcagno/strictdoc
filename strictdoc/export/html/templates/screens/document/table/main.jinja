@@ -94,10 +94,10 @@
         #}
         {%- set column_labels = {
           "RELATIONS": "REFS",
-          "TITLE":     "Title",
-          "STATEMENT": "Statement",
-          "RATIONALE": "Rationale",
-          "COMMENT":   "Comment"
+          "TITLE":     _("Title"),
+          "STATEMENT": _("Statement"),
+          "RATIONALE": _("Rationale"),
+          "COMMENT":   _("Comment")
         } -%}
         {%- set content_entries = view_object.table_content_iterator() | list -%}
         <table class="content-view-table" js-table_view_edit-table>
@@ -107,14 +107,14 @@
             <tr>
               <th class="content-view-th" data-testid="col-header-Type">
                 <div class="content-view-th__content">
-                  <span class="content-view-th__label">Type</span>
-                  <button class="content-view-th__sort-btn" aria-label="Sort by Type">{%- include "icons/ico16_sort.svg" -%}</button>
+                  <span class="content-view-th__label">{{ _("Type") }}</span>
+                  <button class="content-view-th__sort-btn" aria-label="{{ _("Sort by Type") }}">{%- include "icons/ico16_sort.svg" -%}</button>
                 </div>
               </th>
               <th class="content-view-th" data-testid="col-header-Level">
                 <div class="content-view-th__content">
-                  <span class="content-view-th__label">Level</span>
-                  <button class="content-view-th__sort-btn" aria-label="Sort by Level">{%- include "icons/ico16_sort.svg" -%}</button>
+                  <span class="content-view-th__label">{{ _("Level") }}</span>
+                  <button class="content-view-th__sort-btn" aria-label="{{ _("Sort by Level") }}">{%- include "icons/ico16_sort.svg" -%}</button>
                 </div>
               </th>
               {%- for column in view_object.enumerate_table_columns() -%}
@@ -122,7 +122,7 @@
                 <th class="content-view-th" data-testid="col-header-{{ col_label }}">
                   <div class="content-view-th__content">
                     <span class="content-view-th__label">{{ col_label }}</span>
-                    <button class="content-view-th__sort-btn" aria-label="Sort by {{ col_label }}">{%- include "icons/ico16_sort.svg" -%}</button>
+                    <button class="content-view-th__sort-btn" aria-label="{{ _("Sort by %(column)s", column=col_label) }}">{%- include "icons/ico16_sort.svg" -%}</button>
                   </div>
                 </th>
               {%- endfor -%}

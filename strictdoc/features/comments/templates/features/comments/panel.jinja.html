@@ -36,28 +36,28 @@
       <form action="/actions/comments/reopen" method="POST" data-turbo="true" data-requires-role="author">
         <input type="hidden" name="node_mid" value="{{ node_mid }}"/>
         <input type="hidden" name="comment_id" value="{{ comment.id }}"/>
-        <button type="submit" data-testid="comment-reopen">Reopen</button>
+        <button type="submit" data-testid="comment-reopen">{{ _("Reopen") }}</button>
       </form>
       {%- else %}
       <form action="/actions/comments/resolve" method="POST" data-turbo="true" data-requires-role="author">
         <input type="hidden" name="node_mid" value="{{ node_mid }}"/>
         <input type="hidden" name="comment_id" value="{{ comment.id }}"/>
-        <button type="submit" data-testid="comment-resolve">Resolve</button>
+        <button type="submit" data-testid="comment-resolve">{{ _("Resolve") }}</button>
       </form>
       {%- endif %}
       <details>
-        <summary data-testid="comment-edit">Edit</summary>
+        <summary data-testid="comment-edit">{{ _("Edit") }}</summary>
         <form action="/actions/comments/edit" method="POST" data-turbo="true">
           <input type="hidden" name="node_mid" value="{{ node_mid }}"/>
           <input type="hidden" name="comment_id" value="{{ comment.id }}"/>
           <textarea name="body" required rows="3">{{ comment.body }}</textarea>
-          <button type="submit" data-testid="comment-edit-save">Save</button>
+          <button type="submit" data-testid="comment-edit-save">{{ _("Save") }}</button>
         </form>
       </details>
       <form action="/actions/comments/delete" method="POST" data-turbo="true">
         <input type="hidden" name="node_mid" value="{{ node_mid }}"/>
         <input type="hidden" name="comment_id" value="{{ comment.id }}"/>
-        <button type="submit" data-testid="comment-delete">Delete</button>
+        <button type="submit" data-testid="comment-delete">{{ _("Delete") }}</button>
       </form>
     </sdoc-comment-actions>
     {%- endif %}
@@ -70,9 +70,9 @@
     <input type="hidden" name="anchor" value="" data-comment-anchor-text/>
     <input type="hidden" name="anchor_n" value="0" data-comment-anchor-n/>
     <sdoc-comment-quote data-comment-quote hidden></sdoc-comment-quote>
-    <textarea name="body" required rows="3" placeholder="Add a comment..." data-testid="comment-new-body"></textarea>
-    <button type="submit" data-testid="comment-add">Add comment</button>
-    <button type="button" data-comment-cancel data-testid="comment-cancel">Cancel</button>
+    <textarea name="body" required rows="3" placeholder="{{ _("Add a comment...") }}" data-testid="comment-new-body"></textarea>
+    <button type="submit" data-testid="comment-add">{{ _("Add comment") }}</button>
+    <button type="button" data-comment-cancel data-testid="comment-cancel">{{ _("Cancel") }}</button>
   </form>
   {%- endif %}
 </turbo-frame>

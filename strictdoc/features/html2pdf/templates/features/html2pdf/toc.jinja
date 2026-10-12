@@ -2,7 +2,7 @@
 <div class="pdf-toc" data-testid="pdf-toc-list">
     <div class="pdf-toc-row">
     <span class="pdf-toc-cell"></span>
-    <span class="pdf-toc-cell" style="text-align: center;font-weight: bold;">Table of contents</span>
+    <span class="pdf-toc-cell" style="text-align: center;font-weight: bold;">{{ _("Table of contents") }}</span>
     <span class="pdf-toc-cell"></span>
     </div>
     {%- for item, node_context_ in view_object.document_iterator.table_of_contents() -%}

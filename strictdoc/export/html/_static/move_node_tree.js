@@ -80,7 +80,14 @@
       targetItem.setAttribute(PLACEMENT_ATTRIBUTE, placement);
 
       const targetTitle = getItemTitle(targetItem);
-      statusElement.textContent = `${placement} ${targetTitle}`;
+      // The words of the placements, in the language of the page.
+      const placementLabels = {
+        before: window.sdocT('before'),
+        after: window.sdocT('after'),
+        inside: window.sdocT('inside'),
+      };
+      statusElement.textContent =
+        `${placementLabels[placement] || placement} ${targetTitle}`;
     }
 
     function getItemTitle(treeItem) {
@@ -205,7 +212,7 @@
         .then((response) => response.text())
         .then((responseHtml) => Turbo.renderStreamMessage(responseHtml))
         .catch(() => {
-          statusElement.textContent = 'The node could not be moved.';
+          statusElement.textContent = window.sdocT('The node could not be moved.');
           requestIsPending = false;
           treeRoot.removeAttribute('aria-busy');
         });
@@ -251,7 +258,8 @@
         const itemTitle = getItemTitle(treeItem);
         collapseButton.setAttribute(
           'aria-label',
-          `${willExpand ? 'Collapse' : 'Expand'} ${itemTitle}`
+          (willExpand ? window.sdocT('Collapse') : window.sdocT('Expand')) +
+            ` ${itemTitle}`
         );
       });
     });

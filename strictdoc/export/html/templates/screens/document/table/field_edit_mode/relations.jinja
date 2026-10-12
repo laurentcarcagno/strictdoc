@@ -43,7 +43,7 @@
 
   {%- if derived_nodes is defined and derived_nodes %}
   <div class="relations-computed">
-    <span class="relations-computed__label">Computed:</span>
+    <span class="relations-computed__label">{{ _("Computed:") }}</span>
     <ul class="requirement__link">
       {%- for req_ in derived_nodes %}
       <li>

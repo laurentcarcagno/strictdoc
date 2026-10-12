@@ -25,8 +25,8 @@
 
     {%- if not sdoc_entity.section_contents and view_object.document_type.is_document() -%}
       <sdoc-main-placeholder data-testid="document-root-placeholder">
-        The document is empty.
-        <br/>Start adding text, sections, and requirements.
+        {{ _("The document is empty.") }}
+        <br/>{{ _("Start adding text, sections, and requirements.") }}
       </sdoc-main-placeholder>
     {%- endif -%}
 

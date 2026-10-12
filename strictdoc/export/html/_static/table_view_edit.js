@@ -640,14 +640,14 @@
         if (tableHasActiveSort()) {
             blockers.push({
                 type: 'sorting',
-                message: 'Reset column sorting before adding nodes on TABLE screen.',
+                message: window.sdocT('Reset column sorting before adding nodes on TABLE screen.'),
                 buttonLabel: 'Reset sorting',
             });
         }
         if (tableHasHiddenRowTypes()) {
             blockers.push({
                 type: 'rows',
-                message: 'Show all node types before adding nodes on TABLE screen.',
+                message: window.sdocT('Show all node types before adding nodes on TABLE screen.'),
                 buttonLabel: 'Show all nodes',
             });
         }

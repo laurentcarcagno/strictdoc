@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8"/>
-  <title>Suspect links</title>
+  <title>{{ _("Suspect links") }}</title>
   <style>
     body { font-family: sans-serif; margin: 24px; }
     table { border-collapse: collapse; margin-bottom: 16px; }
@@ -11,14 +11,14 @@
   </style>
 </head>
 <body>
-  <h1>Suspect links</h1>
+  <h1>{{ _("Suspect links") }}</h1>
   {%- if not has_baseline %}
   <p data-testid="suspect-no-baseline">
     No baseline yet: no link is checked. The baseline records the state of every
     parent as it is now.
     {%- if can_baseline %}
     <form action="/actions/suspect/baseline" method="POST">
-      <button type="submit" data-testid="suspect-create-baseline">Create the baseline</button>
+      <button type="submit" data-testid="suspect-create-baseline">{{ _("Create the baseline") }}</button>
     </form>
     {%- endif %}
   </p>
@@ -30,7 +30,7 @@
     {{ group.parent.reserved_title or "" }}
   </h2>
   <table data-testid="suspect-table">
-    <tr><th>Child</th><th>Title</th>{% if can_clear %}<th></th>{% endif %}</tr>
+    <tr><th>{{ _("Child") }}</th><th>{{ _("Title") }}</th>{% if can_clear %}<th></th>{% endif %}</tr>
     {%- for child in group.children %}
     <tr data-testid="suspect-row">
       <td><a href="/UID/{{ child.reserved_uid }}">{{ child.reserved_uid }}</a></td>
@@ -40,7 +40,7 @@
         <form action="/actions/suspect/clear" method="POST">
           <input type="hidden" name="child_uid" value="{{ child.reserved_uid }}"/>
           <input type="hidden" name="parent_uid" value="{{ group.parent.reserved_uid }}"/>
-          <button type="submit" data-testid="suspect-clear">Reviewed</button>
+          <button type="submit" data-testid="suspect-clear">{{ _("Reviewed") }}</button>
         </form>
       </td>
       {%- endif %}

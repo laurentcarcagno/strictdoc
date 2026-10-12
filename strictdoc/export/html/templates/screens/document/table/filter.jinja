@@ -3,7 +3,7 @@
   <div class="table-toolbar__sort-reset" hidden>
     <button class="table-toolbar__btn action_button"
             data-testid="table-toolbar-sort-reset">
-            <span class="table-toolbar__btn-text">Reset sort</span></button>
+            <span class="table-toolbar__btn-text">{{ _("Reset sort") }}</span></button>
   </div>
   {%- if view_object.is_running_on_server -%}
   <div class="table-toolbar__edit">
@@ -12,7 +12,7 @@
             js-table_view_edit-toggle
             data-testid="table-toolbar-edit-btn">
             {%- include "icons/ico16_edit.svg" -%}
-            <span class="table-toolbar__btn-text">Edit</span></button>
+            <span class="table-toolbar__btn-text">{{ _("Edit") }}</span></button>
   </div>
   {%- endif -%}
   <div class="table-toolbar__columns">
@@ -22,18 +22,18 @@
             data-label="Columns"
             data-testid="table-toolbar-columns-btn">
             {%- include "icons/ico16_dropdown_collapse.svg" -%}
-            <span class="table-toolbar__btn-text">Columns<span class="table-toolbar__btn-info"></span></span>
+            <span class="table-toolbar__btn-text">{{ _("Columns") }}<span class="table-toolbar__btn-info"></span></span>
     </button>
     <div class="table-toolbar__dropdown dropdown_menu"
           hidden
           aria-hidden="true"
           role="dialog"
-          aria-label="Column visibility"
+          aria-label="{{ _("Column visibility") }}"
           data-testid="table-toolbar-columns-panel">
       <div class="table-toolbar__dropdown-header">
-        <span class="table-toolbar__dropdown-title">Visible:</span>
+        <span class="table-toolbar__dropdown-title">{{ _("Visible:") }}</span>
         <button class="table-toolbar__reset compact action_button"
-                data-testid="table-toolbar-columns-reset">Show all</button>
+                data-testid="table-toolbar-columns-reset">{{ _("Show all") }}</button>
       </div>
       <ul class="table-toolbar__list" data-testid="table-toolbar-columns-list"></ul>
     </div>
@@ -44,18 +44,18 @@
             aria-expanded="false"
             data-testid="table-toolbar-rows-btn">
             {%- include "icons/ico16_dropdown_collapse.svg" -%}
-            <span class="table-toolbar__btn-text">Nodes<span class="table-toolbar__btn-info"></span></span>
+            <span class="table-toolbar__btn-text">{{ _("Nodes") }}<span class="table-toolbar__btn-info"></span></span>
     </button>
     <div class="table-toolbar__dropdown dropdown_menu"
           hidden
           aria-hidden="true"
           role="dialog"
-          aria-label="Row visibility"
+          aria-label="{{ _("Row visibility") }}"
           data-testid="table-toolbar-rows-panel">
       <div class="table-toolbar__dropdown-header">
-        <span class="table-toolbar__dropdown-title">Visible:</span>
+        <span class="table-toolbar__dropdown-title">{{ _("Visible:") }}</span>
         <button class="table-toolbar__reset compact action_button"
-                data-testid="table-toolbar-rows-reset">Show all</button>
+                data-testid="table-toolbar-rows-reset">{{ _("Show all") }}</button>
       </div>
       <ul class="table-toolbar__list" data-testid="table-toolbar-rows-list"></ul>
     </div>

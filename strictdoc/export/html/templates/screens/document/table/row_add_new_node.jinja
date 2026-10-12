@@ -23,7 +23,7 @@
            role="button"
            tabindex="0"
            aria-expanded="false"
-           aria-label="Add node"></div>
+           aria-label="{{ _("Add node") }}"></div>
       <div class="table-add-node__menu"
            js-table_view_edit-add-node-menu
            data-testid="table-add-node-menu"
@@ -58,7 +58,7 @@
                             data-reference-mid="{{ table_document_mid }}"
                             data-element-type="{{ element.tag }}"
                             data-whereto="child"
-                            title="Add first {{ element.tag }}">
+                            title="{{ _("Add first %(tag)s", tag=element.tag) }}">
                       {% include "icons/ico16_add.svg" %}
                     </button>
                   </li>
@@ -73,7 +73,7 @@
                             data-reference-mid="{{ next_node.reserved_mid }}"
                             data-element-type="{{ element.tag }}"
                             data-whereto="before"
-                            title="Add {{ element.tag }} before next">
+                            title="{{ _("Add %(tag)s before next", tag=element.tag) }}">
                       {% include "icons/ico16_add_above.svg" %}
                     </button>
                   </li>
@@ -88,7 +88,7 @@
                             data-reference-mid="{{ prev_node.reserved_mid }}"
                             data-element-type="{{ element.tag }}"
                             data-whereto="after"
-                            title="Add {{ element.tag }} after previous">
+                            title="{{ _("Add %(tag)s after previous", tag=element.tag) }}">
                       {% include "icons/ico16_add_below.svg" %}
                     </button>
                   </li>
@@ -103,7 +103,7 @@
                             data-reference-mid="{{ prev_node.reserved_mid }}"
                             data-element-type="{{ element.tag }}"
                             data-whereto="child"
-                            title="Add {{ element.tag }} as child of previous">
+                            title="{{ _("Add %(tag)s as child of previous", tag=element.tag) }}">
                       {% include "icons/ico16_add_child.svg" %}
                     </button>
                   </li>

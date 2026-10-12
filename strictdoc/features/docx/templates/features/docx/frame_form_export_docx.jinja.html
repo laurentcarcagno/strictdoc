@@ -16,7 +16,7 @@ Export to Word
       <sdoc-form-row>
         <sdoc-form-row-main>
           <sdoc-form-field>
-            <label for="docx_document">Document</label>
+            <label for="docx_document">{{ _("Document") }}</label>
             <select
               name="document_mid"
               id="docx_document"
@@ -42,9 +42,9 @@ Export to Word
       <sdoc-form-row>
         <sdoc-form-row-main>
           <p>
-            Without a Word document, a new one is built from the profile
+            {% trans trimmed %}Without a Word document, a new one is built from the profile
             template. With one, the differences are written into it as
-            tracked changes.
+            tracked changes.{% endtrans %}
           </p>
           <div id="docx_report" data-testid="docx-report"></div>
         </sdoc-form-row-main>
@@ -60,7 +60,7 @@ Export to Word
     class="action_button"
     type="submit"
     data-testid="docx-preview-action"
-  >Preview</button>
+  >{{ _("Preview") }}</button>
 {% endblock modal_form__footer_extra %}
 {% block modal_form__footer_submit %}
   <button
@@ -70,5 +70,5 @@ Export to Word
     type="submit"
     data-action-type="submit"
     data-testid="form-submit-action"
-  >Download</button>
+  >{{ _("Download") }}</button>
 {% endblock modal_form__footer_submit %}

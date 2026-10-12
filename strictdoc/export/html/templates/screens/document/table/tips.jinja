@@ -2,24 +2,24 @@
   <sdoc-backdrop>
     <sdoc-modal>
       <sdoc-modal-container data-testid="table-tips-content">
-        <h3>TABLE screen tips</h3>
-        <p><b>Filter view</b></p>
+        <h3>{{ _("Table screen tips") }}</h3>
+        <p><b>{{ _("Filter view") }}</b></p>
         <ul>
-          <li>Use the <strong>Columns</strong> panel to show or hide individual fields in the table.</li>
-          <li>Use the <strong>Nodes</strong> panel to filter which node types are displayed in the table.</li>
+          <li>{% trans trimmed %}Use the <strong>Columns</strong> panel to show or hide individual fields in the table.{% endtrans %}</li>
+          <li>{% trans trimmed %}Use the <strong>Nodes</strong> panel to filter which node types are displayed in the table.{% endtrans %}</li>
         </ul>
-        <p><b>Edit mode</b></p>
+        <p><b>{{ _("Edit mode") }}</b></p>
         <ul>
-          <li>Enable <b>Edit mode</b> to edit document content directly in the table.</li>
-          <li>Click a field to edit it. Save with <code>Ctrl/Cmd+Enter</code> or by <i>leaving the field</i>. Press <code>Escape</code> to cancel without changes.</li>
-          <li>Use <b>Add</b> separators between rows to create new nodes.</li>
-          <li>Use the <b>Delete</b> action in the <code>Type</code> column to remove nodes.</li>
-          <li><b>Add Node</b> is unavailable while sorting or row filtering is active.</li>
+          <li>{% trans trimmed %}Enable <b>Edit mode</b> to edit document content directly in the table.{% endtrans %}</li>
+          <li>{% trans trimmed %}Click a field to edit it. Save with <code>Ctrl/Cmd+Enter</code> or by <i>leaving the field</i>. Press <code>Escape</code> to cancel without changes.{% endtrans %}</li>
+          <li>{% trans trimmed %}Use <b>Add</b> separators between rows to create new nodes.{% endtrans %}</li>
+          <li>{% trans trimmed %}Use the <b>Delete</b> action in the <code>Type</code> column to remove nodes.{% endtrans %}</li>
+          <li>{% trans trimmed %}<b>Add Node</b> is unavailable while sorting or row filtering is active.{% endtrans %}</li>
         </ul>
-        <p><b>Pan the page</b></p>
+        <p><b>{{ _("Pan the page") }}</b></p>
         <ul>
-          <li>Hold <code>Space</code> and drag to move around the table.</li>
-          <li>While editing a text field, <code>Space</code> inserts a space character instead of activating pan mode.</li>
+          <li>{% trans trimmed %}Hold <code>Space</code> and drag to move around the table.{% endtrans %}</li>
+          <li>{% trans trimmed %}While editing a text field, <code>Space</code> inserts a space character instead of activating pan mode.{% endtrans %}</li>
         </ul>
 
       </sdoc-modal-container>

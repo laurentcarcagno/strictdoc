@@ -135,7 +135,16 @@ def test_008_the_french_catalog_is_complete_and_keeps_the_placeholders():
     for message_ in catalog:
         if not message_.id:
             continue
-        assert message_.string, message_.id
-        assert sorted(placeholder.findall(message_.id)) == sorted(
-            placeholder.findall(message_.string)
-        ), message_.id
+        # A plural text has a tuple of forms; all keep the placeholders.
+        sources = (
+            message_.id if isinstance(message_.id, tuple) else (message_.id,)
+        )
+        targets = (
+            message_.string
+            if isinstance(message_.string, tuple)
+            else (message_.string,)
+        )
+        expected = sorted(placeholder.findall(sources[0]))
+        for target_ in targets:
+            assert target_, message_.id
+            assert sorted(placeholder.findall(target_)) == expected, message_.id

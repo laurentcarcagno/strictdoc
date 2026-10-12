@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  strictdoc\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 15:20+0200\n"
+"POT-Creation-Date: 2026-10-12 15:31+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: fr\n"
@@ -17,6 +17,99 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
 
+#: strictdoc/features/tree_map/templates/features/tree_map/tips.jinja:22
+msgid "\"Backspace\" returns to the previous view recorded in the breadcrumb."
+msgstr "« Retour arrière » revient à la vue précédente du fil d'Ariane."
+
+#: strictdoc/export/html/templates/screens/document/_shared/viewtype_menu.jinja:56
+#: strictdoc/export/html/templates/screens/document/_shared/viewtype_menu.jinja:66
+msgid "(empty)"
+msgstr "(vide)"
+
+#: strictdoc/features/llm/templates/features/llm/draft.jinja.html:28
+#, python-format
+msgid ", made from the nodes %(nodes)s"
+msgstr ", issu des nœuds %(nodes)s"
+
+#: strictdoc/export/html/templates/screens/document/table/tips.jinja:17
+msgid "<b>Add Node</b> is unavailable while sorting or row filtering is active."
+msgstr ""
+"<b>Ajouter un nœud</b> est indisponible pendant un tri ou un filtrage des "
+"lignes."
+
+#: strictdoc/features/search/templates/features/search/legend.jinja:8
+msgid ""
+"<b>Query syntax</b>: use the grammar-based query language for precise "
+"filtering."
+msgstr ""
+"<b>Syntaxe de requête</b> : le langage de requête fondé sur la grammaire, "
+"pour un filtrage précis."
+
+#: strictdoc/features/search/templates/features/search/legend.jinja:6
+msgid ""
+"<b>Text search</b>: enter words or phrases to search across "
+"requirement/section fields and source file paths."
+msgstr ""
+"<b>Recherche textuelle</b> : des mots ou des phrases, cherchés dans les "
+"champs des exigences et des sections et dans les chemins des fichiers "
+"source."
+
+#: strictdoc/features/search/templates/features/search/legend.jinja:15
+msgid "<code>\"foo bar\"</code> matches the exact phrase <code>foo bar</code>."
+msgstr "<code>\"foo bar\"</code> trouve la phrase exacte <code>foo bar</code>."
+
+#: strictdoc/features/search/templates/features/search/legend.jinja:24
+msgid ""
+"<code>and</code> and <code>or</code> expressions must be grouped using round"
+" brackets."
+msgstr ""
+"Les expressions <code>and</code> et <code>or</code> se groupent entre "
+"parenthèses."
+
+#: strictdoc/features/search/templates/features/search/legend.jinja:14
+msgid ""
+"<code>foo bar</code> matches like <code>.*foo.*bar.*</code> (ordered words "
+"with wildcard gaps)."
+msgstr ""
+"<code>foo bar</code> trouve comme <code>.*foo.*bar.*</code> (mots dans "
+"l'ordre, séparés par n'importe quel texte)."
+
+#: strictdoc/features/tree_map/templates/features/tree_map/tips.jinja:16
+msgid ""
+"<kbd>Shift</kbd>+<kbd>Alt</kbd>+<kbd>Click</kbd> opens the corresponding "
+"Document view in a new tab."
+msgstr ""
+"<kbd>Maj</kbd>+<kbd>Alt</kbd>+<kbd>Clic</kbd> ouvre la vue Document "
+"correspondante dans un nouvel onglet."
+
+#: strictdoc/features/tree_map/templates/features/tree_map/tips.jinja:13
+msgid ""
+"<kbd>Shift</kbd>+<kbd>Click</kbd> opens a node preview. For a document tile,"
+" it opens the document in a new tab."
+msgstr ""
+"<kbd>Maj</kbd>+<kbd>Clic</kbd> ouvre un aperçu du nœud. Sur une tuile de "
+"document, ouvre le document dans un nouvel onglet."
+
+#: strictdoc/export/html/templates/components/node_field/suspect/index.jinja:7
+msgid "A parent changed since this link was reviewed"
+msgstr "Un parent a changé depuis la revue de ce lien"
+
+#: strictdoc/features/diff_and_changelog/templates/features/diff_and_changelog/legend.jinja:6
+msgid "A valid revision can be a Git branch, a Git commit or a Git tag."
+msgstr "Une révision valide est une branche, un commit ou une étiquette (tag) Git."
+
+#: strictdoc/export/html/templates/components/node/node_controls/index.jinja:113
+msgid "AI"
+msgstr "IA"
+
+#: strictdoc/features/docx/templates/features/docx/frame_form_import_docx.jinja.html:35
+msgid "Accept them (use the new text)"
+msgstr "Les accepter (nouveau texte)"
+
+#: strictdoc/features/llm/templates/features/llm/drafts.jinja.html:16
+msgid "Accepted by"
+msgstr "Acceptée par"
+
 #: strictdoc/export/html/templates/components/header/actions_wrapper.jinja:15
 msgid "Actions"
 msgstr "Actions"
@@ -25,9 +118,74 @@ msgstr "Actions"
 msgid "Add"
 msgstr "Ajouter"
 
+#: strictdoc/export/html/templates/components/node/node_controls/index.jinja:239
+#: strictdoc/export/html/templates/components/node/node_controls/index.jinja:281
+#, python-format
+msgid "Add %(tag)s above"
+msgstr "Ajouter %(tag)s au-dessus"
+
+#: strictdoc/export/html/templates/screens/document/table/row_add_new_node.jinja:91
+#, python-format
+msgid "Add %(tag)s after previous"
+msgstr "Ajouter %(tag)s après le précédent"
+
+#: strictdoc/export/html/templates/screens/document/table/row_add_new_node.jinja:106
+#, python-format
+msgid "Add %(tag)s as child of previous"
+msgstr "Ajouter %(tag)s comme enfant du précédent"
+
+#: strictdoc/export/html/templates/screens/document/table/row_add_new_node.jinja:76
+#, python-format
+msgid "Add %(tag)s before next"
+msgstr "Ajouter %(tag)s avant le suivant"
+
+#: strictdoc/export/html/templates/components/node/node_controls/index.jinja:257
+#: strictdoc/export/html/templates/components/node/node_controls/index.jinja:301
+#, python-format
+msgid "Add %(tag)s below"
+msgstr "Ajouter %(tag)s en dessous"
+
+#: strictdoc/features/comments/templates/features/comments/panel.jinja.html:73
+msgid "Add a comment..."
+msgstr "Commentaire…"
+
 #: strictdoc/features/projects/templates/members.jinja.html:75
 msgid "Add a member"
 msgstr "Ajouter un membre"
+
+#: strictdoc/export/html/templates/components/node/node_controls/index.jinja:248
+#: strictdoc/export/html/templates/components/node/node_controls/index.jinja:291
+#, python-format
+msgid "Add child %(tag)s"
+msgstr "Ajouter un enfant %(tag)s"
+
+#: strictdoc/features/comments/templates/features/comments/panel.jinja.html:74
+msgid "Add comment"
+msgstr "Commenter"
+
+#: strictdoc/export/html/templates/screens/document/table/row_add_new_node.jinja:61
+#, python-format
+msgid "Add first %(tag)s"
+msgstr "Ajouter un premier %(tag)s"
+
+#: strictdoc/export/html/templates/components/node/node_controls/index.jinja:218
+#, python-format
+msgid "Add first child %(tag)s"
+msgstr "Ajouter un premier enfant %(tag)s"
+
+#: strictdoc/features/project_index/templates/features/project_index/action_list.jinja:5
+msgid "Add new document"
+msgstr "Nouveau document"
+
+#: strictdoc/export/html/templates/components/node/node_controls/index.jinja:190
+#: strictdoc/export/html/templates/components/node/node_controls/index.jinja:200
+#: strictdoc/export/html/templates/screens/document/table/row_add_new_node.jinja:26
+msgid "Add node"
+msgstr "Ajouter un nœud"
+
+#: strictdoc/export/html/templates/components/node/node_controls/index.jinja:315
+msgid "Adding nodes is disabled for autogenerated content"
+msgstr "Ajout de nœuds impossible dans un contenu généré"
 
 #: strictdoc/export/html/templates/components/confirm/index.jinja:9
 msgid "Are you sure?"
@@ -37,8 +195,22 @@ msgstr "Confirmer ?"
 msgid "Ask an administrator to add you to a project."
 msgstr "Demandez à un administrateur de vous ajouter à un projet."
 
+#: strictdoc/features/comments/templates/features/comments/screen.jinja.html:24
+msgid "Author"
+msgstr "Auteur"
+
+#: strictdoc/features/tree_map/assets/tree_map.js:1290
+msgid "Back"
+msgstr "Retour"
+
+#: strictdoc/export/html/templates/website/document/index.jinja:1
+msgid "Back to Main"
+msgstr "Retour à l'accueil"
+
+#: strictdoc/export/html/templates/actions/document/move_node/_project_move_tree.jinja:151
 #: strictdoc/export/html/templates/components/button/cancel.jinja:8
 #: strictdoc/export/html/templates/components/button/cancel.jinja:16
+#: strictdoc/features/comments/templates/features/comments/panel.jinja.html:75
 msgid "Cancel"
 msgstr "Annuler"
 
@@ -46,10 +218,60 @@ msgstr "Annuler"
 msgid "Change"
 msgstr "Modifier"
 
+#: strictdoc/features/diff_and_changelog/templates/features/diff_and_changelog/nav_tabs.jinja:19
+msgid "Changelog"
+msgstr "Journal des modifications"
+
+#: strictdoc/export/html/templates/components/grammar_form_element/row_with_relation/index.jinja:59
+#: strictdoc/features/hierarchy/templates/features/hierarchy/suspect_links.jinja.html:33
+msgid "Child"
+msgstr "Enfant"
+
 #: strictdoc/export/html/_static/nav.js:61
 msgid "Choose a project"
 msgstr "Choisir un projet"
 
+#: strictdoc/export/html/templates/components/form/search.jinja:31
+msgid "Clear query"
+msgstr "Effacer la requête"
+
+#: strictdoc/export/html/templates/screens/document/table/tips.jinja:14
+msgid ""
+"Click a field to edit it. Save with <code>Ctrl/Cmd+Enter</code> or by "
+"<i>leaving the field</i>. Press <code>Escape</code> to cancel without "
+"changes."
+msgstr ""
+"Cliquer sur un champ pour le modifier. Enregistrer avec "
+"<code>Ctrl/Cmd+Entrée</code> ou en <i>quittant le champ</i>. "
+"<code>Échap</code> annule sans modifier."
+
+#: strictdoc/export/html/templates/components/anchor/anchor_clipboard_button.jinja:18
+#: strictdoc/export/html/templates/components/field/index.jinja:33
+msgid "Click to copy"
+msgstr "Cliquer pour copier"
+
+#: strictdoc/export/html/templates/components/node/copy_stable_link_button.jinja:20
+msgid "Click to copy a stable node link to the clipboard"
+msgstr "Cliquer pour copier un lien stable vers ce nœud"
+
+#: strictdoc/features/project_index/templates/features/project_index/main.jinja:25
+#: strictdoc/features/project_index/templates/features/project_index/main.jinja:49
+msgid "Click to reveal"
+msgstr "Cliquer pour afficher"
+
+#: strictdoc/features/source_file_view/templates/features/source_file_view/range_button.jinja:17
+msgid "Click to toggle range (Ctrl/Cmd + Click with focus)"
+msgstr "Cliquer pour afficher ou masquer la plage (Ctrl/Cmd + Clic avec le focus)"
+
+#: strictdoc/export/html/templates/components/node/node_controls/index.jinja:160
+msgid "Clone"
+msgstr "Dupliquer"
+
+#: strictdoc/export/html/templates/components/node/node_controls/index.jinja:163
+msgid "Clone is disabled for autogenerated documents"
+msgstr "Duplication impossible dans un document généré"
+
+#: strictdoc/export/html/_static/editable_field.js:89
 #: strictdoc/export/html/templates/components/modal/close_button.jinja:6
 #: strictdoc/export/html/templates/components/modal/close_button.jinja:7
 #: strictdoc/export/html/templates/components/modal/index.jinja:19
@@ -57,6 +279,15 @@ msgstr "Choisir un projet"
 msgid "Close"
 msgstr "Fermer"
 
+#: strictdoc/features/source_coverage/templates/features/source_coverage/thead.jinja:34
+msgid "Code LOC"
+msgstr "Lignes de code"
+
+#: strictdoc/features/source_coverage/templates/features/source_coverage/thead.jinja:22
+msgid "Code lines covered by requirements"
+msgstr "Lignes de code couvertes par des exigences"
+
+#: strictdoc/export/html/_static/move_node_tree.js:261
 #: strictdoc/export/html/templates/_shared/nav.jinja.html:174
 #: strictdoc/features/projects/templates/shell.jinja.html:68
 msgid "Collapse"
@@ -68,25 +299,102 @@ msgstr "Réduire"
 msgid "Collapse the sidebar"
 msgstr "Réduire le panneau"
 
+#: strictdoc/export/html/templates/screens/document/table/filter.jinja:31
+msgid "Column visibility"
+msgstr "Colonnes affichées"
+
+#: strictdoc/export/html/templates/screens/document/table/filter.jinja:25
+msgid "Columns"
+msgstr "Colonnes"
+
+#: strictdoc/export/html/templates/screens/document/table/main.jinja:100
+#: strictdoc/features/comments/templates/features/comments/screen.jinja.html:24
+msgid "Comment"
+msgstr "Commentaire"
+
+#: strictdoc/export/html/templates/components/node/node_controls/index.jinja:98
+msgid "Comment (select some text first to comment on it)"
+msgstr "Commenter (sélectionner d'abord le texte à commenter)"
+
+#: strictdoc/features/comments/templates/features/comments/screen.jinja.html:5
+#: strictdoc/features/comments/templates/features/comments/screen.jinja.html:14
+msgid "Comments"
+msgstr "Commentaires"
+
+#: strictdoc/export/html/templates/screens/document/table/field_edit_mode/relations.jinja:46
+msgid "Computed:"
+msgstr "Calculé :"
+
+#: strictdoc/export/html/templates/actions/document/move_node/_project_move_tree.jinja:128
+msgid "Confirm move"
+msgstr "Confirmer le déplacement"
+
 #: strictdoc/export/html/templates/components/button/confirm.jinja:5
 #: strictdoc/export/html/templates/components/button/confirm.jinja:14
 msgid "Confirm the action"
 msgstr "Confirmer"
 
+#: strictdoc/features/llm/templates/features/llm/draft.jinja.html:42
+msgid "Context to send"
+msgstr "Contexte envoyé"
+
+#: strictdoc/features/hierarchy/templates/features/hierarchy/hierarchy.jinja.html:19
+msgid "Coverage"
+msgstr "Couverture"
+
+#: strictdoc/features/hierarchy/templates/features/hierarchy/suspect_links.jinja.html:21
+msgid "Create the baseline"
+msgstr "Créer la référence"
+
 #: strictdoc/features/projects/templates/portal.jinja.html:98
 msgid "Create the project"
 msgstr "Créer le projet"
+
+#: strictdoc/features/llm/templates/features/llm/draft.jinja.html:90
+msgid "Create the ticked requirements as drafts"
+msgstr "Créer les exigences cochées en brouillon"
+
+#: strictdoc/features/llm/templates/features/llm/draft.jinja.html:73
+msgid "Create this requirement"
+msgstr "Créer cette exigence"
+
+#: strictdoc/features/llm/templates/features/llm/created.jinja.html:12
+msgid "Created, with the status Draft and a comment that says a model wrote them:"
+msgstr ""
+"Créées avec le statut Draft et un commentaire indiquant qu'un modèle les a "
+"rédigées :"
 
 #: strictdoc/export/html/templates/_shared/nav.jinja.html:20
 #: strictdoc/features/projects/templates/shell.jinja.html:42
 msgid "Current project"
 msgstr "Projet courant"
 
+#: strictdoc/features/diff_and_changelog/templates/features/diff_and_changelog/legend.jinja:26
+msgid "Custom"
+msgstr "Spéciale"
+
+#: strictdoc/features/diff_and_changelog/templates/features/diff_and_changelog/index.jinja:2
+msgid "DIFF"
+msgstr "Différences"
+
+#: strictdoc/features/comments/templates/features/comments/screen.jinja.html:24
+#: strictdoc/features/llm/templates/features/llm/drafts.jinja.html:16
+msgid "Date"
+msgstr "Date"
+
+#: strictdoc/export/html/templates/screens/document/_shared/viewtype_menu.jinja:66
+msgid "Deep Traceability"
+msgstr "Traçabilité profonde"
+
 #: strictdoc/export/html/templates/components/button/delete.jinja:8
+#: strictdoc/export/html/templates/components/node/node_controls/index.jinja:73
+#: strictdoc/features/comments/templates/features/comments/panel.jinja.html:60
 msgid "Delete"
 msgstr "Supprimer"
 
 #: strictdoc/export/html/templates/actions/document/delete_document/stream_confirm_delete_document.jinja:6
+#: strictdoc/export/html/templates/screens/document/document/action_list.jinja:34
+#: strictdoc/export/html/templates/screens/document/document/action_list.jinja:37
 msgid "Delete document"
 msgstr "Supprimer le document"
 
@@ -110,32 +418,354 @@ msgstr "La suppression d'un nœud est définitive."
 msgid "Deleting a requirement is an unrecoverable action."
 msgstr "La suppression d'une exigence est définitive."
 
+#: strictdoc/export/html/templates/screens/document/table/type_cell.jinja:20
+msgid "Deleting is disabled for autogenerated content"
+msgstr "Suppression impossible dans un contenu généré"
+
+#: strictdoc/export/html/templates/components/node/node_controls/index.jinja:76
+msgid "Deleting is disabled for autogenerated nodes"
+msgstr "Suppression impossible pour un nœud généré"
+
 #: strictdoc/export/html/templates/_shared/nav.jinja.html:98
 #: strictdoc/export/html/templates/_shared/nav.jinja.html:102
+#: strictdoc/features/diff_and_changelog/templates/features/diff_and_changelog/nav_tabs.jinja:10
 msgid "Diff"
 msgstr "Différences"
 
+#: strictdoc/export/html/templates/screens/document/_shared/viewtype_menu.jinja:37
+#: strictdoc/features/comments/templates/features/comments/screen.jinja.html:24
+#: strictdoc/features/docx/templates/features/docx/frame_form_export_docx.jinja.html:19
+#: strictdoc/features/llm/templates/features/llm/drafts.jinja.html:16
+msgid "Document"
+msgstr "Document"
+
+#: strictdoc/features/hierarchy/templates/features/hierarchy/hierarchy.jinja.html:5
+#: strictdoc/features/hierarchy/templates/features/hierarchy/hierarchy.jinja.html:15
+msgid "Document hierarchy"
+msgstr "Hiérarchie documentaire"
+
+#: strictdoc/features/project_index/templates/features/project_index/main.jinja:33
+msgid "Document paths:"
+msgstr "Chemins des documents :"
+
+#: strictdoc/features/hierarchy/templates/features/hierarchy/hierarchy.jinja.html:18
 #: strictdoc/features/projects/templates/members.jinja.html:16
 #: strictdoc/features/projects/templates/members.jinja.html:18
 #: strictdoc/features/projects/templates/portal.jinja.html:63
 msgid "Documents"
 msgstr "Documents"
 
+#: strictdoc/features/docx/templates/features/docx/frame_form_export_docx.jinja.html:73
+msgid "Download"
+msgstr "Télécharger"
+
+#: strictdoc/features/llm/templates/features/llm/draft.jinja.html:57
+msgid "Draft"
+msgstr "Rédiger"
+
+#: strictdoc/export/html/templates/components/node/node_controls/index.jinja:111
+#: strictdoc/features/llm/templates/features/llm/draft.jinja.html:5
+#: strictdoc/features/llm/templates/features/llm/draft.jinja.html:18
+msgid "Draft with AI"
+msgstr "Rédiger avec l'IA"
+
+#: strictdoc/features/llm/templates/features/llm/created.jinja.html:9
+msgid "Drafts"
+msgstr "Brouillons"
+
+#: strictdoc/features/llm/templates/features/llm/created.jinja.html:5
+msgid "Drafts created"
+msgstr "Brouillons créés"
+
+#: strictdoc/features/llm/templates/features/llm/drafts.jinja.html:5
+msgid "Drafts of the assistant"
+msgstr "Brouillons de l'assistant"
+
+#: strictdoc/features/llm/templates/features/llm/created.jinja.html:17
+msgid "Drafts that nobody has made Active yet"
+msgstr "Brouillons que personne n'a encore passés en Active"
+
+#: strictdoc/features/llm/templates/features/llm/drafts.jinja.html:13
+msgid "Drafts written by a model, not yet Active"
+msgstr "Brouillons rédigés par un modèle, pas encore Active"
+
+#: strictdoc/export/html/templates/components/grammar_form/row_with_grammar_element/index.jinja:43
+#: strictdoc/export/html/templates/components/node/node_controls/index.jinja:59
+#: strictdoc/export/html/templates/components/node/node_controls/index.jinja:87
+#: strictdoc/export/html/templates/screens/document/table/filter.jinja:15
+#: strictdoc/features/comments/templates/features/comments/panel.jinja.html:49
+msgid "Edit"
+msgstr "Modifier"
+
+#: strictdoc/export/html/templates/screens/document/document/action_list.jinja:6
+msgid "Edit document grammar"
+msgstr "Modifier la grammaire du document"
+
+#: strictdoc/export/html/templates/screens/document/table/tips.jinja:11
+msgid "Edit mode"
+msgstr "Mode édition"
+
+#: strictdoc/features/project_index/templates/features/project_index/action_list.jinja:14
+#: strictdoc/features/project_index/templates/features/project_index/action_list.jinja:17
+msgid "Edit project title"
+msgstr "Modifier le titre du projet"
+
+#: strictdoc/export/html/templates/components/node/node_controls/index.jinja:26
+msgid "Edit title and meta"
+msgstr "Modifier le titre et les métadonnées"
+
+#: strictdoc/export/html/templates/components/grammar_form/index.jinja:45
+msgid "Editing imported grammar files is not implemented yet."
+msgstr ""
+"La modification des fichiers de grammaire importés n'est pas encore "
+"disponible."
+
+#: strictdoc/export/html/templates/components/node/node_controls/index.jinja:29
+msgid "Editing is disabled for autogenerated documents"
+msgstr "Modification impossible dans un document généré"
+
+#: strictdoc/export/html/templates/components/node/node_controls/index.jinja:62
+msgid "Editing is disabled for autogenerated nodes"
+msgstr "Modification impossible pour un nœud généré"
+
+#: strictdoc/export/html/templates/screens/document/table/tips.jinja:13
+msgid "Enable <b>Edit mode</b> to edit document content directly in the table."
+msgstr ""
+"Activer le <b>Mode édition</b> pour modifier le document directement dans le"
+" tableau."
+
+#: strictdoc/export/html/templates/components/form/search.jinja:14
+msgid "Enter search query here"
+msgstr "Requête de recherche"
+
+#: strictdoc/features/diff_and_changelog/templates/features/diff_and_changelog/form.jinja:28
+msgid "Enter the LHS revision here"
+msgstr "Révision de gauche (LHS)"
+
+#: strictdoc/features/diff_and_changelog/templates/features/diff_and_changelog/form.jinja:50
+msgid "Enter the RHS revision here"
+msgstr "Révision de droite (RHS)"
+
+#: strictdoc/features/search/templates/features/search/legend.jinja:21
+msgid "Every query component shall start with <code>node.</code>."
+msgstr "Chaque élément de la requête commence par <code>node.</code>"
+
+#: strictdoc/features/diff_and_changelog/templates/features/diff_and_changelog/legend.jinja:7
+#: strictdoc/features/diff_and_changelog/templates/features/diff_and_changelog/legend.jinja:35
+#: strictdoc/features/search/templates/features/search/legend.jinja:30
+msgid "Examples:"
+msgstr "Exemples :"
+
+#: strictdoc/export/html/_static/move_node_tree.js:261
+msgid "Expand"
+msgstr "Déplier"
+
 #: strictdoc/export/html/_static/nav.js:36
 msgid "Expand the sidebar"
 msgstr "Déplier le panneau"
+
+#: strictdoc/features/project_index/templates/features/project_index/action_list.jinja:55
+msgid "Export a document to Word"
+msgstr "Exporter un document vers Word"
+
+#: strictdoc/features/project_index/templates/features/project_index/action_list.jinja:33
+msgid "Export document tree to ReqIF"
+msgstr "Exporter l'arborescence en ReqIF"
+
+#: strictdoc/export/html/templates/components/grammar_form_element/row_with_relation/index.jinja:63
+msgid "File"
+msgstr "Fichier"
+
+#: strictdoc/features/source_coverage/templates/features/source_coverage/thead.jinja:21
+msgid "File path"
+msgstr "Chemin du fichier"
+
+#: strictdoc/export/html/templates/screens/document/table/tips.jinja:6
+msgid "Filter view"
+msgstr "Filtrer la vue"
+
+#: strictdoc/features/search/templates/features/search/legend.jinja:60
+msgid "Find all requirements which have parent requirements."
+msgstr "Toutes les exigences qui ont des exigences parentes."
+
+#: strictdoc/features/search/templates/features/search/legend.jinja:56
+msgid "Find all requirements with a TITLE that equals to \"System\"."
+msgstr "Toutes les exigences dont le TITLE vaut « System »."
+
+#: strictdoc/features/search/templates/features/search/legend.jinja:39
+msgid "Find all requirements."
+msgstr "Toutes les exigences."
+
+#: strictdoc/features/search/templates/features/search/legend.jinja:58
+msgid "Find all root requirements."
+msgstr "Toutes les exigences racines."
+
+#: strictdoc/features/search/templates/features/search/legend.jinja:47
+msgid "Find all sections."
+msgstr "Toutes les sections."
+
+#: strictdoc/export/html/templates/components/node/node_controls/card.jinja:19
+msgid "Find it in the document view"
+msgstr "Afficher dans la vue Document"
+
+#: strictdoc/export/html/templates/components/form/search.jinja:26
+#, python-format
+msgid "Found <b>%(count)s</b> results."
+msgid_plural "Found <b>%(count)s</b> results."
+msgstr[0] "<b>%(count)s</b> résultat."
+msgstr[1] "<b>%(count)s</b> résultats."
+
+#: strictdoc/features/source_coverage/templates/features/source_coverage/thead.jinja:23
+msgid "Functions covered by requirements"
+msgstr "Fonctions couvertes par des exigences"
+
+#: strictdoc/features/source_file_view/templates/features/source_file_view/file_stats.jinja:13
+msgid "Functions covered by requirements:"
+msgstr "Fonctions couvertes par des exigences :"
+
+#: strictdoc/features/source_file_view/templates/features/source_file_view/file_stats.jinja:11
+msgid "Functions:"
+msgstr "Fonctions :"
+
+#: strictdoc/export/html/templates/components/form/row/row_uid_with_reset/frame.jinja:76
+msgid "Generate default UID"
+msgstr "Générer l'UID par défaut"
+
+#: strictdoc/features/diff_and_changelog/templates/features/diff_and_changelog/legend.jinja:10
+msgid "Git branch"
+msgstr "Branche Git"
+
+#: strictdoc/features/diff_and_changelog/templates/features/diff_and_changelog/legend.jinja:16
+msgid "Git commit"
+msgstr "Commit Git"
+
+#: strictdoc/features/diff_and_changelog/templates/features/diff_and_changelog/legend.jinja:22
+msgid "Git tag"
+msgstr "Étiquette Git"
+
+#: strictdoc/export/html/templates/screens/document/_shared/viewtype_menu.jinja:64
+msgid "Go to Deep Traceability view"
+msgstr "Aller à la vue Traçabilité profonde"
+
+#: strictdoc/export/html/templates/screens/document/_shared/viewtype_menu.jinja:35
+msgid "Go to Document view"
+msgstr "Aller à la vue Document"
+
+#: strictdoc/export/html/templates/screens/document/_shared/viewtype_menu.jinja:74
+msgid "Go to PDF view"
+msgstr "Aller à la vue PDF"
+
+#: strictdoc/export/html/templates/screens/document/_shared/viewtype_menu.jinja:44
+msgid "Go to Table view"
+msgstr "Aller à la vue Tableau"
+
+#: strictdoc/export/html/templates/screens/document/_shared/viewtype_menu.jinja:54
+msgid "Go to Traceability view"
+msgstr "Aller à la vue Traçabilité"
+
+#: strictdoc/export/html/templates/error/index.jinja:44
+msgid "Go to home page"
+msgstr "Aller à l'accueil"
+
+#: strictdoc/export/html/templates/actions/document/move_node/frame_move_node_success.jinja:14
+msgid "Go to new location"
+msgstr "Aller au nouvel emplacement"
+
+#: strictdoc/features/source_file_view/templates/features/source_file_view/requirement.jinja:32
+msgid "Go to requirement in document"
+msgstr "Aller à l'exigence dans le document"
 
 #: strictdoc/export/html/templates/components/header/actions_wrapper.jinja:22
 msgid "Header actions"
 msgstr "Actions de l'en-tête"
 
+#: strictdoc/export/html/templates/screens/document/table/tips.jinja:21
+msgid "Hold <code>Space</code> and drag to move around the table."
+msgstr ""
+"Maintenir <code>Espace</code> et faire glisser pour se déplacer dans le "
+"tableau."
+
+#: strictdoc/features/tree_map/templates/features/tree_map/tips.jinja:10
+msgid ""
+"Hold <kbd>Shift</kbd> while pointing at a tile to see its title, MID, and "
+"UID."
+msgstr ""
+"Maintenir <kbd>Maj</kbd> en pointant une tuile pour afficher son titre, son "
+"MID et son UID."
+
+#: strictdoc/features/diff_and_changelog/templates/features/diff_and_changelog/legend.jinja:70
+msgid ""
+"If document nodes, such as Sections or Requirements, lack MIDs, they are "
+"matched using their UID field. Matching quality with UIDs is comparable to "
+"that with MIDs, provided all nodes have UIDs."
+msgstr ""
+"Sans MID, les nœuds (sections, exigences) sont appariés par leur champ UID. "
+"La qualité est comparable à celle des MID si tous les nœuds ont un UID."
+
+#: strictdoc/features/search/templates/features/search/legend.jinja:9
+msgid ""
+"If the input contains query markers, StrictDoc parses it as a query and "
+"reports an error if parsing fails."
+msgstr ""
+"Si le texte contient des marqueurs de requête, StrictDoc l'analyse comme une"
+" requête et signale une erreur en cas d'échec."
+
 #: strictdoc/features/docx/templates/features/docx/frame_form_import_docx.jinja.html:95
 msgid "Import"
 msgstr "Importer"
 
+#: strictdoc/features/project_index/templates/features/project_index/action_list.jinja:45
+msgid "Import a Word document"
+msgstr "Importer un document Word"
+
+#: strictdoc/features/project_index/templates/features/project_index/action_list.jinja:24
+msgid "Import document tree from ReqIF"
+msgstr "Importer une arborescence ReqIF"
+
+#: strictdoc/features/docx/templates/features/docx/frame_form_import_docx.jinja.html:70
+msgid "Import even if no requirement is found"
+msgstr "Importer même sans exigence trouvée"
+
+#: strictdoc/features/diff_and_changelog/templates/features/diff_and_changelog/legend.jinja:73
+msgid ""
+"In cases where document nodes do not have either MID or UID, matching "
+"generally isn't performed or is very limited to the most basic cases. "
+"Changes to nodes lacking MID/UID are recorded as separate events: \"node "
+"removed\" for LHS and \"node added\" for RHS."
+msgstr ""
+"Sans MID ni UID, les nœuds ne sont en général pas appariés, sauf dans les "
+"cas les plus simples. Leurs changements sont enregistrés comme deux "
+"événements distincts : « nœud supprimé » à gauche (LHS) et « nœud ajouté » à"
+" droite (RHS)."
+
+#: strictdoc/features/project_index/templates/features/project_index/main.jinja:20
+msgid "Input paths:"
+msgstr "Chemins d'entrée :"
+
+#: strictdoc/features/llm/templates/features/llm/draft.jinja.html:36
+msgid "Instruction"
+msgstr "Consigne"
+
+#: strictdoc/features/tree_map/assets/tree_map.js:890
+msgid "Items"
+msgstr "Éléments"
+
 #: strictdoc/features/projects/templates/portal.jinja.html:63
 msgid "Last change"
 msgstr "Dernière modification"
+
+#: strictdoc/export/html/templates/screens/document/table/main.jinja:116
+#: strictdoc/features/hierarchy/templates/features/hierarchy/hierarchy.jinja.html:18
+msgid "Level"
+msgstr "Niveau"
+
+#: strictdoc/features/source_file_view/templates/features/source_file_view/file_stats.jinja:5
+msgid "Lines:"
+msgstr "Lignes :"
+
+#: strictdoc/features/llm/templates/features/llm/draft.jinja.html:86
+msgid "Linked to (UIDs of the context, separated by commas)"
+msgstr "Liée à (UID du contexte, séparés par des virgules)"
 
 #: strictdoc/export/html/templates/_shared/nav.jinja.html:154
 #: strictdoc/export/html/templates/_shared/nav.jinja.html:158
@@ -162,13 +792,45 @@ msgstr "Membres de %(title)s"
 msgid "Members of the project"
 msgstr "Membres du projet"
 
+#: strictdoc/features/llm/templates/features/llm/drafts.jinja.html:16
+msgid "Model"
+msgstr "Modèle"
+
+#: strictdoc/export/html/templates/components/node/node_controls/index.jinja:129
+msgid "Move"
+msgstr "Déplacer"
+
+#: strictdoc/features/tree_map/templates/features/tree_map/tips.jinja:18
+msgid "Move the pointer over the tree map area to use these shortcuts:"
+msgstr "Placer le pointeur sur la carte pour utiliser ces raccourcis :"
+
+#: strictdoc/export/html/templates/components/node/node_controls/index.jinja:136
+msgid "Moving autogenerated nodes is disabled"
+msgstr "Déplacement impossible pour un nœud généré"
+
+#: strictdoc/export/html/templates/components/node/node_controls/index.jinja:140
+msgid "Moving is disabled for this node"
+msgstr "Déplacement impossible pour ce nœud"
+
+#: strictdoc/export/html/templates/components/node/node_controls/index.jinja:132
+msgid "Moving nodes with images is not supported yet"
+msgstr "Le déplacement des nœuds avec images n'est pas encore disponible"
+
 #: strictdoc/features/projects/templates/portal.jinja.html:90
 msgid "Name (in the address)"
 msgstr "Nom (dans l'adresse)"
 
+#: strictdoc/features/llm/templates/features/llm/draft.jinja.html:47
+msgid "Neighbouring requirements for style (0 to 5)"
+msgstr "Exigences voisines pour le style (0 à 5)"
+
 #: strictdoc/features/projects/templates/portal.jinja.html:86
 msgid "New project"
 msgstr "Nouveau projet"
+
+#: strictdoc/features/tree_map/assets/tree_map.js:1373
+msgid "No data"
+msgstr "Aucune donnée"
 
 #: strictdoc/features/projects/templates/members.jinja.html:68
 msgid "No member"
@@ -178,13 +840,114 @@ msgstr "Aucun membre"
 msgid "No project"
 msgstr "Aucun projet"
 
+#: strictdoc/features/traceability_matrix/templates/features/traceability_matrix/main.jinja:88
+msgid "No traceable content."
+msgstr "Aucun contenu traçable."
+
+#: strictdoc/features/comments/templates/features/comments/screen.jinja.html:24
+#: strictdoc/features/llm/templates/features/llm/drafts.jinja.html:16
+#: strictdoc/features/traceability_matrix/templates/features/traceability_matrix/main.jinja:10
+msgid "Node"
+msgstr "Nœud"
+
+#: strictdoc/export/html/templates/actions/document/move_node/frame_move_node_success.jinja:6
+msgid "Node moved successfully."
+msgstr "Nœud déplacé."
+
+#: strictdoc/export/html/templates/screens/document/table/filter.jinja:47
+#: strictdoc/features/hierarchy/templates/features/hierarchy/hierarchy.jinja.html:18
+#: strictdoc/features/source_file_view/templates/features/source_file_view/aside.jinja:3
+msgid "Nodes"
+msgstr "Nœuds"
+
+#: strictdoc/features/source_file_view/templates/features/source_file_view/file_stats.jinja:9
+msgid "Non-empty lines covered with requirements:"
+msgstr "Lignes non vides couvertes par des exigences :"
+
+#: strictdoc/features/source_file_view/templates/features/source_file_view/file_stats.jinja:7
+msgid "Non-empty lines:"
+msgstr "Lignes non vides :"
+
+#: strictdoc/features/hierarchy/templates/features/hierarchy/hierarchy.jinja.html:20
+msgid "Not answered"
+msgstr "Sans réponse"
+
+#: strictdoc/export/html/templates/components/form/search.jinja:24
+msgid "Nothing matching the query was found."
+msgstr "Aucun résultat."
+
+#: strictdoc/features/search/templates/features/search/legend.jinja:27
+msgid "Only double quotes are accepted for strings."
+msgstr "Les chaînes s'écrivent entre guillemets doubles uniquement."
+
 #: strictdoc/features/projects/templates/members.jinja.html:69
 msgid "Only the groups of the login server give access to this project."
 msgstr "Seuls les groupes du serveur de connexion donnent accès à ce projet."
 
+#: strictdoc/features/diff_and_changelog/templates/features/diff_and_changelog/legend.jinja:51
+msgid "Open a diff between the last commit and the commit before it."
+msgstr "Différences entre le dernier commit et le précédent."
+
+#: strictdoc/features/diff_and_changelog/templates/features/diff_and_changelog/legend.jinja:42
+msgid "Open a diff between the last commit and the existing changes to the Git tree."
+msgstr "Différences entre le dernier commit et les modifications en cours."
+
+#: strictdoc/features/diff_and_changelog/templates/features/diff_and_changelog/legend.jinja:60
+msgid ""
+"Open a diff between the last commit on origin/main and the last commit on "
+"the current branch."
+msgstr ""
+"Différences entre le dernier commit de origin/main et le dernier commit de "
+"la branche courante."
+
+#: strictdoc/features/diff_and_changelog/templates/features/diff_and_changelog/legend.jinja:67
+msgid ""
+"Optimal comparison of document contents is achieved using automatically-"
+"generated Machine Identifiers (MID). This ensures the best match."
+msgstr ""
+"La meilleure comparaison passe par les identifiants machine (MID), générés "
+"automatiquement."
+
+#: strictdoc/features/hierarchy/templates/features/hierarchy/hierarchy.jinja.html:20
+msgid "Orphans"
+msgstr "Orphelines"
+
+#: strictdoc/export/html/templates/screens/document/_shared/viewtype_menu.jinja:76
+msgid "PDF"
+msgstr "PDF"
+
+#: strictdoc/export/html/templates/screens/document/table/tips.jinja:19
+msgid "Pan the page"
+msgstr "Déplacer la page"
+
+#: strictdoc/export/html/templates/components/grammar_form_element/row_with_relation/index.jinja:55
+msgid "Parent"
+msgstr "Parent"
+
+#: strictdoc/features/source_file_view/templates/features/source_file_view/file_stats.jinja:3
+msgid "Path:"
+msgstr "Chemin :"
+
+#: strictdoc/export/html/templates/actions/document/move_node/_project_move_tree.jinja:105
+msgid ""
+"Point to a node to choose before or after. Composite nodes and documents "
+"also accept the node inside them."
+msgstr ""
+"Pointer un nœud pour choisir avant ou après. Les nœuds composites et les "
+"documents acceptent aussi le nœud à l'intérieur."
+
 #: strictdoc/features/projects/templates/portal.jinja.html:51
 msgid "Portal"
 msgstr "Portail"
+
+#: strictdoc/features/docx/templates/features/docx/frame_form_export_docx.jinja.html:63
+#: strictdoc/features/docx/templates/features/docx/frame_form_import_docx.jinja.html:92
+msgid "Preview"
+msgstr "Aperçu"
+
+#: strictdoc/features/tree_map/assets/tree_map.js:1402
+msgid "Preview folder contents"
+msgstr "Aperçu du contenu des dossiers"
 
 #: strictdoc/export/html/templates/_shared/nav.jinja.html:19
 #: strictdoc/features/projects/templates/portal.jinja.html:63
@@ -194,6 +957,8 @@ msgstr "Projet"
 
 #: strictdoc/export/html/templates/_shared/nav.jinja.html:29
 #: strictdoc/export/html/templates/_shared/nav.jinja.html:33
+#: strictdoc/features/nestor/templates/features/nestor/index.jinja:1
+#: strictdoc/features/project_index/templates/features/project_index/index.jinja:1
 msgid "Project index"
 msgstr "Index du projet"
 
@@ -201,6 +966,10 @@ msgstr "Index du projet"
 #: strictdoc/export/html/templates/_shared/nav.jinja.html:46
 msgid "Project statistics"
 msgstr "Statistiques du projet"
+
+#: strictdoc/features/project_index/templates/features/project_index/main.jinja:16
+msgid "Project tree configuration"
+msgstr "Configuration de l'arborescence"
 
 #: strictdoc/export/html/templates/_shared/nav.jinja.html:138
 #: strictdoc/export/html/templates/_shared/nav.jinja.html:142
@@ -212,9 +981,94 @@ msgstr "Statistiques du projet"
 msgid "Projects"
 msgstr "Projets"
 
+#: strictdoc/features/llm/templates/features/llm/draft.jinja.html:62
+msgid "Proposals"
+msgstr "Propositions"
+
+#: strictdoc/features/llm/templates/features/llm/draft.jinja.html:49
+msgid "Provider"
+msgstr "Fournisseur"
+
+#: strictdoc/features/llm/templates/features/llm/draft.jinja.html:27
+#, python-format
+msgid ""
+"Provider <strong>%(provider)s</strong> (model %(model)s) is a cloud "
+"provider. It will receive the text below (%(chars)s characters)"
+msgstr ""
+"Le fournisseur <strong>%(provider)s</strong> (modèle %(model)s) est un "
+"service en ligne. Il recevra le texte ci-dessous (%(chars)s caractères)"
+
+#: strictdoc/features/search/templates/features/search/legend.jinja:18
+msgid "Query syntax rules:"
+msgstr "Règles de la syntaxe de requête :"
+
+#: strictdoc/features/source_file_view/templates/features/source_file_view/aside.jinja:4
+msgid "Ranges"
+msgstr "Plages"
+
+#: strictdoc/export/html/templates/screens/document/table/main.jinja:99
+#: strictdoc/features/llm/templates/features/llm/draft.jinja.html:78
+msgid "Rationale"
+msgstr "Justification"
+
+#: strictdoc/features/docx/templates/features/docx/frame_form_import_docx.jinja.html:36
+msgid "Reject them (use the original text)"
+msgstr "Les refuser (texte d'origine)"
+
+#: strictdoc/features/source_file_view/templates/features/source_file_view/node_title_for_banner_header.jinja:8
+msgid "Relation from document node to source file"
+msgstr "Relation du nœud vers le fichier source"
+
+#: strictdoc/features/source_file_view/templates/features/source_file_view/node_title_for_banner_header.jinja:10
+msgid "Relation from source file to document node"
+msgstr "Relation du fichier source vers le nœud"
+
+#: strictdoc/export/html/templates/components/form/row/row_with_relation.jinja:74
+#: strictdoc/export/html/templates/components/grammar_form_element/row_with_relation/index.jinja:44
+msgid "Relation type"
+msgstr "Type de relation"
+
 #: strictdoc/features/projects/templates/members.jinja.html:59
 msgid "Remove"
 msgstr "Retirer"
+
+#: strictdoc/features/comments/templates/features/comments/panel.jinja.html:39
+msgid "Reopen"
+msgstr "Rouvrir"
+
+#: strictdoc/features/docx/templates/features/docx/frame_form_import_docx.jinja.html:53
+msgid "Replace the existing SDoc file instead of merging into it by UID"
+msgstr "Remplacer le fichier SDoc existant au lieu de fusionner par UID"
+
+#: strictdoc/export/html/_static/table_view_edit.js:643
+msgid "Reset column sorting before adding nodes on TABLE screen."
+msgstr "Annuler le tri des colonnes avant d'ajouter des nœuds dans le tableau."
+
+#: strictdoc/export/html/templates/screens/document/table/filter.jinja:6
+msgid "Reset sort"
+msgstr "Annuler le tri"
+
+#: strictdoc/export/html/_static/resizable_bar.js:234
+msgid "Resize"
+msgstr "Redimensionner"
+
+#: strictdoc/features/comments/templates/features/comments/panel.jinja.html:45
+msgid "Resolve"
+msgstr "Résoudre"
+
+#: strictdoc/export/html/templates/components/form/row/row_uid_with_reset/frame.jinja:65
+#: strictdoc/export/html/templates/components/form/row/row_with_text_field.jinja:86
+msgid "Restore UID"
+msgstr "Restaurer l'UID"
+
+#: strictdoc/features/hierarchy/templates/features/hierarchy/suspect_links.jinja.html:43
+msgid "Reviewed"
+msgstr "Revu"
+
+#: strictdoc/export/html/templates/components/node/node_controls/index.jinja:39
+#, python-format
+msgid "Reviewers: %(names)s"
+msgstr "Relecteurs : %(names)s"
 
 #: strictdoc/features/projects/templates/members.jinja.html:43
 #: strictdoc/features/projects/templates/members.jinja.html:66
@@ -231,27 +1085,222 @@ msgstr "Rôle de %(user)s"
 msgid "Roles"
 msgstr "Rôles"
 
+#: strictdoc/export/html/templates/screens/document/table/filter.jinja:53
+msgid "Row visibility"
+msgstr "Lignes affichées"
+
 #: strictdoc/export/html/templates/components/button/submit.jinja:14
+#: strictdoc/features/comments/templates/features/comments/panel.jinja.html:54
 msgid "Save"
 msgstr "Enregistrer"
 
 #: strictdoc/export/html/templates/_shared/nav.jinja.html:81
 #: strictdoc/export/html/templates/_shared/nav.jinja.html:85
+#: strictdoc/export/html/templates/components/static_search/index.jinja:3
+#: strictdoc/features/search/templates/features/search/index.jinja:2
 msgid "Search"
 msgstr "Recherche"
+
+#: strictdoc/export/html/templates/screens/document/_shared/toc.jinja:15
+msgid "Section has no requirements"
+msgstr "Section sans exigence"
+
+#: strictdoc/features/llm/templates/features/llm/draft.jinja.html:45
+msgid "Sections or nodes of input documents (one per line: a UID, or [DA1] §5.14.1)"
+msgstr ""
+"Sections ou nœuds des documents d'entrée (un par ligne : un UID, ou [DA1] "
+"§5.14.1)"
+
+#: strictdoc/features/search/templates/features/search/legend.jinja:62
+msgid "See the User Guide's section \"Query engine\" for more details."
+msgstr "Détails dans la section « Query engine » du guide utilisateur."
 
 #: strictdoc/export/html/templates/components/button/diff.jinja:11
 msgid "See the diff"
 msgstr "Voir les différences"
 
+#: strictdoc/export/html/templates/screens/document/table/filter.jinja:36
+#: strictdoc/export/html/templates/screens/document/table/filter.jinja:58
+msgid "Show all"
+msgstr "Tout afficher"
+
+#: strictdoc/export/html/_static/table_view_edit.js:650
+msgid "Show all node types before adding nodes on TABLE screen."
+msgstr "Afficher tous les types de nœuds avant d'ajouter des nœuds dans le tableau."
+
+#: strictdoc/export/html/templates/components/node/node_controls/card.jinja:28
+msgid "Show in full in modal"
+msgstr "Afficher en entier"
+
+#: strictdoc/export/html/templates/screens/document/table/main.jinja:125
+#, python-format
+msgid "Sort by %(column)s"
+msgstr "Trier par %(column)s"
+
+#: strictdoc/export/html/templates/screens/document/table/main.jinja:117
+msgid "Sort by Level"
+msgstr "Trier par niveau"
+
+#: strictdoc/export/html/templates/screens/document/table/main.jinja:111
+msgid "Sort by Type"
+msgstr "Trier par type"
+
 #: strictdoc/export/html/templates/_shared/nav.jinja.html:68
 #: strictdoc/export/html/templates/_shared/nav.jinja.html:72
+#: strictdoc/features/source_coverage/templates/features/source_coverage/index.jinja:2
 msgid "Source coverage"
 msgstr "Couverture du code"
+
+#: strictdoc/features/source_file_view/templates/features/source_file_view/main.jinja:117
+msgid "Source file is empty."
+msgstr "Fichier source vide."
+
+#: strictdoc/features/project_index/templates/features/project_index/main.jinja:56
+msgid "Source paths:"
+msgstr "Chemins des sources :"
+
+#: strictdoc/features/project_index/templates/features/project_index/main.jinja:46
+msgid "Source root path:"
+msgstr "Racine des sources :"
+
+#: strictdoc/export/html/templates/components/node/root.jinja:29
+msgid "Start adding text, sections, and requirements."
+msgstr "Ajouter du texte, des sections et des exigences."
+
+#: strictdoc/features/comments/templates/features/comments/screen.jinja.html:24
+msgid "State"
+msgstr "État"
+
+#: strictdoc/export/html/templates/screens/document/table/main.jinja:98
+#: strictdoc/features/llm/templates/features/llm/draft.jinja.html:76
+msgid "Statement"
+msgstr "Énoncé"
+
+#: strictdoc/features/llm/templates/features/llm/drafts.jinja.html:16
+msgid "Status"
+msgstr "Statut"
+
+#: strictdoc/export/html/templates/components/grammar_form_element/index.jinja:48
+msgid "StrictDoc conventions:"
+msgstr "Conventions StrictDoc :"
 
 #: strictdoc/features/projects/templates/portal.jinja.html:11
 msgid "StrictDoc projects"
 msgstr "Projets StrictDoc"
+
+#: strictdoc/features/search/templates/features/search/legend.jinja:4
+msgid "StrictDoc supports two search modes:"
+msgstr "Deux modes de recherche :"
+
+#: strictdoc/features/hierarchy/templates/features/hierarchy/hierarchy.jinja.html:21
+msgid "Suspect"
+msgstr "Suspects"
+
+#: strictdoc/features/hierarchy/templates/features/hierarchy/suspect_links.jinja.html:5
+#: strictdoc/features/hierarchy/templates/features/hierarchy/suspect_links.jinja.html:14
+msgid "Suspect links"
+msgstr "Liens suspects"
+
+#: strictdoc/export/html/templates/screens/document/_shared/viewtype_menu.jinja:46
+msgid "Table"
+msgstr "Tableau"
+
+#: strictdoc/features/html2pdf/templates/features/html2pdf/toc.jinja:5
+msgid "Table of contents"
+msgstr "Table des matières"
+
+#: strictdoc/export/html/templates/screens/document/table/tips.jinja:5
+msgid "Table screen tips"
+msgstr "Aide de la vue Tableau"
+
+#: strictdoc/features/llm/templates/features/llm/draft.jinja.html:38
+msgid "Template"
+msgstr "Modèle de formulation"
+
+#: strictdoc/features/search/templates/features/search/legend.jinja:12
+msgid "Text search syntax:"
+msgstr "Syntaxe de la recherche textuelle :"
+
+#: strictdoc/features/diff_and_changelog/templates/features/diff_and_changelog/legend.jinja:4
+msgid ""
+"The Diff/Changelog feature only works when StrictDoc is run against a "
+"directory which is a Git repository."
+msgstr ""
+"Les différences et le journal des modifications ne fonctionnent que sur un "
+"dossier qui est un dépôt Git."
+
+#: strictdoc/features/diff_and_changelog/templates/features/diff_and_changelog/legend.jinja:34
+msgid "The Diff/Changelog query is shareable via a URL."
+msgstr "Une requête de différences se partage par son URL."
+
+#: strictdoc/features/diff_and_changelog/templates/features/diff_and_changelog/legend.jinja:64
+msgid ""
+"The StrictDoc diff algorithm compares documentation trees (left-hand side, "
+"LHS, and right-hand side, RHS) based on these principles:"
+msgstr ""
+"StrictDoc compare deux arborescences de documentation (gauche, LHS, et "
+"droite, RHS) selon ces principes :"
+
+#: strictdoc/features/diff_and_changelog/templates/features/diff_and_changelog/legend.jinja:30
+msgid ""
+"The StrictDoc's custom revision <code>HEAD+</code> can be used to indicate "
+"\"the current branch + all uncommitted changes\"."
+msgstr ""
+"La révision spéciale <code>HEAD+</code> désigne « la branche courante + "
+"toutes les modifications non commitées »."
+
+#: strictdoc/features/llm/templates/features/llm/draft.jinja.html:29
+msgid "The call is recorded in the audit log."
+msgstr "L'appel est enregistré dans le journal d'audit."
+
+#: strictdoc/export/html/templates/components/node/root.jinja:28
+msgid "The document is empty."
+msgstr "Le document est vide."
+
+#: strictdoc/features/project_index/templates/features/project_index/project_tree.jinja:22
+#: strictdoc/features/source_coverage/templates/features/source_coverage/main.jinja:38
+msgid "The document tree has no documents yet."
+msgstr "L'arborescence ne contient aucun document."
+
+#: strictdoc/features/diff_and_changelog/templates/features/diff_and_changelog/legend.jinja:5
+msgid ""
+"The left-hand-side (LHS) and the right-hand-side (RHS) revisions must be "
+"valid Git revisions."
+msgstr ""
+"Les révisions de gauche (LHS) et de droite (RHS) doivent être des révisions "
+"Git valides."
+
+#: strictdoc/features/llm/templates/features/llm/draft.jinja.html:19
+msgid ""
+"The model proposes, you decide. Nothing is saved before you press Create, "
+"and every proposal can be edited."
+msgstr ""
+"Le modèle propose, vous décidez. Rien n'est enregistré avant Créer, et "
+"chaque proposition se modifie."
+
+#: strictdoc/export/html/_static/move_node_tree.js:215
+msgid "The node could not be moved."
+msgstr "Déplacement du nœud impossible."
+
+#: strictdoc/export/html/templates/actions/document/move_node/frame_move_node_no_change.jinja:6
+msgid "The node is already at the selected location."
+msgstr "Le nœud est déjà à cet emplacement."
+
+#: strictdoc/export/html/templates/screens/document/_shared/project_tree.jinja:49
+#: strictdoc/features/diff_and_changelog/templates/features/diff_and_changelog/diff_content.jinja:52
+msgid "The project has no documents yet."
+msgstr "Le projet ne contient aucun document."
+
+#: strictdoc/export/html/templates/components/grammar_form_element/index.jinja:50
+msgid ""
+"The requirements fields above the reserved \"TITLE\" field are dedicated to "
+"meta information and will be rendered as single-line. The fields below the "
+"reserved \"STATEMENT\" field are multiline and should be used for fields "
+"with more descriptive text."
+msgstr ""
+"Les champs placés avant le champ réservé « TITLE » sont des métadonnées, "
+"affichées sur une ligne. Les champs placés après le champ réservé « "
+"STATEMENT » sont multilignes, pour les textes descriptifs."
 
 #: strictdoc/features/projects/templates/members.jinja.html:96
 #, python-format
@@ -264,6 +1313,15 @@ msgstr ""
 " membre lit tous les documents. L'auteur d'un document désigne ses "
 "relecteurs."
 
+#: strictdoc/export/html/templates/components/grammar_form/index.jinja:43
+#, python-format
+msgid ""
+"This document uses a&nbsp;grammar which is&nbsp;imported from "
+"a&nbsp;separate grammar file: <code>%(file)s</code>."
+msgstr ""
+"Ce document utilise une grammaire importée d'un fichier séparé : "
+"<code>%(file)s</code>."
+
 #: strictdoc/export/html/templates/components/confirm/index.jinja:20
 msgid "This element cannot be deleted:"
 msgstr "Suppression impossible :"
@@ -272,19 +1330,107 @@ msgstr "Suppression impossible :"
 msgid "This is an unrecoverable action."
 msgstr "Action définitive."
 
+#: strictdoc/export/html/templates/screens/document/_shared/viewtype_menu.jinja:54
+#: strictdoc/export/html/templates/screens/document/_shared/viewtype_menu.jinja:64
+msgid "This page has no content"
+msgstr "Page sans contenu"
+
+#: strictdoc/export/html/templates/screens/document/table/body.jinja:8
+msgid "This table is empty because the document has no requirements."
+msgstr "Tableau vide : le document ne contient aucune exigence."
+
+#: strictdoc/features/deep_trace/templates/features/deep_trace/main.jinja:41
+#: strictdoc/features/trace/templates/features/trace/main.jinja:50
+msgid "This view is empty because"
+msgstr "Vue vide :"
+
+#: strictdoc/features/llm/templates/features/llm/draft.jinja.html:26
+msgid "This will leave the network"
+msgstr "Envoi hors du réseau"
+
+#: strictdoc/export/html/templates/screens/document/table/main.jinja:97
+#: strictdoc/features/hierarchy/templates/features/hierarchy/suspect_links.jinja.html:33
+#: strictdoc/features/llm/templates/features/llm/draft.jinja.html:74
+#: strictdoc/features/llm/templates/features/llm/drafts.jinja.html:16
 #: strictdoc/features/projects/templates/portal.jinja.html:94
 msgid "Title"
 msgstr "Titre"
 
+#: strictdoc/export/html/_static/resizable_bar.js:240
+msgid "Toggle"
+msgstr "Afficher ou masquer"
+
+#: strictdoc/features/source_coverage/templates/features/source_coverage/thead.jinja:37
+msgid "Total LOC"
+msgstr "Lignes totales"
+
+#: strictdoc/features/source_coverage/templates/features/source_coverage/thead.jinja:46
+msgid "Total func."
+msgstr "Fonctions"
+
+#: strictdoc/export/html/templates/screens/document/_shared/viewtype_menu.jinja:56
+msgid "Traceability"
+msgstr "Traçabilité"
+
 #: strictdoc/export/html/templates/_shared/nav.jinja.html:55
 #: strictdoc/export/html/templates/_shared/nav.jinja.html:59
+#: strictdoc/features/traceability_matrix/templates/features/traceability_matrix/index.jinja:2
 msgid "Traceability matrix"
 msgstr "Matrice de traçabilité"
 
+#: strictdoc/features/docx/templates/features/docx/frame_form_import_docx.jinja.html:29
+msgid "Tracked changes in the document"
+msgstr "Modifications suivies dans le document"
+
 #: strictdoc/export/html/templates/_shared/nav.jinja.html:114
 #: strictdoc/export/html/templates/_shared/nav.jinja.html:118
+#: strictdoc/features/tree_map/templates/features/tree_map/viewtype.jinja:15
 msgid "Tree map"
 msgstr "Carte arborescente"
+
+#: strictdoc/features/tree_map/templates/features/tree_map/tips.jinja:4
+msgid "Tree map tips"
+msgstr "Aide de la carte arborescente"
+
+#: strictdoc/features/tree_map/templates/features/tree_map/viewtype.jinja:25
+msgid "Tree maps"
+msgstr "Cartes arborescentes"
+
+#: strictdoc/export/html/templates/screens/document/table/main.jinja:110
+msgid "Type"
+msgstr "Type"
+
+#: strictdoc/export/html/templates/screens/document/table/tips.jinja:15
+msgid "Use <b>Add</b> separators between rows to create new nodes."
+msgstr ""
+"Utiliser les séparateurs <b>Ajouter</b> entre les lignes pour créer des "
+"nœuds."
+
+#: strictdoc/export/html/templates/screens/document/table/tips.jinja:16
+msgid "Use the <b>Delete</b> action in the <code>Type</code> column to remove nodes."
+msgstr ""
+"Utiliser l'action <b>Supprimer</b> de la colonne <code>Type</code> pour "
+"retirer des nœuds."
+
+#: strictdoc/export/html/templates/screens/document/table/tips.jinja:8
+msgid ""
+"Use the <strong>Columns</strong> panel to show or hide individual fields in "
+"the table."
+msgstr ""
+"Le panneau <strong>Colonnes</strong> affiche ou masque chaque champ du "
+"tableau."
+
+#: strictdoc/export/html/templates/screens/document/table/tips.jinja:9
+msgid ""
+"Use the <strong>Nodes</strong> panel to filter which node types are "
+"displayed in the table."
+msgstr ""
+"Le panneau <strong>Nœuds</strong> filtre les types de nœuds affichés dans le"
+" tableau."
+
+#: strictdoc/features/tree_map/templates/features/tree_map/tips.jinja:7
+msgid "Use the selector in the page header to switch maps."
+msgstr "Le sélecteur de l'en-tête change de carte."
 
 #: strictdoc/features/projects/templates/members.jinja.html:43
 #: strictdoc/features/projects/templates/members.jinja.html:66
@@ -294,6 +1440,53 @@ msgstr "Utilisateur"
 #: strictdoc/features/projects/templates/members.jinja.html:78
 msgid "User name"
 msgstr "Identifiant"
+
+#: strictdoc/features/llm/templates/features/llm/draft.jinja.html:81
+msgid "Verification method"
+msgstr "Méthode de vérification"
+
+#: strictdoc/export/html/templates/screens/document/_shared/viewtype_menu.jinja:30
+msgid "Views"
+msgstr "Vues"
+
+#: strictdoc/export/html/templates/screens/document/table/filter.jinja:34
+#: strictdoc/export/html/templates/screens/document/table/filter.jinja:56
+msgid "Visible:"
+msgstr "Affichées :"
+
+#: strictdoc/export/html/templates/components/form/row/row_with_relation.jinja:51
+msgid "Warning: Editing file relations is not supported yet."
+msgstr ""
+"Attention : la modification des relations vers des fichiers n'est pas encore"
+" disponible."
+
+#: strictdoc/features/tree_map/templates/features/tree_map/tips.jinja:35
+msgid "When a control or folder has keyboard focus:"
+msgstr "Quand une commande ou un dossier a le focus clavier :"
+
+#: strictdoc/export/html/templates/screens/document/table/tips.jinja:22
+msgid ""
+"While editing a text field, <code>Space</code> inserts a space character "
+"instead of activating pan mode."
+msgstr ""
+"Dans un champ texte en cours d'édition, <code>Espace</code> insère une "
+"espace au lieu d'activer le déplacement."
+
+#: strictdoc/features/hierarchy/templates/features/hierarchy/hierarchy.jinja.html:19
+msgid "With a parent in an allowed level"
+msgstr "Avec un parent dans un niveau autorisé"
+
+#: strictdoc/features/docx/templates/features/docx/frame_form_export_docx.jinja.html:45
+msgid ""
+"Without a Word document, a new one is built from the profile template. With "
+"one, the differences are written into it as tracked changes."
+msgstr ""
+"Sans document Word, un nouveau est créé à partir du modèle du profil. Avec "
+"un document, les différences y sont écrites en modifications suivies."
+
+#: strictdoc/export/html/templates/actions/document/move_node/_project_move_tree.jinja:144
+msgid "Yes"
+msgstr "Oui"
 
 #: strictdoc/features/projects/templates/portal.jinja.html:79
 #, python-format
@@ -316,11 +1509,19 @@ msgstr "Vos projets"
 msgid "Your role"
 msgstr "Votre rôle"
 
+#: strictdoc/features/tree_map/templates/features/tree_map/tips.jinja:41
+msgid "activates it."
+msgstr "l'active."
+
 #: strictdoc/features/projects/templates/members.jinja.html:8
 #: strictdoc/features/projects/templates/portal.jinja.html:8
 #: strictdoc/features/roles/assets/roles/role_gating.js:46
 msgid "administrator"
 msgstr "administrateur"
+
+#: strictdoc/export/html/_static/move_node_tree.js:86
+msgid "after"
+msgstr "après"
 
 #: strictdoc/features/projects/templates/portal.jinja.html:66
 msgid "archived"
@@ -332,9 +1533,59 @@ msgstr "archivé"
 msgid "author"
 msgstr "auteur"
 
+#: strictdoc/export/html/_static/move_node_tree.js:85
+msgid "before"
+msgstr "avant"
+
+#: strictdoc/features/diff_and_changelog/templates/features/diff_and_changelog/diff_controls.jinja:8
+#: strictdoc/features/diff_and_changelog/templates/features/diff_and_changelog/diff_controls.jinja:18
+msgid "close all"
+msgstr "tout fermer"
+
+#: strictdoc/features/project_index/templates/features/project_index/project_tree_file.jinja:29
+msgid "included by"
+msgstr "inclus par"
+
+#: strictdoc/export/html/_static/move_node_tree.js:87
+msgid "inside"
+msgstr "dans"
+
+#: strictdoc/features/llm/templates/features/llm/draft.jinja.html:44
+msgid "its parent requirements"
+msgstr "ses exigences parentes"
+
+#: strictdoc/features/tree_map/templates/features/tree_map/tips.jinja:31
+msgid "move between neighboring items."
+msgstr "passent d'un élément voisin à l'autre."
+
+#: strictdoc/features/tree_map/templates/features/tree_map/tips.jinja:45
+msgid "moves to the next control."
+msgstr "passe à la commande suivante."
+
+#: strictdoc/features/tree_map/templates/features/tree_map/tips.jinja:51
+msgid "moves to the previous one."
+msgstr "revient à la précédente."
+
 #: strictdoc/features/roles/assets/roles/role_gating.js:48
 msgid "no role"
 msgstr "aucun rôle"
+
+#: strictdoc/export/html/templates/components/node/node_controls/index.jinja:39
+msgid "none"
+msgstr "aucun"
+
+#: strictdoc/features/diff_and_changelog/templates/features/diff_and_changelog/diff_controls.jinja:4
+#: strictdoc/features/diff_and_changelog/templates/features/diff_and_changelog/diff_controls.jinja:14
+msgid "open all modified"
+msgstr "ouvrir les modifiés"
+
+#: strictdoc/features/tree_map/templates/features/tree_map/tips.jinja:26
+msgid "open the parent folder."
+msgstr "ouvre le dossier parent."
+
+#: strictdoc/features/tree_map/templates/features/tree_map/tips.jinja:39
+msgid "or"
+msgstr "ou"
 
 #: strictdoc/features/projects/templates/members.jinja.html:5
 #: strictdoc/features/projects/templates/portal.jinja.html:5
@@ -356,4 +1607,16 @@ msgstr ""
 #: strictdoc/features/roles/assets/roles/role_gating.js:44
 msgid "reviewer"
 msgstr "relecteur"
+
+#: strictdoc/features/llm/templates/features/llm/draft.jinja.html:43
+msgid "the current node"
+msgstr "le nœud courant"
+
+#: strictdoc/features/trace/templates/features/trace/main.jinja:52
+msgid "the document has no content."
+msgstr "le document ne contient rien."
+
+#: strictdoc/features/deep_trace/templates/features/deep_trace/main.jinja:43
+msgid "the document has no requirements."
+msgstr "le document ne contient aucune exigence."
 

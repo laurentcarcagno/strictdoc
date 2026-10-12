@@ -27,23 +27,23 @@
     aria-hidden="true"
     aria-labelledby="viewtype_handler"
   >
-    <li class="dropdown_menu_header">VIEWS</li>
+    <li class="dropdown_menu_header">{{ _("Views") }}</li>
     <li>
       <a
         data-viewtype_link="document"
         class="dropdown_menu_item"
-        title="Go to Document view"
+        title="{{ _("Go to Document view") }}"
         href="{{ view_object.render_document_link(view_object.document, "DOCUMENT") }}">
-      Document</a>
+      {{ _("Document") }}</a>
     </li>
     {%- if view_object.project_config.is_activated_table_screen() -%}
     <li>
       <a
         data-viewtype_link="table"
         class="dropdown_menu_item"
-        title="Go to Table view"
+        title="{{ _("Go to Table view") }}"
         href="{{ view_object.render_document_link(view_object.document, "TABLE") }}">
-      Table</a>
+      {{ _("Table") }}</a>
     </li>
     {%- endif -%}
     {%- if view_object.project_config.is_activated_trace_screen() -%}
@@ -51,9 +51,9 @@
       <a
         data-viewtype_link="traceability"
         class="dropdown_menu_item{% if trace_is_empty %} empty{% endif %}"
-        title="{% if trace_is_empty %}This page has no content{% else %}Go to Traceability view{% endif %}"
+        title="{% if trace_is_empty %}{{ _("This page has no content") }}{% else %}{{ _("Go to Traceability view") }}{% endif %}"
         href="{{ view_object.render_document_link(view_object.document, "TRACE") }}">
-      Traceability{% if trace_is_empty %} (empty){% endif %}</a>
+      {{ _("Traceability") }}{% if trace_is_empty %} {{ _("(empty)") }}{% endif %}</a>
     </li>
     {%- endif -%}
     {%- if view_object.project_config.is_activated_deep_trace_screen() -%}
@@ -61,9 +61,9 @@
       <a
         data-viewtype_link="deep_traceability"
         class="dropdown_menu_item{% if deeptrace_is_empty %} empty{% endif %}"
-        title="{% if deeptrace_is_empty %}This page has no content{% else %}Go to Deep Traceability view{% endif %}"
+        title="{% if deeptrace_is_empty %}{{ _("This page has no content") }}{% else %}{{ _("Go to Deep Traceability view") }}{% endif %}"
         href="{{ view_object.render_document_link(view_object.document, "DEEPTRACE") }}">
-      Deep Traceability{% if deeptrace_is_empty %} (empty){% endif %}</a>
+      {{ _("Deep Traceability") }}{% if deeptrace_is_empty %} {{ _("(empty)") }}{% endif %}</a>
     </li>
     {%- endif -%}
     {%- if view_object.project_config.is_activated_html2pdf() -%}
@@ -71,9 +71,9 @@
       <a
         data-viewtype_link="html2pdf"
         class="dropdown_menu_item"
-        title="Go to PDF view"
+        title="{{ _("Go to PDF view") }}"
         href="{{ view_object.render_document_link(view_object.document, "PDF") }}">
-      PDF</a>
+      {{ _("PDF") }}</a>
     </li>
     {%- endif -%}
   </menu>

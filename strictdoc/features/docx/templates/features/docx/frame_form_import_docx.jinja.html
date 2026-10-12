@@ -26,14 +26,14 @@ Import from Word
       <sdoc-form-row>
         <sdoc-form-row-main>
           <sdoc-form-field>
-            <label for="docx_tracked_changes">Tracked changes in the document</label>
+            <label for="docx_tracked_changes">{{ _("Tracked changes in the document") }}</label>
             <select
               name="tracked_changes"
               id="docx_tracked_changes"
               data-testid="form-docx-tracked-changes-field"
             >
-              <option value="accept" selected>Accept them (use the new text)</option>
-              <option value="reject">Reject them (use the original text)</option>
+              <option value="accept" selected>{{ _("Accept them (use the new text)") }}</option>
+              <option value="reject">{{ _("Reject them (use the original text)") }}</option>
             </select>
           </sdoc-form-field>
         </sdoc-form-row-main>
@@ -50,7 +50,7 @@ Import from Word
                 value="true"
                 data-testid="form-docx-overwrite-field"
               />
-              Replace the existing SDoc file instead of merging into it by UID
+              {{ _("Replace the existing SDoc file instead of merging into it by UID") }}
             </label>
           </sdoc-form-field>
         </sdoc-form-row-main>
@@ -67,7 +67,7 @@ Import from Word
                 value="true"
                 data-testid="form-docx-allow-empty-field"
               />
-              Import even if no requirement is found
+              {{ _("Import even if no requirement is found") }}
             </label>
           </sdoc-form-field>
         </sdoc-form-row-main>
@@ -89,7 +89,7 @@ Import from Word
     class="action_button"
     type="submit"
     data-testid="docx-preview-action"
-  >Preview</button>
+  >{{ _("Preview") }}</button>
 {% endblock modal_form__footer_extra %}
 {% block modal_form__footer_submit %}
   {%- with submit_name=_("Import") -%}

@@ -102,8 +102,8 @@
   data-js-move-node-tree-endpoint="/actions/document/move_node_across_documents"
 >
   <p class="move_node_tree__instructions" id="move-node-tree-instructions">
-    Point to a node to choose before or after. Composite nodes and documents
-    also accept the node inside them.
+    {% trans trimmed %}Point to a node to choose before or after. Composite nodes and documents
+    also accept the node inside them.{% endtrans %}
   </p>
   <div
     class="move_node_tree__status"
@@ -125,7 +125,7 @@
         class="move_node_tree__confirmation_title"
         id="move-node-confirmation-title"
       >
-        Confirm move
+        {{ _("Confirm move") }}
       </div>
       <sdoc-modal-message
         class="move_node_modal_confirmation_message"
@@ -141,14 +141,14 @@
           data-action-type="confirm_move"
           data-js-move-node-tree-confirm
           data-testid="move-node-confirm"
-        >Yes</button>
+        >{{ _("Yes") }}</button>
         <button
           type="button"
           class="action_button"
           data-action-type="cancel"
           data-js-move-node-tree-cancel
           data-testid="move-node-cancel"
-        >Cancel</button>
+        >{{ _("Cancel") }}</button>
       </div>
     </div>
   </div>

@@ -62,7 +62,7 @@
     <a
       class="field_action"
       href="#"
-      title="Restore UID"
+      title="{{ _("Restore UID") }}"
       data-action-type="restore"
       data-js-restore-field-action
       data-restore-value="{{ text_field_row_context.existing_requirement_uid }}"
@@ -73,7 +73,7 @@
       class="field_action"
       href="/reset_uid?reference_mid={{ text_field_row_context.reference_mid }}"
       mid="{{ text_field_row_context.field.field_mid }}"
-      title="Generate default UID"
+      title="{{ _("Generate default UID") }}"
       data-action-type="reset"
       data-turbo-action="replace"
       data-turbo="true"

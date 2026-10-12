@@ -48,7 +48,7 @@
 
   {% if relation_row_context.field.field_type == "File" %}
     <sdoc-form-error>
-      Warning: Editing file relations is not supported yet.
+      {{ _("Warning: Editing file relations is not supported yet.") }}
     </sdoc-form-error>
   {% endif %}
 
@@ -71,7 +71,7 @@
   {%- endwith -%}
 
   <sdoc-form-field field-type="select">
-    <label for="relation_typerole_{{ relation_row_context.field.field_mid }}">Relation type</label>
+    <label for="relation_typerole_{{ relation_row_context.field.field_mid }}">{{ _("Relation type") }}</label>
     <select
       data-testid="select-relation-typerole"
       name="{{ relation_row_context.field.get_type_field_name() }}"

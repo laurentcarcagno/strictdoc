@@ -29,7 +29,7 @@
     <a
       class="action_icon secondary"
       href="{{ view_object.link_renderer.render_requirement_link_from_source_file(requirement, view_object.source_file) }}"
-      title="Go to requirement in document"
+      title="{{ _("Go to requirement in document") }}"
     >{% include "icons/ico16_go_to_doc.svg" %}</a>
     <div class="source-file__requirement-info">
       {%- if requirement.reserved_uid %}

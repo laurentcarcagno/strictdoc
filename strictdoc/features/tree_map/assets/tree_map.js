@@ -886,7 +886,8 @@
         lastItem: lastChildNumber,
         totalItems: node.children.length,
       };
-      group.label = `Items ${group.firstItem}-${group.lastItem}`;
+      group.label =
+        window.sdocT('Items') + ` ${group.firstItem}-${group.lastItem}`;
       groups.push(group);
     }
     // Groups are renderer-created navigation nodes. Keep their relation to the
@@ -1286,7 +1287,7 @@
     backIconElement.classList.add(CSS_CLASSES.back);
     backIconElement.dataset.testid = "tree-map-back";
     backIconElement.setAttribute("role", "button");
-    backIconElement.setAttribute("aria-label", "Back");
+    backIconElement.setAttribute("aria-label", window.sdocT("Back"));
     backIconElement.tabIndex = 0;
     toolbarElement.append(backIconElement);
 
@@ -1369,7 +1370,7 @@
     });
     sectionElement.append(canvasElement);
 
-    const infoEmptyElement = createElement("div", { text: "No data" });
+    const infoEmptyElement = createElement("div", { text: window.sdocT("No data") });
     infoEmptyElement.hidden = true;
     const infoTableElement = createElement("dl", {
       className: CSS_CLASSES.infoTable,
@@ -1398,7 +1399,7 @@
     previewControlElement.dataset.testid =
       "tree-map-preview-folder-contents-control";
     previewControlElement.querySelector(".switch__label-text").textContent =
-      "Preview folder contents";
+      window.sdocT("Preview folder contents");
     const previewInputElement = previewControlElement.querySelector(
       "input[type=checkbox]",
     );

@@ -2,18 +2,18 @@
 <html lang="en">
 <head>
   <meta charset="utf-8"/>
-  <title>Drafts created</title>
+  <title>{{ _("Drafts created") }}</title>
   <style>body { font-family: sans-serif; margin: 24px; } .error { background: #fde7e7; color: #a40000; padding: 8px; }</style>
 </head>
 <body>
-  <h1>Drafts</h1>
+  <h1>{{ _("Drafts") }}</h1>
   {%- if error %}<div class="error" data-testid="llm-error">{{ error }}</div>{% endif %}
   {%- if created %}
-  <p data-testid="llm-created">Created, with the status Draft and a comment that says a model wrote them:</p>
+  <p data-testid="llm-created">{{ _("Created, with the status Draft and a comment that says a model wrote them:") }}</p>
   <ul>
     {%- for uid in created %}<li><a href="/UID/{{ uid }}">{{ uid }}</a></li>{% endfor %}
   </ul>
   {%- endif %}
-  <p><a href="/llm/drafts">Drafts that nobody has made Active yet</a></p>
+  <p><a href="/llm/drafts">{{ _("Drafts that nobody has made Active yet") }}</a></p>
 </body>
 </html>

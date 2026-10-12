@@ -86,7 +86,7 @@
     closeButton.type = 'button';
     closeButton.className = 'toast-close';
     closeButton.dataset.testid = closeTestId;
-    closeButton.setAttribute('aria-label', 'Close');
+    closeButton.setAttribute('aria-label', window.sdocT('Close'));
     closeButton.textContent = '×';
 
     toast.append(message, closeButton);

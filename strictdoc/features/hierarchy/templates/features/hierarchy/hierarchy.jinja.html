@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8"/>
-  <title>Document hierarchy</title>
+  <title>{{ _("Document hierarchy") }}</title>
   <style>
     body { font-family: sans-serif; margin: 24px; }
     table { border-collapse: collapse; margin-bottom: 16px; }
@@ -12,13 +12,13 @@
   </style>
 </head>
 <body>
-  <h1>Document hierarchy</h1>
+  <h1>{{ _("Document hierarchy") }}</h1>
   <table data-testid="hierarchy-table">
     <tr>
-      <th>Level</th><th>Documents</th><th>Nodes</th>
-      <th>With a parent in an allowed level</th><th>Coverage</th>
-      <th>Orphans</th><th>Not answered</th>
-      {%- if suspect_links %}<th>Suspect</th>{% endif %}
+      <th>{{ _("Level") }}</th><th>{{ _("Documents") }}</th><th>{{ _("Nodes") }}</th>
+      <th>{{ _("With a parent in an allowed level") }}</th><th>{{ _("Coverage") }}</th>
+      <th>{{ _("Orphans") }}</th><th>{{ _("Not answered") }}</th>
+      {%- if suspect_links %}<th>{{ _("Suspect") }}</th>{% endif %}
     </tr>
     {%- for level in stats.levels %}
     <tr data-testid="hierarchy-level" data-level="{{ level.level.name }}">

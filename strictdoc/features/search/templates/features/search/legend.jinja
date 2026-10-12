@@ -1,33 +1,33 @@
 <sdoc-main-legend
   data-testid="search-main-legend"
 >
-    <p>StrictDoc supports two search modes:</p>
+    <p>{{ _("StrictDoc supports two search modes:") }}</p>
     <ol>
-      <li><b>Text search</b>: enter words or phrases to search across requirement/section fields and source file paths.</li>
+      <li>{% trans trimmed %}<b>Text search</b>: enter words or phrases to search across requirement/section fields and source file paths.{% endtrans %}</li>
       <li>
-        <b>Query syntax</b>: use the grammar-based query language for precise filtering.
-        <br>If the input contains query markers, StrictDoc parses it as a query and reports an error if parsing fails.
+        {% trans trimmed %}<b>Query syntax</b>: use the grammar-based query language for precise filtering.{% endtrans %}
+        <br>{% trans trimmed %}If the input contains query markers, StrictDoc parses it as a query and reports an error if parsing fails.{% endtrans %}
       </li>
     </ol>
-    <p>Text search syntax:</p>
+    <p>{{ _("Text search syntax:") }}</p>
     <ul>
-      <li><code>foo bar</code> matches like <code>.*foo.*bar.*</code> (ordered words with wildcard gaps).</li>
-      <li><code>"foo bar"</code> matches the exact phrase <code>foo bar</code>.</li>
+      <li>{% trans trimmed %}<code>foo bar</code> matches like <code>.*foo.*bar.*</code> (ordered words with wildcard gaps).{% endtrans %}</li>
+      <li>{% trans trimmed %}<code>"foo bar"</code> matches the exact phrase <code>foo bar</code>.{% endtrans %}</li>
     </ul>
 
-    <p>Query syntax rules:</p>
+    <p>{{ _("Query syntax rules:") }}</p>
     <ul>
       <li>
-        Every query component shall start with <code>node.</code>.
+        {% trans trimmed %}Every query component shall start with <code>node.</code>.{% endtrans %}
       </li>
       <li>
-        <code>and</code> and <code>or</code> expressions must be grouped using round brackets.
+        {% trans trimmed %}<code>and</code> and <code>or</code> expressions must be grouped using round brackets.{% endtrans %}
       </li>
       <li>
-        Only double quotes are accepted for strings.
+        {{ _("Only double quotes are accepted for strings.") }}
       </li>
     </ul>
-    <p>Examples:</p>
+    <p>{{ _("Examples:") }}</p>
     <div class="sdoc-table_key_value">
       <a
         class="sdoc-table_key_value-key"
@@ -36,7 +36,7 @@
       >
         <code>node.is_requirement</code>
       </a>
-      <div class="sdoc-table_key_value-value">Find all requirements.</div>
+      <div class="sdoc-table_key_value-value">{{ _("Find all requirements.") }}</div>
       <a
         class="sdoc-table_key_value-key"
         data-testid="node.is_section"
@@ -44,7 +44,7 @@
       >
         <code>node.is_section</code>
       </a>
-      <div class="sdoc-table_key_value-value">Find all sections.</div>
+      <div class="sdoc-table_key_value-value">{{ _("Find all sections.") }}</div>
       <a
         class="sdoc-table_key_value-key"
         href="{{ view_object.render_url('search?q=(node.is_requirement and "System" in node["TITLE"])') }}"
@@ -53,11 +53,11 @@
         <code>
         (node.is_requirement and "System" in node["TITLE"])</code>
       </a>
-      <div class="sdoc-table_key_value-value">Find all requirements with a TITLE that equals to "System".</div>
+      <div class="sdoc-table_key_value-value">{{ _("Find all requirements with a TITLE that equals to \"System\".") }}</div>
       <a class="sdoc-table_key_value-key" href="{{ view_object.render_url('search?q=(node.is_requirement and node.is_root)') }}"><code>(node.is_requirement and node.is_root)</code></a>
-      <div class="sdoc-table_key_value-value">Find all root requirements.</div>
+      <div class="sdoc-table_key_value-value">{{ _("Find all root requirements.") }}</div>
       <a class="sdoc-table_key_value-key" href="{{ view_object.render_url('search?q=(node.is_requirement and node.has_parent_requirements)') }}"><code>(node.is_requirement and node.has_parent_requirements)</code></a>
-      <div class="sdoc-table_key_value-value">Find all requirements which have parent requirements.</div>
+      <div class="sdoc-table_key_value-value">{{ _("Find all requirements which have parent requirements.") }}</div>
     </div>
-    <p>See the User Guide's section "Query engine" for more details.</p>
+    <p>{{ _("See the User Guide's section \"Query engine\" for more details.") }}</p>
 </sdoc-main-legend>

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8"/>
-  <title>Comments</title>
+  <title>{{ _("Comments") }}</title>
   <style>
     body { font-family: sans-serif; margin: 24px; }
     table { border-collapse: collapse; }
@@ -11,7 +11,7 @@
   </style>
 </head>
 <body>
-  <h1>Comments</h1>
+  <h1>{{ _("Comments") }}</h1>
   <p>
     Show:
     {% for status in ("open", "resolved", "all") -%}
@@ -21,7 +21,7 @@
     &middot; {{ rows|length }} comment(s)
   </p>
   <table data-testid="comments-table">
-    <tr><th>Document</th><th>Node</th><th>Author</th><th>Date</th><th>State</th><th>Comment</th></tr>
+    <tr><th>{{ _("Document") }}</th><th>{{ _("Node") }}</th><th>{{ _("Author") }}</th><th>{{ _("Date") }}</th><th>{{ _("State") }}</th><th>{{ _("Comment") }}</th></tr>
     {%- for row in rows %}
     <tr class="{{ row.comment.status }}" data-testid="comments-row">
       <td>{{ row.document }}</td>
