@@ -18,6 +18,7 @@ from markupsafe import Markup
 from strictdoc import environment
 from strictdoc.core.project_config import ProjectConfig
 from strictdoc.export.html.jinja.assert_extension import AssertExtension
+from strictdoc.features.i18n import i18n
 from strictdoc.helpers.file_modification_time import get_file_modification_time
 from strictdoc.helpers.timing import measure_performance
 
@@ -26,6 +27,8 @@ class JinjaEnvironment:
     environment: Environment
 
     def __init__(self, environment: Environment):
+        # The texts of the templates follow the language (features/i18n).
+        i18n.install(environment)
         self.environment = environment
 
     def get_template(self, *args: Any, **kwargs: Any) -> Template:
@@ -101,6 +104,8 @@ class CompiledHTMLTemplates(HTMLTemplates):
         )
         # TODO: Check if this line is still needed (might be some older workaround).
         jinja_environment.globals.update(isinstance=isinstance)
+        # Compiling {% trans %} needs the i18n extension.
+        i18n.install(jinja_environment)
         with measure_performance("Compile Jinja templates"):
 
             def filter_function_(name: str) -> bool:

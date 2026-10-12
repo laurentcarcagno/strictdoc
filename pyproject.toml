@@ -59,6 +59,8 @@ dependencies = [
     "lark >= 1.2.2",
 
     "jinja2 >= 2.11.2",
+    # The catalogs of the translated interface (strictdoc/features/i18n).
+    "babel >= 2.12",
     # Reading project config from strictdoc.toml file.
     "toml",
 

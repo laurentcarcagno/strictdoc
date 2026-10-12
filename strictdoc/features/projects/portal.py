@@ -24,6 +24,7 @@ from starlette.responses import (
 from starlette.routing import Mount, Route
 from starlette.staticfiles import StaticFiles
 
+from strictdoc.features.i18n import i18n
 from strictdoc.features.projects.dispatcher import (
     PORTAL_PREFIX,
     PROJECT_COOKIE,
@@ -38,6 +39,7 @@ TEMPLATES = Environment(
     ),
     autoescape=select_autoescape(["html"]),
 )
+i18n.install(TEMPLATES)
 
 
 # The static files of StrictDoc (styles, fonts, nav.js), served by the portal

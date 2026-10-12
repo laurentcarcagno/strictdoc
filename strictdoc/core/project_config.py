@@ -39,12 +39,13 @@ from strictdoc.commands.server_config import ServerCommandConfig
 from strictdoc.core.environment import SDocRuntimeEnvironment
 from strictdoc.core.feature import Feature
 from strictdoc.core.plugin import StrictDocPlugin
-from strictdoc.features.llm.config import LLMConfig
 from strictdoc.features.hierarchy.levels import (
     RELATION_POLICIES,
     Level,
     validate_hierarchy,
 )
+from strictdoc.features.i18n.languages import set_language, validate_language
+from strictdoc.features.llm.config import LLMConfig
 from strictdoc.features.roles.roles import validate_roles
 from strictdoc.helpers.auto_described import auto_described
 from strictdoc.helpers.deprecation_engine import DEPRECATION_ENGINE
@@ -214,6 +215,7 @@ class ProjectConfig:
         docx_profile: Optional[str] = None,
         docx_base: Optional[str] = None,
         auth_mode: str = "none",
+        language: str = "en",
         trusted_proxies: Optional[List[str]] = None,
         roles: Optional[Dict[str, List[str]]] = None,
         audit_dir: Optional[str] = None,
@@ -492,6 +494,10 @@ class ProjectConfig:
         # STRICTDOC_TRUSTED_PROXIES (comma separated networks) are set by the
         # deployment script.
         self.auth_mode: str = os.environ.get("STRICTDOC_AUTH_MODE") or auth_mode
+
+        # The language of the interface (features/i18n): "en" or "fr". The
+        # deployment sets STRICTDOC_LANGUAGE for all its projects.
+        self.language: str = os.environ.get("STRICTDOC_LANGUAGE") or language
         environment_proxies = os.environ.get("STRICTDOC_TRUSTED_PROXIES")
         self.trusted_proxies: List[str] = (
             [
@@ -910,6 +916,15 @@ class ProjectConfig:
 
     def validate_and_finalize(self) -> None:
         project_path = self.get_project_root_path()
+
+        try:
+            validate_language(self.language)
+        except ValueError as exception_:
+            raise StrictDocException(
+                f"config: language: {exception_}"
+            ) from exception_
+        # One language per process: the export and the server render with it.
+        set_language(self.language)
 
         #
         # Validate the authentication options.
@@ -1525,6 +1540,7 @@ class ProjectConfigLoader:
         )
         server_host = ProjectConfigDefault.DEFAULT_SERVER_HOST
         server_port = ProjectConfigDefault.DEFAULT_SERVER_PORT
+        language = "en"
         lazy_document_loading_threshold = (
             ProjectConfigDefault.DEFAULT_LAZY_DOCUMENT_LOADING_THRESHOLD
         )
@@ -1635,6 +1651,7 @@ class ProjectConfigLoader:
                     assert relation_tuple is not None
                     traceability_matrix_relation_columns.append(relation_tuple)
 
+            language = project_content.get("language", language)
             chromedriver = project_content.get("chromedriver", chromedriver)
 
             chrome_binary = project_content.get("chrome_binary", chrome_binary)
@@ -1729,5 +1746,6 @@ class ProjectConfigLoader:
             section_behavior=section_behavior,
             statistics_generator=statistics_generator,
             document_line_width=document_line_width,
+            language=language,
             _config_last_update=config_last_update,
         )

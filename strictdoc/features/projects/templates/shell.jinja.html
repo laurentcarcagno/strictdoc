@@ -5,9 +5,17 @@
   Variables: assets (URL of the static files), user, role, logout_url,
   portal_url.
 #}
-<html lang="en">
+<html lang="{{ sdoc_language() }}">
 <head>
   <meta charset="utf-8"/>
+  {#- The texts of the scripts (features/i18n): window.sdocT("Save"). -#}
+  <script>
+    window.SDOC_I18N = {{ sdoc_js_catalog()|tojson }};
+    window.sdocT = function (text) {
+      var translated = window.SDOC_I18N[text];
+      return translated === undefined ? text : translated;
+    };
+  </script>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>{% block title %}{% endblock %}</title>
   <link rel="stylesheet" href="{{ assets }}/base.css"/>

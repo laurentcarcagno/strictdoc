@@ -1,8 +1,16 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ sdoc_language() }}">
 <head>
   {% block head %}
   <meta charset="UTF-8"/>
+  {#- The texts of the scripts (features/i18n): window.sdocT("Save"). -#}
+  <script>
+    window.SDOC_I18N = {{ sdoc_js_catalog()|tojson }};
+    window.sdocT = function (text) {
+      var translated = window.SDOC_I18N[text];
+      return translated === undefined ? text : translated;
+    };
+  </script>
   <meta name="keywords" content="strictdoc, documentation, documentation-tool, requirements-management, requirements, documentation-generator, requirement-specifications, requirements-engineering, technical-documentation, requirements-specification"/>
   <meta name="description" content="strictdoc. Software for technical documentation and requirements management."/>
   {% if view_object.project_config.is_running_on_server -%}

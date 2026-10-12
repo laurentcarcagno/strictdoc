@@ -4919,6 +4919,36 @@ This option specifies a project title.
 [[/SECTION]]
 
 [[SECTION]]
+MID: 2596ef3913284bcb9778fdfd46d5e331
+TITLE: Language of the interface
+
+[TEXT]
+MID: 911780746e8646f9a1eebf3894104a6d
+STATEMENT: >>>
+The ``language`` option sets the language of the web interface and of the
+static HTML export: ``"en"`` (default) or ``"fr"``. It changes the texts of
+StrictDoc (menus, buttons, labels, messages), not the content of the documents.
+
+.. code:: python
+
+    def create_config() -> ProjectConfig:
+        return ProjectConfig(
+            project_title="Mon projet",
+            language="fr",
+        )
+
+In ``strictdoc.toml``, the key is ``language = "fr"`` in the ``[project]``
+table. The environment variable ``STRICTDOC_LANGUAGE`` wins over the project
+file; a server with several projects uses it for all of them.
+
+The pages already generated keep their language: after a change of the
+language, remove the output folder (or the ``output/`` cache of the server)
+so that the pages are generated again.
+<<<
+
+[[/SECTION]]
+
+[[SECTION]]
 MID: 22741629bf054d6784faf541393e90d0
 TITLE: Path to assets
 
