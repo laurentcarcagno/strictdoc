@@ -11,6 +11,9 @@ from tests.end2end.helpers.screens.document.screen_document import (
 from tests.end2end.helpers.screens.project_index.form_add_document import (
     Form_AddDocument,
 )
+from tests.end2end.helpers.screens.project_index.form_add_folder import (
+    Form_AddFolder,
+)
 from tests.end2end.helpers.screens.project_index.form_import_reqif import (
     Form_ImportReqIF,
 )
@@ -381,6 +384,19 @@ class Screen_ProjectIndex(Screen):  # pylint: disable=invalid-name
         self.actions_menu.do_click_action("tree-add-document-action")
         self.test_case.assert_element("//sdoc-modal", by=By.XPATH)
         return Form_AddDocument(self.test_case)
+
+    def do_open_modal_form_add_folder(self) -> Form_AddFolder:
+        self.test_case.assert_element_not_present("//sdoc-modal", by=By.XPATH)
+        self.actions_menu.do_click_action("tree-add-folder-action")
+        self.test_case.assert_element("//sdoc-modal", by=By.XPATH)
+        return Form_AddFolder(self.test_case)
+
+    def assert_contains_folder(self, folder_name: str) -> None:
+        self.test_case.assert_element(
+            "//*[contains(@class, 'project_tree-folder-title')]"
+            f"[contains(., '{folder_name}/')]",
+            by=By.XPATH,
+        )
 
     # Import / Export
 

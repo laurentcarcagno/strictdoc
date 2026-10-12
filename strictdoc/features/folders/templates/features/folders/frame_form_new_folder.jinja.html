@@ -1,0 +1,47 @@
+{% extends "components/modal/form.jinja" %}
+{% set form = "sdoc_modal_form" %}
+{% block modal__context %}{% endblock modal__context %}
+{% block modal_form__header %}
+{{ _("Add new folder") }}
+{% endblock modal_form__header %}
+{% block modal_form__content %}
+  <form
+    id="{{ form }}"  {# defined in the parent template #}
+    action="/actions/project_index/create_folder"
+    method="POST"
+    data-turbo="true"
+  >
+    <sdoc-form-grid>
+      <sdoc-form-row>
+        <sdoc-form-row-aside></sdoc-form-row-aside>
+        <sdoc-form-row-main>
+          {%- with
+            field_class_name=none,
+            field_editable=true,
+            field_input_name="folder_path",
+            field_label=_("folder path"),
+            field_placeholder=_("Enter the folder path here, for example specifications/system..."),
+            field_type="singleline",
+            field_value=folder_path,
+            testid_postfix="folder_path",
+            errors=error_object.get_errors("folder_path")
+          -%}
+            {%- include "components/form/field/contenteditable/index.jinja" %}
+          {%- endwith -%}
+          <sdoc-form-hint>
+            ☞ {{ _("Use / to create several levels at once. The folder appears in the project tree; add documents to it with their path.") }}
+          </sdoc-form-hint>
+          {%- if folders -%}
+          <sdoc-form-hint data-testid="existing-folders">
+            ☞ {{ _("Existing folders:") }}
+            {% for path in folders -%}
+              <code>{{ path }}</code>{% if not loop.last %}, {% endif %}
+            {%- endfor -%}
+          </sdoc-form-hint>
+          {%- endif -%}
+        </sdoc-form-row-main>
+        <sdoc-form-row-aside></sdoc-form-row-aside>
+      </sdoc-form-row>
+    </sdoc-form-grid>
+  </form>
+{% endblock modal_form__content %}

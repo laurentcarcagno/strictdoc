@@ -4349,6 +4349,35 @@ output folder (``audit_dir`` or ``STRICTDOC_AUDIT_DIR`` to move it).
 [[/SECTION]]
 
 [[SECTION]]
+MID: 35e29a4768024c9b9d2f39d0c80c2f47
+UID: SECTION-UG-Folders-and-Markdown
+TITLE: Folders and Markdown in the web interface
+
+[TEXT]
+MID: fea8831f0b034ed8acac27297f5e3296
+STATEMENT: >>>
+**Folders.** The menu of the project tree has *Add folder* (authors and administrators).
+Type the path of the folder, with ``/`` between the levels to create several levels at
+once (``specifications/system``); the form lists the folders that exist. The folder is
+created in the first input folder of the project and appears in the tree at once, even
+while it is empty: a folder that the interface creates holds a marker file,
+``.sdoc-folder``, and the tree shows the folders that have one (a folder without a
+document and without the marker stays hidden, as before). To put a document in a folder,
+use *Add document* and give its path (``specifications/system/interface.sdoc``). A name
+has letters, digits, ``_``, ``-`` and ``.``, up to 8 levels; ``_assets``, ``output`` and
+``word`` are reserved. There is no rename or delete for folders yet: do it on disk.
+
+**Markdown.** A document that the web interface creates is in Markdown
+(``MARKUP: Markdown``), so its fields are edited with the visual editor. So is a document
+that the Word import writes when the project has no ``docx_profile`` (the generic
+profile); a profile file chooses its own ``markup`` (default ``RST``). Documents that
+already exist keep their markup: set ``MARKUP: Markdown`` in their options to change it
+(the text must then be Markdown).
+<<<
+
+[[/SECTION]]
+
+[[SECTION]]
 MID: e9d82b27343e4aa3b7204bca58d2d295
 UID: SECTION-UG-Review-comments
 TITLE: Review comments (experimental)

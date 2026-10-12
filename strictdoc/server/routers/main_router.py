@@ -44,6 +44,7 @@ from strictdoc.backend.reqif.p01_sdoc.reqif_to_sdoc_converter import (
 from strictdoc.backend.reqif.p01_sdoc.sdoc_to_reqif_converter import (
     P01_SDocToReqIFObjectConverter,
 )
+from strictdoc.backend.sdoc.constants import SDocMarkup
 from strictdoc.backend.sdoc.models.document import SDocDocument
 from strictdoc.backend.sdoc.models.document_grammar import (
     DocumentGrammar,
@@ -138,6 +139,7 @@ from strictdoc.export.html.generators.view_objects.server_error_view_object impo
 from strictdoc.export.html.renderers.link_renderer import LinkRenderer
 from strictdoc.export.html.renderers.markup_renderer import MarkupRenderer
 from strictdoc.features.comments.router import create_comments_routers
+from strictdoc.features.folders.router import create_folders_routers
 from strictdoc.features.hierarchy.guard import create_input_guard
 from strictdoc.features.hierarchy.router import (
     create_baseline_sync,
@@ -3586,6 +3588,9 @@ def create_main_router(
             grammar=DocumentGrammar.create_default(parent=None),
             section_contents=[],
         )
+        # New documents are in Markdown: the web interface edits it with the
+        # visual editor.
+        document.config.markup = SDocMarkup.MARKDOWN
         if len(reviewer_names) > 0:
             set_document_reviewers(document, reviewer_names)
         # FIXME: Fill in the document meta correctly.
@@ -5196,6 +5201,12 @@ def create_main_router(
     )
     read_router.include_router(comments_read_router)
     write_router.include_router(comments_write_router)
+
+    folders_read_router, folders_write_router = create_folders_routers(
+        context=context
+    )
+    read_router.include_router(folders_read_router)
+    write_router.include_router(folders_write_router)
 
     reviewers_read_router, reviewers_write_router = create_reviewers_routers(
         context=context

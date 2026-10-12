@@ -70,6 +70,8 @@ ROUTE_ROLES: Dict[RouteKey, str] = {
     **_routes(
         ROLE_AUTHOR,
         "GET /actions/project_index/new_document",
+        "GET /actions/project_index/new_folder",
+        "POST /actions/project_index/create_folder",
         "POST /actions/project_index/create_document",
         "GET /actions/reviewers/form",
         "POST /actions/reviewers/set",

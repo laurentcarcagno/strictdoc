@@ -87,7 +87,9 @@ class DocxProfile:
 
     @staticmethod
     def generic() -> "DocxProfile":
-        return DocxProfile()
+        # Markdown, like the documents that the server creates: the editor of
+        # the web interface works on Markdown.
+        return DocxProfile(markup=MARKUP_MARKDOWN)
 
     def validate(self) -> None:
         if self.free_text not in (FREE_TEXT_TEXT, FREE_TEXT_DROP):

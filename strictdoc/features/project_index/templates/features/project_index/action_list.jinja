@@ -9,6 +9,15 @@
 
 <a
   class="dropdown_menu_item"
+  href="/actions/project_index/new_folder"
+  data-turbo="true"
+  title="{{ _("Add new folder") }}"
+  data-testid="tree-add-folder-action"
+  role="menuitem"
+>{% include "icons/ico16_folder.svg" %} {{ _("Add folder") }}</a>
+
+<a
+  class="dropdown_menu_item"
   href="/actions/project_index/edit_project_title_form"
   data-turbo="true"
   title="{{ _("Edit project title") }}"

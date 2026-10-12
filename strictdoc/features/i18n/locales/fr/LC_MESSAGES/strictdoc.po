@@ -2342,3 +2342,28 @@ msgstr "le document ne contient rien."
 msgid "the document has no requirements."
 msgstr "le document ne contient aucune exigence."
 
+
+#: strictdoc/features/folders/templates/features/folders/frame_form_new_folder.jinja.html:5
+#: strictdoc/features/project_index/templates/features/project_index/action_list.jinja:12
+msgid "Add new folder"
+msgstr "Nouveau dossier"
+
+#: strictdoc/features/project_index/templates/features/project_index/action_list.jinja:18
+msgid "Add folder"
+msgstr "Ajouter un dossier"
+
+#: strictdoc/features/folders/templates/features/folders/frame_form_new_folder.jinja.html:21
+msgid "folder path"
+msgstr "chemin du dossier"
+
+#: strictdoc/features/folders/templates/features/folders/frame_form_new_folder.jinja.html:22
+msgid "Enter the folder path here, for example specifications/system..."
+msgstr "Saisissez ici le chemin du dossier, par exemple specifications/systeme..."
+
+#: strictdoc/features/folders/templates/features/folders/frame_form_new_folder.jinja.html:32
+msgid "Use / to create several levels at once. The folder appears in the project tree; add documents to it with their path."
+msgstr "Utilisez / pour créer plusieurs niveaux d'un coup. Le dossier apparaît dans l'arborescence du projet ; ajoutez-y des documents en indiquant leur chemin."
+
+#: strictdoc/features/folders/templates/features/folders/frame_form_new_folder.jinja.html:36
+msgid "Existing folders:"
+msgstr "Dossiers existants :"

@@ -13,6 +13,7 @@ HTML_TEMPLATE_DIRS = [
     os.path.join("strictdoc", "features", "comments", "templates"),
     os.path.join("strictdoc", "features", "diff_and_changelog", "templates"),
     os.path.join("strictdoc", "features", "docx", "templates"),
+    os.path.join("strictdoc", "features", "folders", "templates"),
     os.path.join("strictdoc", "features", "hierarchy", "templates"),
     os.path.join("strictdoc", "features", "html2pdf", "templates"),
     os.path.join("strictdoc", "features", "llm", "templates"),

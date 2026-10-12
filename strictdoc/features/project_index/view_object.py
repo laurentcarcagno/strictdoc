@@ -23,6 +23,7 @@ from strictdoc.export.html.generators.view_objects.helpers import (
 )
 from strictdoc.export.html.html_templates import JinjaEnvironment
 from strictdoc.export.html.renderers.link_renderer import LinkRenderer
+from strictdoc.features.folders.folders import has_folder_marker
 from strictdoc.helpers.cast import assert_cast
 
 
@@ -78,7 +79,11 @@ class ProjectTreeViewObject:
         return self.link_renderer.render_static_url_with_prefix(url)
 
     def is_empty_tree(self) -> bool:
-        return self.document_tree_iterator.is_empty_tree()
+        # Folders that people created count: they are to be shown.
+        return self.document_tree_iterator.is_empty_tree() and not any(
+            _has_marked_folder(tree_.root_folder_or_file)
+            for tree_ in self.document_tree_iterator.document_tree.file_tree
+        )
 
     def get_document_level(self) -> int:
         return 0
@@ -124,3 +129,13 @@ class ProjectTreeViewObject:
             self.project_config,
             must_only_include_non_included_sdoc=False,
         )
+
+
+def _has_marked_folder(entry: object) -> bool:
+    """True if a folder below this entry has the marker of a created folder."""
+    if not isinstance(entry, Folder):
+        return False
+    return any(
+        has_folder_marker(sub_) or _has_marked_folder(sub_)
+        for sub_ in entry.subfolder_trees
+    )

@@ -1,4 +1,6 @@
 [DOCUMENT]
 TITLE: Spec
+OPTIONS:
+  MARKUP: Markdown
 METADATA:
   REVIEWERS: ann, bob

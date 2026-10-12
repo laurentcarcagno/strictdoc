@@ -1,6 +1,7 @@
 from strictdoc.core.file_system.file_tree import File, Folder
 from strictdoc.core.project_config import ProjectConfig
 from strictdoc.core.traceability_index import TraceabilityIndex
+from strictdoc.features.folders.folders import has_folder_marker
 
 
 def screen_should_display_folder(
@@ -17,7 +18,14 @@ def screen_should_display_folder(
     """
     assert isinstance(folder, Folder), folder
 
-    if not folder.has_sdoc_content:
+    # A folder that a person created is shown while it is empty (it has the
+    # marker of features/folders).
+    marked = has_folder_marker(folder)
+    if (
+        not folder.has_sdoc_content
+        and not marked
+        and len(folder.subfolder_trees) == 0
+    ):
         return False
 
     for file_ in folder.files:
@@ -38,7 +46,7 @@ def screen_should_display_folder(
         ):
             return True
 
-    return False
+    return marked
 
 
 def screen_should_display_file(
