@@ -25,9 +25,13 @@ def _free_port() -> int:
         return int(sock_.getsockname()[1])
 
 
-def _get(port: int, host: str, path: str):
+def _get(port: int, host: str, path: str, project: str = ""):
     connection = http.client.HTTPConnection("127.0.0.1", port, timeout=10)
-    connection.request("GET", path, headers={"Host": host})
+    headers = {"Host": host}
+    if project:
+        # The current project of a browser is a cookie.
+        headers["Cookie"] = f"sdoc_project={project}"
+    connection.request("GET", path, headers=headers)
     response = connection.getresponse()
     body = response.read().decode("utf8", "replace")
     connection.close()
@@ -83,21 +87,23 @@ def test_001_the_command_serves_the_projects_of_a_registry(tmp_path):
             output = process.communicate(timeout=20)[0]
         assert status == 200, output.decode("utf8", "replace")[-3000:]
 
-        status, page = _get(port, "strictdoc.test", "/")
+        status, page = _get(port, "strictdoc.test", "/_projects")
         assert (
             status == 200 and "Alpha program" in page and "Beta program" in page
         )
         status, page = _get(
-            port, "alpha.strictdoc.test", "/alpha/alpha_doc.html"
+            port, "strictdoc.test", "/alpha/alpha_doc.html", "alpha"
         )
         assert (
             status == 200 and "Alpha spec" in page and "Beta spec" not in page
         )
-        status, page = _get(port, "beta.strictdoc.test", "/beta/beta_doc.html")
+        status, page = _get(
+            port, "strictdoc.test", "/beta/beta_doc.html", "beta"
+        )
         assert (
             status == 200 and "Beta spec" in page and "Alpha spec" not in page
         )
-        status, page = _get(port, "gamma.strictdoc.test", "/")
+        status, page = _get(port, "gamma.strictdoc.test", "/_projects")
         assert (status, page) == (404, "Not found")
     finally:
         process.terminate()

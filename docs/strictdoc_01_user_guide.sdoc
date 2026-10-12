@@ -4562,8 +4562,8 @@ the portal (see below).
 (a group that is administrator in every project of the registry, or the groups of
 ``STRICTDOC_PLATFORM_ADMINS``, comma separated) sees a *New project* form on the
 ``/_projects`` page (*Projects* in the sidebar). A project gets a name (the slug) and a title; its folder is created under
-``--data-root`` with a ``strictdoc.toml`` (tables, traceability, search and the
-``COMMENTS`` feature), it is served at once, with no restart, and the creator is
+``--data-root`` with a ``strictdoc.toml`` (tables, traceability, search, Word import and
+export, and the ``COMMENTS`` feature), it is served at once, with no restart, and the creator is
 its administrator and its current project. The projects created this way and the member lists of all the
 projects are kept in ``projects.json``, next to the registry file.
 

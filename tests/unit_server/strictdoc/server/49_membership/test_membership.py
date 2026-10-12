@@ -56,6 +56,8 @@ def test_001_an_administrator_creates_a_project(tmp_path, monkeypatch):
 
     folder = tmp_path / "data" / "gamma"
     assert (folder / "strictdoc.toml").is_file()
+    # Word import and export are on in a new project.
+    assert '"DOCX"' in (folder / "strictdoc.toml").read_text()
     store = json.loads((tmp_path / "output" / "projects.json").read_text())
     assert store["projects"]["gamma"]["title"] == "Gamma program"
     # The creator is its administrator.

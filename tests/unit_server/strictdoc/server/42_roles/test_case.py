@@ -164,7 +164,7 @@ def test_006_a_user_without_a_group_of_the_project_is_refused_everywhere(
     for path in ("/", "/whoami", "/input/document.html", "/_static/base.css"):
         response = client.get(path, headers=headers)
         assert response.status_code == 403, path
-        assert "no group" in response.json()["detail"]
+        assert "not a member" in response.json()["detail"]
 
 
 def test_007_a_browser_gets_a_page_and_a_script_gets_json(tmp_path):
