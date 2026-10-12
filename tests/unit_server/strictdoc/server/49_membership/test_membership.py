@@ -404,3 +404,17 @@ def test_011_without_keycloak_the_page_still_works(tmp_path, monkeypatch):
         ).status_code
         == 303
     )
+
+
+def test_013_word_import_and_export_are_on_in_every_project(
+    tmp_path, monkeypatch
+):
+    # Alpha has no configuration file, so no DOCX feature of its own.
+    dispatcher = _dispatcher(tmp_path, monkeypatch)
+    alpha = client_for(dispatcher, ROOT)
+    alpha.cookies.set("sdoc_project", "alpha")
+    for path in (
+        "/actions/project_index/import_docx_form",
+        "/actions/project_index/export_docx_form",
+    ):
+        assert alpha.get(path, headers=ANN).status_code == 200, path

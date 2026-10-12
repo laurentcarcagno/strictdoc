@@ -27,7 +27,11 @@ from dataclasses import dataclass, field
 from typing import Dict, List, Optional
 
 from strictdoc.commands.server_config import ServerCommandConfig
-from strictdoc.core.project_config import ProjectConfig, ProjectConfigLoader
+from strictdoc.core.project_config import (
+    ProjectConfig,
+    ProjectConfigLoader,
+    ProjectFeature,
+)
 from strictdoc.features.roles.roles import validate_roles
 from strictdoc.helpers.exception import StrictDocException
 
@@ -171,6 +175,9 @@ def build_project_config(
             del os.environ["STRICTDOC_ROLES"]
         else:
             os.environ["STRICTDOC_ROLES"] = saved_roles
+    # Word import and export are on in every project, whatever its file says.
+    if ProjectFeature.DOCX not in config.project_features:
+        config.project_features.append(ProjectFeature.DOCX)
     config.project_title = spec.title
     config.roles = roles
     audit_dir = os.path.join(audit_root or output_root, spec.slug)
