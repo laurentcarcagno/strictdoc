@@ -15,6 +15,7 @@ from strictdoc.core.project_config import ProjectConfig
 from strictdoc.core.traceability_index import TraceabilityIndex
 from strictdoc.export.html.document_type import DocumentType
 from strictdoc.export.html.renderers.link_renderer import LinkRenderer
+from strictdoc.features.i18n.i18n import gettext
 from strictdoc.features.tree_map.models import (
     TreeMap,
     TreeMapData,
@@ -409,8 +410,8 @@ class TreeMapDataGenerator:
         return (
             _TreeMapDefinition(
                 identifier="document-tree",
-                title="Document tree map",
-                description=(
+                title=gettext("Document tree map"),
+                description=gettext(
                     "This is a general representation of a document tree. "
                     "All nodes are included, both normative (e.g., "
                     "REQUIREMENT) and non-normative (e.g., TEXT). The numbers "
@@ -424,8 +425,8 @@ class TreeMapDataGenerator:
             ),
             _TreeMapDefinition(
                 identifier="requirements-source",
-                title="Requirements coverage with source",
-                description=(
+                title=gettext("Requirements coverage with source"),
+                description=gettext(
                     "This graph shows which requirements are covered by at "
                     "least one source file. A requirement is also considered "
                     "covered if it has child requirements that are themselves "
@@ -434,21 +435,21 @@ class TreeMapDataGenerator:
                 legend=(
                     TreeMapLegendItem(
                         color="#AAFFAA",
-                        text=(
+                        text=gettext(
                             "Requirement/section is fully covered by one or "
                             "more source files."
                         ),
                     ),
                     TreeMapLegendItem(
                         color="#FFFFAA",
-                        text=(
+                        text=gettext(
                             "Section is partially covered by one or more "
                             "source files."
                         ),
                     ),
                     TreeMapLegendItem(
                         color="#FFAAAA",
-                        text=(
+                        text=gettext(
                             "Requirement/section is not covered by any source "
                             "files."
                         ),
@@ -461,8 +462,8 @@ class TreeMapDataGenerator:
             ),
             _TreeMapDefinition(
                 identifier="requirements-test",
-                title="Requirements coverage with test",
-                description=(
+                title=gettext("Requirements coverage with test"),
+                description=gettext(
                     "This graph shows which requirements are covered by at "
                     "least one test. A requirement is also considered covered "
                     "if it has child requirements that are themselves covered "
@@ -472,20 +473,20 @@ class TreeMapDataGenerator:
                 legend=(
                     TreeMapLegendItem(
                         color="#AAFFAA",
-                        text=(
+                        text=gettext(
                             "Requirement/section is fully covered by one or "
                             "more tests."
                         ),
                     ),
                     TreeMapLegendItem(
                         color="#FFFFAA",
-                        text=(
+                        text=gettext(
                             "Section is partially covered by one or more tests."
                         ),
                     ),
                     TreeMapLegendItem(
                         color="#FFAAAA",
-                        text=(
+                        text=gettext(
                             "Requirement/section is not covered by any tests."
                         ),
                     ),

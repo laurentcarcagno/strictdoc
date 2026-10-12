@@ -21,6 +21,7 @@ from typing import Any, Callable, Dict, List, Optional, Sequence
 from fastapi import FastAPI
 from starlette.concurrency import run_in_threadpool
 
+from strictdoc.features.i18n.i18n import gettext
 from strictdoc.features.projects.directory import KeycloakDirectory
 from strictdoc.features.projects.dispatcher import ProjectDispatcher
 from strictdoc.features.projects.registry import (
@@ -190,26 +191,34 @@ class ProjectManager:
         """The clean title of a new project. Raises StrictDocException."""
         if self.data_root is None:
             raise StrictDocException(
-                "Projects cannot be created: the server has no data root."
+                gettext(
+                    "Projects cannot be created: the server has no data root."
+                )
             )
         if SLUG_PATTERN.match(slug) is None:
             raise StrictDocException(
-                f"Invalid project name '{slug}': use 1 to 32 characters among "
-                "lower case letters, digits and '-', not starting or ending "
-                "with '-'."
+                gettext(
+                    "Invalid project name '%(name)s': use 1 to 32 characters "
+                    "among lower case letters, digits and '-', not starting "
+                    "or ending with '-'."
+                )
+                % {"name": slug}
             )
         if slug in self.specs or os.path.exists(
             os.path.join(self.data_root, slug)
         ):
-            raise StrictDocException(f"The project '{slug}' already exists.")
+            raise StrictDocException(
+                gettext("The project '%(name)s' already exists.")
+                % {"name": slug}
+            )
         clean_title = " ".join(title.split())
         if len(clean_title) == 0 or len(clean_title) > 120:
             raise StrictDocException(
-                "The title of a project has 1 to 120 characters."
+                gettext("The title of a project has 1 to 120 characters.")
             )
         if '"' in clean_title or "\\" in clean_title:
             raise StrictDocException(
-                "The title of a project has no quote or backslash."
+                gettext("The title of a project has no quote or backslash.")
             )
         return clean_title
 

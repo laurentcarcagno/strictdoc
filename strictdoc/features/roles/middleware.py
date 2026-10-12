@@ -26,6 +26,7 @@ from typing import (
     Sequence,
 )
 
+from strictdoc.features.i18n.i18n import gettext
 from strictdoc.features.roles.principal import (
     CURRENT_ROLE,
     Principal,
@@ -144,7 +145,9 @@ class PrincipalMiddleware:
         if scope["type"] == "websocket":
             await send({"type": "websocket.close", "code": 4401})
             return
-        body = json.dumps({"detail": "Authentication required."}).encode()
+        body = json.dumps(
+            {"detail": gettext("Authentication required.")}
+        ).encode()
         await send(
             {
                 "type": "http.response.start",

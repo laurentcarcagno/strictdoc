@@ -14,6 +14,7 @@ from fastapi import APIRouter, Form, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from starlette.responses import Response
 
+from strictdoc.features.i18n.i18n import gettext
 from strictdoc.features.projects.directory import DirectoryError, DirectoryUser
 from strictdoc.features.projects.manager import ProjectMembers
 from strictdoc.features.projects.portal import (
@@ -38,12 +39,12 @@ def create_members_router(
         if members.directory is not None:
             try:
                 suggestions = list(members.directory.users())
-                directory_note = (
+                directory_note = gettext(
                     "Start typing: the accounts of the login server are "
                     "suggested, and only they are accepted."
                 )
             except DirectoryError:
-                directory_note = (
+                directory_note = gettext(
                     "The login server does not answer: type the user name "
                     "by hand, it is not checked."
                 )
@@ -77,8 +78,10 @@ def create_members_router(
                 if not known:
                     return page(
                         request,
-                        f"'{user.strip()}' is not an account of the login "
-                        "server.",
+                        gettext(
+                            "'%(user)s' is not an account of the login server."
+                        )
+                        % {"user": user.strip()},
                         422,
                     )
             members.set(user, role)

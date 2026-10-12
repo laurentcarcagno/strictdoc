@@ -46,6 +46,7 @@ from strictdoc.core.traceability_index import (
 )
 from strictdoc.core.tree_cycle_detector import SingleShotTreeCycleDetector
 from strictdoc.features.hierarchy.policy import policy_message
+from strictdoc.features.i18n.i18n import gettext
 from strictdoc.helpers.auto_described import auto_described
 from strictdoc.helpers.cast import assert_cast
 from strictdoc.helpers.form_data import ParsedFormData, parse_form_data
@@ -715,7 +716,7 @@ class RequirementFormObject(ErrorObject):
         if self.revision != existing_revision:
             self.add_error(
                 "_GENERAL_",
-                (
+                gettext(
                     "Cannot update the node because it has already been "
                     "modified by another update action."
                 ),
@@ -736,7 +737,7 @@ class RequirementFormObject(ErrorObject):
         if not at_least_one_non_empty_field_present:
             self.add_error(
                 "_GENERAL_",
-                "At least one node field must be non-empty.",
+                gettext("At least one node field must be non-empty."),
             )
 
         #
@@ -752,11 +753,11 @@ class RequirementFormObject(ErrorObject):
                 if existing_node_with_this_mid is not None:
                     self.add_error(
                         "MID",
-                        (
-                            f"A node with this MID already exists, "
-                            "please select another MID: "
-                            f"{new_node_mid}."
-                        ),
+                        gettext(
+                            "A node with this MID already exists, "
+                            "please select another MID: %(mid)s."
+                        )
+                        % {"mid": new_node_mid},
                     )
 
         #
@@ -777,11 +778,12 @@ class RequirementFormObject(ErrorObject):
             if existing_node_with_this_uid is not None:
                 self.add_error(
                     "UID",
-                    (
+                    gettext(
                         "The chosen UID must be unique. "
                         "Another node with this UID already exists: "
-                        f"'{new_node_uid_or_none}'."
-                    ),
+                        "'%(uid)s'."
+                    )
+                    % {"uid": new_node_uid_or_none},
                 )
 
         #
@@ -806,7 +808,7 @@ class RequirementFormObject(ErrorObject):
                 ):
                     self.add_error(
                         "UID",
-                        (
+                        gettext(
                             "Renaming a node UID when the node has "
                             "incoming links is not supported yet. "
                             "Please delete all incoming links first."
@@ -839,7 +841,7 @@ class RequirementFormObject(ErrorObject):
                     ):
                         self.add_error(
                             error_key,
-                            (
+                            gettext(
                                 "A line must not start with '<<<' because it "
                                 "marks the end of a multiline field. Indent "
                                 "the line or remove the characters."
@@ -879,11 +881,13 @@ class RequirementFormObject(ErrorObject):
                         if grammar_element_field_.required:
                             self.add_error(
                                 error_key,
-                                (
-                                    f"Node's {grammar_element_field_.title} must not be empty. "
-                                    f"If there is no appropriate value for this field yet, "
-                                    f"enter TBD (to be done) or TBC (to be confirmed)."
-                                ),
+                                gettext(
+                                    "Node's %(field)s must not be empty. "
+                                    "If there is no appropriate value for "
+                                    "this field yet, enter TBD (to be done) "
+                                    "or TBC (to be confirmed)."
+                                )
+                                % {"field": grammar_element_field_.title},
                             )
                         continue
 
@@ -909,9 +913,11 @@ class RequirementFormObject(ErrorObject):
         ):
             self.add_error(
                 "UID",
-                "Requirement with parent relations must have an UID. "
-                "Either provide a parent UID, or "
-                "delete the parent requirement relations.",
+                gettext(
+                    "Requirement with parent relations must have an UID. "
+                    "Either provide a parent UID, or "
+                    "delete the parent requirement relations."
+                ),
             )
 
         if (
@@ -921,10 +927,13 @@ class RequirementFormObject(ErrorObject):
             if has_requirement_relations:
                 self.add_error(
                     "UID",
-                    "Not supported yet: "
-                    "Renaming a requirement UID when the requirement has "
-                    "parent requirement relations. For now, manually delete the "
-                    "relations, rename the UID, recreate the relations.",
+                    gettext(
+                        "Not supported yet: "
+                        "Renaming a requirement UID when the requirement has "
+                        "parent requirement relations. For now, manually "
+                        "delete the relations, rename the UID, recreate the "
+                        "relations."
+                    ),
                 )
                 self.uid_rename_blocked_by_relations = True
 
@@ -938,10 +947,13 @@ class RequirementFormObject(ErrorObject):
             if traceability_index.has_children_requirements(existing_node):
                 self.add_error(
                     "UID",
-                    "Not supported yet: "
-                    "Renaming a requirement UID when the requirement has "
-                    "child requirement relations. For now, manually delete the "
-                    "relations, rename the UID, recreate the relations.",
+                    gettext(
+                        "Not supported yet: "
+                        "Renaming a requirement UID when the requirement has "
+                        "child requirement relations. For now, manually "
+                        "delete the relations, rename the UID, recreate the "
+                        "relations."
+                    ),
                 )
                 self.uid_rename_blocked_by_relations = True
                 return
@@ -953,13 +965,18 @@ class RequirementFormObject(ErrorObject):
                     link_uid = reference_field.field_value
                     if len(link_uid) == 0:
                         reference_field.validation_messages.append(
-                            "Requirement relation UID must not be empty."
+                            gettext(
+                                "Requirement relation UID must not be empty."
+                            )
                         )
                         continue
                     elif not traceability_index.has_node_connections(link_uid):
                         reference_field.validation_messages.append(
-                            f'Parent requirement with an UID "{link_uid}" '
-                            f"does not exist."
+                            gettext(
+                                'Parent requirement with an UID "%(uid)s" '
+                                "does not exist."
+                            )
+                            % {"uid": link_uid}
                         )
                         continue
 
@@ -982,9 +999,13 @@ class RequirementFormObject(ErrorObject):
                     # Validate that every UID can be only referenced once.
                     if link_uid in relation_target_uids_so_far:
                         reference_field.validation_messages.append(
-                            f'A target requirement with a UID "{link_uid}" '
-                            "is referenced more than once. Multiple relations "
-                            "to the same target requirement are not allowed."
+                            gettext(
+                                'A target requirement with a UID "%(uid)s" '
+                                "is referenced more than once. Multiple "
+                                "relations to the same target requirement are "
+                                "not allowed."
+                            )
+                            % {"uid": link_uid}
                         )
                         continue
                     relation_target_uids_so_far.add(link_uid)
@@ -1082,11 +1103,12 @@ class RequirementFormObject(ErrorObject):
             if grammar_element_field.required:
                 self.add_error(
                     grammar_element_field.title,
-                    (
-                        f"Node's {grammar_element_field.title} must not be empty. "
-                        f"If there is no appropriate value for this field yet, "
-                        f"enter TBD (to be done)."
-                    ),
+                    gettext(
+                        "Node's %(field)s must not be empty. "
+                        "If there is no appropriate value for this field yet, "
+                        "enter TBD (to be done)."
+                    )
+                    % {"field": grammar_element_field.title},
                 )
             # Empty non-required fields are valid.
             return
@@ -1108,10 +1130,11 @@ class RequirementFormObject(ErrorObject):
         ):
             self.add_error(
                 grammar_element_field.title,
-                (
-                    f"Node's {grammar_element_field.title} must be a value one of "
-                    f"{', '.join(choice_grammar_element_field.options)}."
-                ),
+                gettext("Node's %(field)s must be a value one of %(options)s.")
+                % {
+                    "field": grammar_element_field.title,
+                    "options": ", ".join(choice_grammar_element_field.options),
+                },
             )
         elif (
             grammar_element_field.gef_type
@@ -1129,8 +1152,14 @@ class RequirementFormObject(ErrorObject):
             else:
                 self.add_error(
                     grammar_element_field.title,
-                    (
-                        f"Node's {grammar_element_field.title} must not contain"
-                        f" values other than {', '.join(choice_grammar_element_field.options)}."
-                    ),
+                    gettext(
+                        "Node's %(field)s must not contain values other than "
+                        "%(options)s."
+                    )
+                    % {
+                        "field": grammar_element_field.title,
+                        "options": ", ".join(
+                            choice_grammar_element_field.options
+                        ),
+                    },
                 )

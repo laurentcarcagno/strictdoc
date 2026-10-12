@@ -23,6 +23,7 @@ from strictdoc.core.transforms.validation_error import (
 from strictdoc.export.html.form_objects.document_config_form_object import (
     DocumentConfigFormObject,
 )
+from strictdoc.features.i18n.i18n import gettext
 
 DOCUMENT_CUSTOM_METADATA_KEY_RE = re.compile(r"[a-zA-Z_][a-zA-Z0-9_-]*")
 
@@ -126,7 +127,7 @@ class UpdateDocumentConfigTransform:
         assert isinstance(document, SDocDocument)
 
         if len(form_object.document_title) == 0:
-            errors["TITLE"].append("Document title must not be empty.")
+            errors["TITLE"].append(gettext("Document title must not be empty."))
 
         # Ensure that UID doesn't have any incoming links if it is going to be
         # renamed or removed.
@@ -142,7 +143,7 @@ class UpdateDocumentConfigTransform:
                     and len(existing_incoming_links) > 0
                 ):
                     errors["UID"].append(
-                        (
+                        gettext(
                             "Renaming a node UID when the node has "
                             "incoming links is not supported yet. "
                             "Please delete all incoming links first."
@@ -152,7 +153,9 @@ class UpdateDocumentConfigTransform:
         for metadata_field in form_object.custom_metadata_fields:
             metadata_error_key = f"METADATA[{metadata_field.field_mid}]"
             if len(metadata_field.field_name) == 0:
-                errors[metadata_error_key].append("Key must not be empty.")
+                errors[metadata_error_key].append(
+                    gettext("Key must not be empty.")
+                )
             elif (
                 DOCUMENT_CUSTOM_METADATA_KEY_RE.fullmatch(
                     metadata_field.field_name
@@ -162,12 +165,16 @@ class UpdateDocumentConfigTransform:
                 # Keep this validation aligned with DocumentCustomMetadataKey
                 # in the SDOC grammar so saved documents remain parseable.
                 errors[metadata_error_key].append(
-                    "Key must start with an ASCII letter or underscore and "
-                    "contain only ASCII letters, digits, underscores, or "
-                    "hyphens."
+                    gettext(
+                        "Key must start with an ASCII letter or underscore and "
+                        "contain only ASCII letters, digits, underscores, or "
+                        "hyphens."
+                    )
                 )
             if len(metadata_field.field_value) == 0:
-                errors[metadata_error_key].append("Value must not be empty.")
+                errors[metadata_error_key].append(
+                    gettext("Value must not be empty.")
+                )
             else:
                 free_text_container = SDFreeTextReader.read(
                     metadata_field.field_value
@@ -181,16 +188,22 @@ class UpdateDocumentConfigTransform:
                             is None
                         ):
                             errors[metadata_error_key].append(
-                                "METADATA value references a UID "
-                                f"that does not exist: {part_.link}."
+                                gettext(
+                                    "METADATA value references a UID "
+                                    "that does not exist: %(uid)s."
+                                )
+                                % {"uid": part_.link}
                             )
                     elif isinstance(part_, Anchor):
                         errors[metadata_error_key].append(
-                            "METADATA values do not support "
-                            "[ANCHOR: ...] markers, only [LINK: UID]."
+                            gettext(
+                                "METADATA values do not support "
+                                "[ANCHOR: ...] markers, only [LINK: UID]."
+                            )
                         )
 
         if len(errors):
             raise MultipleValidationError(
-                "Document form has not passed validation.", errors=errors
+                gettext("Document form has not passed validation."),
+                errors=errors,
             )

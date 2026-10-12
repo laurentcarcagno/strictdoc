@@ -10,6 +10,7 @@ nothing is refused.
 import json
 from typing import Any, Awaitable, Callable, Dict, Optional
 
+from strictdoc.features.i18n.i18n import gettext
 from strictdoc.features.roles.middleware import AUTH_MODE_NONE
 from strictdoc.features.roles.principal import Principal
 from strictdoc.features.roles.roles import role_allows
@@ -81,14 +82,17 @@ class RoleMiddleware:
             await send({"type": "websocket.close", "code": 4403})
             return
         if principal.role is None:
-            detail = "Your account is not a member of this project."
+            detail = gettext("Your account is not a member of this project.")
         elif required is None:
-            detail = "This route has no role: it is refused."
+            detail = gettext("This route has no role: it is refused.")
         else:
-            detail = (
-                f"Your role ({principal.role}) does not allow this. "
-                f"The role '{required}' is needed."
-            )
+            detail = gettext(
+                "Your role (%(role)s) does not allow this. "
+                "The role '%(required)s' is needed."
+            ) % {
+                "role": gettext(principal.role),
+                "required": gettext(required),
+            }
         accepts_html = any(
             name_ == b"accept" and b"text/html" in value_
             for name_, value_ in scope.get("headers", [])

@@ -11,6 +11,7 @@ from strictdoc.core.transforms.validation_error import (
 from strictdoc.export.html.form_objects.included_document_form_object import (
     IncludedDocumentFormObject,
 )
+from strictdoc.features.i18n.i18n import gettext
 
 
 class UpdateIncludedDocumentTransform:
@@ -44,9 +45,10 @@ class UpdateIncludedDocumentTransform:
         errors: Dict[str, List[str]] = defaultdict(list)
         assert isinstance(document, SDocDocument)
         if len(form_object.document_title) == 0:
-            errors["TITLE"].append("Document title must not be empty.")
+            errors["TITLE"].append(gettext("Document title must not be empty."))
 
         if len(errors):
             raise MultipleValidationError(
-                "Document form has not passed validation.", errors=errors
+                gettext("Document form has not passed validation."),
+                errors=errors,
             )

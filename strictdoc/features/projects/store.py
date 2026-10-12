@@ -19,6 +19,7 @@ import tempfile
 import threading
 from typing import Dict, List, Optional
 
+from strictdoc.features.i18n.i18n import gettext
 from strictdoc.features.roles.roles import ROLES
 from strictdoc.helpers.exception import StrictDocException
 
@@ -30,7 +31,11 @@ def clean_user(name: str) -> str:
     user = name.strip().lower()
     if USER_PATTERN.match(user) is None:
         raise StrictDocException(
-            f"Invalid user name '{name}': use letters, digits and . _ @ + -."
+            gettext(
+                "Invalid user name '%(name)s': use letters, digits and "
+                ". _ @ + -."
+            )
+            % {"name": name}
         )
     return user
 

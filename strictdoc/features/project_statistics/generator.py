@@ -12,6 +12,7 @@ from strictdoc.core.project_config import ProjectConfig
 from strictdoc.core.traceability_index import TraceabilityIndex
 from strictdoc.export.html.html_templates import HTMLTemplates
 from strictdoc.export.html.renderers.link_renderer import LinkRenderer
+from strictdoc.features.i18n.i18n import gettext
 from strictdoc.features.project_statistics.metric import Metric, MetricSection
 from strictdoc.features.project_statistics.models.project_tree_stats import (
     DocumentTreeStats,
@@ -134,21 +135,23 @@ class ProgressStatisticsGenerator:
 
         metrics: List[Union[Metric, MetricSection]] = []
 
-        section = MetricSection(name="General information", metrics=[])
+        section = MetricSection(name=gettext("General information"), metrics=[])
         metrics.append(section)
 
         section.metrics.append(
-            Metric(name="Project name", value=project_config.project_title)
+            Metric(
+                name=gettext("Project name"), value=project_config.project_title
+            )
         )
         section.metrics.append(
             Metric(
-                name="Statistics generation date",
+                name=gettext("Statistics generation date"),
                 value=datetime.today().strftime("%Y-%m-%d %H:%M:%S"),
             )
         )
         section.metrics.append(
             Metric(
-                name="Last modification of project data",
+                name=gettext("Last modification of project data"),
                 value=traceability_index.strictdoc_last_update.strftime(
                     "%Y-%m-%d %H:%M:%S"
                 ),
@@ -156,69 +159,73 @@ class ProgressStatisticsGenerator:
         )
         section.metrics.append(
             Metric(
-                name="Git commit/release",
+                name=gettext("Git commit/release"),
                 value=document_tree_stats.git_commit_hash,
             )
         )
         section.metrics.append(
             Metric(
-                name="Total documents",
+                name=gettext("Total documents"),
                 value=str(document_tree_stats.total_documents),
             )
         )
 
-        section = MetricSection(name="Sections", metrics=[])
+        section = MetricSection(name=gettext("Sections"), metrics=[])
         metrics.append(section)
 
         section.metrics.append(
             Metric(
-                name="Total sections",
+                name=gettext("Total sections"),
                 value=str(document_tree_stats.total_sections),
                 link="search?q=node.is_section()",
             )
         )
         section.metrics.append(
             Metric(
-                name="Sections without any text",
+                name=gettext("Sections without any text"),
                 value=str(document_tree_stats.sections_without_text_nodes),
                 link="search?q=(node.is_section() and not node.contains_any_text)",
             )
         )
 
-        section = MetricSection(name="Requirements", metrics=[])
+        section = MetricSection(name=gettext("Requirements"), metrics=[])
         metrics.append(section)
 
         section.metrics.append(
             Metric(
-                name="Total requirements",
+                name=gettext("Total requirements"),
                 value=str(document_tree_stats.total_requirements),
                 link="search?q=node.is_requirement()",
             )
         )
         section.metrics.append(
             Metric(
-                name="Requirements with no UID",
+                name=gettext("Requirements with no UID"),
                 value=str(document_tree_stats.requirements_no_uid),
                 link='search?q=(node.is_requirement() and node["UID"] == None)',
             )
         )
         section.metrics.append(
             Metric(
-                name="Root-level requirements not connected to by any requirement",
+                name=gettext(
+                    "Root-level requirements not connected to by any requirement"
+                ),
                 value=str(document_tree_stats.requirements_root_no_links),
                 link='search?q=(node.is_requirement() and node.is_root and node["STATUS"] != "Backlog" and not node.has_child_requirements)',
             )
         )
         section.metrics.append(
             Metric(
-                name="Non-root-level requirements not connected to any parent requirement",
+                name=gettext(
+                    "Non-root-level requirements not connected to any parent requirement"
+                ),
                 value=str(document_tree_stats.requirements_no_links),
                 link='search?q=(node.is_requirement() and not node.is_root and node["STATUS"] != "Backlog" and not node.has_parent_requirements)',
             )
         )
         section.metrics.append(
             Metric(
-                name="Requirements with no RATIONALE",
+                name=gettext("Requirements with no RATIONALE"),
                 value=str(document_tree_stats.requirements_no_rationale),
                 link='search?q=(node.is_requirement() and node["RATIONALE"] == None)',
             )
@@ -230,7 +237,7 @@ class ProgressStatisticsGenerator:
         statuses = document_tree_stats.requirements_status_breakdown.keys()
         if any(key is not None for key in statuses):
             section = MetricSection(
-                name="Requirements status breakdown", metrics=[]
+                name=gettext("Requirements status breakdown"), metrics=[]
             )
             metrics.append(section)
 
@@ -243,7 +250,8 @@ class ProgressStatisticsGenerator:
                 )
                 section.metrics.append(
                     Metric(
-                        name=f"Requirements with status {status_}",
+                        name=gettext("Requirements with status %(status)s")
+                        % {"status": status_},
                         value=str(status_count_),
                         link='search?q=(node.is_requirement() and node["STATUS"] == '
                         + status_query_value
@@ -255,19 +263,21 @@ class ProgressStatisticsGenerator:
         # Source files metrics.
         #
 
-        section = MetricSection(name="Source files", metrics=[])
+        section = MetricSection(name=gettext("Source files"), metrics=[])
         metrics.append(section)
 
         section.metrics.append(
             Metric(
-                name="Total source files",
+                name=gettext("Total source files"),
                 value=str(document_tree_stats.total_source_files),
                 link="search?q=node.is_source_file()",
             )
         )
         section.metrics.append(
             Metric(
-                name="Total source files with complete requirements coverage",
+                name=gettext(
+                    "Total source files with complete requirements coverage"
+                ),
                 value=str(
                     document_tree_stats.total_source_files_complete_coverage
                 ),
@@ -276,7 +286,9 @@ class ProgressStatisticsGenerator:
         )
         section.metrics.append(
             Metric(
-                name="Total source files with partial requirements coverage",
+                name=gettext(
+                    "Total source files with partial requirements coverage"
+                ),
                 value=str(
                     document_tree_stats.total_source_files_partial_coverage
                 ),
@@ -285,7 +297,9 @@ class ProgressStatisticsGenerator:
         )
         section.metrics.append(
             Metric(
-                name="Total source files with no requirements coverage",
+                name=gettext(
+                    "Total source files with no requirements coverage"
+                ),
                 value=str(document_tree_stats.total_source_files_no_coverage),
                 link="search?q=node.is_source_file_with_no_coverage()",
             )
@@ -295,19 +309,19 @@ class ProgressStatisticsGenerator:
         # TBD/TBC metrics.
         #
 
-        section = MetricSection(name="TBD/TBC", metrics=[])
+        section = MetricSection(name=gettext("TBD/TBC"), metrics=[])
         metrics.append(section)
 
         section.metrics.append(
             Metric(
-                name="Total TBD",
+                name=gettext("Total TBD"),
                 value=str(document_tree_stats.total_tbd),
                 link='search?q=node.contains("TBD")',
             )
         )
         section.metrics.append(
             Metric(
-                name="Total TBC",
+                name=gettext("Total TBC"),
                 value=str(document_tree_stats.total_tbc),
                 link='search?q=node.contains("TBC")',
             )

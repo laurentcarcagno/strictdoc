@@ -30,6 +30,7 @@ from strictdoc.export.html.form_objects.form_object import (
     RowWithReservedFieldFormObject,
 )
 from strictdoc.export.html.html_templates import JinjaEnvironment
+from strictdoc.features.i18n.i18n import gettext
 from strictdoc.helpers.auto_described import auto_described
 from strictdoc.helpers.cast import assert_cast
 from strictdoc.helpers.form_data import ParsedFormData, parse_form_data
@@ -287,14 +288,15 @@ class GrammarElementFormObject(ErrorObject):
             if len(field.field_name) == 0:
                 self.add_error(
                     field.get_input_field_name(),
-                    f"Grammar field {field.field_name} must not be empty.",
+                    gettext("Grammar field %(field)s must not be empty.")
+                    % {"field": field.field_name},
                 )
                 continue
 
             if not is_uppercase_underscore_string(field.field_name):
                 self.add_error(
                     field.get_input_field_name(),
-                    (
+                    gettext(
                         "Grammar field title shall consist of "
                         "uppercase letters, digits and single underscores."
                     ),
@@ -304,7 +306,8 @@ class GrammarElementFormObject(ErrorObject):
             if field.field_name in fields_so_far:
                 self.add_error(
                     field.get_input_field_name(),
-                    f"Grammar field {field.field_name} is not unique.",
+                    gettext("Grammar field %(field)s is not unique.")
+                    % {"field": field.field_name},
                 )
             else:
                 fields_so_far.add(field.field_name)
@@ -315,7 +318,7 @@ class GrammarElementFormObject(ErrorObject):
         ):
             self.add_error(
                 "Relations_Row",
-                (
+                gettext(
                     "Every grammar must include at least one relation. "
                     "A grammar lacking any relations is not considered a "
                     "realistic use case. To address this issue, you can create "
@@ -333,11 +336,15 @@ class GrammarElementFormObject(ErrorObject):
                     if relation.relation_type in general_relations_so_far:
                         self.add_error(
                             relation.relation_type_input_name(),
-                            (
-                                f"A duplicated general relation: {relation.relation_type}. "
-                                "A relation is general when it does not have a role that specializes the relation. "
-                                "A grammar must have zero or one general relations of a given type (e.g., Parent or Child)."
-                            ),
+                            gettext(
+                                "A duplicated general relation: %(type)s. "
+                                "A relation is general when it does not have "
+                                "a role that specializes the relation. A "
+                                "grammar must have zero or one general "
+                                "relations of a given type (e.g., Parent or "
+                                "Child)."
+                            )
+                            % {"type": relation.relation_type},
                         )
                     else:
                         general_relations_so_far.add(relation.relation_type)
@@ -348,11 +355,15 @@ class GrammarElementFormObject(ErrorObject):
                     ) in role_relations_so_far:
                         self.add_error(
                             relation.relation_type_input_name(),
-                            (
-                                f"A duplicated relation and role: "
-                                f"{relation.relation_type} ({relation.relation_role}). "
-                                "A grammar must have zero or one relations with a given type and a given role."
-                            ),
+                            gettext(
+                                "A duplicated relation and role: %(type)s "
+                                "(%(role)s). A grammar must have zero or one "
+                                "relations with a given type and a given role."
+                            )
+                            % {
+                                "type": relation.relation_type,
+                                "role": relation.relation_role,
+                            },
                         )
                     else:
                         role_relations_so_far.add(

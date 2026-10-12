@@ -9,6 +9,7 @@ from strictdoc.core.transforms.constants import NodeCreationOrder
 from strictdoc.core.transforms.validation_error import (
     SingleValidationError,
 )
+from strictdoc.features.i18n.i18n import gettext
 from strictdoc.helpers.cast import assert_cast
 
 
@@ -40,12 +41,14 @@ class MoveNodeAcrossDocumentsCommand:
         if not self.traceability_index.can_move_node_across_documents(
             self.moved_node
         ):
-            raise SingleValidationError("Moving is disabled for this node.")
+            raise SingleValidationError(
+                gettext("Moving is disabled for this node.")
+            )
         if self.traceability_index.is_node_in_own_subtree(
             self.moved_node, self.target_node
         ):
             raise SingleValidationError(
-                "Cannot move a node into itself or its own descendant."
+                gettext("Cannot move a node into itself or its own descendant.")
             )
         if self.whereto == NodeCreationOrder.CHILD:
             if (
@@ -53,19 +56,21 @@ class MoveNodeAcrossDocumentsCommand:
                 and not self.target_node.is_composite
             ):
                 raise SingleValidationError(
-                    "A non-composite node cannot contain child nodes."
+                    gettext("A non-composite node cannot contain child nodes.")
                 )
         elif isinstance(self.target_node, SDocDocument):
             raise SingleValidationError(
-                "A document only supports moving a node inside it."
+                gettext("A document only supports moving a node inside it.")
             )
         destination_document = self._get_destination_document()
         if not self.traceability_index.is_move_grammar_compatible(
             self.moved_node, destination_document
         ):
             raise SingleValidationError(
-                "The destination document's grammar cannot represent "
-                "the moved subtree without changes."
+                gettext(
+                    "The destination document's grammar cannot represent "
+                    "the moved subtree without changes."
+                )
             )
 
     def perform(self) -> None:

@@ -1,6 +1,8 @@
 from enum import Enum
 from typing import Tuple
 
+from strictdoc.features.i18n.i18n import gettext
+
 
 class DocumentType(str, Enum):
     DOCUMENT = "DOCUMENT"
@@ -36,13 +38,13 @@ class DocumentType(str, Enum):
 
     def get_page_title(self) -> str:
         if self == DocumentType.DOCUMENT:
-            return "Document"
+            return gettext("Document")
         if self == DocumentType.TABLE:
-            return "Table"
+            return gettext("Table")
         if self == DocumentType.TRACE:
-            return "Traceability"
+            return gettext("Traceability")
         if self == DocumentType.DEEPTRACE:
-            return "Deep Traceability"
+            return gettext("Deep Traceability")
         if self == DocumentType.PDF:
-            return "PDF"
+            return gettext("PDF")
         raise NotImplementedError

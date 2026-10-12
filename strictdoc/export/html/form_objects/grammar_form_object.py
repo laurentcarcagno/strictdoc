@@ -17,6 +17,7 @@ from strictdoc.export.html.form_objects.rows.row_with_grammar_element_form_objec
     RowWithGrammarElementFormObject,
 )
 from strictdoc.export.html.html_templates import JinjaEnvironment
+from strictdoc.features.i18n.i18n import gettext
 from strictdoc.helpers.auto_described import auto_described
 from strictdoc.helpers.cast import assert_cast
 from strictdoc.helpers.form_data import (
@@ -171,14 +172,14 @@ class GrammarFormObject(ErrorObject):
             if len(field.field_name) == 0:
                 self.add_error(
                     field.get_input_field_name(),
-                    "Provide a name for the grammar element.",
+                    gettext("Provide a name for the grammar element."),
                 )
                 continue
 
             if not is_uppercase_underscore_string(field.field_name):
                 self.add_error(
                     field.get_input_field_name(),
-                    (
+                    gettext(
                         "Grammar element title shall consist of "
                         "uppercase letters, digits and single underscores."
                     ),
@@ -187,7 +188,8 @@ class GrammarFormObject(ErrorObject):
             if field.field_name in fields_so_far:
                 self.add_error(
                     field.get_input_field_name(),
-                    f"Grammar element {field.field_name} is not unique.",
+                    gettext("Grammar element %(element)s is not unique.")
+                    % {"element": field.field_name},
                 )
             else:
                 fields_so_far.add(field.field_name)

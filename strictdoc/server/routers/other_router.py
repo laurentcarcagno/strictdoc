@@ -30,6 +30,7 @@ from strictdoc.features.diff_and_changelog.diff_screen_view_object import (
     DiffScreenViewObject,
 )
 from strictdoc.features.diff_and_changelog.git_client import GitClient
+from strictdoc.features.i18n.i18n import gettext
 from strictdoc.server.helpers.hierarchical_rw_lock_manager import (
     HierarchicalRWLockManager,
 )
@@ -60,7 +61,9 @@ def create_other_router(
     ) -> Response:
         if not project_config.is_activated_diff():
             return Response(
-                content="The DIFF feature is not activated in the project config.",
+                content=gettext(
+                    "The DIFF feature is not activated in the project config."
+                ),
                 status_code=HTTP_STATUS_PRECONDITION_FAILED,
             )
         if tab is not None:
@@ -86,8 +89,11 @@ def create_other_router(
                     git_client.check_revision(left_revision)
                 else:
                     raise LookupError(
-                        "Left revision argument 'HEAD+' is not supported. "
-                        "'HEAD+' can only be used as a right revision argument."
+                        gettext(
+                            "Left revision argument 'HEAD+' is not supported. "
+                            "'HEAD+' can only be used as a right revision "
+                            "argument."
+                        )
                     )
 
                 if right_revision != "HEAD+":
@@ -97,7 +103,7 @@ def create_other_router(
         elif (left_revision is not None and len(left_revision) > 0) or (
             right_revision is not None and len(right_revision) > 0
         ):
-            error_message = "Valid Git revisions must be provided."
+            error_message = gettext("Valid Git revisions must be provided.")
         else:
             # In the case when both revisions are empty, we load the starting
             # diff page.
@@ -123,7 +129,9 @@ def create_other_router(
     ) -> Response:
         if not project_config.is_activated_diff():
             return Response(
-                content="The DIFF feature is not activated in the project config.",
+                content=gettext(
+                    "The DIFF feature is not activated in the project config."
+                ),
                 status_code=HTTP_STATUS_PRECONDITION_FAILED,
             )
         if tab is not None and tab not in ("diff", "changelog"):
@@ -154,8 +162,11 @@ def create_other_router(
                     )
                 else:
                     raise LookupError(
-                        "Left revision argument 'HEAD+' is not supported. "
-                        "'HEAD+' can only be used as a right revision argument."
+                        gettext(
+                            "Left revision argument 'HEAD+' is not supported. "
+                            "'HEAD+' can only be used as a right revision "
+                            "argument."
+                        )
                     )
 
                 if right_revision == "HEAD+":
@@ -171,7 +182,7 @@ def create_other_router(
         elif (left_revision is not None and len(left_revision) > 0) or (
             right_revision is not None and len(right_revision) > 0
         ):
-            error_message = "Valid Git revisions must be provided."
+            error_message = gettext("Valid Git revisions must be provided.")
         else:
             # In the case when both revisions are empty, we load the starting
             # diff page.

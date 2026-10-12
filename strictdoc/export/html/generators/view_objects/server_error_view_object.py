@@ -2,6 +2,7 @@ from strictdoc import __version__
 from strictdoc.core.project_config import ProjectConfig
 from strictdoc.export.html.html_templates import JinjaEnvironment
 from strictdoc.export.html.renderers.link_renderer import LinkRenderer
+from strictdoc.features.i18n.i18n import gettext
 
 
 class ServerErrorViewObject:
@@ -31,22 +32,24 @@ class ServerErrorViewObject:
     def get_error_title(self) -> str:
         if self.error_code == 404:
             if self.path_type == "asset":
-                return "404 — File Not Found"
-            return "404 — Page Not Found"
+                return gettext("404 — File Not Found")
+            return gettext("404 — Page Not Found")
         if self.error_code == 500:
-            return "500 — Internal Server Error"
-        return f"{self.error_code} — Error"
+            return gettext("500 — Internal Server Error")
+        return gettext("%(code)s — Error") % {"code": self.error_code}
 
     def get_error_text(self) -> str:
         if self.error_code == 404:
             if self.path_type == "asset":
-                return "The requested file doesn't exist or has been moved."
-            return (
+                return gettext(
+                    "The requested file doesn't exist or has been moved."
+                )
+            return gettext(
                 "The page you're looking for doesn't exist or has been moved."
             )
         if self.error_code == 500:
-            return "An unexpected error occurred. Please try again."
-        return "Something went wrong."
+            return gettext("An unexpected error occurred. Please try again.")
+        return gettext("Something went wrong.")
 
     def render_screen(self, jinja_environment: JinjaEnvironment) -> str:
         return jinja_environment.render_template_as_markup(

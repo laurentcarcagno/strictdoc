@@ -50,6 +50,7 @@ from strictdoc.export.html.form_objects.requirement_form_object import (
     RequirementFormFieldType,
     RequirementFormObject,
 )
+from strictdoc.features.i18n.i18n import gettext
 from strictdoc.helpers.cast import assert_cast
 from strictdoc.helpers.file_modification_time import set_file_modification_time
 from strictdoc.helpers.mid import MID
@@ -180,15 +181,21 @@ class CreateOrUpdateNodeCommand:
                                 if linked_to_node is None:
                                     form_object.add_error(
                                         field_.field_name,
-                                        "A LINK points to a node that does "
-                                        f"not exist: '{part.link}'.",
+                                        gettext(
+                                            "A LINK points to a node that "
+                                            "does not exist: '%(uid)s'."
+                                        )
+                                        % {"uid": part.link},
                                     )
                             elif isinstance(part, Anchor):
                                 if part.value in this_node_unique_anchors:
                                     form_object.add_error(
                                         field_.field_name,
-                                        "The node fields contain duplicate anchor: "
-                                        f"'{part.value}'.",
+                                        gettext(
+                                            "The node fields contain "
+                                            "duplicate anchor: '%(anchor)s'."
+                                        )
+                                        % {"anchor": part.value},
                                     )
                                     break
                                 this_node_unique_anchors.add(part.value)
