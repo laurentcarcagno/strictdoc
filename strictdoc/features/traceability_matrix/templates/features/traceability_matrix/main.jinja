@@ -37,7 +37,7 @@
 
       {%- set document_iterator = view_object.traceability_index.get_document_iterator(document) -%}
 
-      {%- for section_or_requirement, _ in document_iterator.all_content(print_fragments=True) %}
+      {%- for section_or_requirement, _unused in document_iterator.all_content(print_fragments=True) %}
         {%- if section_or_requirement.is_normative_node() %}
           <tr>
             <td>
@@ -52,7 +52,7 @@
             {% for known_relation_ in view_object.known_relations_list %}
               <td>
               {% if known_relation_[0] == "Parent" %}
-                {% for parent_requirement_, _ in view_object.traceability_index.get_parent_relations_with_role(requirement, known_relation_[1]) %}
+                {% for parent_requirement_, _unused in view_object.traceability_index.get_parent_relations_with_role(requirement, known_relation_[1]) %}
                   {%- with
                     relation_type="parent",
                     anchor=view_object.render_local_anchor(parent_requirement_),
@@ -62,7 +62,7 @@
                   {%- endwith -%}
                 {% endfor %}
 
-                {% for child_requirement_, _ in view_object.traceability_index.get_child_relations_with_role(requirement, known_relation_[1]) %}
+                {% for child_requirement_, _unused in view_object.traceability_index.get_child_relations_with_role(requirement, known_relation_[1]) %}
                   {%- with
                     relation_type="child",
                     anchor=view_object.render_local_anchor(child_requirement_),

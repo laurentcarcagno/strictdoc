@@ -148,3 +148,26 @@ def test_008_the_french_catalog_is_complete_and_keeps_the_placeholders():
         for target_ in targets:
             assert target_, message_.id
             assert sorted(placeholder.findall(target_)) == expected, message_.id
+
+
+def test_009_no_template_takes_the_name_of_the_translation_function():
+    """
+    A template that binds _ (a loop variable, a set) hides _() of the
+    templates it includes: the page breaks when it translates a text.
+    """
+    root = os.path.join(os.path.dirname(i18n.__file__), "..", "..")
+    binding = re.compile(
+        r"\{%-?\s*(for\s+[^%]*\b_\s*(,|\bin\b)|set\s+_\s*=|with\s+_\s*=)"
+    )
+    offenders = []
+    for folder_, _dirs, files_ in os.walk(root):
+        if "templates" not in folder_.replace("\\", "/").split("/"):
+            continue
+        for file_ in files_:
+            if ".jinja" not in file_ and not file_.endswith(".html"):
+                continue
+            path = os.path.join(folder_, file_)
+            with open(path, encoding="utf8") as stream_:
+                if binding.search(stream_.read()):
+                    offenders.append(path)
+    assert offenders == []

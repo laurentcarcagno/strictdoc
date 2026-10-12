@@ -20,7 +20,7 @@
   {%- endwith -%}
   {%- endif %}
 
-{%- for node, _, section_anchors in content_entries %}
+{%- for node, _unused, section_anchors in content_entries %}
   {%- include "screens/document/table/section_anchors.jinja" %}
 
   {# ============================================================ #}

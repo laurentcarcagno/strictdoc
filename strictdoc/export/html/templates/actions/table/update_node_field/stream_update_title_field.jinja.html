@@ -14,7 +14,7 @@
 {% include "actions/document/_shared/stream_updated_toc.jinja.html" %}
 
 {%- if title_presence_changed -%}
-  {%- for entry_node, _, _anchors in content_entries -%}
+  {%- for entry_node, _unused, _anchors in content_entries -%}
     {%- if entry_node.is_content_node() -%}
       {%- set requirement = entry_node -%}
       <turbo-stream action="replace" target="cell-{{ requirement.reserved_mid }}-LEVEL">

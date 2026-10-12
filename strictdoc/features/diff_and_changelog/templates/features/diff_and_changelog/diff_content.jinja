@@ -33,7 +33,7 @@
             {% include "features/diff_and_changelog/fields/document_fields.jinja" %}
 
             {%- set document_iterator = traceability_index.get_document_iterator(document) -%}
-            {%- for section_or_requirement, _ in document_iterator.all_content(print_fragments=True) %}
+            {%- for section_or_requirement, _unused in document_iterator.all_content(print_fragments=True) %}
                 {% if section_or_requirement.is_document_node() %}
                     {% with document = section_or_requirement %}
                         {% include "features/diff_and_changelog/node/document.jinja" %}

@@ -23,7 +23,7 @@
           {%- endfor %}
         {%- else %}
 
-        {%- for node, _ in view_object.document_content_iterator() %}
+        {%- for node, _unused in view_object.document_content_iterator() %}
         {%- include "screens/document/document/_node_dispatch.jinja.html" %}
         {%- endfor %}
         {%- endif %}
