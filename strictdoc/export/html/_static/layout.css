@@ -4,20 +4,18 @@
   display: grid;
 
   grid-template-columns:
-                fit-content(var(--base-gap))
+                auto
                 fit-content(20%)
                 fit-content(20%)
                 minmax( 0, 1fr ) /* issue#1370 https://css-tricks.com/preventing-a-grid-blowout/ */
                 fit-content(20%)
                 auto;
   grid-template-rows:
-                var(--base-gap)
-                minmax( 0, 1fr ) /* https://github.com/w3c/csswg-drafts/issues/1777 */
-                calc(var(--base-rhythm)*4);
+                auto
+                minmax( 0, 1fr ); /* https://github.com/w3c/csswg-drafts/issues/1777 */
   grid-template-areas:
       "nav  header   header   header   header    aside"
-      "nav  tree     bar_left main     bar_right aside"
-      "nav  footer   footer   footer   footer    aside";
+      "nav  tree     bar_left main     bar_right aside";
 
   place-items: stretch stretch;
   place-content: stretch stretch;
@@ -42,10 +40,6 @@
 }
 .layout_toc[data-position='right'] {
   grid-area: bar_right;
-}
-
-.layout_footer {
-  grid-area: footer;
 }
 
 .layout_header {
@@ -96,29 +90,28 @@
 
 sdoc-toast {
   pointer-events: initial;
-  text-align: center;
-  border-radius: var(--base-rhythm);
-  box-shadow: 0 8px 32px rgba(0,0,0,.3);
-  background: var(--color-bg-ui);
-  color: var(--color-fg-secondary-invert);
+  text-align: left;
+  border: 1px solid var(--hem-sky);
+  background: var(--hem-hover);
+  color: var(--hem-ink);
 }
 
 sdoc-toast:not(:empty) {
-  padding: .75rem 2rem;
+  padding: 10px 14px;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 1rem;
+  align-items: flex-start;
+  gap: var(--hem-space-sm);
 }
 
 sdoc-toast a,
 sdoc-toast a:link,
 sdoc-toast a:visited {
-  color: var(--color-bg-contrast);
+  color: var(--hem-sky);
 }
 
 sdoc-toast a:hover {
-  color: var(--color-fg-accent);
+  color: var(--hem-sovereign);
 }
 
 /* .toast {} */
@@ -134,11 +127,12 @@ sdoc-toast a:hover {
 }
 
 .toast-warn {
-  color: inherit;
-  background: var(--color-highlight-danger);
+  color: var(--hem-ink);
+  border-color: var(--hem-danger);
+  background: var(--hem-danger-bg);
 }
 
 .toast-loud {
-  color: var(--color-bg-main);
+  color: var(--hem-ink);
   background: inherit;
 }

@@ -48,7 +48,7 @@
   flex: 0 0 auto;
   width: 1rem;
   height: 1rem;
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1);
+  box-shadow: inset 0 0 0 1px var(--hem-border);
 }
 
 /* toolbar: contains preview-control and breadcrumbs */
@@ -250,7 +250,7 @@
 
   overflow: hidden;
   background-color: var(--canvas-bg-color);
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1);
+  box-shadow: inset 0 0 0 1px var(--hem-border);
   transition: filter 100ms ease-out;
 }
 
@@ -261,7 +261,7 @@
 
 .tree-map__node--current-level
   > .tree-map__node-surface {
-  box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.1);
+  box-shadow: inset 0 0 0 2px var(--hem-border);
 }
 
 .tree-map__node--branch:hover:not(:has(.tree-map__node--branch:hover))
@@ -270,7 +270,7 @@
      block its nearest expandable ancestor, so the leaf keeps its title while
      the click target remains visually clear. */
   filter: brightness(1.1);
-  box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.5);
+  box-shadow: inset 0 0 0 2px var(--hem-sovereign);
 }
 
 .tree-map__node--branch:focus-visible
@@ -288,7 +288,7 @@
 
 .tree-map__node--leaf
   > .tree-map__node-surface {
-  background-image: radial-gradient(circle, rgba(0, 0, 0, 0.1) 1px, transparent 1px), radial-gradient(circle, rgba(0, 0, 0, 0.1) 1px, transparent 1px);
+  background-image: radial-gradient(circle, rgb(0 20 35 / 10%) 1px, transparent 1px), radial-gradient(circle, rgb(0 20 35 / 10%) 1px, transparent 1px);
   background-size: 10px 10px;
   background-position: 0 0, 5px 5px;
 }
@@ -300,10 +300,10 @@
   /* texture over the background: */
   background-image: repeating-linear-gradient(
     135deg,
-    rgb(0 0 0 / 2%),
-    rgb(0 0 0 / 2%) 6px,
-    rgb(255 255 255 / 20%) 6px,
-    rgb(255 255 255 / 20%) 12px
+    rgb(0 20 35 / 2%),
+    rgb(0 20 35 / 2%) 6px,
+    rgb(252 253 254 / 20%) 6px,
+    rgb(252 253 254 / 20%) 12px
   );
 }
 
@@ -394,7 +394,7 @@
   min-height: 0;
   padding: 0;
   font-size:var(--font-size-xsm);
-  border-radius: calc(0.5 * var(--base-rhythm));
+  border-radius: 0;
 
   color: var(--color-action);
 }
@@ -628,10 +628,8 @@
   z-index: 1000;
   width: 300px;
   padding: var(--base-rhythm);
-  border: 1px solid var(--color-border);
-  border-radius: var(--base-rhythm);
-  background: var(--color-bg-main);
-  box-shadow: 0 2px 8px rgb(0 0 0 / 20%);
+  border: 1px solid var(--hem-sovereign);
+  background: var(--hem-white);
   color: var(--color-fg-main);
   font-size: var(--font-size-sm);
   pointer-events: none;

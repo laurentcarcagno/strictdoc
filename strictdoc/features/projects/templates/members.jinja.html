@@ -1,0 +1,94 @@
+{% extends "shell.jinja.html" %}
+
+{% block title %}Members of {{ title }}{% endblock %}
+{% block viewtype %}members{% endblock %}
+{% block nav_subtitle %}{{ title }}{% endblock %}
+
+{% block nav_items %}
+  <a class="nav_button" data-link="documents" href="/" title="Documents" data-testid="nav-documents">
+    <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 1.5h5l3 3v10H4z M9 1.5v3h3" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+    <span class="nav_button__label">Documents</span>
+  </a>
+  <a class="nav_button" data-link="members" href="/members" title="Members" data-testid="nav-members">
+    <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 7a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5zM1.5 14c0-2.5 2-4.5 4.5-4.5s4.5 2 4.5 4.5M11 2.5a2.5 2.5 0 0 1 0 4.5M12.5 9.8c1.3.6 2 2 2 4.2" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+    <span class="nav_button__label">Members</span>
+  </a>
+  {%- if portal_url %}
+  <a class="nav_button" data-link="projects" href="{{ portal_url }}" title="All projects" data-testid="nav-projects">
+    <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 3h5l1 2h6v8H2z" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+    <span class="nav_button__label">All projects</span>
+  </a>
+  {%- endif %}
+{% endblock %}
+
+{% block eyebrow %}{{ title }}{% endblock %}
+{% block heading %}Members{% endblock %}
+
+{% block content %}
+  {%- if error %}<p class="hem-error hem-error--banner" data-testid="members-error">{{ error }}</p>{% endif %}
+
+  <section class="hem-card">
+    <div class="hem-card__header">
+      <span class="hem-label">Members of the project</span>
+      <span class="hem-mono hem-card__meta">{{ rows|length }}</span>
+    </div>
+    {%- if rows %}
+    <table class="hem-table" data-testid="members-table">
+      <tr><th>User</th><th>Role</th><th></th></tr>
+      {%- for user_, role_ in rows %}
+      <tr data-testid="member-row">
+        <td class="hem-mono">{{ user_ }}</td>
+        <td>
+          <form class="hem-inline-form" method="post" action="/actions/members/set">
+            <input type="hidden" name="user" value="{{ user_ }}"/>
+            <select class="hem-select" name="role" aria-label="Role of {{ user_ }}">
+              {%- for r_ in roles %}<option{% if r_ == role_ %} selected{% endif %}>{{ r_ }}</option>{% endfor -%}
+            </select>
+            <button class="hem-btn hem-btn--ghost hem-btn--sm">Change</button>
+          </form>
+        </td>
+        <td class="hem-table__actions">
+          <form method="post" action="/actions/members/remove">
+            <input type="hidden" name="user" value="{{ user_ }}"/>
+            <button class="hem-btn hem-btn--danger hem-btn--sm">Remove</button>
+          </form>
+        </td>
+      </tr>
+      {%- endfor %}
+    </table>
+    {%- else %}
+    <table class="hem-table" data-testid="members-table"><tr><th>User</th><th>Role</th><th></th></tr></table>
+    <div class="hem-empty hem-empty--inline">
+      <span class="hem-eyebrow">No member</span>
+      <p class="hem-note">Only the groups of the login server give access to this project.</p>
+    </div>
+    {%- endif %}
+  </section>
+
+  <section class="hem-card">
+    <div class="hem-card__header"><span class="hem-label">Add a member</span></div>
+    <form class="hem-form hem-form--row" method="post" action="/actions/members/set" data-testid="members-add">
+      <label class="hem-field hem-field--grow">
+        <span class="hem-field__label">User name</span>
+        <input class="hem-input hem-mono" name="user" required list="directory-users" autocomplete="off"/>
+      </label>
+      <datalist id="directory-users">
+        {%- for user_ in suggestions %}<option value='{{ user_.username }}'>{{ user_.label() }}</option>{% endfor -%}
+      </datalist>
+      <label class="hem-field">
+        <span class="hem-field__label">Role</span>
+        <select class="hem-select" name="role">
+          {%- for r_ in roles %}<option>{{ r_ }}</option>{% endfor -%}
+        </select>
+      </label>
+      <div class="hem-form__actions">
+        <button class="hem-btn" type="submit">Add</button>
+      </div>
+    </form>
+    <div class="hem-card__footer">
+      <p class="hem-note" data-testid="directory-note">{{ directory_note }}</p>
+      <p class="hem-note">The user name is the one shown after the login (see <a href="/whoami">/whoami</a>). Every member reads all the documents. The author of a document names its reviewers.</p>
+      <p class="hem-note"><span class="hem-label">Roles</span> reader reads; reviewer also comments on every document; author also writes and names reviewers; administrator also manages the members.</p>
+    </div>
+  </section>
+{% endblock %}

@@ -1,26 +1,40 @@
+{#
+  The page header (Hemeria PageHeader): the tricolor stripe, the project as
+  eyebrow, the title of the screen, the actions on the right.
+#}
 <div class="header">
 
-  {# 0: shared by all screens #}
-  <div
-    class="header__project_name"
-    id="header-project-name"
-    title="{{ view_object.project_config.project_title }}"
-  >{{ view_object.project_config.project_title }}
+  <div class="header__stripe" aria-hidden="true">
+    <span class="header__stripe_blue"></span>
+    <span class="header__stripe_white"></span>
+    <span class="header__stripe_red"></span>
   </div>
 
-  {# 1: blocks in header: #}
-  {%- if header__items is defined -%}
-    {% for item in header__items %}
-      {% include "icons/_separator.svg" %}
-      {% include item %}
-    {% endfor %}
-  {%- endif -%}
+  <div class="header__body">
+    {# 0: shared by all screens #}
+    <div
+      class="header__project_name"
+      id="header-project-name"
+      title="{{ view_object.project_config.project_title }}"
+    >{{ view_object.project_config.project_title }}
+    </div>
 
-  {# 2: pagetype #}
-  {%- if header__pagetype is defined -%}
-    {% include "icons/_separator.svg" %}
-    {% include "components/header/header_pagetype.jinja" %}
-  {%- endif -%}
+    <div class="header__title">
+      {# 1: blocks in header: #}
+      {%- if header__items is defined -%}
+        {% for item in header__items %}
+          {% if not loop.first %}{% include "icons/_separator.svg" %}{% endif %}
+          {% include item %}
+        {% endfor %}
+      {%- endif -%}
+
+      {# 2: pagetype #}
+      {%- if header__pagetype is defined -%}
+        {%- if header__items is defined -%}{% include "icons/_separator.svg" %}{%- endif -%}
+        {% include "components/header/header_pagetype.jinja" %}
+      {%- endif -%}
+    </div>
+  </div>
 
   {# 3: placeholder block #}
   <div class="header__placeholder" data-testid="header-placeholder" id="header-placeholder"></div>

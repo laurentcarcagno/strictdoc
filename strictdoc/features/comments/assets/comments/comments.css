@@ -1,36 +1,116 @@
 turbo-frame[id^="comments-"] { display: block; }
 
-/* A comment, as a balloon in the margin of the node it is about (like Word). */
+/*
+  A comment, as a balloon in the margin of the node it is about (like Word).
+  Hemeria: a white surface with a 1px border; the active comment has a sky
+  border, a resolved one steps down to hover mist and mute ink.
+*/
 sdoc-comment {
   display: block;
-  margin: 0 0 6px 0;
-  padding: 6px 10px;
-  border-left: 3px solid #5b8def;
-  background: #f5f8ff;
-  border-radius: 3px;
-  box-shadow: 0 1px 3px rgb(0 0 0 / 12%);
-  font-size: 13px;
+  margin: 0 0 var(--hem-space-sm) 0;
+  padding: var(--hem-space-sm) var(--hem-space-md);
+  border: 1px solid var(--hem-border);
+  background: var(--hem-white);
+  border-radius: 0;
+  font-size: var(--hem-size-body);
+  transition: border-color var(--hem-transition), background-color var(--hem-transition);
 }
 sdoc-comment.sdoc-comment--resolved {
-  border-left-color: #9aa5b1;
-  background: #f4f4f4;
-  color: #666;
+  background: var(--hem-hover);
+  color: var(--hem-dim-ink);
 }
-sdoc-comment.sdoc-comment--active { outline: 2px solid #5b8def; }
-sdoc-comment-meta { display: block; font-size: 12px; color: #55606e; }
-sdoc-comment-meta > * { margin-right: 8px; }
-.sdoc-comment__status { text-transform: uppercase; font-size: 11px; }
-sdoc-comment-actions { display: flex; gap: 8px; align-items: flex-start; font-size: 12px; margin-top: 4px; flex-wrap: wrap; }
+sdoc-comment.sdoc-comment--active {
+  border-color: var(--hem-sky);
+  outline: 1px solid var(--hem-sky);
+  outline-offset: -2px;
+}
+sdoc-comment-meta {
+  display: block;
+  font-size: var(--hem-size-label);
+  color: var(--hem-mute-ink);
+}
+sdoc-comment-meta > * { margin-right: var(--hem-space-sm); }
+sdoc-comment-meta time {
+  font-family: var(--hem-font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* The status, as a status pill: open is information, resolved is success. */
+.sdoc-comment__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0 6px;
+  border: 1px solid var(--hem-sky);
+  background: var(--hem-hover);
+  color: var(--hem-sky);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.sdoc-comment__status::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  background-color: currentColor;
+}
+sdoc-comment.sdoc-comment--resolved .sdoc-comment__status {
+  border-color: var(--hem-success);
+  background: var(--hem-success-bg);
+  color: var(--hem-success);
+}
+
+sdoc-comment-actions {
+  display: flex;
+  gap: var(--hem-space-sm);
+  align-items: flex-start;
+  font-size: 12px;
+  margin-top: var(--hem-space-xs);
+  flex-wrap: wrap;
+}
 sdoc-comment-actions form, sdoc-comment-actions details { margin: 0; }
-sdoc-comment textarea, .sdoc-comment-add textarea { width: 100%; box-sizing: border-box; }
-.sdoc-comment-add { margin: 6px 0; padding: 6px 10px; background: #fffbe6; border-left: 3px solid #e0a800; border-radius: 3px; }
+sdoc-comment textarea, .sdoc-comment-add textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 6px 10px;
+  border: 1px solid var(--hem-border);
+  border-radius: 0;
+  background: var(--hem-white);
+  color: var(--hem-ink);
+  font: inherit;
+  transition: border-color var(--hem-transition);
+}
+sdoc-comment textarea:hover, .sdoc-comment-add textarea:hover {
+  border-color: var(--hem-sovereign);
+}
+sdoc-comment textarea:focus, .sdoc-comment-add textarea:focus {
+  border-color: var(--hem-sky);
+  outline: 2px solid var(--hem-sky);
+  outline-offset: -2px;
+}
+
+/* The form of a new comment: a white surface framed in deep blue. */
+.sdoc-comment-add {
+  margin: var(--hem-space-sm) 0;
+  padding: var(--hem-space-sm) var(--hem-space-md);
+  background: var(--hem-white);
+  border: 1px solid var(--hem-sovereign);
+  border-radius: 0;
+}
 .sdoc-comment-add[hidden], sdoc-comment-quote[hidden] { display: none; }
-sdoc-comment-quote { display: block; font-size: 12px; font-style: italic; color: #6b5a00; margin-bottom: 4px; }
+sdoc-comment-quote {
+  display: block;
+  font-size: 12px;
+  font-style: italic;
+  color: var(--hem-dim-ink);
+  margin-bottom: var(--hem-space-xs);
+}
 
 /* The words that a comment is about. */
-mark.sdoc-comment-anchor { background: #fff1a8; color: inherit; padding: 0; }
-mark.sdoc-comment-anchor--resolved { background: #ececec; }
-mark.sdoc-comment-anchor--active, mark.sdoc-comment-anchor--pending { background: #ffd54a; }
+mark.sdoc-comment-anchor { background: var(--hem-warning-bg); color: inherit; padding: 0; }
+mark.sdoc-comment-anchor--resolved { background: var(--hem-muted); }
+mark.sdoc-comment-anchor--active, mark.sdoc-comment-anchor--pending { background: var(--hem-selection); }
 
 .sdoc-comment-lines {
   position: absolute;
@@ -40,9 +120,9 @@ mark.sdoc-comment-anchor--active, mark.sdoc-comment-anchor--pending { background
   z-index: 5;
   overflow: visible;
 }
-.sdoc-comment-lines path { fill: none; stroke: #e0a800; stroke-width: 1; }
-.sdoc-comment-lines path.sdoc-comment-line--resolved { stroke: #b0b0b0; }
-.sdoc-comment-lines path.sdoc-comment-line--active { stroke: #5b8def; stroke-width: 1.5; }
+.sdoc-comment-lines path { fill: none; stroke: var(--hem-warning); stroke-width: 1; }
+.sdoc-comment-lines path.sdoc-comment-line--resolved { stroke: var(--hem-border); }
+.sdoc-comment-lines path.sdoc-comment-line--active { stroke: var(--hem-sky); stroke-width: 1.5; }
 
 /* Wide screens: the comments of a node are in the margin to its right. */
 @media (min-width: 1100px) {

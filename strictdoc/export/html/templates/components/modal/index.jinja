@@ -5,9 +5,12 @@
   <sdoc-backdrop>
       <sdoc-modal context="{%- block modal__context -%}{%- endblock -%}">
         <sdoc-modal-header data-testid="modal-header">
-        {%- block modal_header -%}
-          {#- must be present in the DOM, but empty if no content is provided -#}
-        {%- endblock -%}
+          <div class="sdoc-modal-header__title">
+          {%- block modal_header -%}
+            {#- must be present in the DOM, but empty if no content is provided -#}
+          {%- endblock -%}
+          </div>
+          {% include "components/modal/close_button.jinja" %}
         </sdoc-modal-header>
         <sdoc-modal-container>
         {%- block modal_container %}{% endblock -%}

@@ -247,7 +247,7 @@
   /* margin-left: calc(var(--requirement-tree-downward-margin) + var(--requirement-tree-downward-string-margin)); */
   margin-left: calc(var(--requirement-tree-downward-margin) - 0.25rem);
 
-  border-radius: 4px;
+  border-radius: 0;
   overflow: clip;
   border: 1px solid var(--requirement-tree-line-color);
   background-color: var(--color-bg-main);

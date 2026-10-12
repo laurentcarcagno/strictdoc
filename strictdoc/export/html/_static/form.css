@@ -9,7 +9,7 @@ sdoc-backdrop {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: rgba(0,0,0,.5);
+  background: var(--hem-backdrop);
   z-index: 99999;
 }
 
@@ -24,28 +24,27 @@ sdoc-modal {
   place-items: stretch stretch;
   place-content: stretch stretch;
 
-  background-color: var(--color-bg-contrast);
-  border-radius: 8px;
+  background-color: var(--hem-white);
+  border: 1px solid var(--hem-sovereign);
+  border-radius: 0;
 
-  width: 600px;
+  width: 640px;
   max-width: 90vw;
   min-width: 375px;
   max-height: 90vh;
-
-  box-shadow: var(--base-elevation-modal);
 
   /* scroll if necessary is available in the child container */
   overflow: hidden;
 }
 
 sdoc-modal[context="confirm"] {
-  width: 600px;
+  width: 480px;
 }
 
 sdoc-modal[context="form"] {
   width: 90vw;
   height: 90vh;
-  max-width: 600px;
+  max-width: 640px;
   max-height: 90vh;
 }
 
@@ -61,16 +60,22 @@ sdoc-modal-container {
 
 sdoc-modal-header {
   grid-area: modal-header;
-  font-size: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: var(--hem-space-md);
+  min-height: 44px;
+  padding: 0 var(--hem-space-sm) 0 14px;
+  background-color: var(--hem-sovereign);
+  color: var(--hem-white);
+  font-family: var(--hem-font-heading);
+  font-size: var(--hem-size-h3);
   font-weight: 600;
+  letter-spacing: var(--hem-track-heading);
 }
 
 sdoc-modal-header:not(:empty) {
-  /* If not passed, it occupies a row in the grid but has no height */
-  padding-top: calc(var(--base-rhythm)*2);
-  padding-bottom: calc(var(--base-rhythm)*2);
-  padding-left: calc(var(--base-rhythm)*4);
-  padding-right: calc(var(--base-rhythm)*4);
+  padding-top: var(--hem-space-sm);
+  padding-bottom: var(--hem-space-sm);
 }
 
 .sdoc-modal-header-back-button {
@@ -81,15 +86,39 @@ sdoc-modal-header:not(:empty) {
 }
 
 .sdoc-modal-header-back-button:hover {
-  color: var(--color-action);
+  color: var(--hem-white);
+}
+
+.sdoc-modal-header__title {
+  flex-grow: 1;
+  min-width: 0;
+}
+
+/* The close button of the header: square, 24px. */
+.sdoc-modal-close {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  margin-left: auto;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: rgb(252 253 254 / 70%);
+  cursor: pointer;
+  transition: color var(--hem-transition), background-color var(--hem-transition);
+}
+
+.sdoc-modal-close:hover {
+  color: var(--hem-white);
+  background-color: rgb(252 253 254 / 10%);
 }
 
 sdoc-modal-content {
   grid-area: modal-content;
-  border-top: var(--base-border);
-  border-bottom: var(--base-border);
-  /* padding-top: calc(var(--base-rhythm)*2); */
-  /* padding-bottom: calc(var(--base-rhythm)*2); */
+  border-bottom: 1px solid var(--hem-border);
   overflow: auto;
   scroll-behavior: smooth;
 }
@@ -106,11 +135,8 @@ sdoc-modal-footer {
   grid-area: modal-footer;
   display: flex;
   justify-content: flex-end; /* buttons to right */
-  padding-top: calc(var(--base-rhythm)*2);
-  padding-bottom: calc(var(--base-rhythm)*2);
-  padding-left: calc(var(--base-rhythm)*4);
-  padding-right: calc(var(--base-rhythm)*3); /* buttons to right */
-  column-gap: var(--base-rhythm);
+  padding: var(--hem-space-md);
+  column-gap: var(--hem-space-sm);
 }
 
 /* sdoc-form  */
@@ -119,7 +145,7 @@ sdoc-form {
   display: block;
   position: relative;
   background-color: var(--color-bg-contrast);
-  border-radius: 4px;
+  border-radius: 0;
   z-index: 11;
   border: 1px solid var(--color-fg-accent);
 }
@@ -129,8 +155,11 @@ sdoc-form-header {
   padding-top: 0;
   padding-left: calc(var(--base-rhythm)*4);
   padding-right: calc(var(--base-rhythm)*4);
-  font-size: 1.25rem;
+  font-family: var(--hem-font-heading);
+  font-size: var(--hem-size-h3);
   font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--hem-ink);
 }
 
 sdoc-form-descr {
@@ -213,7 +242,7 @@ sdoc-form-row [data-action-type="add_field"]:only-child {
     to the requirement edit form.
   */
   justify-content: flex-start;
-  /* color: rgba(0,0,0,0.5) !important; */
+  /* color: rgb(0 20 35 / 50%) !important; */
   border: none;
   top: -40%;
 }
@@ -288,7 +317,7 @@ sdoc-form-field-group {
 
   padding: var(--base-rhythm);
   border: var(--base-border);
-  border-radius: var(--base-rhythm);
+  border-radius: 0;
 
   gap: calc(var(--base-rhythm)*3); /* label (2) + 1 */
   padding-top: calc(var(--base-rhythm)*3); /* related to column gap */
@@ -301,10 +330,11 @@ sdoc-form-field-group::before {
   /* TODO move to other label */
   content: attr(data-field-label);
   position: absolute;
-  font-family: var(--code-font-family);
-  font-size: var(--font-size-xsm);
-  font-weight: 500;
-  color: var(--color-placeholder);
+  font-family: var(--hem-font-body);
+  font-size: var(--hem-size-label);
+  font-weight: 700;
+  letter-spacing: var(--hem-track-label);
+  color: var(--hem-dim-ink);
   text-transform: uppercase;
   top: calc(var(--base-rhythm)*(-1.25));
   right: var(--base-rhythm);
@@ -336,7 +366,7 @@ sdoc-autocompletable[contenteditable="false"] {
 sdoc-contenteditable.is-dragging {
   outline: 2px dashed var(--color-fg-accent);
   outline-offset: -2px;
-  background-color: rgba(var(--color-fg-accent-rgb), 0.05);
+  background-color: rgb(0 110 177 / 5%);
   cursor: copy !important;
 }
 
@@ -369,7 +399,7 @@ sdoc-contenteditable.is-dragging {
   display:block;
   padding:.25rem 0.25rem;
   margin-bottom:-1px;
-  border:1px solid rgba(0,0,0,.125)
+  border:1px solid rgb(0 20 35 / 12.5%)
 }
 
 .autocompletable-result-item_no-results {
@@ -403,13 +433,14 @@ sdoc-autocompletable::before {
   content: attr(data-field-label);
   /* for all */
   position: absolute;
-  font-family: var(--code-font-family);
-  font-size: var(--font-size-xsm);
-  font-weight: 500;
-  color: var(--color-placeholder);
+  font-family: var(--hem-font-body);
+  font-size: var(--hem-size-label);
+  font-weight: 700;
+  letter-spacing: var(--hem-track-label);
+  color: var(--hem-dim-ink);
   text-transform: uppercase;
   top: calc(var(--base-rhythm)*(-2.25));
-  transition: color .2s ease;
+  transition: color var(--hem-transition);
 
   white-space: nowrap;
 }
@@ -422,28 +453,32 @@ sdoc-autocompletable:focus::before {
 
 /* sdoc-form-field select */
 sdoc-form-field select {
-  /* A reset of styles, including removing the default dropdown arrow */
-  /* appearance: none; */
-  background-color: transparent;
-  /* border: none; */
-  border: 1px solid var(--color-placeholder);
-  border-radius: 6px;
+  background-color: var(--hem-white);
+  border: 1px solid var(--hem-border);
+  border-radius: 0;
 
-  padding: 0 1em 0 .5em;
+  min-height: var(--hem-control-height);
+  padding: 5px 8px;
   margin: 0;
   width: 100%;
   font-family: inherit;
   font-size: inherit;
-  cursor: inherit;
+  color: var(--hem-ink);
+  cursor: pointer;
   line-height: inherit;
   /* Stack above custom arrow */
   z-index: 1;
-  /* Remove focus outline, will add on alternate element */
-  outline: none;
+  transition: border-color var(--hem-transition);
+}
+
+sdoc-form-field select:hover {
+  border-color: var(--hem-sovereign);
 }
 
 sdoc-form-field select:focus {
-  border: 1px solid var(--color-fg-accent);
+  border-color: var(--hem-sky);
+  outline: 2px solid var(--hem-sky);
+  outline-offset: -2px;
 }
 
 /* Remove dropdown arrow in IE10 & IE11
@@ -464,7 +499,7 @@ sdoc-form-field select::-ms-expand {
 }
 
 [placeholder]:empty:focus::after {
-  color: rgba(242, 100, 42,.2);
+  color: rgb(0 110 177 / 20%);
 }
 
 sdoc-contenteditable[data-field-suffix]:not(:empty)::after,
@@ -501,6 +536,36 @@ sdoc-autocompletable[data-field-suffix]:not(:empty)::after {
   font-family: var(--code-font-family);
 }
 
+/* Hemeria input frame for the fields of forms: 1px border, deep blue on
+   hover, 2px sky on focus. */
+sdoc-form-field sdoc-contenteditable[contenteditable="true"],
+sdoc-form-field sdoc-autocompletable[contenteditable="true"] {
+  padding: 6px 10px;
+  background-color: var(--hem-white);
+  border: 1px solid var(--hem-border);
+  transition: border-color var(--hem-transition);
+}
+
+sdoc-form-field sdoc-contenteditable[contenteditable="true"]:hover,
+sdoc-form-field sdoc-autocompletable[contenteditable="true"]:hover {
+  border-color: var(--hem-sovereign);
+}
+
+sdoc-form-field sdoc-contenteditable[contenteditable="true"]:focus,
+sdoc-form-field sdoc-autocompletable[contenteditable="true"]:focus {
+  border-color: var(--hem-sky);
+  outline: 2px solid var(--hem-sky);
+  outline-offset: -2px;
+}
+
+/* A field with an error: danger border, the background stays. */
+sdoc-form-field sdoc-contenteditable[errors],
+sdoc-form-field sdoc-autocompletable[errors],
+sdoc-form-error + sdoc-form-field > sdoc-contenteditable,
+sdoc-form-error + sdoc-form-field > sdoc-autocompletable {
+  border-color: var(--hem-danger);
+}
+
 
 
 form[data-js-scroll-into-view] {
@@ -511,19 +576,26 @@ form[data-js-scroll-into-view] {
 
 /* input */
 
+sdoc-form input[type="text"]:hover {
+  border-color: var(--hem-sovereign);
+}
+
 sdoc-form input[type="text"] {
-  padding: var(--base-rhythm);
+  padding: 6px 10px;
   font-size: var(--font-size);
-  border: 1px solid var(--color-border);
-  border-radius: 3px;
+  color: var(--hem-ink);
+  background-color: var(--hem-white);
+  border: 1px solid var(--hem-border);
+  border-radius: 0;
   outline: transparent;
   width: 100%;
-  transition: border-color calc(var(--transition, 0.2) * 1s) ease;
+  transition: border-color var(--hem-transition);
 }
 
 sdoc-form input[type="text"]:focus {
-  border-color: var(--color-action);
-  color: var(--color-action);
+  border-color: var(--hem-sky);
+  outline: 2px solid var(--hem-sky);
+  outline-offset: -2px;
 }
 
 /* diff */
@@ -543,7 +615,7 @@ sdoc-form[diff] form {
   padding: var(--base-rhythm);
   background-color: var(--color-bg-contrast);
   border: 1px solid var(--color-border);
-  border-radius: 4px;
+  border-radius: 0;
 }
 
 /* search */
@@ -562,7 +634,7 @@ sdoc-form[search] form {
   padding: var(--base-rhythm);
   background-color: var(--color-bg-contrast);
   border: 1px solid var(--color-border);
-  border-radius: 4px;
+  border-radius: 0;
 }
 
 sdoc-form[search][success] {
@@ -571,9 +643,9 @@ sdoc-form[search][success] {
 
 sdoc-form-error {
   display: block;
-  color: var(--color-danger);
-  font-size: 12px;
-  font-weight: normal;
+  color: var(--hem-danger);
+  font-size: var(--hem-size-label);
+  font-weight: 400;
   text-transform: none;
   /*
     set 'order' to be displayed after any other items,

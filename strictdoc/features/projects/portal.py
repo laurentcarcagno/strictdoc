@@ -14,18 +14,58 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 from starlette.applications import Starlette
 from starlette.requests import Request
 from starlette.responses import HTMLResponse, RedirectResponse, Response
-from starlette.routing import Route
+from starlette.routing import Mount, Route
+from starlette.staticfiles import StaticFiles
 
 from strictdoc.features.projects.manager import ProjectManager
 from strictdoc.features.roles.principal import Principal
 from strictdoc.helpers.exception import StrictDocException
 
-_TEMPLATES = Environment(
+TEMPLATES = Environment(
     loader=FileSystemLoader(
         os.path.join(os.path.dirname(__file__), "templates")
     ),
     autoescape=select_autoescape(["html"]),
 )
+
+
+# The static files of StrictDoc (styles, fonts, nav.js): the portal serves
+# them at /assets, the path that the projects use for theirs.
+STATIC_DIR = os.path.join(
+    os.path.dirname(__file__), "..", "..", "export", "html", "_static"
+)
+ASSETS_URL = "/assets"
+# Logs out of oauth2-proxy, which also ends the session of the login server
+# (its --backend-logout-url).
+LOGOUT_URL = "/oauth2/sign_out"
+
+
+def portal_url(request: Request) -> str:
+    """The portal, seen from a project host: <slug>.<root> gives <root>."""
+    scheme = request.headers.get("x-forwarded-proto", "http")
+    host = request.headers.get("host", "")
+    root = host.partition(".")[2] or host
+    return f"{scheme}://{root}/"
+
+
+def shell_context(
+    request: Request,
+    role: Optional[str] = None,
+    assets: str = ASSETS_URL,
+) -> Dict[str, Any]:
+    """What the frame of the pages (shell.jinja.html) shows of the user."""
+    principal: Optional[Principal] = request.scope.get("state", {}).get(
+        "principal"
+    )
+    user = principal.user if principal is not None else None
+    signed_in = user is not None and user != "anonymous"
+    return {
+        "assets": assets,
+        "user": user,
+        "role": role,
+        "logout_url": LOGOUT_URL if signed_in else None,
+        "portal_url": portal_url(request),
+    }
 
 
 def same_origin(request: Request) -> bool:
@@ -72,9 +112,9 @@ def create_portal(
                     "members_url": project_url(request, slug_) + "/members",
                 }
             )
-        output = _TEMPLATES.get_template("portal.jinja.html").render(
+        output = TEMPLATES.get_template("portal.jinja.html").render(
+            **shell_context(request),
             rows=rows,
-            user=principal.user,
             can_create=manager.is_platform_admin(principal)
             and manager.data_root is not None,
             error=error,
@@ -108,6 +148,7 @@ def create_portal(
         routes=[
             Route("/", home),
             Route("/projects/create", create, methods=["POST"]),
+            Mount(ASSETS_URL, app=StaticFiles(directory=STATIC_DIR)),
         ]
     )
 

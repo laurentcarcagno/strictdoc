@@ -174,7 +174,9 @@ def create_app(*, project_config: ProjectConfig) -> FastAPI:
     if project_config.members_admin is not None:
         app.include_router(
             create_members_router(
-                project_config.members_admin, project_config.project_title
+                project_config.members_admin,
+                project_config.project_title,
+                assets_url="/" + project_config.dir_for_sdoc_assets,
             )
         )
 

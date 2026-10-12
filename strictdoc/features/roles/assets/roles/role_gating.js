@@ -1,5 +1,5 @@
 // Sets data-role on <html> from /whoami, so that role_gating.css can hide what
-// the role cannot do, and shows the user name and role in the header.
+// the role cannot do, and shows the user in the footer of the sidebar.
 // The server enforces the roles; this only avoids showing dead buttons.
 (() => {
   const KEY = 'sdoc-whoami';
@@ -34,15 +34,40 @@
     }
   }
 
-  function showBadge(who) {
-    if (document.querySelector('[data-testid="user-badge"]')) return;
-    const handler = document.getElementById('header-actions');
-    if (!handler || !handler.parentElement) return;
-    const badge = document.createElement('span');
-    badge.className = 'sdoc-user-badge';
-    badge.dataset.testid = 'user-badge';
-    badge.textContent = `${who.user} (${who.role || 'no role'})`;
-    handler.parentElement.insertBefore(badge, handler);
+  // The user footer of the sidebar (_shared/nav.jinja.html): initials, name,
+  // role. The logout is an item of the sidebar.
+  function showUser(who) {
+    const footer = document.getElementById('nav-user');
+    if (!footer || footer.dataset.filled) return;
+    footer.dataset.filled = '1';
+
+    const name = who.user || '';
+    const initials = name
+      .split(/[\s._-]+/)
+      .filter(Boolean)
+      .map((part) => part[0])
+      .join('')
+      .slice(0, 2) || '?';
+
+    const avatar = document.createElement('span');
+    avatar.className = 'nav__avatar';
+    avatar.setAttribute('aria-hidden', 'true');
+    avatar.textContent = initials;
+
+    const identity = document.createElement('span');
+    identity.className = 'nav__identity';
+    identity.dataset.testid = 'user-badge';
+    const userName = document.createElement('span');
+    userName.className = 'nav__user_name';
+    userName.textContent = name;
+    const userRole = document.createElement('span');
+    userRole.className = 'nav__user_role';
+    userRole.textContent = who.role || 'no role';
+    identity.append(userName, userRole);
+
+    footer.title = `${name} (${who.role || 'no role'})`;
+    footer.append(avatar, identity);
+    footer.hidden = false;
   }
 
   try {
@@ -63,9 +88,9 @@
       }
       apply(who);
       if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', () => showBadge(who));
+        document.addEventListener('DOMContentLoaded', () => showUser(who));
       } else {
-        showBadge(who);
+        showUser(who);
       }
     });
 })();

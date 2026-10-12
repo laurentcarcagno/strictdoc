@@ -25,7 +25,7 @@ ul.requirement__link {
 
 .requirement__link a::before,
 .requirement__link li > span::before {
-  color: #808080;
+  color: var(--hem-mute-ink);
   position: absolute;
   left: -1.5rem;
 }

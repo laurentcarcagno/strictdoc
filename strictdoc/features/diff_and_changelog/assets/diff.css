@@ -1,18 +1,18 @@
 /* diff */
 :root {
   --pre-stripe: 20px;
-  --pre-stripe-color: rgba(0,0,0,0.02);
-  --pre-block-bg-color: rgba(0,0,0,0.01);
+  --pre-stripe-color: rgb(0 20 35 / 2%);
+  --pre-block-bg-color: rgb(0 20 35 / 1%);
 
-  --diff-block-color-left: rgba(255, 55, 55, .05);
-  --diff-word-color-left: rgba(255, 55, 55, .2);
-  --diff-icon-color-left: rgba(255, 55, 55, .75);
-  --diff-document-color-left: rgba(255, 55, 55, 1);
+  --diff-block-color-left: rgb(186 26 26 / 5%);
+  --diff-word-color-left: rgb(186 26 26 / 20%);
+  --diff-icon-color-left: rgb(186 26 26 / 75%);
+  --diff-document-color-left: rgb(186 26 26);
 
-  --diff-block-color-right: rgba(20, 120, 20, .05);
-  --diff-word-color-right: rgba(20, 120, 20, .2);
-  --diff-icon-color-right: rgba(20, 120, 20, .75);
-  --diff-document-color-right: rgba(20, 120, 20, 1);
+  --diff-block-color-right: rgb(31 138 76 / 5%);
+  --diff-word-color-right: rgb(31 138 76 / 20%);
+  --diff-icon-color-right: rgb(31 138 76 / 75%);
+  --diff-document-color-right: rgb(31 138 76);
 }
 
 /*
@@ -69,7 +69,7 @@
 
   overflow-wrap: break-word;
 
-  border-radius: 4px;
+  border-radius: 0;
   border: 1px solid var(--color-border);
 
   position: relative; /* for position:sticky */
@@ -143,7 +143,7 @@
 .diff_document {
   background-color: var(--color-bg-contrast);
   border: 1px solid transparent;
-  border-radius: 4px;
+  border-radius: 0;
   padding: 0 var(--base-rhythm);
 }
 
@@ -152,11 +152,11 @@
 }
 
 .diff_document[modified="left"] {
-  border-color: var(--diff-document-color-left, rgba(255, 55, 55, 1));
+  border-color: var(--diff-document-color-left, rgb(186 26 26));
 }
 
 .diff_document[modified="right"] {
-  border-color: var(--diff-document-color-right, rgba(20, 120, 20, 1));
+  border-color: var(--diff-document-color-right, rgb(31 138 76));
 }
 
 .diff_document > summary {
@@ -280,7 +280,7 @@
 .changelog_change {
   background-color: var(--color-bg-contrast);
   border: 1px solid var(--color-border);
-  border-radius: 4px;
+  border-radius: 0;
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
@@ -356,7 +356,7 @@
   content: attr(text);
   padding: 0 calc(var(--base-rhythm)/2);
   border: 1px solid;
-  border-radius: calc(var(--base-rhythm)/2);
+  border-radius: 0;
   font-size: var(--font-size-xxsm);
   font-weight: 600;
   text-transform: uppercase;
@@ -453,8 +453,8 @@
 }
 
 @keyframes change-color {
-  from {background-color: rgba(255,255,255,0.8);}
-  to {background-color: rgba(255,255,255,0.3);}
+  from {background-color: rgb(252 253 254 / 80%);}
+  to {background-color: rgb(252 253 254 / 30%);}
 }
 
 @keyframes pulse {
@@ -478,7 +478,7 @@
   color: var(--color-fg-accent);
   width: 1em;
   height: 1em;
-  border-radius: 50%;
+  border-radius: 0;
 }
 
 @keyframes mulShdSpin {

@@ -1,6 +1,6 @@
 .move_node_tree {
   --move-node-tree-padding-left: calc(var(--base-rhythm) * 2);
-  --move-node-tree-indicator: rgb(242 100 42);
+  --move-node-tree-indicator: rgb(0 110 177);
 
   color: var(--color-fg-secondary);
   font-size: var(--font-size-sm);
@@ -15,7 +15,7 @@
   align-items: center;
   justify-content: center;
   padding: calc(var(--base-rhythm) * 4);
-  background: rgb(0 0 0 / 25%);
+  background: rgb(0 20 35 / 25%);
 }
 
 .move_node_tree__confirmation[hidden] {
@@ -27,7 +27,7 @@
   color: var(--color-fg-main);
   overflow: hidden;
   background: var(--color-bg-contrast);
-  border-radius: 8px;
+  border-radius: 0;
   box-shadow: var(--base-elevation-modal);
 }
 
@@ -114,10 +114,10 @@
   align-items: center;
   justify-content: center;
   padding: 0;
-  border: 1px solid rgb(0 0 0 / 10%);
-  border-radius: 50%;
+  border: 1px solid rgb(0 20 35 / 10%);
+  border-radius: 0;
   background: var(--color-bg-main);
-  color: rgb(0 0 0 / 50%);
+  color: rgb(0 20 35 / 50%);
   cursor: pointer;
   font-size: 14px;
   font-weight: bold;
@@ -135,7 +135,7 @@
 .move_node_tree__collapse:hover,
 .move_node_tree__collapse:focus-visible {
   color: var(--color-fg-contrast);
-  box-shadow: rgb(0 0 0 / 15%) 0 2px 8px 0;
+  background-color: var(--hem-hover);
 }
 
 .move_node_tree__document_icon {

@@ -47,7 +47,7 @@ class Test(E2ECase):
             screen_document.assert_text(
                 "Link does not get corrupted\n"
                 "Link does not get corrupted\n"
-                "Link does not get corrupted\n"
+                "Link does not get corrupted"
             )
 
         assert test_setup.compare_sandbox_and_expected_output()

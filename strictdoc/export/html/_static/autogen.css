@@ -482,7 +482,7 @@ sdoc-autogen table td {
   padding: var(--base-rhythm) calc(var(--base-rhythm) * 1.5);
   vertical-align: top;
   text-align: left;
-  border: 1px solid #ccc;
+  border: 1px solid var(--hem-border);
 }
 
 sdoc-autogen table caption,
@@ -502,9 +502,9 @@ sdoc-autogen p {
 /* blockquote */
 
 sdoc-autogen blockquote {
-  color: #666;
+  color: var(--hem-dim-ink);
   padding: .25em 0 0.25em 1rem;
-  border-left: 4px solid #ccc;
+  border-left: 4px solid var(--hem-border);
   margin: var(--autogen-v-rhythm) 0;
 }
 
@@ -549,16 +549,16 @@ sdoc-autogen pre.code {
     white-space/overflow-wrap below.
 
       We solve the equation:
-      availableWidth = font-size × (80 × 0.6)  in terms of `font-size`.
+      availableWidth = font-size × (80 × 0.5)  in terms of `font-size`.
 
     • 100cqi is the width of the nearest ancestor query container
       (sdoc-field-content, see element.css).
       We subtract this block's own inline padding and border to get the actual
       space available for text.
 
-    • 0.6 is the advance-width-to-em ratio of the bundled Noto Sans Mono font.
+    • 0.5 is the advance-width-to-em ratio of the bundled Ubuntu Mono font.
       This ratio is font-specific. If --code-font-family resolves to another
-      monospace font, its character width may differ from 0.6em; accepted as
+      monospace font, its character width may differ from 0.5em; accepted as
       an approximation.
 
     • The clamp() function ensures that the font size never goes
@@ -567,7 +567,7 @@ sdoc-autogen pre.code {
   font-size: var(--code-font-size); /* fallback without container queries */
   font-size: clamp(
     var(--code-font-size-min, 10px),
-    calc((100cqi - 3 * var(--code-font-size) - 2px) / (80 * 0.6)),
+    calc((100cqi - 3 * var(--code-font-size) - 2px) / (80 * 0.5)),
     var(--code-font-size)
   );
 
@@ -596,7 +596,7 @@ sdoc-autogen tt.literal {
   font-size: var(--code-font-size);
   background-color: var(--color-bg-main);
   border: 1px solid var(--color-border);
-  border-radius: 4px;
+  border-radius: 0;
 
   overflow-wrap: break-word;
   word-wrap: break-word;
@@ -608,7 +608,7 @@ sdoc-autogen pre.doctest-block {
   background-color: var(--color-fg-main);
   color: var(--color-bg-main);
   border: none;
-  border-radius: 4px;
+  border-radius: 0;
   position: relative;
 }
 
@@ -622,7 +622,7 @@ sdoc-autogen pre.doctest-block::before {
   font-size: xx-small;
   line-height: 1;
   padding: 4px 6px;
-  border-radius: 4px;
+  border-radius: 0;
 }
 
 /* ul */
@@ -688,7 +688,7 @@ sdoc-autogen .admonition {
   overflow: hidden;
   padding: 0 var(--autogen-v-rhythm);
   border: var(--requirement-border-width, 1px) solid;
-  border-radius: var(--requirement-border-radius);
+  border-radius: 0;
   margin: var(--autogen-v-rhythm) 0;
   color: var(--color-fg-main);
 }
@@ -717,10 +717,10 @@ sdoc-autogen .admonition .admonition-title::after {
   right: calc(-1 * var(--autogen-v-rhythm));
   /* background:repeating-linear-gradient(
     -45deg,
-    rgba(255, 255, 255, .25),
-    rgba(255, 255, 255, .25) 10px,
-    rgba(255, 255, 255, .0) 10px,
-    rgba(255, 255, 255, .0) 20px
+    rgb(252 253 254 / 25%),
+    rgb(252 253 254 / 25%) 10px,
+    transparent 10px,
+    transparent 20px
   ); */
   background-color: currentColor;
   opacity: 0.1;

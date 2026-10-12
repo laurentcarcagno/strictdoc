@@ -1,7 +1,19 @@
-<div class="nav">
+{#
+  The application sidebar (Hemeria app shell): brand lockup, the screens of
+  the project, the user. Collapsed to icons with the toggle at the bottom;
+  the choice is kept in the browser (nav.js).
+#}
+<div class="nav" id="nav" data-testid="nav">
 
-{# TODO: title="Project name" #}
+  <div class="nav__brand" title="{{ view_object.project_config.project_title }}">
+    <span class="nav__lockup" aria-label="StrictDoc Hemeria">
+      <span class="nav__lockup_full">STRICTDOC<span class="nav__lockup_dot"></span>HEMERIA</span>
+      <span class="nav__lockup_short">S<span class="nav__lockup_dot"></span>H</span>
+    </span>
+    <span class="nav__subtitle">{{ view_object.project_config.project_title }}</span>
+  </div>
 
+  <div class="nav__items">
   <a
     data-link="index"
     class="nav_button"
@@ -10,6 +22,7 @@
     data-testid="project-tree-link-project-index"
   >
     {% include "icons/ico16_index.svg" %}
+    <span class="nav_button__label">Project index</span>
   </a>
 
 {%- set project_statistics_feature = view_object.project_config.get_feature("PROJECT_STATISTICS_SCREEN") -%}
@@ -22,6 +35,7 @@
     data-testid="project-tree-link-project-statistics"
   >
     {% include project_statistics_feature.screen_icon() %}
+    <span class="nav_button__label">Project statistics</span>
   </a>
 {%- endif -%}
 
@@ -34,6 +48,7 @@
     data-testid="project-tree-link-requirements-coverage"
   >
     {% include "icons/ico16_requirement.svg" %}
+    <span class="nav_button__label">Traceability matrix</span>
   </a>
 {%- endif -%}
 
@@ -46,6 +61,7 @@
     data-testid="project-tree-link-source-coverage"
   >
     {% include "icons/ico16_source.svg" %}
+    <span class="nav_button__label">Source coverage</span>
   </a>
 {%- endif -%}
 
@@ -58,6 +74,7 @@
     data-testid="project-tree-link-search"
   >
     {% include "icons/ico16_search.svg" %}
+    <span class="nav_button__label">Search</span>
   </a>
 {%- endif -%}
 
@@ -74,6 +91,7 @@
     data-testid="project-tree-link-diff"
   >
     {% include "icons/ico16_diff.svg" %}
+    <span class="nav_button__label">Diff</span>
   </a>
 {%- endif -%}
 
@@ -89,6 +107,65 @@
     data-testid="project-tree-link-tree-map"
   >
     {% include tree_map_feature.screen_icon() %}
+    <span class="nav_button__label">Tree map</span>
   </a>
 {%- endif -%}
+
+{#- A project of a registry (features/projects): its members, the portal. -#}
+{%- if view_object.project_config.is_running_on_server and view_object.project_config.members_admin is not none -%}
+  <a
+    data-link="members"
+    class="nav_button"
+    href="/members"
+    title="Members"
+    data-testid="nav-members"
+  >
+    <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 7a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5zM1.5 14c0-2.5 2-4.5 4.5-4.5s4.5 2 4.5 4.5M11 2.5a2.5 2.5 0 0 1 0 4.5M12.5 9.8c1.3.6 2 2 2 4.2" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+    <span class="nav_button__label">Members</span>
+  </a>
+  <a
+    data-link="projects"
+    class="nav_button"
+    href="/"
+    data-portal-link
+    title="All projects"
+    data-testid="nav-projects"
+  >
+    <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 3h5l1 2h6v8H2z" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+    <span class="nav_button__label">All projects</span>
+  </a>
+{%- endif -%}
+  </div>
+
+  {#- Filled by roles/role_gating.js behind the login proxy. -#}
+  <div class="nav__user" id="nav-user" hidden></div>
+
+{%- if view_object.project_config.is_running_on_server and view_object.project_config.auth_mode == "proxy" %}
+  <a
+    class="nav_button nav__logout_item"
+    href="/oauth2/sign_out"
+    title="Log out"
+    data-testid="nav-logout"
+  >
+    <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 2H2v12h4M10 4l4 4-4 4M14 8H6" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+    <span class="nav_button__label">Log out</span>
+  </a>
+{%- endif %}
+
+  <button
+    type="button"
+    class="nav__toggle"
+    id="nav-toggle"
+    aria-controls="nav"
+    aria-expanded="true"
+    title="Collapse the sidebar"
+    data-testid="nav-toggle"
+  >
+    <svg class="nav__toggle_icon" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
+      <path d="M10 3 5 8l5 5" fill="none" stroke="currentColor" stroke-width="1.5"/>
+    </svg>
+    <span class="nav_button__label">Collapse</span>
+  </button>
+
+  <script src="{{ view_object.render_static_url('nav.js') }}"></script>
 </div>

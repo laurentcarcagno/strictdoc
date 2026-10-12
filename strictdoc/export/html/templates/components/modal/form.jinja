@@ -7,18 +7,22 @@
   <sdoc-backdrop>
       <sdoc-modal context="{%- block modal__context -%}{%- endblock -%}">
         <sdoc-modal-header>
-          {%- block modal_form__header %}{% endblock -%}
+          <div class="sdoc-modal-header__title">
+            {%- block modal_form__header %}{% endblock -%}
+          </div>
+          {% include "components/modal/close_button.jinja" %}
         </sdoc-modal-header>
         <sdoc-modal-content>
           {%- block modal_form__content %}{% endblock -%}
         </sdoc-modal-content>
         <sdoc-modal-footer>
           {%- block modal_form__footer_extra %}{% endblock -%}
-          {%- block modal_form__footer_submit %}
-            {% include "components/button/submit.jinja" %}
-          {% endblock -%}
+          {#- Hemeria: the ghost Cancel first, then the primary action. -#}
           {%- block modal_form__footer_cancel %}
             {% include "components/button/cancel.jinja" %}
+          {% endblock -%}
+          {%- block modal_form__footer_submit %}
+            {% include "components/button/submit.jinja" %}
           {% endblock -%}
         </sdoc-modal-footer>
       </sdoc-modal>

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+{#
+  The frame of the pages of features/projects (portal, members): the same
+  sidebar and page header as the screens of a project (Hemeria app shell).
+  Variables: assets (URL of the static files), user, role, logout_url,
+  portal_url.
+#}
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>{% block title %}{% endblock %}</title>
+  <link rel="stylesheet" href="{{ assets }}/base.css"/>
+  <link rel="stylesheet" href="{{ assets }}/layout.css"/>
+  <link rel="stylesheet" href="{{ assets }}/element.css"/>
+  {% block head %}{% endblock %}
+</head>
+<body data-viewtype="{% block viewtype %}{% endblock %}">
+<div class="layout" id="layout">
+
+  <nav class="layout_nav">
+    <div class="nav" id="nav" data-testid="nav">
+      <div class="nav__brand">
+        <span class="nav__lockup" aria-label="StrictDoc Hemeria">
+          <span class="nav__lockup_full">STRICTDOC<span class="nav__lockup_dot"></span>HEMERIA</span>
+          <span class="nav__lockup_short">S<span class="nav__lockup_dot"></span>H</span>
+        </span>
+        <span class="nav__subtitle">{% block nav_subtitle %}Projects{% endblock %}</span>
+      </div>
+
+      <div class="nav__items">
+        {% block nav_items %}{% endblock %}
+      </div>
+
+      {%- if user and user != "anonymous" %}
+      <div class="nav__user" id="nav-user" title="{{ user }}{% if role %} ({{ role }}){% endif %}">
+        <span class="nav__avatar" aria-hidden="true">{{ user[:2] }}</span>
+        <span class="nav__identity" data-testid="user-badge">
+          <span class="nav__user_name">{{ user }}</span>
+          {%- if role %}<span class="nav__user_role">{{ role }}</span>{% endif %}
+        </span>
+      </div>
+      {%- endif %}
+
+      {%- if logout_url %}
+      <a class="nav_button nav__logout_item" href="{{ logout_url }}" title="Log out" data-testid="nav-logout">
+        <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 2H2v12h4M10 4l4 4-4 4M14 8H6" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+        <span class="nav_button__label">Log out</span>
+      </a>
+      {%- endif %}
+
+      <button type="button" class="nav__toggle" id="nav-toggle" aria-controls="nav" aria-expanded="true" title="Collapse the sidebar" data-testid="nav-toggle">
+        <svg class="nav__toggle_icon" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3 5 8l5 5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+        <span class="nav_button__label">Collapse</span>
+      </button>
+      <script src="{{ assets }}/nav.js"></script>
+    </div>
+  </nav>
+
+  <header class="layout_header">
+    <div class="header">
+      <div class="header__stripe" aria-hidden="true">
+        <span class="header__stripe_blue"></span>
+        <span class="header__stripe_white"></span>
+        <span class="header__stripe_red"></span>
+      </div>
+      <div class="header__body">
+        <div class="header__project_name">{% block eyebrow %}{% endblock %}</div>
+        <div class="header__title">{% block heading %}{% endblock %}</div>
+      </div>
+      <div class="header__placeholder"></div>
+      {% block header_actions %}{% endblock %}
+    </div>
+  </header>
+
+  <main class="layout_main hem-page">
+    {% block content %}{% endblock %}
+  </main>
+
+</div>
+</body>
+</html>

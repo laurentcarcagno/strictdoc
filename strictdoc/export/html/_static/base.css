@@ -1,84 +1,130 @@
-/* @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Mono:wght@400;500;600;700&family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap'); */
-
-/* .test-content {} */
+/*
+  Hemeria design system (developer/design/DESIGN.md).
+  The --hem-* tokens are the palette and type scale of the design system.
+  The --color-* and other legacy variables below are kept because the rest of
+  the CSS uses them; they now point at the Hemeria tokens.
+*/
 
 :root {
 
-  --color-fg-main: hsl(0, 0%, 22%);
-  --color-bg-main: hsl(0, 0%, 96%);
+  /* Palette. Every neutral is tinted toward sky blue, never pure gray. */
+  --hem-sovereign: #12293A;       /* structure: sidebar, table headers, titles */
+  --hem-tricolor-blue: #174082;   /* page header stripe only */
+  --hem-sky: #006EB1;             /* action and selection only */
+  --hem-tricolor-red: #C80A26;    /* ceremony only: stripe and lockup dot */
+  --hem-mist: #F0F7FC;            /* app background */
+  --hem-white: #FCFDFE;           /* working surfaces */
+  --hem-hover: #E6F3FA;           /* hover, search field */
+  --hem-muted: #DBE7F0;           /* deeper fill */
+  --hem-selection: #CEE5FC;       /* selected row */
+  --hem-border: #C2DDF0;          /* the 1px outline */
+  --hem-ink: #001423;             /* body text */
+  --hem-dim-ink: #43474C;         /* secondary text */
+  --hem-mute-ink: #73777D;        /* helper text, eyebrows */
+  --hem-success: #1F8A4C;
+  --hem-warning: #C68A00;
+  --hem-danger: #BA1A1A;
+  --hem-success-bg: #EAF6EE;
+  --hem-warning-bg: #FBF3DC;
+  --hem-danger-bg: #FBE9E9;
 
-  --color-bg-ui: hsl(222, 22%, 22%);
+  /* Type. */
+  --hem-font-heading: 'Orbitron', 'Eurostile', 'Bank Gothic', sans-serif;
+  --hem-font-body: 'Ubuntu', system-ui, -apple-system, sans-serif;
+  --hem-font-mono: 'Ubuntu Mono', ui-monospace, monospace;
+  --hem-size-display: 32px;
+  --hem-size-h1: 26px;
+  --hem-size-h2: 18px;
+  --hem-size-h3: 15px;
+  --hem-size-body: 13px;
+  --hem-size-label: 11px;
+  --hem-track-label: 0.12em;
+  --hem-track-eyebrow: 0.18em;
+  --hem-track-heading: 0.04em;
 
-  --color-bg-contrast: hsl(0, 0%, 100%);
-  --color-fg-contrast: hsl(0, 0%, 0%);
+  /* Space and motion. */
+  --hem-space-xs: 4px;
+  --hem-space-sm: 8px;
+  --hem-space-md: 12px;
+  --hem-space-lg: 20px;
+  --hem-space-xl: 24px;
+  --hem-control-height: 32px;
+  --hem-transition: 120ms linear;
+  --hem-backdrop: rgb(0 20 35 / 55%);
 
-  --color-fg-accent: rgb(242, 100, 42);
-  --color-bg-accent: rgb(242 100 42 / 10%);
+  /* Legacy variables, mapped to the palette. */
+  --color-fg-main: var(--hem-ink);
+  --color-bg-main: var(--hem-mist);
 
-  --color-highlight: rgb(255, 255, 200);
-  --color-highlight-secondary: rgb(233, 233, 233);
-  --color-highlight-danger: rgba(200, 0, 0, .2);
+  --color-bg-ui: var(--hem-sovereign);
 
-  --color-fg-secondary: rgba(0, 0, 0, .5);
-  --color-bg-secondary: rgba(0, 0, 0, .025);
+  --color-bg-contrast: var(--hem-white);
+  --color-fg-contrast: var(--hem-ink);
 
-  --color-fg-secondary-invert: rgb(255 255 255 / 50%);
-  --color-bg-secondary-invert: rgb(0 0 0 / 10%);
+  --color-fg-accent: var(--hem-sky);
+  --color-bg-accent: var(--hem-hover);
 
-  --color-red: rgb(200, 0, 0);
-  --color-blue: rgb(50, 100, 200);
-  --color-green: rgb(0, 100, 100);
+  --color-highlight: var(--hem-selection);
+  --color-highlight-secondary: var(--hem-muted);
+  --color-highlight-danger: var(--hem-danger-bg);
+
+  --color-fg-secondary: var(--hem-mute-ink);
+  --color-bg-secondary: rgb(0 20 35 / 3%);
+
+  --color-fg-secondary-invert: rgb(252 253 254 / 70%);
+  --color-bg-secondary-invert: rgb(0 20 35 / 20%);
+
+  --color-red: var(--hem-danger);
+  --color-blue: var(--hem-sky);
+  --color-green: var(--hem-success);
 
   --color-danger: var(--color-red);
-  --color-cancel: var(--color-fg-secondary);
+  --color-cancel: var(--hem-sovereign);
   --color-submit: var(--color-action);
 
-  --color-link: var(--color-fg-secondary);
+  --color-link: var(--hem-sky);
   --color-action: var(--color-fg-accent);
-  --color-hover: var(--color-fg-contrast);
+  --color-hover: var(--hem-sovereign);
 
-  --color-border: rgba(0,0,0,.1);
-  --color-placeholder: rgba(0,0,0,.25);
+  --color-border: var(--hem-border);
+  --color-placeholder: var(--hem-mute-ink);
 
   --base-border: 1px solid var(--color-border);
   --code-border-color: var(--color-border);
 
   --scrollbarBG: transparent;
-  --thumbBG: rgba(0,0,0,.05);
+  --thumbBG: var(--hem-muted);
 
   --base-rhythm: 8px;
 
-  --base-font-size: calc(var(--base-rhythm)*2);
-  --base-line-height: 1.6;
+  /* 13px for the interface, 14px for the text of documents (see node). */
+  --base-font-size: var(--hem-size-body);
+  --document-font-size: 14px;
+  --base-line-height: 1.45;
 
   --font-size: var(--base-font-size);
 
-  --font-size-l: 1.25rem;
-  --font-size-sm: 0.8125rem;
-  --font-size-xsm: 0.75rem;
-  --font-size-xxsm: 11px;
-  --code-font-size: .85em;
+  --font-size-l: var(--hem-size-h2);
+  --font-size-sm: 12px;
+  --font-size-xsm: var(--hem-size-label);
+  --font-size-xxsm: 10px;
+  --code-font-size: .95em;
   --code-font-size-min: 10px;
 
-  --base-font-family: 'Noto Sans', sans-serif;
-  --code-font-family: 'Noto Sans Mono', consolas, monaco, monospace;
-  /*
-    DEV NOTE: To use system fonts,
-    uncomment the following two variables, replacing the previous two:
-  */
-  /* --base-font-family: ui-sans-serif, system-ui, -apple-system, "system-ui", "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; */
-  /* --code-font-family: monospace; */
+  --base-font-family: var(--hem-font-body);
+  --code-font-family: var(--hem-font-mono);
 
   --base-gap: calc(var(--base-rhythm)*6);
   --tree-gap: calc(var(--base-rhythm)*4);
   --base-padding: calc(var(--base-rhythm)*2);
 
-  --base-elevation-0: 0 0 0 rgba(0,0,0,0);
-  --base-elevation-node: 0 0 16px rgba(0,0,0,.1);
-  --base-elevation-modal: 0 0 32px rgba(0,0,0,.32);
+  /* Flat by doctrine: no shadows. Depth comes from borders and tone. */
+  --base-elevation-0: none;
+  --base-elevation-node: none;
+  --base-elevation-modal: none;
 
-  --main-elevation-shadow: inset 8px 8px 16px rgba(0,0,0,.2);
-  --base-elevation: 0 0 16px rgba(0,0,0,.2);
+  --main-elevation-shadow: none;
+  --base-elevation: none;
 
   --traceability-arrow: 1.25rem;
 
@@ -97,30 +143,83 @@ body {
 }
 
 @font-face {
-  font-family: 'Noto Sans';
+  font-family: 'Orbitron';
   font-style: normal;
-  font-weight: 100 900;
-  /* font-stretch: 100%; */
+  font-weight: 400 900;
   font-display: swap;
-  src: url('./fonts/NotoSans-VariableFont_wdth,wght.ttf') format('truetype-variations');
+  src: url('./fonts/Orbitron-VariableFont_wght.ttf') format('truetype-variations');
 }
 
 @font-face {
-  font-family: 'Noto Sans';
+  font-family: 'Ubuntu';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./fonts/Ubuntu-Regular.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Ubuntu';
   font-style: italic;
-  font-weight: 100 900;
-  /* font-stretch: 100%; */
+  font-weight: 400;
   font-display: swap;
-  src: url('./fonts/NotoSans-Italic-VariableFont_wdth,wght.ttf') format('truetype-variations');
+  src: url('./fonts/Ubuntu-Italic.ttf') format('truetype');
 }
 
 @font-face {
-  font-family: 'Noto Sans Mono';
+  font-family: 'Ubuntu';
   font-style: normal;
-  font-weight: 100 900;
-  /* font-stretch: 100%; */
+  font-weight: 500 600;
   font-display: swap;
-  src: url('./fonts/NotoSansMono-VariableFont_wdth,wght.ttf') format('truetype-variations');
+  src: url('./fonts/Ubuntu-Medium.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Ubuntu';
+  font-style: italic;
+  font-weight: 500 600;
+  font-display: swap;
+  src: url('./fonts/Ubuntu-MediumItalic.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Ubuntu';
+  font-style: normal;
+  font-weight: 700 900;
+  font-display: swap;
+  src: url('./fonts/Ubuntu-Bold.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Ubuntu';
+  font-style: italic;
+  font-weight: 700 900;
+  font-display: swap;
+  src: url('./fonts/Ubuntu-BoldItalic.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Ubuntu Mono';
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url('./fonts/UbuntuMono-Regular.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Ubuntu Mono';
+  font-style: italic;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url('./fonts/UbuntuMono-Italic.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Ubuntu Mono';
+  font-style: normal;
+  font-weight: 700 900;
+  font-display: swap;
+  src: url('./fonts/UbuntuMono-Bold.ttf') format('truetype');
 }
 
 * { box-sizing: border-box; }
@@ -150,6 +249,362 @@ sdoc-scope {
   /*
   background-color: var(--scrollbarBG);
   border: 3px solid var(--thumbBG);
-  border-radius: 6px;
+  border-radius: 0;
   */
+}
+
+/* Hemeria: global rules */
+
+::selection {
+  background-color: var(--hem-selection);
+  color: var(--hem-ink);
+}
+
+a {
+  color: var(--color-link);
+  transition: color var(--hem-transition);
+}
+
+:focus-visible {
+  outline: 2px solid var(--hem-sky);
+  outline-offset: 0;
+}
+
+/* Hemeria: shared classes for templates */
+
+.hem-display,
+.hem-h1,
+.hem-h2,
+.hem-h3 {
+  font-family: var(--hem-font-heading);
+  letter-spacing: var(--hem-track-heading);
+  line-height: 1.15;
+  color: var(--hem-sovereign);
+  margin: 0;
+}
+.hem-display { font-size: var(--hem-size-display); font-weight: 600; }
+.hem-h1 { font-size: var(--hem-size-h1); font-weight: 600; }
+.hem-h2 { font-size: var(--hem-size-h2); font-weight: 500; }
+.hem-h3 {
+  font-size: var(--hem-size-h3);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--hem-ink);
+}
+
+.hem-label,
+.hem-eyebrow {
+  font-family: var(--hem-font-body);
+  font-size: var(--hem-size-label);
+  font-weight: 700;
+  letter-spacing: var(--hem-track-label);
+  text-transform: uppercase;
+}
+.hem-eyebrow {
+  letter-spacing: var(--hem-track-eyebrow);
+  color: var(--hem-mute-ink);
+}
+
+/* Identifiers: UIDs, MIDs, paths, dates. */
+.hem-mono {
+  font-family: var(--hem-font-mono);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Status pill: square dot and caps text, colored by kind. */
+.hem-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 8px;
+  border: 1px solid var(--hem-sovereign);
+  background-color: var(--hem-white);
+  color: var(--hem-dim-ink);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+.hem-pill::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  background-color: currentColor;
+}
+.hem-pill--success { color: var(--hem-success); border-color: var(--hem-success); background-color: var(--hem-success-bg); }
+.hem-pill--warning { color: var(--hem-warning); border-color: var(--hem-warning); background-color: var(--hem-warning-bg); }
+.hem-pill--danger { color: var(--hem-danger); border-color: var(--hem-danger); background-color: var(--hem-danger-bg); }
+.hem-pill--info { color: var(--hem-sky); border-color: var(--hem-sky); background-color: var(--hem-hover); }
+
+/* Tag: 18px, caps. */
+.hem-tag {
+  display: inline-flex;
+  align-items: center;
+  height: 18px;
+  padding: 0 6px;
+  border: 1px solid var(--hem-border);
+  background-color: var(--hem-hover);
+  color: var(--hem-sovereign);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.hem-tag--solid { background-color: var(--hem-sovereign); border-color: var(--hem-sovereign); color: var(--hem-white); }
+.hem-tag--accent { background-color: var(--hem-sky); border-color: var(--hem-sky); color: var(--hem-white); }
+.hem-tag--ghost { background-color: transparent; color: var(--hem-dim-ink); }
+
+/* Button: square, 32px, caps label. */
+.hem-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--hem-space-sm);
+  height: var(--hem-control-height);
+  padding: 0 14px;
+  border: 1px solid var(--hem-sky);
+  border-radius: 0;
+  background-color: var(--hem-sky);
+  color: var(--hem-white);
+  font-family: var(--hem-font-body);
+  font-size: var(--hem-size-label);
+  font-weight: 700;
+  letter-spacing: var(--hem-track-label);
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: filter var(--hem-transition), background-color var(--hem-transition), color var(--hem-transition);
+}
+.hem-btn:hover { filter: brightness(1.07); }
+.hem-btn--deep { background-color: var(--hem-sovereign); border-color: var(--hem-sovereign); }
+.hem-btn--ghost { background-color: transparent; border-color: var(--hem-sovereign); color: var(--hem-sovereign); }
+.hem-btn--ghost:hover { filter: none; background-color: var(--hem-hover); }
+.hem-btn--danger { background-color: transparent; border-color: var(--hem-danger); color: var(--hem-danger); }
+.hem-btn--danger:hover { filter: none; background-color: var(--hem-danger); color: var(--hem-white); }
+.hem-btn--sm { height: 26px; padding: 0 10px; }
+.hem-btn--lg { height: 40px; }
+.hem-btn:disabled,
+.hem-btn[aria-disabled="true"] { opacity: 0.55; cursor: not-allowed; filter: none; }
+
+/* Page content of the frame pages (portal, members). */
+.hem-page {
+  padding: var(--hem-space-xl);
+  overflow: auto;
+}
+
+.hem-page > * + * {
+  margin-top: var(--hem-space-lg);
+}
+
+/* Card: 1px border, header with a caps title and a mono meta. No nesting. */
+.hem-card {
+  max-width: 1080px;
+  background-color: var(--hem-white);
+  border: 1px solid var(--hem-border);
+}
+
+.hem-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--hem-space-md);
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--hem-border);
+  color: var(--hem-sovereign);
+}
+
+.hem-card__meta {
+  color: var(--hem-mute-ink);
+}
+
+.hem-card__footer {
+  padding: var(--hem-space-md) 14px;
+  border-top: 1px solid var(--hem-border);
+}
+
+/* Table: deep blue header, 1px rows, hover mist. */
+.hem-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.hem-table th {
+  padding: 9px 12px;
+  background-color: var(--hem-sovereign);
+  color: var(--hem-white);
+  font-family: var(--hem-font-heading);
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: var(--hem-track-eyebrow);
+  text-transform: uppercase;
+  text-align: left;
+  border-right: 1px solid rgb(252 253 254 / 8%);
+}
+
+.hem-table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--hem-border);
+  color: var(--hem-ink);
+  vertical-align: middle;
+}
+
+.hem-table tr:hover td {
+  background-color: var(--hem-hover);
+}
+
+.hem-table tr:last-child td {
+  border-bottom: 0;
+}
+
+.hem-table__actions {
+  text-align: right;
+  width: 1%;
+  white-space: nowrap;
+}
+
+/* Fields */
+.hem-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hem-space-md);
+  padding: 14px;
+}
+
+.hem-form--row {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+
+.hem-form__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--hem-space-md);
+}
+
+.hem-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 160px;
+}
+
+.hem-field--grow {
+  flex: 1 1 260px;
+}
+
+.hem-field__label {
+  font-size: var(--hem-size-label);
+  font-weight: 700;
+  letter-spacing: var(--hem-track-label);
+  text-transform: uppercase;
+  color: var(--hem-dim-ink);
+}
+
+.hem-input,
+.hem-select {
+  height: var(--hem-control-height);
+  padding: 6px 10px;
+  border: 1px solid var(--hem-border);
+  border-radius: 0;
+  background-color: var(--hem-white);
+  color: var(--hem-ink);
+  font-family: var(--hem-font-body);
+  font-size: var(--hem-size-body);
+  transition: border-color var(--hem-transition);
+}
+
+.hem-input.hem-mono {
+  font-family: var(--hem-font-mono);
+  font-size: 14px;
+}
+
+.hem-select {
+  padding: 5px 8px;
+  cursor: pointer;
+}
+
+.hem-input:hover,
+.hem-select:hover {
+  border-color: var(--hem-sovereign);
+}
+
+.hem-input:focus,
+.hem-select:focus {
+  border-color: var(--hem-sky);
+  outline: 2px solid var(--hem-sky);
+  outline-offset: -2px;
+}
+
+.hem-inline-form {
+  display: flex;
+  align-items: center;
+  gap: var(--hem-space-sm);
+  margin: 0;
+}
+
+.hem-note {
+  margin: 0;
+  font-size: 12px;
+  color: var(--hem-dim-ink);
+}
+
+.hem-note + .hem-note {
+  margin-top: 6px;
+}
+
+.hem-note .hem-label {
+  margin-right: 6px;
+  color: var(--hem-sovereign);
+}
+
+.hem-error {
+  margin: 0;
+  font-size: var(--hem-size-label);
+  color: var(--hem-danger);
+}
+
+.hem-error--banner {
+  max-width: 1080px;
+  padding: 10px 14px;
+  border: 1px solid var(--hem-danger);
+  background-color: var(--hem-danger-bg);
+  font-size: var(--hem-size-body);
+  color: var(--hem-ink);
+}
+
+/* Empty state: framed icon, eyebrow, condition. Data, not consolation. */
+.hem-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--hem-space-sm);
+  max-width: 1080px;
+  padding: 60px var(--hem-space-lg);
+  text-align: center;
+}
+
+.hem-empty > * {
+  max-width: 280px;
+}
+
+.hem-empty--inline {
+  padding: var(--hem-space-xl) var(--hem-space-lg);
+}
+
+.hem-empty__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border: 1px solid var(--hem-border);
+  color: var(--hem-mute-ink);
 }

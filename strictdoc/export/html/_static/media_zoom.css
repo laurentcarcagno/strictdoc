@@ -11,7 +11,7 @@ sdoc-media-zoom {
   position: fixed;
   inset: 0;
   overflow: hidden;
-  background: rgba(0, 0, 0, .9);
+  background: rgb(0 20 35 / 90%);
   cursor: default;
   /* Above sdoc-backdrop's 99999 (form.css): only one of the two overlay
      kinds is ever open at a time in practice, but this guarantees the
@@ -54,7 +54,7 @@ sdoc-media-zoom-hint {
   background: var(--color-bg-ui);
   color: var(--color-fg-secondary-invert);
   font-size: var(--font-size-xxsm);
-  border-radius: var(--base-rhythm);
+  border-radius: 0;
   /* A label, not a control: clicks must fall through to the backdrop
      beneath it (closing the overlay), not get stuck on this chip. */
   pointer-events: none;

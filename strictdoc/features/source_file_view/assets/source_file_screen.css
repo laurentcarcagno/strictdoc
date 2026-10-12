@@ -4,7 +4,7 @@
 }
 
 [data-viewtype="source-file"] {
-  --source-line: 1px solid rgba(0, 0, 0, .05);
+  --source-line: 1px solid rgb(0 20 35 / 5%);
 }
 
 [data-viewtype="source-file"] .layout {
@@ -66,7 +66,7 @@
 
 .source-file__toc-range {
   background-color: var(--color-highlight-secondary);
-  border-radius: var(--base-rhythm);
+  border-radius: 0;
   margin-bottom: var(--tree-gap);
 }
 
@@ -176,7 +176,7 @@
 
 [data-viewtype="source-file"] .current_file_pseudolink {
   font-weight: bold;
-  color: #808080;
+  color: var(--hem-mute-ink);
 }
 
 /* CODE */
@@ -240,7 +240,7 @@
 
 .source__range-closer-label {
   display: flex;
-  border-radius: 0 0 6px 6px;
+  border-radius: 0;
   column-gap: calc(var(--base-rhythm)* 1);
   background-color: var(--color-highlight-secondary);
   padding: var(--base-rhythm);
@@ -266,7 +266,7 @@
   background-color: var(--color-highlight-secondary);
   padding: var(--base-rhythm);
   margin-top: var(--tree-gap);
-  border-top-left-radius: var(--base-rhythm);
+  border-top-left-radius: 0;
 }
 
 .source__range-button {
@@ -377,7 +377,7 @@ ul.source__range-titles-list {
   display: inline-block;
   padding-left: calc(var(--base-rhythm)* 1);
   padding-right: calc(var(--base-rhythm)* 1);
-  border-radius: 6px;
+  border-radius: 0;
 }
 
 .source__range-pointer.active {

@@ -1,40 +1,96 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8"/>
-  <title>StrictDoc projects</title>
-  <style>
-    body { font-family: sans-serif; margin: 24px; }
-    table { border-collapse: collapse; }
-    th, td { border: 1px solid #ccc; padding: 4px 8px; text-align: left; }
-  </style>
-</head>
-<body>
-  <h1>Projects</h1>
+{% extends "shell.jinja.html" %}
+
+{% block title %}StrictDoc projects{% endblock %}
+{% block viewtype %}portal{% endblock %}
+
+{% block head %}
+<style>
+  /* Columns of the portal table: role as a caps label, numbers in mono. */
+  .portal-table td:nth-child(2) {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--hem-sovereign);
+  }
+  .portal-table td:nth-child(3),
+  .portal-table td:nth-child(4) {
+    font-family: var(--hem-font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+  .portal-table__project {
+    font-weight: 700;
+    color: var(--hem-ink);
+    text-decoration: none;
+  }
+  .portal-table__project:hover {
+    color: var(--hem-sky);
+  }
+  .portal-table__slug {
+    margin-left: 6px;
+    color: var(--hem-mute-ink);
+  }
+</style>
+{% endblock %}
+
+{% block nav_items %}
+  <a class="nav_button" data-link="projects" href="/" title="Projects" data-testid="nav-projects">
+    <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 3h5l1 2h6v8H2z" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+    <span class="nav_button__label">Projects</span>
+  </a>
+{% endblock %}
+
+{% block eyebrow %}Portal{% endblock %}
+{% block heading %}Projects{% endblock %}
+
+{% block content %}
   {%- if rows %}
-  <table data-testid="portal-table">
-    <tr><th>Project</th><th>Your role</th><th>Documents</th><th>Last change</th><th></th></tr>
-    {%- for row in rows %}
-    <tr data-testid="portal-row" data-slug="{{ row.slug }}">
-      <td><a href="{{ row.url }}">{{ row.title }}</a>{% if row.archived %} (archived){% endif %}</td>
-      <td>{{ row.role }}</td>
-      <td>{{ row.documents }}</td>
-      <td>{{ row.last_change }}</td>
-      <td>{% if row.role == "administrator" %}<a href="{{ row.members_url }}" data-testid="portal-members">Members</a>{% endif %}</td>
-    </tr>
-    {%- endfor %}
-  </table>
+  <section class="hem-card">
+    <div class="hem-card__header">
+      <span class="hem-label">Your projects</span>
+      <span class="hem-mono hem-card__meta">{{ rows|length }}</span>
+    </div>
+    {#- The role and documents cells stay plain <td>: tests read them. -#}
+    <table class="hem-table portal-table" data-testid="portal-table">
+      <tr><th>Project</th><th>Your role</th><th>Documents</th><th>Last change</th><th></th></tr>
+      {%- for row in rows %}
+      <tr data-testid="portal-row" data-slug="{{ row.slug }}">
+        <td><a class="portal-table__project" href="{{ row.url }}">{{ row.title }}</a> <span class="hem-mono portal-table__slug">{{ row.slug }}</span>{% if row.archived %} <span class="hem-tag hem-tag--ghost">archived</span>{% endif %}</td>
+        <td>{{ row.role }}</td>
+        <td>{{ row.documents }}</td>
+        <td>{{ row.last_change }}</td>
+        <td>{% if row.role == "administrator" %}<a class="hem-btn hem-btn--ghost hem-btn--sm" href="{{ row.members_url }}" data-testid="portal-members">Members</a>{% endif %}</td>
+      </tr>
+      {%- endfor %}
+    </table>
+  </section>
   {%- else %}
-  <p data-testid="portal-empty">You are not a member of any project{% if user %} ({{ user }}){% endif %}. Ask an administrator to add you to a project.</p>
+  <section class="hem-empty" data-testid="portal-empty">
+    <span class="hem-empty__icon" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 16 16"><path d="M2 3h5l1 2h6v8H2z" fill="none" stroke="currentColor" stroke-width="1.2"/></svg></span>
+    <span class="hem-eyebrow">No project</span>
+    <p class="hem-h3">You are not a member of any project{% if user %} ({{ user }}){% endif %}.</p>
+    <p class="hem-note">Ask an administrator to add you to a project.</p>
+  </section>
   {%- endif %}
+
   {%- if can_create %}
-  <h2>New project</h2>
-  {%- if error %}<p data-testid="portal-error" style="color:#b00020">{{ error }}</p>{% endif %}
-  <form method="post" action="/projects/create" data-testid="portal-create">
-    <p><label>Name (in the address) <input name="slug" value="{{ slug }}" required pattern="[a-z0-9][a-z0-9-]*" maxlength="32"/></label></p>
-    <p><label>Title <input name="title" value="{{ title }}" required maxlength="120" size="40"/></label></p>
-    <p><button type="submit">Create the project</button> You become its administrator.</p>
-  </form>
+  <section class="hem-card">
+    <div class="hem-card__header"><span class="hem-label">New project</span></div>
+    <form class="hem-form" method="post" action="/projects/create" data-testid="portal-create">
+      {%- if error %}<p class="hem-error" data-testid="portal-error">{{ error }}</p>{% endif %}
+      <label class="hem-field">
+        <span class="hem-field__label">Name (in the address)</span>
+        <input class="hem-input hem-mono" name="slug" value="{{ slug }}" required pattern="[a-z0-9][a-z0-9-]*" maxlength="32"/>
+      </label>
+      <label class="hem-field">
+        <span class="hem-field__label">Title</span>
+        <input class="hem-input" name="title" value="{{ title }}" required maxlength="120"/>
+      </label>
+      <div class="hem-form__actions">
+        <button class="hem-btn" type="submit">Create the project</button>
+        <span class="hem-note">You become its administrator.</span>
+      </div>
+    </form>
+  </section>
   {%- endif %}
-</body>
-</html>
+{% endblock %}

@@ -1,7 +1,6 @@
 /* highlight main layout in edit mode */
 [js-table_view_edit][data-mode="edit"]::after {
-  box-shadow: inset 0 0 16px var(--color-fg-accent),
-              inset 0 0 0 2px var(--color-fg-accent);
+  border-color: var(--hem-sky);
 }
 
 /* ultimate table view */
@@ -20,22 +19,6 @@
   z-index: 1;
 
   background-color: var(--color-bg-main);
-background-image:
-
-  radial-gradient(
-    circle,
-    rgba(0, 0, 0, 0.1) 1px,
-    transparent 1px
-  ),
-  radial-gradient(
-    circle,
-    rgba(0, 0, 0, 0.1) 1px,
-    transparent 1px
-  );
-  background-size: 10px 10px;
-  background-position:
-    0 0,
-    5px 5px;
   }
 
 .content-view-table tr {
@@ -50,7 +33,7 @@ background-image:
 
 .content-view-th,
 .content-view-td {
-  border: 1px solid #666;
+  border: 1px solid var(--hem-dim-ink);
   vertical-align: top;
 }
 
@@ -123,7 +106,7 @@ background-image:
 .table-node-delete-action .action_icon {
   min-height: auto;
   padding: 0;
-  border-radius: calc(.5 * var(--base-rhythm));
+  border-radius: 0;
   color: var(--color-bg-main) !important;
   border-color: var(--color-bg-main) !important;
   opacity: 0.7;
@@ -275,7 +258,7 @@ background-image:
 
 .table-toolbar__btn--edit[aria-pressed="true"] {
   background-color: var(--color-fg-accent);
-  color: #fff;
+  color: var(--hem-white);
   border-color: transparent;
 }
 
@@ -361,8 +344,7 @@ background-image:
   position: absolute;
   content: "";
   inset: -4px;
-  border-radius: 4px;
-  box-shadow: inset 0 0 4px var(--color-fg-secondary);
+  border: 2px solid var(--hem-sky);
   pointer-events: none;
 }
 
@@ -393,7 +375,7 @@ background-image:
     left: 0;
     right: 0;
     height: 24px;
-    border-radius: 4px;
+    border-radius: 0;
 }
 
 .relations-computed {
@@ -610,7 +592,7 @@ background-image:
   outline: 1px dotted var(--color-danger);
   /* for form with `:focus-within::after` -4px */
   outline-offset: 4px;
-  border-radius: 4px;
+  border-radius: 0;
 }
 
 [js-table_view_edit][data-mode="edit"] sdoc-form-error {
@@ -704,11 +686,11 @@ background-image:
 }
 
 [js-table_view_edit-custom_meta-row][data-drop-position="before"] {
-  box-shadow: 0 -2px 0 var(--color-fg-main);
+  box-shadow: 0 -2px 0 var(--hem-sky);
 }
 
 [js-table_view_edit-custom_meta-row][data-drop-position="after"] {
-  box-shadow: 0 2px 0 var(--color-fg-main);
+  box-shadow: 0 2px 0 var(--hem-sky);
 }
 
 /* add_new_row */
@@ -744,9 +726,9 @@ background-image:
   /* Even though some rows are hidden,
      the rows containing the “Add New Node” button are still visible
    */
-  /* border-left: 1px solid #666; */
-  /* border-right: 1px solid #666; */
-  border-bottom: 1px solid #666;
+  /* border-left: 1px solid var(--hem-dim-ink); */
+  /* border-right: 1px solid var(--hem-dim-ink); */
+  border-bottom: 1px solid var(--hem-dim-ink);
   background: var(--color-bg-contrast);
   background-color: var(--color-bg-main);
 }
@@ -790,7 +772,7 @@ background-image:
   height: 22px;
   font-size: 16px;
   font-weight: bold;
-  border-radius: 50%;
+  border-radius: 0;
   border-width: 1px;
   border-style: solid;
   border-color: var(--color-bg-main, White);
@@ -882,7 +864,7 @@ tr[data-node-created="true"] {
   margin-left: -8px;
   border: 2px solid var(--color-fg-accent);
   border-top-color: transparent;
-  border-radius: 50%;
+  border-radius: 0;
   animation: table-add-node-spin 0.6s linear infinite;
   z-index: 1;
 }
@@ -968,7 +950,7 @@ tr[data-node-created="true"] {
   justify-content: center;
   padding: calc(var(--base-rhythm) / 2);
   border: none;
-  border-radius: calc(var(--base-rhythm) / 2);
+  border-radius: 0;
   background: transparent;
   color: var(--color-fg-main);
 }

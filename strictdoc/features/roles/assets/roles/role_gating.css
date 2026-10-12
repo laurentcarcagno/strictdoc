@@ -59,9 +59,14 @@ html[data-role="author"] [data-requires-role="administrator"] {
 .sdoc-user-badge {
   margin-right: 8px;
   padding: 2px 8px;
-  border-radius: 10px;
+  border-radius: 0;
   background: #eef1f5;
   color: #44505f;
   font-size: 12px;
   white-space: nowrap;
+}
+
+/* The members of a project: only its administrators manage them. */
+html:not([data-role="administrator"]) .nav [data-testid="nav-members"] {
+  display: none;
 }

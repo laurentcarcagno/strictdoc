@@ -19,7 +19,7 @@
 
 .project_tree-folder {
   border: var(--base-border);
-  border-radius: calc(0.5 * var(--base-rhythm));
+  border-radius: 0;
   overflow: hidden;
   position: relative;
   padding-left: var(--base-rhythm);
@@ -49,7 +49,7 @@
   column-gap: calc(0.5 * var(--base-rhythm));
   font-size: 0.85rem;
   line-height: 1.2;
-  color: #666;
+  color: var(--hem-dim-ink);
   padding: calc(0.5 * var(--base-rhythm));
   position: relative;
 }
@@ -110,18 +110,18 @@
   display: flex;
   column-gap: var(--base-rhythm);
   padding: calc(0.5 * var(--base-rhythm));
-  border-radius: calc(0.5 * var(--base-rhythm));
+  border-radius: 0;
   transition: background .3s;
-  border: 1px solid rgba(255,255,255,0);
+  border: 1px solid transparent;
 }
 
 .project_tree-file:not([href]):hover  {
-  border: 1px solid rgba(255,255,255,0.75);
-  background: rgba(0,0,0,0.01);
+  border: 1px solid rgb(252 253 254 / 75%);
+  background: rgb(0 20 35 / 1%);
 }
 
 .project_tree-file[href]:hover {
-  background: rgba(255,255,255,0.5);
+  background: rgb(252 253 254 / 50%);
 }
 
 .project_tree-file[href]:hover .project_tree-file-icon,
@@ -198,7 +198,7 @@
 
 .dashboard-block {
   border: var(--base-border);
-  border-radius: calc(0.5 * var(--base-rhythm));
+  border-radius: 0;
   overflow: hidden;
   position: relative;
   padding: var(--base-rhythm);
@@ -219,7 +219,7 @@
   left: -20px;
   right: -20px;
   bottom: 0;
-  background-color: rgba(0,0,0,0.025);
+  background-color: rgb(0 20 35 / 2.5%);
   border-bottom: var(--base-border);
 }
 
@@ -230,13 +230,13 @@
 .dashboard-path-external {
   cursor: pointer;
   padding: 0 0.2em;
-  border-radius: 3px;
-  background-color: rgba(0,0,0,0.06);
+  border-radius: 0;
+  background-color: rgb(0 20 35 / 6%);
 }
 
 .dashboard-path-external:hover,
 .dashboard-path-external:focus {
-  background-color: rgba(0,0,0,0.12);
+  background-color: rgb(0 20 35 / 12%);
 }
 
 .dashboard-path-external-full {

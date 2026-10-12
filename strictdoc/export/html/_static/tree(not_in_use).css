@@ -6,11 +6,11 @@
 
   --tree-level-line-width:   1px;
 
-  --tree-color-line:         #808080;
-  --tree-color-fg:           var(--color-fg-main,     #444444);
+  --tree-color-line:         var(--hem-mute-ink);
+  --tree-color-fg:           var(--color-fg-main,     var(--hem-dim-ink));
   --tree-color-bg:           var(--color-bg-main,     #F2F5F9);
-  --tree-color-row-hover-bg: var(--color-bg-contrast, #FFFFFF);
-  --tree-btn-bg-color:       var(--color-bg-contrast, #FFFFFF);
+  --tree-color-row-hover-bg: var(--color-bg-contrast, var(--hem-white));
+  --tree-btn-bg-color:       var(--color-bg-contrast, var(--hem-white));
 
   --tree-half-sell-height:   calc( var(--tree-line-height)/2 + var(--tree-cell-padding) );
 
@@ -24,7 +24,7 @@
 .std-tree {
   font-size: var(--tree-font-size, 1rem);
   line-height: var(--tree-line-height, 1.25);
-  color: var(--tree-color-fg, #444444);
+  color: var(--tree-color-fg, var(--hem-dim-ink));
 
   position: relative;
   width: -moz-fit-content;
@@ -103,7 +103,7 @@
 
   .std-tree_file__title {
     font-size: 1.25em;
-    color: #000;
+    color: var(--hem-ink);
     transition: color .2s ease;
   }
 
@@ -121,13 +121,13 @@
   .std-tree_desc {
     position: relative;
     top: -2px;
-    color: #000;
+    color: var(--hem-ink);
   }
 
   .std-tree_name {
     font-size: 0.85rem;
     line-height: 1.2;
-    color: #666;
+    color: var(--hem-dim-ink);
   }
 
   .std-tree_aside {

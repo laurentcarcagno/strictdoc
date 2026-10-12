@@ -1,12 +1,12 @@
 :root {
   --requirement-container-limit: 500px;
-  --requirement-border-color: rgb(230, 230, 230); /* = var(--color-border) on white without opacity */
+  --requirement-border-color: var(--hem-border);
   --requirement-border-width: 1px;
-  --requirement-border-radius: 4px;
+  --requirement-border-radius: 0;
   --requirement-inner-borders-width: 1px;
-  --requirement-label-color: var(--color-fg-secondary, #808080);
-  --requirement-bg-dark-color: var(--color-bg-main, #F2F5F9);
-  --requirement-bg-light-color: var(--color-bg-contrast, #FFFFFF);
+  --requirement-label-color: var(--hem-dim-ink);
+  --requirement-bg-dark-color: var(--hem-hover);
+  --requirement-bg-light-color: var(--color-bg-contrast, var(--hem-white));
 }
 
 /* sdoc-node-content */
@@ -25,10 +25,12 @@ sdoc-node-content {
     solid
     var(--requirement-border-color);
 
-  border-radius: var(--requirement-border-radius);
+  border-radius: 0;
 
 
   min-width: 300px;
+  font-size: var(--document-font-size);
+  line-height: 1.5;
 
   /* and use overflow-wrap: break-word; in the field */
   max-width: 100%;
@@ -56,8 +58,9 @@ sdoc-node-content {
 sdoc-node-title {
   display: block;
 
-  font-size: 1.125em;
+  font-size: 1.07em;
   font-weight: 700;
+  color: var(--hem-ink);
 }
 
 sdoc-node-title:last-child {
@@ -92,8 +95,8 @@ sdoc-node-content[node-view="zebra"] sdoc-node-title {
   padding-top: calc(var(--base-rhythm)*1);
   padding-bottom: calc(var(--base-rhythm)*1);
 
-  border-top-right-radius: var(--requirement-border-radius);
-  border-top-left-radius: var(--requirement-border-radius);
+  border-top-right-radius: 0;
+  border-top-left-radius: 0;
 
   background-color: var(--requirement-bg-dark-color);
   /* border-bottom: */
@@ -109,12 +112,12 @@ sdoc-node-uid {
   padding-right: calc(var(--base-rhythm)*2);
   padding-top: calc(var(--base-rhythm)*1);
   padding-bottom: calc(var(--base-rhythm)*1);
-  font-size: var(--font-size-sm);
-  font-family: var(--code-font-family);
+  font-size: var(--hem-size-body);
+  font-family: var(--hem-font-mono);
   font-weight: 700;
-
-  text-transform: uppercase;
-  color: var(--requirement-label-color);
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--hem-sovereign);
 
   word-break: break-word;
   overflow-wrap: break-word;
@@ -129,10 +132,12 @@ sdoc-node-field-label {
   padding-top: calc(var(--base-rhythm)*1.75);
   padding-bottom: calc(var(--base-rhythm)*1);
 
-  font-size: var(--font-size-sm);
-  font-family: var(--code-font-family);
-  font-weight: 500;
-  line-height: 1;
+  font-size: var(--hem-size-label);
+  font-family: var(--hem-font-body);
+  font-weight: 700;
+  letter-spacing: var(--hem-track-label);
+  text-transform: uppercase;
+  line-height: 1.2;
   color: var(--requirement-label-color);
 
   /* @mettta and @stanislaw are commenting this out because REQUIREMENT's field names
@@ -221,7 +226,7 @@ sdoc-node:not([node-style="card"]) {
     after window resize, the 1px vertically space
     appears randomly between nodes.
   */
-  outline: 1px solid #fff;
+  outline: 1px solid var(--hem-white);
   margin: 1px 0;
 }
 
@@ -295,7 +300,7 @@ sdoc-node-content[node-view="simple"] {
 
 sdoc-node-content[node-view="simple"]
 sdoc-node-field-label {
-  background-color: #fff;
+  background-color: var(--hem-white);
   padding-bottom: 0;
 }
 
@@ -378,6 +383,53 @@ sdoc-section-title {
 
 sdoc-section-title {
   font-weight: 700;
+  color: var(--hem-ink);
+}
+
+h1[data-testid="document-title"],
+sdoc-node-title > h1,
+sdoc-node-title > h2,
+sdoc-node-title > h3,
+sdoc-section-title h1,
+sdoc-section-title h2,
+sdoc-node-title > h3,
+sdoc-section-title h3 {
+  font-family: var(--hem-font-heading);
+  letter-spacing: var(--hem-track-heading);
+  line-height: 1.2;
+  color: var(--hem-sovereign);
+}
+
+h1[data-testid="document-title"],
+sdoc-node-title > h1,
+sdoc-section-title h1 {
+  font-size: var(--hem-size-h1);
+  font-weight: 600;
+}
+
+sdoc-node-title > h2,
+sdoc-section-title h2 {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+sdoc-section-title h3 {
+  font-size: var(--hem-size-h3);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--hem-ink);
+}
+
+sdoc-node-title > h4,
+sdoc-node-title > h5,
+sdoc-node-title > h6,
+sdoc-section-title h4,
+sdoc-section-title h5,
+sdoc-section-title h6 {
+  font-family: var(--hem-font-body);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--hem-ink);
 }
 
 sdoc-section-title {
@@ -442,7 +494,7 @@ sdoc-meta {
     var(--requirement-border-width, 1px)
     solid
     var(--requirement-border-color);
-  border-radius: var(--requirement-border-radius);
+  border-radius: 0;
 
   font-size: var(--font-size-sm);
   line-height: 24px; /* to keep the copy button from expanding out of the content line */
@@ -478,11 +530,13 @@ sdoc-meta-field {
 
 sdoc-meta-label {
   grid-column: 2 / 3;
-  font-family: var(--code-font-family);
+  font-family: var(--hem-font-body);
+  font-size: var(--hem-size-label);
   font-weight: 700;
+  letter-spacing: var(--hem-track-label);
   text-transform: uppercase;
-  color: var(--requirement-label-color);
-  background-color: var(--color-bg-secondary);
+  color: var(--hem-dim-ink);
+  background-color: var(--hem-hover);
 }
 
 sdoc-meta-field {
@@ -507,11 +561,10 @@ sdoc-section + sdoc-section sdoc-section-title {
 /* requirement type tag */
 
 .requirement__type-tag {
-  /* font-size: var(--font-size-sm);
-  font-family: var(--code-font-family);
-  font-weight: 500;
-  line-height: 1;
-  text-transform: uppercase; */
-  color: var(--requirement-label-color);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--hem-sovereign);
   white-space: nowrap;
 }

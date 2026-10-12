@@ -55,7 +55,7 @@
 }
 
 .project_coverage tr.project_coverage-file:hover {
-  background: rgba(255,255,255,0.3);
+  background: rgb(252 253 254 / 30%);
 }
 
 .project_coverage tr.project_coverage-folder td {
@@ -79,9 +79,9 @@
   display: flex;
   /* column-gap: var(--base-rhythm); */
   padding: calc(0.5 * var(--base-rhythm));
-  border-radius: calc(0.5 * var(--base-rhythm));
+  border-radius: 0;
   transition: background .3s;
-  border: 1px solid rgba(255,255,255,0);
+  border: 1px solid transparent;
 }
 
 .project_coverage-file-icon {}
@@ -137,7 +137,7 @@
 /* cols */
 
 .project_coverage-col-line {
-  background-color: rgba(255, 155, 0, 0.05) !important;
+  background-color: rgb(198 138 0 / 5%) !important;
 }
 
 .project_coverage-col-func {
@@ -146,7 +146,7 @@
 
 .sorted_col.project_coverage-col-line,
 th.project_coverage-col-line {
-  background-color: rgba(255, 155, 0, 0.15) !important;
+  background-color: rgb(198 138 0 / 15%) !important;
 }
 
 .sorted_col.project_coverage-col-func,
@@ -252,7 +252,7 @@ font-weight: 200;
 }
 
 .project_coverage.sorted .project_coverage-sort_reset:hover::before {
-  background-color: rgb(255 255 255 / 50%);
+  background-color: rgb(252 253 254 / 50%);
 }
 
 /* sorted mods */

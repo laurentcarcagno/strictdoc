@@ -19,8 +19,8 @@ turbo-frame.document-chunk-placeholder {
 
   background-image: conic-gradient(
     from 0deg at 50% 160px,
-    rgba(60, 70, 82, 0),
-    rgba(60, 70, 82, 0.35)
+    rgb(18 41 58 / 0%),
+    rgb(18 41 58 / 35%)
   );
   background-size: 100% var(--chunk-node-height);
   background-repeat: repeat-y;
@@ -28,7 +28,7 @@ turbo-frame.document-chunk-placeholder {
   mask-image: radial-gradient(
     circle at 50% 160px,
     transparent 0 10px,
-    #000 11px 15px,
+    var(--hem-ink) 11px 15px,
     transparent 16px
   );
   mask-size: 100% var(--chunk-node-height);
@@ -60,7 +60,7 @@ sdoc-node[show-node-type-name]::before {
   padding-bottom: calc(0.5 * var(--base-rhythm));
   padding-left: calc(0.75 * var(--base-rhythm));
   padding-right: calc(0.75 * var(--base-rhythm));
-  border-radius: 3px;
+  border-radius: 0;
   border: var(--requirement-border-width, 1px) solid var(--requirement-border-color, #bfbfbf);
 
   color: var(--requirement-label-color);
@@ -71,7 +71,7 @@ sdoc-node[show-node-type-name]::before {
 
 sdoc-node {
   background-color: var(--color-bg-contrast);
-  border-radius: 3px;
+  border-radius: 0;
 
   /* padding: calc(3 * var(--base-rhythm)) calc(4 * var(--base-rhythm)); */
   padding-inline: calc(4 * var(--base-rhythm));
@@ -118,7 +118,7 @@ sdoc-node[node-style="card"][node-role="requirement"]:hover,
 
 sdoc-node[node-style="card"] {
   background-color: var(--color-bg-contrast);
-  border-radius: 3px;
+  border-radius: 0;
   padding: 0;
 }
 
