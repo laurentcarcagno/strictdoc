@@ -2,8 +2,8 @@
   <template>
   {% with
     confirm_title = default,
-    confirm_message = "Deleting a requirement is an unrecoverable action.",
-    confirm_name = "Delete requirement",
+    confirm_message = _("Deleting a requirement is an unrecoverable action."),
+    confirm_name = _("Delete requirement"),
     confirm_href = "/actions/document/delete_requirement?node_id="~requirement_mid~"&context_document_mid="~context_document_mid~"&confirmed=1",
     confirm_disabled = (errors|length > 0)
   %}

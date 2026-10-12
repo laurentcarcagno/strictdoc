@@ -38,8 +38,8 @@
 
       {#- The project picker: nav.js fills it with the projects of the user. -#}
       <label class="nav__picker" data-project-picker-box hidden>
-        <span class="nav__picker_label">Project</span>
-        <select class="nav__picker_select" data-project-picker data-src="/_projects/mine.json" data-testid="project-picker" aria-label="Current project"></select>
+        <span class="nav__picker_label">{{ _("Project") }}</span>
+        <select class="nav__picker_select" data-project-picker data-src="/_projects/mine.json" data-testid="project-picker" aria-label="{{ _("Current project") }}"></select>
       </label>
 
       <div class="nav__items">
@@ -57,15 +57,15 @@
       {%- endif %}
 
       {%- if logout_url %}
-      <a class="nav_button nav__logout_item" href="{{ logout_url }}" title="Log out" data-testid="nav-logout">
+      <a class="nav_button nav__logout_item" href="{{ logout_url }}" title="{{ _("Log out") }}" data-testid="nav-logout">
         <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 2H2v12h4M10 4l4 4-4 4M14 8H6" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
-        <span class="nav_button__label">Log out</span>
+        <span class="nav_button__label">{{ _("Log out") }}</span>
       </a>
       {%- endif %}
 
-      <button type="button" class="nav__toggle" id="nav-toggle" aria-controls="nav" aria-expanded="true" title="Collapse the sidebar" data-testid="nav-toggle">
+      <button type="button" class="nav__toggle" id="nav-toggle" aria-controls="nav" aria-expanded="true" title="{{ _("Collapse the sidebar") }}" data-testid="nav-toggle">
         <svg class="nav__toggle_icon" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3 5 8l5 5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
-        <span class="nav_button__label">Collapse</span>
+        <span class="nav_button__label">{{ _("Collapse") }}</span>
       </button>
       <script src="{{ assets }}/nav.js"></script>
     </div>

@@ -16,7 +16,7 @@
         {%- block modal_container %}{% endblock -%}
         </sdoc-modal-container>
         <sdoc-modal-footer>
-          {%- with cancel_name="Close" -%}
+          {%- with cancel_name=_("Close") -%}
             {% include "components/button/cancel.jinja" %}
           {%- endwith -%}
           {%- block modal_footer_actions -%}{%- endblock -%}

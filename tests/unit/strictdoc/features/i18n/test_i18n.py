@@ -1,4 +1,5 @@
 import os
+import re
 
 import pytest
 from jinja2 import DictLoader, Environment
@@ -14,6 +15,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\\n"
 
+#: strictdoc/export/html/_static/nav.js:1
 msgid "Save"
 msgstr "Enregistrer"
 
@@ -32,11 +34,11 @@ def fixture_french(tmp_path, monkeypatch):
     folder.mkdir(parents=True)
     (folder / "strictdoc.po").write_text(CATALOG, encoding="utf8")
     monkeypatch.setattr(i18n, "LOCALES_DIR", str(tmp_path))
-    i18n._translations.cache_clear()
+    i18n._load.cache_clear()
     i18n.set_language("fr")
     yield
     i18n.set_language("en")
-    i18n._translations.cache_clear()
+    i18n._load.cache_clear()
 
 
 def test_001_english_is_the_default_and_keeps_the_texts():
@@ -74,11 +76,9 @@ def test_003_the_templates_follow_the_language():
 
 
 @pytest.mark.usefixtures("french")
-def test_004_the_scripts_get_the_translated_texts_only():
-    assert i18n.js_catalog() == {
-        "Save": "Enregistrer",
-        "Members of %(title)s": "Membres de %(title)s",
-    }
+def test_004_the_scripts_get_the_texts_of_the_scripts_only():
+    # "Members of %(title)s" is a text of the templates: not embedded.
+    assert i18n.js_catalog() == {"Save": "Enregistrer"}
 
 
 def test_005_an_unknown_language_is_refused():
@@ -117,3 +117,25 @@ def test_007_a_bad_language_in_the_project_file_is_an_error(
     with pytest.raises(StrictDocException, match="language"):
         config.validate_and_finalize()
     assert os.environ.get("STRICTDOC_LANGUAGE") is None
+
+
+def test_008_the_french_catalog_is_complete_and_keeps_the_placeholders():
+    """
+    Every text of the real catalog is translated, with the same
+    %(name)s placeholders (a missing one breaks the page).
+    """
+    from babel.messages.pofile import read_po  # noqa: PLC0415
+
+    path = os.path.join(
+        i18n.LOCALES_DIR, "fr", "LC_MESSAGES", f"{i18n.DOMAIN}.po"
+    )
+    with open(path, "rb") as file_:
+        catalog = read_po(file_, locale="fr")
+    placeholder = re.compile(r"%\([a-z_]+\)s")
+    for message_ in catalog:
+        if not message_.id:
+            continue
+        assert message_.string, message_.id
+        assert sorted(placeholder.findall(message_.id)) == sorted(
+            placeholder.findall(message_.string)
+        ), message_.id

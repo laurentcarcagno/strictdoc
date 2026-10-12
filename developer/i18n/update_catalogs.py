@@ -18,6 +18,11 @@ import sys
 from typing import Any, Dict, List, Tuple
 
 from babel.messages.catalog import Catalog
+
+ROOT_FOR_IMPORTS = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "..", "..")
+)
+sys.path.insert(0, ROOT_FOR_IMPORTS)
 from babel.messages.extract import extract_from_dir
 from babel.messages.pofile import read_po, write_po
 
@@ -36,10 +41,23 @@ METHODS: List[Tuple[str, str]] = [
     ("**.py", "python"),
     ("**.js", "javascript"),
 ]
+# The templates use {% assert %} of StrictDoc: without its extension, Jinja
+# cannot parse them and Babel skips them.
+JINJA_EXTENSIONS = (
+    "jinja2.ext.i18n,"
+    "strictdoc.export.html.jinja.assert_extension.AssertExtension"
+)
 OPTIONS: Dict[str, Dict[str, Any]] = {
-    "**/templates/**.jinja": {"extensions": "jinja2.ext.i18n"},
-    "**/templates/**.jinja.html": {"extensions": "jinja2.ext.i18n"},
-    "**/templates/**.html": {"extensions": "jinja2.ext.i18n"},
+    # silent=false: a template that Jinja cannot parse stops the update.
+    "**/templates/**.jinja": {
+        "extensions": JINJA_EXTENSIONS,
+        "silent": "false",
+    },
+    "**/templates/**.jinja.html": {
+        "extensions": JINJA_EXTENSIONS,
+        "silent": "false",
+    },
+    "**/templates/**.html": {"extensions": JINJA_EXTENSIONS, "silent": "false"},
 }
 KEYWORDS = {
     "_": None,
@@ -59,6 +77,11 @@ def collect() -> Catalog:
         comment_tags=("i18n:",),
         callback=None,
         strip_comment_tags=True,
+        # Babel skips the folders that start with "_" by default; StrictDoc
+        # keeps templates in _shared and scripts in _static.
+        directory_filter=lambda path_: (
+            not os.path.basename(path_).startswith((".", "__pycache__"))
+        ),
     ):
         if any(skip_ in filename for skip_ in SKIP):
             continue

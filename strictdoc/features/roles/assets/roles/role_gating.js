@@ -37,6 +37,15 @@
   // The user footer of the sidebar (_shared/nav.jinja.html): initials, name,
   // role. The logout is an item of the sidebar.
   function showUser(who) {
+    // The texts follow the language of the page (features/i18n).
+    const sdocT = window.sdocT || ((text) => text);
+    const ROLES = {
+      reader: sdocT('reader'),
+      reviewer: sdocT('reviewer'),
+      author: sdocT('author'),
+      administrator: sdocT('administrator'),
+    };
+    const roleName = ROLES[who.role] || sdocT('no role');
     const footer = document.getElementById('nav-user');
     if (!footer || footer.dataset.filled) return;
     footer.dataset.filled = '1';
@@ -62,10 +71,10 @@
     userName.textContent = name;
     const userRole = document.createElement('span');
     userRole.className = 'nav__user_role';
-    userRole.textContent = who.role || 'no role';
+    userRole.textContent = roleName;
     identity.append(userName, userRole);
 
-    footer.title = `${name} (${who.role || 'no role'})`;
+    footer.title = `${name} (${roleName})`;
     footer.append(avatar, identity);
     footer.hidden = false;
   }

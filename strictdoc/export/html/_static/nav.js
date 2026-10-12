@@ -5,6 +5,8 @@
   const KEY = 'sdoc-nav-collapsed';
   const root = document.documentElement;
   const toggle = document.getElementById('nav-toggle');
+  // The texts follow the language of the page (features/i18n).
+  const sdocT = window.sdocT || ((text) => text);
 
   function read() {
     try {
@@ -30,7 +32,9 @@
     }
     if (toggle) {
       toggle.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
-      toggle.title = collapsed ? 'Expand the sidebar' : 'Collapse the sidebar';
+      toggle.title = collapsed
+        ? sdocT('Expand the sidebar')
+        : sdocT('Collapse the sidebar');
     }
   }
 
@@ -54,7 +58,7 @@
         if (projects.length === 0) return;
         if (!projects.some((project) => project.current)) {
           const choose = document.createElement('option');
-          choose.textContent = 'Choose a project';
+          choose.textContent = sdocT('Choose a project');
           choose.value = '';
           choose.selected = true;
           choose.disabled = true;

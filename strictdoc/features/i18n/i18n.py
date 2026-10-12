@@ -16,7 +16,7 @@ import gettext as gettext_module
 import io
 import os
 from functools import lru_cache
-from typing import Dict
+from typing import Dict, Tuple
 
 from babel.messages.mofile import write_mo
 from babel.messages.pofile import read_po
@@ -35,17 +35,36 @@ LOCALES_DIR = os.path.join(os.path.dirname(__file__), "locales")
 
 
 @lru_cache(maxsize=None)
-def _translations(language: str) -> gettext_module.NullTranslations:
-    """The translations of a language, read from its .po catalog."""
+def _load(
+    language: str,
+) -> Tuple[gettext_module.NullTranslations, Dict[str, str]]:
+    """
+    The translations of a language, read from its .po catalog, and the
+    translated texts that the scripts use (the texts found in a .js file).
+    """
     path = os.path.join(LOCALES_DIR, language, "LC_MESSAGES", f"{DOMAIN}.po")
     if not os.path.isfile(path):
-        return gettext_module.NullTranslations()
+        return gettext_module.NullTranslations(), {}
     with open(path, "rb") as file_:
         catalog = read_po(file_, locale=language, domain=DOMAIN)
+    scripts = {
+        message_.id: message_.string
+        for message_ in catalog
+        if isinstance(message_.id, str)
+        and message_.id
+        and message_.string
+        and any(
+            location_[0].endswith(".js") for location_ in message_.locations
+        )
+    }
     buffer = io.BytesIO()
     write_mo(buffer, catalog)
     buffer.seek(0)
-    return gettext_module.GNUTranslations(buffer)
+    return gettext_module.GNUTranslations(buffer), scripts
+
+
+def _translations(language: str) -> gettext_module.NullTranslations:
+    return _load(language)[0]
 
 
 def gettext(message: str) -> str:
@@ -57,14 +76,8 @@ def ngettext(singular: str, plural: str, number: int) -> str:
 
 
 def js_catalog() -> Dict[str, str]:
-    """The translated texts of the current language, for window.sdocT()."""
-    translations = _translations(get_language())
-    catalog = getattr(translations, "_catalog", {})
-    return {
-        key_: value_
-        for key_, value_ in catalog.items()
-        if isinstance(key_, str) and key_ and value_ and key_ != value_
-    }
+    """The translated texts of the scripts, for window.sdocT()."""
+    return _load(get_language())[1]
 
 
 def install(environment: Environment) -> None:

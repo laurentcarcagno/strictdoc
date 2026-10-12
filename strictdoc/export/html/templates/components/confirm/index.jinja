@@ -6,18 +6,18 @@
   #}
 {% block modal__context %}confirm{% endblock modal__context %}
 {% block modal_form__header %}
-  {{ confirm_title|default("Are you sure?") }}
+  {{ confirm_title|default(_("Are you sure?")) }}
 {% endblock modal_form__header %}
 {% block modal_form__content %}
 <sdoc-modal-message data-testid="confirm-message">
   {{ confirm_message|default(
-    "This is an unrecoverable action."
+    _("This is an unrecoverable action.")
   ) }}
 
   {# {% set errors = ['test error 1', 'test error 2'] %} #}
   {% if errors|length > 0 %}
     <div class="error">
-    <p>This element cannot be deleted:</p>
+    <p>{{ _("This element cannot be deleted:") }}</p>
     <ul>
   {% for error_ in errors %}
     <li>{{ error_ }}</li>

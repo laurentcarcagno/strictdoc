@@ -2,8 +2,8 @@
   <template>
   {% with
     confirm_title = default,
-    confirm_message = "Deleting a document is an unrecoverable action.",
-    confirm_name = "Delete document",
+    confirm_message = _("Deleting a document is an unrecoverable action."),
+    confirm_name = _("Delete document"),
     confirm_href = "/actions/document/delete_document?document_mid="~document_mid~"&confirmed=1",
     confirm_disabled = (errors|length > 0)
   %}

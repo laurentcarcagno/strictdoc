@@ -1,6 +1,14 @@
 {% extends "shell.jinja.html" %}
+{#- The names of the roles, as the interface shows them; the forms post the
+    English value. -#}
+{%- set role_labels = {
+  "reader": _("reader"),
+  "reviewer": _("reviewer"),
+  "author": _("author"),
+  "administrator": _("administrator"),
+} -%}
 
-{% block title %}StrictDoc projects{% endblock %}
+{% block title %}{{ _("StrictDoc projects") }}{% endblock %}
 {% block viewtype %}portal{% endblock %}
 
 {% block head %}
@@ -34,32 +42,32 @@
 {% endblock %}
 
 {% block nav_items %}
-  <a class="nav_button" data-link="projects" href="/_projects" title="Projects" data-testid="nav-projects">
+  <a class="nav_button" data-link="projects" href="/_projects" title="{{ _("Projects") }}" data-testid="nav-projects">
     <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 3h5l1 2h6v8H2z" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
-    <span class="nav_button__label">Projects</span>
+    <span class="nav_button__label">{{ _("Projects") }}</span>
   </a>
 {% endblock %}
 
-{% block eyebrow %}Portal{% endblock %}
-{% block heading %}Projects{% endblock %}
+{% block eyebrow %}{{ _("Portal") }}{% endblock %}
+{% block heading %}{{ _("Projects") }}{% endblock %}
 
 {% block content %}
   {%- if rows %}
   <section class="hem-card">
     <div class="hem-card__header">
-      <span class="hem-label">Your projects</span>
+      <span class="hem-label">{{ _("Your projects") }}</span>
       <span class="hem-mono hem-card__meta">{{ rows|length }}</span>
     </div>
     {#- The role and documents cells stay plain <td>: tests read them. -#}
     <table class="hem-table portal-table" data-testid="portal-table">
-      <tr><th>Project</th><th>Your role</th><th>Documents</th><th>Last change</th><th></th></tr>
+      <tr><th>{{ _("Project") }}</th><th>{{ _("Your role") }}</th><th>{{ _("Documents") }}</th><th>{{ _("Last change") }}</th><th></th></tr>
       {%- for row in rows %}
       <tr data-testid="portal-row" data-slug="{{ row.slug }}">
-        <td><a class="portal-table__project" href="{{ row.url }}">{{ row.title }}</a> <span class="hem-mono portal-table__slug">{{ row.slug }}</span>{% if row.archived %} <span class="hem-tag hem-tag--ghost">archived</span>{% endif %}</td>
-        <td>{{ row.role }}</td>
+        <td><a class="portal-table__project" href="{{ row.url }}">{{ row.title }}</a> <span class="hem-mono portal-table__slug">{{ row.slug }}</span>{% if row.archived %} <span class="hem-tag hem-tag--ghost">{{ _("archived") }}</span>{% endif %}</td>
+        <td>{{ role_labels[row.role] }}</td>
         <td>{{ row.documents }}</td>
         <td>{{ row.last_change }}</td>
-        <td>{% if row.role == "administrator" %}<a class="hem-btn hem-btn--ghost hem-btn--sm" href="{{ row.members_url }}" data-testid="portal-members">Members</a>{% endif %}</td>
+        <td>{% if row.role == "administrator" %}<a class="hem-btn hem-btn--ghost hem-btn--sm" href="{{ row.members_url }}" data-testid="portal-members">{{ _("Members") }}</a>{% endif %}</td>
       </tr>
       {%- endfor %}
     </table>
@@ -67,28 +75,28 @@
   {%- else %}
   <section class="hem-empty" data-testid="portal-empty">
     <span class="hem-empty__icon" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 16 16"><path d="M2 3h5l1 2h6v8H2z" fill="none" stroke="currentColor" stroke-width="1.2"/></svg></span>
-    <span class="hem-eyebrow">No project</span>
-    <p class="hem-h3">You are not a member of any project{% if user %} ({{ user }}){% endif %}.</p>
-    <p class="hem-note">Ask an administrator to add you to a project.</p>
+    <span class="hem-eyebrow">{{ _("No project") }}</span>
+    <p class="hem-h3">{% if user %}{% trans %}You are not a member of any project ({{ user }}).{% endtrans %}{% else %}{% trans %}You are not a member of any project.{% endtrans %}{% endif %}</p>
+    <p class="hem-note">{{ _("Ask an administrator to add you to a project.") }}</p>
   </section>
   {%- endif %}
 
   {%- if can_create %}
   <section class="hem-card">
-    <div class="hem-card__header"><span class="hem-label">New project</span></div>
+    <div class="hem-card__header"><span class="hem-label">{{ _("New project") }}</span></div>
     <form class="hem-form" method="post" action="/_projects/create" data-testid="portal-create">
       {%- if error %}<p class="hem-error" data-testid="portal-error">{{ error }}</p>{% endif %}
       <label class="hem-field">
-        <span class="hem-field__label">Name (in the address)</span>
+        <span class="hem-field__label">{{ _("Name (in the address)") }}</span>
         <input class="hem-input hem-mono" name="slug" value="{{ slug }}" required pattern="[a-z0-9][a-z0-9-]*" maxlength="32"/>
       </label>
       <label class="hem-field">
-        <span class="hem-field__label">Title</span>
+        <span class="hem-field__label">{{ _("Title") }}</span>
         <input class="hem-input" name="title" value="{{ title }}" required maxlength="120"/>
       </label>
       <div class="hem-form__actions">
-        <button class="hem-btn" type="submit">Create the project</button>
-        <span class="hem-note">You become its administrator.</span>
+        <button class="hem-btn" type="submit">{{ _("Create the project") }}</button>
+        <span class="hem-note">{{ _("You become its administrator.") }}</span>
       </div>
     </form>
   </section>

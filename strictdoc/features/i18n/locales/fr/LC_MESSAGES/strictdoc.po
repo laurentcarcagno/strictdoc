@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  strictdoc\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-12 15:15+0200\n"
+"POT-Creation-Date: 2026-10-12 15:20+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: fr\n"
@@ -16,4 +16,344 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
+
+#: strictdoc/export/html/templates/components/header/actions_wrapper.jinja:15
+msgid "Actions"
+msgstr "Actions"
+
+#: strictdoc/features/projects/templates/members.jinja.html:91
+msgid "Add"
+msgstr "Ajouter"
+
+#: strictdoc/features/projects/templates/members.jinja.html:75
+msgid "Add a member"
+msgstr "Ajouter un membre"
+
+#: strictdoc/export/html/templates/components/confirm/index.jinja:9
+msgid "Are you sure?"
+msgstr "Confirmer ?"
+
+#: strictdoc/features/projects/templates/portal.jinja.html:80
+msgid "Ask an administrator to add you to a project."
+msgstr "Demandez à un administrateur de vous ajouter à un projet."
+
+#: strictdoc/export/html/templates/components/button/cancel.jinja:8
+#: strictdoc/export/html/templates/components/button/cancel.jinja:16
+msgid "Cancel"
+msgstr "Annuler"
+
+#: strictdoc/features/projects/templates/members.jinja.html:53
+msgid "Change"
+msgstr "Modifier"
+
+#: strictdoc/export/html/_static/nav.js:61
+msgid "Choose a project"
+msgstr "Choisir un projet"
+
+#: strictdoc/export/html/templates/components/modal/close_button.jinja:6
+#: strictdoc/export/html/templates/components/modal/close_button.jinja:7
+#: strictdoc/export/html/templates/components/modal/index.jinja:19
+#: strictdoc/export/html/templates/screens/document/table/tips.jinja:26
+msgid "Close"
+msgstr "Fermer"
+
+#: strictdoc/export/html/templates/_shared/nav.jinja.html:174
+#: strictdoc/features/projects/templates/shell.jinja.html:68
+msgid "Collapse"
+msgstr "Réduire"
+
+#: strictdoc/export/html/_static/nav.js:37
+#: strictdoc/export/html/templates/_shared/nav.jinja.html:168
+#: strictdoc/features/projects/templates/shell.jinja.html:66
+msgid "Collapse the sidebar"
+msgstr "Réduire le panneau"
+
+#: strictdoc/export/html/templates/components/button/confirm.jinja:5
+#: strictdoc/export/html/templates/components/button/confirm.jinja:14
+msgid "Confirm the action"
+msgstr "Confirmer"
+
+#: strictdoc/features/projects/templates/portal.jinja.html:98
+msgid "Create the project"
+msgstr "Créer le projet"
+
+#: strictdoc/export/html/templates/_shared/nav.jinja.html:20
+#: strictdoc/features/projects/templates/shell.jinja.html:42
+msgid "Current project"
+msgstr "Projet courant"
+
+#: strictdoc/export/html/templates/components/button/delete.jinja:8
+msgid "Delete"
+msgstr "Supprimer"
+
+#: strictdoc/export/html/templates/actions/document/delete_document/stream_confirm_delete_document.jinja:6
+msgid "Delete document"
+msgstr "Supprimer le document"
+
+#: strictdoc/export/html/templates/actions/table/delete_node/stream_confirm.jinja:6
+msgid "Delete node"
+msgstr "Supprimer le nœud"
+
+#: strictdoc/export/html/templates/actions/document/delete_requirement/stream_confirm_delete_requirement.jinja:6
+msgid "Delete requirement"
+msgstr "Supprimer l'exigence"
+
+#: strictdoc/export/html/templates/actions/document/delete_document/stream_confirm_delete_document.jinja:5
+msgid "Deleting a document is an unrecoverable action."
+msgstr "La suppression d'un document est définitive."
+
+#: strictdoc/export/html/templates/actions/table/delete_node/stream_confirm.jinja:5
+msgid "Deleting a node is an unrecoverable action."
+msgstr "La suppression d'un nœud est définitive."
+
+#: strictdoc/export/html/templates/actions/document/delete_requirement/stream_confirm_delete_requirement.jinja:5
+msgid "Deleting a requirement is an unrecoverable action."
+msgstr "La suppression d'une exigence est définitive."
+
+#: strictdoc/export/html/templates/_shared/nav.jinja.html:98
+#: strictdoc/export/html/templates/_shared/nav.jinja.html:102
+msgid "Diff"
+msgstr "Différences"
+
+#: strictdoc/features/projects/templates/members.jinja.html:16
+#: strictdoc/features/projects/templates/members.jinja.html:18
+#: strictdoc/features/projects/templates/portal.jinja.html:63
+msgid "Documents"
+msgstr "Documents"
+
+#: strictdoc/export/html/_static/nav.js:36
+msgid "Expand the sidebar"
+msgstr "Déplier le panneau"
+
+#: strictdoc/export/html/templates/components/header/actions_wrapper.jinja:22
+msgid "Header actions"
+msgstr "Actions de l'en-tête"
+
+#: strictdoc/features/docx/templates/features/docx/frame_form_import_docx.jinja.html:95
+msgid "Import"
+msgstr "Importer"
+
+#: strictdoc/features/projects/templates/portal.jinja.html:63
+msgid "Last change"
+msgstr "Dernière modification"
+
+#: strictdoc/export/html/templates/_shared/nav.jinja.html:154
+#: strictdoc/export/html/templates/_shared/nav.jinja.html:158
+#: strictdoc/features/projects/templates/shell.jinja.html:60
+#: strictdoc/features/projects/templates/shell.jinja.html:62
+msgid "Log out"
+msgstr "Déconnexion"
+
+#: strictdoc/export/html/templates/_shared/nav.jinja.html:128
+#: strictdoc/export/html/templates/_shared/nav.jinja.html:132
+#: strictdoc/features/projects/templates/members.jinja.html:20
+#: strictdoc/features/projects/templates/members.jinja.html:22
+#: strictdoc/features/projects/templates/members.jinja.html:31
+#: strictdoc/features/projects/templates/portal.jinja.html:70
+msgid "Members"
+msgstr "Membres"
+
+#: strictdoc/features/projects/templates/members.jinja.html:11
+#, python-format
+msgid "Members of %(title)s"
+msgstr "Membres de %(title)s"
+
+#: strictdoc/features/projects/templates/members.jinja.html:38
+msgid "Members of the project"
+msgstr "Membres du projet"
+
+#: strictdoc/features/projects/templates/portal.jinja.html:90
+msgid "Name (in the address)"
+msgstr "Nom (dans l'adresse)"
+
+#: strictdoc/features/projects/templates/portal.jinja.html:86
+msgid "New project"
+msgstr "Nouveau projet"
+
+#: strictdoc/features/projects/templates/members.jinja.html:68
+msgid "No member"
+msgstr "Aucun membre"
+
+#: strictdoc/features/projects/templates/portal.jinja.html:78
+msgid "No project"
+msgstr "Aucun projet"
+
+#: strictdoc/features/projects/templates/members.jinja.html:69
+msgid "Only the groups of the login server give access to this project."
+msgstr "Seuls les groupes du serveur de connexion donnent accès à ce projet."
+
+#: strictdoc/features/projects/templates/portal.jinja.html:51
+msgid "Portal"
+msgstr "Portail"
+
+#: strictdoc/export/html/templates/_shared/nav.jinja.html:19
+#: strictdoc/features/projects/templates/portal.jinja.html:63
+#: strictdoc/features/projects/templates/shell.jinja.html:41
+msgid "Project"
+msgstr "Projet"
+
+#: strictdoc/export/html/templates/_shared/nav.jinja.html:29
+#: strictdoc/export/html/templates/_shared/nav.jinja.html:33
+msgid "Project index"
+msgstr "Index du projet"
+
+#: strictdoc/export/html/templates/_shared/nav.jinja.html:42
+#: strictdoc/export/html/templates/_shared/nav.jinja.html:46
+msgid "Project statistics"
+msgstr "Statistiques du projet"
+
+#: strictdoc/export/html/templates/_shared/nav.jinja.html:138
+#: strictdoc/export/html/templates/_shared/nav.jinja.html:142
+#: strictdoc/features/projects/templates/members.jinja.html:24
+#: strictdoc/features/projects/templates/members.jinja.html:26
+#: strictdoc/features/projects/templates/portal.jinja.html:45
+#: strictdoc/features/projects/templates/portal.jinja.html:47
+#: strictdoc/features/projects/templates/portal.jinja.html:52
+msgid "Projects"
+msgstr "Projets"
+
+#: strictdoc/features/projects/templates/members.jinja.html:59
+msgid "Remove"
+msgstr "Retirer"
+
+#: strictdoc/features/projects/templates/members.jinja.html:43
+#: strictdoc/features/projects/templates/members.jinja.html:66
+#: strictdoc/features/projects/templates/members.jinja.html:85
+msgid "Role"
+msgstr "Rôle"
+
+#: strictdoc/features/projects/templates/members.jinja.html:50
+#, python-format
+msgid "Role of %(user)s"
+msgstr "Rôle de %(user)s"
+
+#: strictdoc/features/projects/templates/members.jinja.html:97
+msgid "Roles"
+msgstr "Rôles"
+
+#: strictdoc/export/html/templates/components/button/submit.jinja:14
+msgid "Save"
+msgstr "Enregistrer"
+
+#: strictdoc/export/html/templates/_shared/nav.jinja.html:81
+#: strictdoc/export/html/templates/_shared/nav.jinja.html:85
+msgid "Search"
+msgstr "Recherche"
+
+#: strictdoc/export/html/templates/components/button/diff.jinja:11
+msgid "See the diff"
+msgstr "Voir les différences"
+
+#: strictdoc/export/html/templates/_shared/nav.jinja.html:68
+#: strictdoc/export/html/templates/_shared/nav.jinja.html:72
+msgid "Source coverage"
+msgstr "Couverture du code"
+
+#: strictdoc/features/projects/templates/portal.jinja.html:11
+msgid "StrictDoc projects"
+msgstr "Projets StrictDoc"
+
+#: strictdoc/features/projects/templates/members.jinja.html:96
+#, python-format
+msgid ""
+"The user name is the one shown after the login (see %(whoami)s). Every "
+"member reads all the documents. The author of a document names its "
+"reviewers."
+msgstr ""
+"L'identifiant est celui affiché après la connexion (voir %(whoami)s). Chaque"
+" membre lit tous les documents. L'auteur d'un document désigne ses "
+"relecteurs."
+
+#: strictdoc/export/html/templates/components/confirm/index.jinja:20
+msgid "This element cannot be deleted:"
+msgstr "Suppression impossible :"
+
+#: strictdoc/export/html/templates/components/confirm/index.jinja:14
+msgid "This is an unrecoverable action."
+msgstr "Action définitive."
+
+#: strictdoc/features/projects/templates/portal.jinja.html:94
+msgid "Title"
+msgstr "Titre"
+
+#: strictdoc/export/html/templates/_shared/nav.jinja.html:55
+#: strictdoc/export/html/templates/_shared/nav.jinja.html:59
+msgid "Traceability matrix"
+msgstr "Matrice de traçabilité"
+
+#: strictdoc/export/html/templates/_shared/nav.jinja.html:114
+#: strictdoc/export/html/templates/_shared/nav.jinja.html:118
+msgid "Tree map"
+msgstr "Carte arborescente"
+
+#: strictdoc/features/projects/templates/members.jinja.html:43
+#: strictdoc/features/projects/templates/members.jinja.html:66
+msgid "User"
+msgstr "Utilisateur"
+
+#: strictdoc/features/projects/templates/members.jinja.html:78
+msgid "User name"
+msgstr "Identifiant"
+
+#: strictdoc/features/projects/templates/portal.jinja.html:79
+#, python-format
+msgid "You are not a member of any project (%(user)s)."
+msgstr "Vous n'êtes membre d'aucun projet (%(user)s)."
+
+#: strictdoc/features/projects/templates/portal.jinja.html:79
+msgid "You are not a member of any project."
+msgstr "Vous n'êtes membre d'aucun projet."
+
+#: strictdoc/features/projects/templates/portal.jinja.html:99
+msgid "You become its administrator."
+msgstr "Vous en devenez l'administrateur."
+
+#: strictdoc/features/projects/templates/portal.jinja.html:58
+msgid "Your projects"
+msgstr "Vos projets"
+
+#: strictdoc/features/projects/templates/portal.jinja.html:63
+msgid "Your role"
+msgstr "Votre rôle"
+
+#: strictdoc/features/projects/templates/members.jinja.html:8
+#: strictdoc/features/projects/templates/portal.jinja.html:8
+#: strictdoc/features/roles/assets/roles/role_gating.js:46
+msgid "administrator"
+msgstr "administrateur"
+
+#: strictdoc/features/projects/templates/portal.jinja.html:66
+msgid "archived"
+msgstr "archivé"
+
+#: strictdoc/features/projects/templates/members.jinja.html:7
+#: strictdoc/features/projects/templates/portal.jinja.html:7
+#: strictdoc/features/roles/assets/roles/role_gating.js:45
+msgid "author"
+msgstr "auteur"
+
+#: strictdoc/features/roles/assets/roles/role_gating.js:48
+msgid "no role"
+msgstr "aucun rôle"
+
+#: strictdoc/features/projects/templates/members.jinja.html:5
+#: strictdoc/features/projects/templates/portal.jinja.html:5
+#: strictdoc/features/roles/assets/roles/role_gating.js:43
+msgid "reader"
+msgstr "lecteur"
+
+#: strictdoc/features/projects/templates/members.jinja.html:97
+msgid ""
+"reader reads; reviewer also comments on every document; author also writes "
+"and names reviewers; administrator also manages the members."
+msgstr ""
+"lecteur : lit ; relecteur : commente aussi tous les documents ; auteur : "
+"rédige aussi et désigne les relecteurs ; administrateur : gère aussi les "
+"membres."
+
+#: strictdoc/features/projects/templates/members.jinja.html:6
+#: strictdoc/features/projects/templates/portal.jinja.html:6
+#: strictdoc/features/roles/assets/roles/role_gating.js:44
+msgid "reviewer"
+msgstr "relecteur"
 
