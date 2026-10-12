@@ -16,11 +16,14 @@ import gettext as gettext_module
 import io
 import os
 from functools import lru_cache
-from typing import Dict, Tuple
+from typing import Any, Dict, Tuple
 
 from babel.messages.mofile import write_mo
 from babel.messages.pofile import read_po
 from jinja2 import Environment
+from jinja2.runtime import Context
+from jinja2.utils import pass_context
+from markupsafe import Markup
 
 from strictdoc.features.i18n.languages import (  # noqa: F401 (re-exported)
     DEFAULT_LANGUAGE,
@@ -47,16 +50,18 @@ def _load(
         return gettext_module.NullTranslations(), {}
     with open(path, "rb") as file_:
         catalog = read_po(file_, locale=language, domain=DOMAIN)
-    scripts = {
-        message_.id: message_.string
-        for message_ in catalog
-        if isinstance(message_.id, str)
-        and message_.id
-        and message_.string
-        and any(
-            location_[0].endswith(".js") for location_ in message_.locations
-        )
-    }
+    scripts: Dict[str, str] = {}
+    for message_ in catalog:
+        if (
+            isinstance(message_.id, str)
+            and isinstance(message_.string, str)
+            and message_.id
+            and message_.string
+            and any(
+                location_[0].endswith(".js") for location_ in message_.locations
+            )
+        ):
+            scripts[message_.id] = message_.string
     buffer = io.BytesIO()
     write_mo(buffer, catalog)
     buffer.seek(0)
@@ -80,6 +85,36 @@ def js_catalog() -> Dict[str, str]:
     return _load(get_language())[1]
 
 
+@pass_context
+def _template_gettext(context: Context, message: str, **variables: Any) -> str:
+    """
+    gettext() of the templates: the "new style" of Jinja (escaping, named
+    placeholders). A function of the module, not a closure of Jinja, so that
+    an environment can be pickled: the HTML export renders in several
+    processes.
+    """
+    translated = gettext(message)
+    if context.eval_ctx.autoescape:
+        translated = Markup(translated)
+    return translated % variables  # type: ignore[no-any-return]
+
+
+@pass_context
+def _template_ngettext(
+    context: Context,
+    singular: str,
+    plural: str,
+    number: int,
+    **variables: Any,
+) -> str:
+    """ngettext() of the templates, as _template_gettext()."""
+    variables.setdefault("num", number)
+    translated = ngettext(singular, plural, number)
+    if context.eval_ctx.autoescape:
+        translated = Markup(translated)
+    return translated % variables  # type: ignore[no-any-return]
+
+
 def install(environment: Environment) -> None:
     """
     Adds the i18n extension to a Jinja environment. The callables read the
@@ -87,8 +122,9 @@ def install(environment: Environment) -> None:
     follow the language too.
     """
     environment.add_extension("jinja2.ext.i18n")
-    environment.install_gettext_callables(  # type: ignore[attr-defined]
-        gettext, ngettext, newstyle=True
-    )
+    # {% trans %} and _() compile to calls with named variables.
+    environment.newstyle_gettext = True  # type: ignore[attr-defined]
+    environment.globals["gettext"] = _template_gettext
+    environment.globals["ngettext"] = _template_ngettext
     environment.globals["sdoc_language"] = get_language
     environment.globals["sdoc_js_catalog"] = js_catalog

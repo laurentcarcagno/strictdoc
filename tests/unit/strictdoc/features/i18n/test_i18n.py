@@ -171,3 +171,16 @@ def test_009_no_template_takes_the_name_of_the_translation_function():
                 if binding.search(stream_.read()):
                     offenders.append(path)
     assert offenders == []
+
+
+@pytest.mark.usefixtures("french")
+def test_010_an_environment_with_translations_can_be_pickled():
+    """The HTML export sends the environment to other processes."""
+    import pickle  # noqa: PLC0415
+
+    environment = Environment(
+        loader=DictLoader({"page": '{{ _("Save") }}'}), autoescape=True
+    )
+    i18n.install(environment)
+    copy = pickle.loads(pickle.dumps(environment))
+    assert copy.get_template("page").render() == "Enregistrer"
