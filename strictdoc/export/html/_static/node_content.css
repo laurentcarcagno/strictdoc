@@ -420,6 +420,14 @@ sdoc-section-title h3 {
   color: var(--hem-ink);
 }
 
+/* In the cards of the trace screens, headings step down to H3. */
+[data-viewtype="traceability"] sdoc-node-title > :is(h1, h2, h3),
+[data-viewtype="deep_traceability"] sdoc-node-title > :is(h1, h2, h3) {
+  font-size: var(--hem-size-h3);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
 sdoc-node-title > h4,
 sdoc-node-title > h5,
 sdoc-node-title > h6,

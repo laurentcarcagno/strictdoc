@@ -1057,7 +1057,14 @@ html[data-nav="collapsed"] .nav__toggle .nav_button__label {
   transition: color var(--hem-transition), border-color var(--hem-transition);
 }
 
-.sdoc-tab:hover {
+a.sdoc-tab:not([active]),
+a.sdoc-tab:not([active]):link,
+a.sdoc-tab:not([active]):visited {
+  color: var(--hem-mute-ink);
+}
+
+.sdoc-tab:hover,
+a.sdoc-tab:not([active]):hover {
   color: var(--hem-sovereign);
 }
 
@@ -1301,6 +1308,13 @@ svg:hover .svg_icon_not_hover_visible {
   white-space: nowrap;
   text-overflow: ellipsis;
   flex-shrink: 0.1;
+}
+
+[data-viewtype="source-file"] .header__document_title {
+  font-family: var(--hem-font-mono);
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
 }
 
 /* The project, as eyebrow above the title. */
@@ -1877,12 +1891,13 @@ a.tree_item[active] {
   place-items: stretch stretch;
   place-content: stretch stretch;
   position: relative;
-  border: var(--base-border);
+  border: 1px solid var(--hem-border);
   border-radius: 0;
+  background-color: var(--hem-white);
 
   margin: var(--base-padding) 0;
-  padding: calc(var(--base-rhythm)*0.5);
-  gap: 2px;
+  padding: 0;
+  gap: 0;
 
   width: fit-content;
   max-width: 100%;
@@ -1893,12 +1908,13 @@ a.tree_item[active] {
 .sdoc-table_key_value-key,
 .sdoc-table_key_value-value {
   padding: var(--base-rhythm) calc(var(--base-rhythm)*2);
-  background-color: var(--color-bg-secondary);
+  background-color: var(--hem-white);
+  border-bottom: 1px solid var(--hem-border);
 }
 
 .sdoc-table_key_value-key {
   grid-column: 1 / 2;
-  color: var(--color-fg-main);
+  color: var(--hem-dim-ink);
 
   display: flex;
   flex-direction: row;
@@ -1910,15 +1926,16 @@ a.tree_item[active] {
 }
 
 a.sdoc-table_key_value-key {
-  background-color: rgb(252 253 254 / 50%);
-  color: var(--color-fg-contrast);
+  background-color: var(--hem-white);
+  color: var(--hem-ink);
   padding-right: calc(var(--base-rhythm)*5);
   align-items: center;
+  text-decoration: none;
 }
 
 a.sdoc-table_key_value-key:hover {
-  background-color: var(--hem-white);
-  color: var(--color-fg-accent);
+  background-color: var(--hem-hover);
+  color: var(--hem-sky);
 }
 
 a.sdoc-table_key_value-key::after {
@@ -1931,21 +1948,23 @@ a.sdoc-table_key_value-key::after {
 
 .sdoc-table_key_value-value {
   grid-column: 2 / 3;
+  font-variant-numeric: tabular-nums;
+  color: var(--hem-ink);
 }
 
 .sdoc-table_key_value-section {
   grid-column: 1 / -1;
 
   padding: calc(var(--base-rhythm)*2);
-  padding-top: calc(var(--base-rhythm)*4);
+  padding-top: calc(var(--base-rhythm)*3);
   padding-bottom: calc(var(--base-rhythm)*1);
-  font-family: var(--code-font-family);
-
-  font-size: 0.85em;
-  font-weight: 500;
+  font-family: var(--hem-font-body);
+  font-size: var(--hem-size-label);
+  font-weight: 700;
+  letter-spacing: var(--hem-track-label);
   text-transform: uppercase;
-  color: var(--color-fg-secondary);
-  background-color: var(--color-bg-main);
+  color: var(--hem-sovereign);
+  background-color: var(--hem-mist);
 }
 
 /* badge */
@@ -1999,6 +2018,7 @@ sdoc-tab-content[active] {
 
 sdoc-tabs {
   grid-column: 1 / -1;
+  border-bottom: 2px solid var(--hem-border);
 
   /* compensate top padding for sdoc-form-grid: */
   /* margin-top: calc(var(--base-rhythm)*(-4)); */
@@ -2011,8 +2031,11 @@ sdoc-tabs {
 }
 
 sdoc-tab {
-  font-size: var(--font-size-xsm);
+  font-family: var(--hem-font-heading);
+  font-size: var(--hem-size-label);
   font-weight: 600;
+  letter-spacing: var(--hem-track-eyebrow);
+  text-transform: uppercase;
   text-align: left;
   text-decoration: none;
   white-space: nowrap;
@@ -2024,9 +2047,10 @@ sdoc-tab {
   -webkit-box-align: center;
   -webkit-box-pack: center;
 
-  border: 1px solid transparent;
-  border-bottom: none;
+  border: 0;
+  border-bottom: 2px solid transparent;
   border-radius: 0;
+  margin-bottom: -2px; /* the active tab covers the line of the row */
 
   user-select: none;
   cursor: pointer;
@@ -2039,20 +2063,21 @@ sdoc-tab {
   padding-left: calc(var(--base-rhythm)*1.5);
   padding-right: calc(var(--base-rhythm)*1.5);
 
-  color: rgb(0 20 35 / 50%);
+  color: var(--hem-mute-ink);
   background-color: transparent;
   background-clip: padding-box;
 
-  transition: 0.2s;
+  transition: color var(--hem-transition), border-color var(--hem-transition);
 }
 
 sdoc-tab:hover {
-  background-color: rgb(252 253 254 / 50%);
+  color: var(--hem-sovereign);
 }
 
 sdoc-tab[active] {
-  color: var(--color-hover);
-  background-color: var(--hem-white);
+  color: var(--hem-sovereign);
+  border-bottom-color: var(--hem-sky);
+  background-color: transparent;
   cursor: default;
 }
 

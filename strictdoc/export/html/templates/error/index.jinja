@@ -37,7 +37,8 @@
       style="height: 100%;"
       data-testid="error-{{ view_object.error_code }}"
     >
-      {% include "icons/ico100_broken_file.svg" %}
+      <span class="sdoc-main-placeholder__icon" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24"><path d="M6 2.5h8l4 4v15H6z M14 2.5v4h4 M9.5 12.5l5 5 M14.5 12.5l-5 5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></span>
+      <span class="hem-eyebrow">Error {{ view_object.error_code }}</span>
       <h1>{{ view_object.get_error_title() }}</h1>
       <p>{{ view_object.get_error_text() }}</p>
       <a href="{{ view_object.render_url('index.html') }}" data-testid="error-home-page-link">Go to home page</a>
