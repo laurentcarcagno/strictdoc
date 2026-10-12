@@ -1,0 +1,2 @@
+# Root certificates of a TLS proxy, local to each machine.
+*.crt

@@ -94,5 +94,10 @@ requests it. Those files are task artifacts intended for the user;
 - Prefer `invoke test-*` commands for all test commands. Only resort to
 running the test commands directly if not possible with Invoke tasks.
 - Always run end-to-end tests with `--headless`.
+- On a Windows workstation, run the tests in Docker, not on the host: the
+endpoint protection takes the test processes (headless Chrome, hundreds of
+Python processes) for an attack. Pass the `invoke test-*` command to
+`developer/docker_tests/run_tests.ps1`, for example
+`powershell -File developer/docker_tests/run_tests.ps1 invoke test-unit`.
 - Do not create throw-away "smoke tests". If such a smoke test is needed,
 create proper unit, integration or end2end tests.
