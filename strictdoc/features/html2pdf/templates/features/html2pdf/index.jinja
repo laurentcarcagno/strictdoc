@@ -3,6 +3,8 @@
 {% block head_css %}
   {{ super() }}
   <link rel="stylesheet" href="{{ view_object.render_static_url('html2pdf4doc.css') }}"/>
+  {#- The PDF keeps the original look of StrictDoc. -#}
+  <link rel="stylesheet" href="{{ view_object.render_static_url('html2pdf_original_look.css') }}"/>
 {% endblock head_css %}
 
 {% block head_scripts %}

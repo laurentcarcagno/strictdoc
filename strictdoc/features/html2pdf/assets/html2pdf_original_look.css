@@ -1,0 +1,151 @@
+/*
+  The PDF keeps the original look of StrictDoc: the page of the PDF (the main
+  area of the html2pdf screen) gets back the original palette, the Noto fonts
+  and the original styles of headings, field labels and UIDs. The frame of the
+  screen around it (sidebar, header) keeps the Hemeria design.
+*/
+
+@font-face {
+  font-family: 'Noto Sans';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('./fonts/NotoSans-VariableFont_wdth,wght.ttf') format('truetype-variations');
+}
+
+@font-face {
+  font-family: 'Noto Sans';
+  font-style: italic;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('./fonts/NotoSans-Italic-VariableFont_wdth,wght.ttf') format('truetype-variations');
+}
+
+@font-face {
+  font-family: 'Noto Sans Mono';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('./fonts/NotoSansMono-VariableFont_wdth,wght.ttf') format('truetype-variations');
+}
+
+[data-viewtype="html2pdf"] .layout_main {
+  /* The original palette of StrictDoc. */
+  --color-fg-main: hsl(0, 0%, 22%);
+  --color-bg-main: hsl(0, 0%, 96%);
+  --color-bg-contrast: hsl(0, 0%, 100%);
+  --color-fg-contrast: hsl(0, 0%, 0%);
+  --color-fg-accent: rgb(242, 100, 42);
+  --color-bg-accent: rgb(242 100 42 / 10%);
+  --color-highlight: rgb(255, 255, 200);
+  --color-highlight-secondary: rgb(233, 233, 233);
+  --color-highlight-danger: rgba(200, 0, 0, .2);
+  --color-fg-secondary: rgba(0, 0, 0, .5);
+  --color-bg-secondary: rgba(0, 0, 0, .025);
+  --color-red: rgb(200, 0, 0);
+  --color-blue: rgb(50, 100, 200);
+  --color-green: rgb(0, 100, 100);
+  --color-link: var(--color-fg-secondary);
+  --color-hover: var(--color-fg-contrast);
+  --color-border: rgba(0, 0, 0, .1);
+  --color-placeholder: rgba(0, 0, 0, .25);
+
+  /* The original fonts and sizes. */
+  --base-font-family: 'Noto Sans', sans-serif;
+  --code-font-family: 'Noto Sans Mono', consolas, monaco, monospace;
+  --base-font-size: 16px;
+  --document-font-size: 16px;
+  --base-line-height: 1.6;
+  --font-size: var(--base-font-size);
+  --font-size-l: 1.25rem;
+  --font-size-sm: 0.8125rem;
+  --font-size-xsm: 0.75rem;
+  --font-size-xxsm: 11px;
+  --code-font-size: .85em;
+
+  /* The Hemeria tokens that the shared styles use, mapped back. */
+  --hem-font-heading: var(--base-font-family);
+  --hem-font-body: var(--base-font-family);
+  --hem-font-mono: var(--code-font-family);
+  --hem-sovereign: var(--color-fg-main);
+  --hem-ink: var(--color-fg-main);
+  --hem-dim-ink: var(--color-fg-secondary);
+  --hem-mute-ink: var(--color-fg-secondary);
+  --hem-white: var(--color-bg-contrast);
+  --hem-mist: var(--color-bg-main);
+  --hem-hover: var(--color-bg-main);
+  --hem-muted: var(--color-highlight-secondary);
+  --hem-selection: var(--color-highlight);
+  --hem-border: var(--color-border);
+  --hem-sky: var(--color-fg-accent);
+
+  --requirement-border-color: rgb(230, 230, 230);
+  --requirement-label-color: var(--color-fg-secondary);
+  --requirement-bg-dark-color: var(--color-bg-main);
+
+  font-family: var(--base-font-family);
+  font-size: var(--base-font-size);
+  line-height: var(--base-line-height);
+  color: var(--color-fg-main);
+}
+
+[data-viewtype="html2pdf"] .layout_main sdoc-node-content {
+  font-size: inherit;
+  line-height: inherit;
+}
+
+[data-viewtype="html2pdf"] .layout_main sdoc-node-title {
+  font-size: 1.125em;
+  color: inherit;
+}
+
+/* Headings: the sizes of the browser, the font of the text. */
+[data-viewtype="html2pdf"] .layout_main h1[data-testid="document-title"],
+[data-viewtype="html2pdf"] .layout_main sdoc-node-title > :is(h1, h2, h3, h4, h5, h6),
+[data-viewtype="html2pdf"] .layout_main sdoc-section-title :is(h1, h2, h3, h4, h5, h6) {
+  font-family: inherit;
+  font-size: revert;
+  font-weight: 700;
+  letter-spacing: normal;
+  line-height: revert;
+  color: inherit;
+}
+
+[data-viewtype="html2pdf"] .layout_main sdoc-node-field-label {
+  font-family: var(--code-font-family);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  letter-spacing: normal;
+  text-transform: none;
+  line-height: 1;
+  color: var(--requirement-label-color);
+}
+
+[data-viewtype="html2pdf"] .layout_main sdoc-node-uid {
+  font-family: var(--code-font-family);
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  letter-spacing: normal;
+  text-transform: uppercase;
+  color: var(--requirement-label-color);
+}
+
+[data-viewtype="html2pdf"] .layout_main sdoc-meta-label {
+  font-family: var(--code-font-family);
+  font-size: inherit;
+  letter-spacing: normal;
+  color: var(--requirement-label-color);
+  background-color: var(--color-bg-secondary);
+}
+
+[data-viewtype="html2pdf"] .layout_main .requirement__type-tag {
+  font-size: inherit;
+  font-weight: inherit;
+  letter-spacing: normal;
+  text-transform: none;
+  color: var(--requirement-label-color);
+}
+
+[data-viewtype="html2pdf"] .layout_main :is(sdoc-node-content, sdoc-meta) {
+  border-radius: 4px;
+}
