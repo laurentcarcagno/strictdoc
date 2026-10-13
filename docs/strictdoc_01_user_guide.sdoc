@@ -4651,7 +4651,7 @@ Activate the ``LLM`` project feature and declare the providers:
                 default="local",
                 providers={
                     "local": OpenAICompatible(
-                        base_url="http://llm:11434/v1",
+                        base_url="http://llm.internal:11434/v1",
                         model="qwen2.5:3b",
                         is_local=True,
                     ),
