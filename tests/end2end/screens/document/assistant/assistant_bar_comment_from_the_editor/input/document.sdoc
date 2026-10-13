@@ -1,0 +1,16 @@
+[DOCUMENT]
+TITLE: Document 1
+OPTIONS:
+  MARKUP: Markdown
+
+[REQUIREMENT]
+UID: REQ-1
+STATEMENT: >>>
+The system shall start, see [LINK: REQ-2].
+<<<
+
+[REQUIREMENT]
+UID: REQ-2
+STATEMENT: >>>
+The system shall stop.
+<<<

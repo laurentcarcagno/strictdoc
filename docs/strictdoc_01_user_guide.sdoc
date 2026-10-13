@@ -4715,6 +4715,87 @@ choice and prints a report.
 [[/SECTION]]
 
 [[SECTION]]
+MID: 9930271ceb0e44b098c644c172abcc10
+UID: SECTION-UG-Assistant-bar
+TITLE: The assistant bar in the Markdown editor (experimental)
+
+[TEXT]
+MID: 5197dfa26f024df48ba660cd2f3303c7
+STATEMENT: >>>
+With the ``LLM`` feature and the ``llm`` option (see above), every Markdown editor of a form
+has a **bar** above it: a ✦ icon and a field. Type ``/`` for the commands, ``@`` to mention
+something, ``Enter`` to run, ``Ctrl+/`` to put the cursor in the bar, ``Up`` for the previous
+inputs. Text with no command is a question (``/ask``). The bar is hidden for readers.
+
+Every answer is a **proposal**. The result shows a message, the findings, and cards with a
+tick box; a rewrite is shown as a difference (deleted words in red, new ones in green). Only
+**Apply selected** changes something. A replacement goes into the editor (``Ctrl+Z`` undoes it)
+and is saved with the form. Comments and new requirements are saved by the server at once;
+the form that is open would send the old comments and the old revision, so the bar asks you to
+save or discard your changes first, then reloads the page.
+
+.. list-table::
+   :header-rows: 1
+
+   * - Command
+     - What it does
+     - Role
+   * - ``/rewrite [clearer|concise|formal|ears] [notes]``
+     - rewrites the text, or the selection
+     - author
+   * - ``/ears``
+     - rewrites in the EARS form that fits
+     - author
+   * - ``/verify [focus]``
+     - checks syntax, clarity and quality; changes nothing
+     - reviewer
+   * - ``/comment [focus]``
+     - writes the remarks of a reviewer; the ones you tick become comments
+     - reviewer
+   * - ``/translate <language>``
+     - translates the text, keeping UIDs, units and terms
+     - author
+   * - ``/req <request> [@...]``
+     - writes new requirements (as Draft) from your request and the mentions
+     - author
+   * - ``/explain``
+     - explains the text in plain words
+     - reader
+   * - ``/ask <question> [@...]``
+     - answers about the text and the mentions
+     - reader
+   * - ``/help``
+     - lists the commands
+     - reader
+
+"Reviewer" means an author or administrator, a project reviewer, or a reviewer that the document
+names. ``/verify`` always starts with checks that need no model (the verb of obligation, vague
+words, unresolved TBD, several obligations in one statement), so it is useful with a weak model
+or none. Its findings carry a rule id: ``R-SHALL``, ``R-ATOMIC``, ``R-AMBIG``, ``R-VERIFIABLE``,
+``R-ACTOR``, ``R-DESIGN``, ``R-TERM``, ``R-TBD``, ``R-COMPLETE``, ``R-NEG``, ``R-LANG``,
+``R-RELEVANT``.
+
+**Comments from the bar** are comments of the person who ticked them: they carry no mark of the
+assistant. What was sent to a model, by whom, is in the audit log of the assistant.
+
+**Mentions.** ``@REQ-12`` (a requirement), ``@icd1`` (a document, by file name or title),
+``@DA1 §5.14.1`` (a section of an input document), ``@selection`` (the selected words, added
+automatically), ``@this``, ``@parents``, ``@children``, ``@neighbours``, ``@doc``,
+``@section:<title>``. The server resolves them itself. A document that is too big goes in as its
+outline only; the bar says so. The text of a document is data between ``BEGIN``/``END`` lines,
+as for the draft page.
+
+**Providers and data.** The bar uses the providers of the ``llm`` option and the same policy as
+the draft page: a cloud provider must be opened by the project, shows exactly what will be
+sent and waits for your click, and a classified document never goes to one. When there are
+several providers a list appears in the bar. The JSON that the browser and the server
+exchange (a request, a result with typed operations ``replace_text``, ``insert_node``,
+``add_comment``) is described in ``strictdoc/features/llm/assist/envelope.py``.
+<<<
+
+[[/SECTION]]
+
+[[SECTION]]
 MID: 241afbf6b7af40189eec8054d0d0201c
 UID: SECTION-UG-Project-statistics-screen
 TITLE: Project statistics screen

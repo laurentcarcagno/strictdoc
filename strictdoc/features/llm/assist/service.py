@@ -302,11 +302,16 @@ class AssistService:
         material, kept = self._material(items)
 
         prompt = load_assist_prompt(command.prompt)
+        insert_ref, insert_after = self._insertion_point(
+            request, node, document
+        )
         convert_context = ConvertContext(
             command=command,
             arguments=arguments,
             request=request,
             node_mid=request.target.node_mid if node is not None else "",
+            insert_ref=insert_ref,
+            insert_after=insert_after,
             can_add_comments=(
                 node is not None
                 and supports_comments(node)
@@ -381,6 +386,28 @@ class AssistService:
             uids=sorted(convert_context.known_uids or ()),
             notes=resolved.notes,
         )
+
+    def _insertion_point(
+        self,
+        request: AssistRequest,
+        node: Optional[SDocNode],
+        document: Optional[SDocDocument],
+    ) -> Tuple[str, bool]:
+        """
+        Where /req puts new nodes: after the node being edited, else after
+        the node the new one follows, else at the end of the document.
+        """
+        if node is not None:
+            return request.target.node_mid, True
+        reference = self.find_node(request.target.reference_mid)
+        if reference is not None:
+            return request.target.reference_mid, True
+        if document is not None:
+            mid = document.reserved_mid
+            return (
+                mid if isinstance(mid, str) else mid.get_string_value()
+            ), False
+        return "", False
 
     def _ask_and_convert(
         self,

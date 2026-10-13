@@ -4,6 +4,10 @@
  * The attribute data-role of <html> is set by role_gating.js from /whoami.
  */
 
+html[data-role="reader"] sdoc-ai-bar {
+  display: none;
+}
+
 /* Needs the author role: hidden for the reader and the reviewer. */
 html[data-role="reader"] [data-testid="node-comment-action"]:not([data-can-comment]),
 html[data-role="reader"] [data-testid^="node-edit-action"],

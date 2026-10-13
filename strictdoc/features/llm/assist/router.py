@@ -56,6 +56,11 @@ def create_assist_routers(
             {
                 "providers": service.policy.allowed_providers(),
                 "default_provider": service.llm.default,
+                "local": [
+                    name_
+                    for name_, provider_ in service.llm.providers.items()
+                    if provider_.is_local
+                ],
                 "commands": service.commands(scope),
             }
         )

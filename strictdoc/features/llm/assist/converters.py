@@ -73,6 +73,10 @@ class ConvertContext:
     request: AssistRequest
     # The statement of the node, for the findings and the comments.
     node_mid: str = ""
+    # Where /req puts the new nodes: the mid of the node they follow, or of the
+    # document when the reference is not a node ("" when it is not known).
+    insert_ref: str = ""
+    insert_after: bool = True
     # The node can take comments (it is saved and its grammar has COMMENT).
     can_add_comments: bool = False
     verification_methods: Collection[str] = ()
@@ -418,8 +422,8 @@ def _convert_comments(
 
 def _convert_nodes(context: ConvertContext, data: Dict[str, Any]) -> Conversion:
     conversion = Conversion()
-    reference = context.node_mid or context.request.target.document_mid
-    where = "after" if context.node_mid else "last_child"
+    reference = context.insert_ref
+    where = "after" if context.insert_after else "last_child"
     for proposal_ in data["proposals"]:
         conversion.actions.append(
             Action(

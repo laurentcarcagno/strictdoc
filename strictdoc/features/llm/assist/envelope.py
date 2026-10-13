@@ -42,6 +42,8 @@ class Selection:
 class Target:
     document_mid: str = ""
     node_mid: str = ""
+    # In the form of a new node: the node it will follow (or the document).
+    reference_mid: str = ""
     field: str = ""
     text: str = ""
     selection: Optional[Selection] = None
@@ -96,6 +98,7 @@ def parse_request(data: Any) -> AssistRequest:
     target = Target(
         document_mid=_string(raw_target, "document_mid", 64),
         node_mid=_string(raw_target, "node_mid", 64),
+        reference_mid=_string(raw_target, "reference_mid", 64),
         field=_string(raw_target, "field", 64),
         text=_string(raw_target, "text", MAX_FIELD_TEXT),
         selection=selection,
@@ -209,6 +212,7 @@ REQUEST_SCHEMA: Dict[str, Any] = {
             "properties": {
                 "document_mid": {"type": "string"},
                 "node_mid": {"type": "string"},
+                "reference_mid": {"type": "string"},
                 "field": {"type": "string"},
                 "text": {"type": "string", "maxLength": MAX_FIELD_TEXT},
                 "selection": {

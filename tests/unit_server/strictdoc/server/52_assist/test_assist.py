@@ -9,6 +9,7 @@ from strictdoc.features.llm.fake import FakeProvider
 from tests.support.llm_fixture import (
     AUTHOR,
     FL_1,
+    FL_2,
     FLIGHT_DOC,
     READER,
     REVIEWER,
@@ -352,3 +353,42 @@ def test_015_bad_requests_are_400(tmp_path):
     assert _ask(client, "/rewrite", node="0" * 32).status_code == 404
     off = make_client(tmp_path / "off", _llm({"answer": "x"}), feature=False)
     assert _ask(off, "/help").status_code == 412
+
+
+def test_016_req_in_the_form_of_a_new_node_goes_after_its_reference(tmp_path):
+    proposals = {
+        "proposals": [
+            {
+                "title": "New one",
+                "statement": "The software shall do the new thing.",
+                "verification_method": "T",
+                "linked_to": [],
+            }
+        ]
+    }
+    client = make_client(tmp_path, _llm(proposals))
+    # A node that is not saved yet: no node_mid, the node it follows instead.
+    body = _ask(
+        client,
+        "/req the new thing",
+        node="",
+        text="",
+        target={"reference_mid": FL_2},
+    ).json()
+    assert body["actions"][0]["position"] == {"where": "after", "ref": FL_2}
+    # Without any reference: the end of the document.
+    again = _ask(client, "/req the new thing", node="", text="").json()
+    assert again["actions"][0]["position"] == {
+        "where": "last_child",
+        "ref": FLIGHT_DOC,
+    }
+    applied = client.post(
+        "/actions/llm/apply",
+        json={
+            "call_id": again["meta"]["call_id"],
+            "action_ids": [again["actions"][0]["id"]],
+        },
+        headers=AUTHOR,
+    ).json()
+    assert applied["errors"] == []
+    assert "New one" in _flight(tmp_path)

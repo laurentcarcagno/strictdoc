@@ -200,3 +200,20 @@ service that is not done here.**
 
 Not done or not verified: a browser end2end test of the page; the deployed check of the assistant (relay and a key); the cloud clients against the real
 APIs (only against fake servers, no key was available); a general model of 7 to 14 B (not run, memory).
+
+### Delivered later: the assistant bar (phases 1 to 3 of the second version)
+
+The bar above the Markdown editor, with a JSON exchange model (`features/llm/assist/`). Commands in this version: `/rewrite /ears /verify /comment /translate /req /explain
+/ask /help`. Built: the registry of commands (`commands.py`), the mention parser, search and resolver (`mentions.py`), deterministic checks for `/verify`
+(`lint.py`), the envelope (request, result, typed operations `replace_text`, `insert_node`, `add_comment`; `envelope.py`), the converters that turn the small
+answer of a model into operations and drop what cannot be trusted (`converters.py`), the validated call with one repair retry (`runner.py`), the service
+(roles per command, policy, audit, result store, `apply`; `service.py`), the routes (`router.py`), versioned prompts (`prompts/common.md` and one file per
+command), the element `<sdoc-ai-bar>` (`assets/llm/ai_bar.js`, `.css`) and an adapter in the editor bundle (`getMarkdown`, `getSelection`, `replaceRange`; the bundle is rebuilt
+from `developer/milkdown`).
+
+Decisions: comments from `/comment` and `/verify` are added **as comments of the user**, without any mark of the assistant (the audit log keeps who asked what);
+comments and new nodes are saved by the server and need a saved form (the open form would send the old comments and revision), edits go into the editor.
+
+Not done yet (phases 4 to 6): the document bar and the jobs (`/write /review /translate` of a whole document, `/consistency /summarize`), the second set
+(`/split /test /trace /fix /retranslate`), the golden set per command, a comparison of models. The bar needs a provider: the live instance has the `LLM`
+feature off until a model server and its relay are chosen (open question above).

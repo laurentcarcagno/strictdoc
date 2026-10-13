@@ -9,6 +9,8 @@
 // The hidden textarea is what the form submits. It only changes when the user
 // changes the text, so a field that was not edited is sent back as it was.
 import { Crepe } from '@milkdown/crepe';
+import { editorViewCtx, schemaCtx, serializerCtx } from '@milkdown/kit/core';
+import { replaceAll } from '@milkdown/kit/utils';
 import '@milkdown/crepe/theme/common/style.css';
 import '@milkdown/crepe/theme/frame.css';
 import { sdocMarkers } from './sdoc_markers.js';
@@ -107,6 +109,74 @@ class SdocMarkdownEditor extends HTMLElement {
         console.error('sdoc-markdown-editor: destroy failed', error);
       }
     }
+  }
+
+  // ---- What the assistant bar (features/llm/assets/llm/ai_bar.js) uses ----
+
+  // The Markdown of the field as the editor writes it now (the text that the
+  // form would send), also before the editor is ready.
+  getMarkdown() {
+    return this._crepe
+      ? this._crepe.getMarkdown()
+      : (this._textarea?.value ?? '');
+  }
+
+  // The selection as {text, from, to}: text is the Markdown of the selected
+  // words, from and to are offsets in getMarkdown(). null when nothing is
+  // selected or the words cannot be found in the Markdown.
+  getSelection() {
+    const crepe = this._crepe;
+    if (!crepe) return null;
+    let result = null;
+    crepe.editor.action((ctx) => {
+      const { selection, doc } = ctx.get(editorViewCtx).state;
+      if (selection.empty) return;
+      const plain = doc.textBetween(selection.from, selection.to, '\n');
+      let markdown = plain;
+      try {
+        const wrapper = ctx
+          .get(schemaCtx)
+          .topNodeType.createAndFill(null, selection.content().content);
+        if (wrapper) markdown = ctx.get(serializerCtx)(wrapper).trim();
+      } catch (error) {
+        // The plain text is used when the selection cannot be serialised.
+      }
+      if (markdown.length === 0) return;
+      // The same words may appear before: take the n-th occurrence, n being
+      // how many times they appear before the selection.
+      const before = doc.textBetween(0, selection.from, '\n');
+      let skipped = 0;
+      for (
+        let at = before.indexOf(plain);
+        plain && at >= 0;
+        at = before.indexOf(plain, at + plain.length)
+      ) {
+        skipped += 1;
+      }
+      const full = crepe.getMarkdown();
+      let found = -1;
+      for (let n = 0, at = full.indexOf(markdown); at >= 0; n += 1) {
+        found = at;
+        if (n >= skipped) break;
+        at = full.indexOf(markdown, at + markdown.length);
+      }
+      if (found >= 0) {
+        result = { text: markdown, from: found, to: found + markdown.length };
+      }
+    });
+    return result;
+  }
+
+  // Replaces the whole text (from === null) or the words between two offsets
+  // of getMarkdown(), as one change that Ctrl+Z undoes.
+  replaceRange(from, to, text) {
+    const crepe = this._crepe;
+    if (!crepe) return false;
+    const current = crepe.getMarkdown();
+    const next =
+      from === null ? text : current.slice(0, from) + text + current.slice(to);
+    crepe.editor.action(replaceAll(next));
+    return true;
   }
 
   async _upload(file) {

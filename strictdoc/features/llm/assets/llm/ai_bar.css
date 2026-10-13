@@ -1,0 +1,287 @@
+/*
+ * The command bar of the assistant (ai_bar.js), above a Markdown editor.
+ * It uses the Hemeria tokens of base.css.
+ */
+sdoc-ai-bar {
+  display: block;
+  position: relative;
+  margin: 0 0 var(--hem-space-sm, 8px);
+  font-family: var(--hem-font-body, inherit);
+  font-size: 14px;
+}
+
+.ai-bar__row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  border: 1px solid var(--hem-border, #c9d1da);
+  border-left: 3px solid var(--hem-sky, #2a7de1);
+  background: var(--hem-white, #fff);
+}
+
+.ai-bar__row:focus-within {
+  outline: 2px solid var(--hem-sky, #2a7de1);
+  outline-offset: 1px;
+}
+
+.ai-bar__icon {
+  color: var(--hem-sky, #2a7de1);
+  font-size: 16px;
+}
+
+.ai-bar__input {
+  flex: 1;
+  min-width: 0;
+  padding: 6px 4px;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  color: var(--hem-ink, #11202f);
+}
+
+.ai-bar__input:focus {
+  outline: none;
+}
+
+.ai-bar__provider {
+  max-width: 140px;
+  font: inherit;
+  font-size: 12px;
+}
+
+.ai-bar__send,
+.ai-bar__button {
+  padding: 4px 12px;
+  border: 1px solid var(--hem-border, #c9d1da);
+  background: var(--hem-white, #fff);
+  color: var(--hem-ink, #11202f);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.ai-bar__send:hover,
+.ai-bar__button:hover {
+  background: var(--hem-hover, #eef3f8);
+}
+
+.ai-bar__send:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+
+.ai-bar__button--primary {
+  border-color: var(--hem-sky, #2a7de1);
+  background: var(--hem-sky, #2a7de1);
+  color: var(--hem-white, #fff);
+}
+
+.ai-bar__button--primary:hover {
+  filter: brightness(0.92);
+  background: var(--hem-sky, #2a7de1);
+}
+
+.ai-bar__menu {
+  position: absolute;
+  z-index: 30;
+  left: 0;
+  right: 0;
+  max-height: 240px;
+  overflow-y: auto;
+  border: 1px solid var(--hem-border, #c9d1da);
+  background: var(--hem-white, #fff);
+  box-shadow: 0 6px 18px rgba(17, 32, 47, 0.18);
+}
+
+.ai-bar__menu-item {
+  display: flex;
+  gap: 12px;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+.ai-bar__menu-item.is-active,
+.ai-bar__menu-item:hover {
+  background: var(--hem-hover, #eef3f8);
+}
+
+.ai-bar__menu-label {
+  font-family: var(--hem-font-mono, monospace);
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.ai-bar__menu-detail {
+  color: var(--hem-mute-ink, #5b6b7b);
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ai-bar__panel {
+  padding: 10px 12px;
+  border: 1px solid var(--hem-border, #c9d1da);
+  border-top: 0;
+  background: var(--hem-mist, #f6f8fa);
+}
+
+.ai-bar__text p {
+  margin: 0 0 6px;
+}
+
+.ai-bar__text ul {
+  margin: 0 0 6px 18px;
+  padding: 0;
+}
+
+.ai-bar__status {
+  color: var(--hem-mute-ink, #5b6b7b);
+}
+
+.ai-bar__error {
+  color: var(--hem-danger, #b00020);
+  background: var(--hem-danger-bg, #fdecee);
+  padding: 6px 8px;
+}
+
+.ai-bar__warning {
+  margin: 6px 0;
+  padding: 4px 8px;
+  color: var(--hem-warning, #8a5a00);
+  background: var(--hem-warning-bg, #fff4dc);
+  font-size: 13px;
+}
+
+.ai-bar__card {
+  display: block;
+  margin: 8px 0;
+  padding: 8px 10px;
+  border: 1px solid var(--hem-border, #c9d1da);
+  border-left-width: 3px;
+  background: var(--hem-white, #fff);
+}
+
+.ai-bar__card--error {
+  border-left-color: var(--hem-danger, #b00020);
+}
+
+.ai-bar__card--warning {
+  border-left-color: var(--hem-warning, #c98a00);
+}
+
+.ai-bar__card--info {
+  border-left-color: var(--hem-sky, #2a7de1);
+}
+
+.ai-bar__card p,
+.ai-bar__card blockquote {
+  margin: 4px 0;
+}
+
+.ai-bar__card blockquote {
+  padding-left: 8px;
+  border-left: 2px solid var(--hem-border, #c9d1da);
+  color: var(--hem-mute-ink, #5b6b7b);
+}
+
+.ai-bar__card-head {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+}
+
+.ai-bar__badge,
+.ai-bar__rule {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.ai-bar__rule {
+  font-family: var(--hem-font-mono, monospace);
+  color: var(--hem-mute-ink, #5b6b7b);
+}
+
+.ai-bar__suggestion {
+  color: var(--hem-mute-ink, #5b6b7b);
+  font-size: 13px;
+}
+
+.ai-bar__action {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  cursor: pointer;
+}
+
+.ai-bar__action-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.ai-bar__card-title {
+  font-weight: 700;
+}
+
+.ai-bar__diff {
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: var(--hem-font-mono, monospace);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.ai-bar__diff del {
+  background: var(--hem-danger-bg, #fdecee);
+  color: var(--hem-danger, #b00020);
+  text-decoration: line-through;
+}
+
+.ai-bar__diff ins {
+  background: var(--hem-success-bg, #e6f6ec);
+  color: var(--hem-success, #14753c);
+  text-decoration: none;
+}
+
+.ai-bar__buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.ai-bar__meta {
+  margin-left: auto;
+  color: var(--hem-mute-ink, #5b6b7b);
+  font-family: var(--hem-font-mono, monospace);
+  font-size: 11px;
+}
+
+.ai-bar__prompt {
+  max-height: 220px;
+  overflow: auto;
+  white-space: pre-wrap;
+  font-size: 12px;
+}
+
+/* The form styles (labels, inputs, text) must not reach the bar. */
+sdoc-ai-bar * {
+  box-sizing: border-box;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.ai-bar__action input[type='checkbox'] {
+  margin-top: 3px;
+}
+
+sdoc-ai-bar .ai-bar__input {
+  border: 0;
+  box-shadow: none;
+  outline: none;
+  background: transparent;
+}
