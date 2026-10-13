@@ -1,0 +1,122 @@
+[
+  {
+    "id": "rewrite-fr-vague",
+    "command": "rewrite",
+    "arguments": "clearer",
+    "text": "Le logiciel de vol doit répondre aux télécommandes dans un délai raisonnable.",
+    "reference": {"text": "Le logiciel de vol doit répondre à toute télécommande reçue dans un délai de TBD ms.", "notes": "Délai chiffré à définir."},
+    "expect": {"modal": "fr", "no_vague": true}
+  },
+  {
+    "id": "rewrite-en-vague",
+    "command": "rewrite",
+    "arguments": "formal",
+    "text": "The system shall, if possible, log errors and/or warnings as needed.",
+    "reference": {"text": "The system shall log each error and each warning.", "notes": "Escape clauses removed."},
+    "expect": {"modal": "en", "no_vague": true}
+  },
+  {
+    "id": "rewrite-en-numbers",
+    "command": "rewrite",
+    "arguments": "concise",
+    "text": "The software shall send, on a regular basis, the telemetry packet TM(3,25) every 2 s, as described in REQ-14.",
+    "reference": {"text": "The software shall send the telemetry packet TM(3,25) every 2 s, see REQ-14.", "notes": "Shorter."},
+    "expect": {"modal": "en", "no_vague": true, "preserve": true}
+  },
+  {
+    "id": "rewrite-fr-ears",
+    "command": "rewrite",
+    "arguments": "ears",
+    "text": "Le logiciel doit rejeter le paquet quand une erreur de CRC est détectée.",
+    "reference": {"text": "Quand une erreur de CRC est détectée, le logiciel doit rejeter le paquet.", "notes": "Événementiel."},
+    "expect": {"modal": "fr", "no_vague": true, "preserve": true}
+  },
+  {
+    "id": "verify-en-vague",
+    "command": "verify",
+    "arguments": "",
+    "text": "The software processes telemetry quickly.",
+    "reference": {"verdict": "fail", "findings": [{"severity": "warning", "rule": "R-AMBIG", "quote": "quickly", "message": "Vague.", "suggestion": "Give a time."}]},
+    "expect": {"rules_any": ["R-AMBIG", "R-VERIFIABLE"], "quotes": true}
+  },
+  {
+    "id": "verify-en-atomic",
+    "command": "verify",
+    "arguments": "",
+    "text": "The software shall boot within 2 s and shall log each boot and shall send a report to the ground.",
+    "reference": {"verdict": "warn", "findings": [{"severity": "warning", "rule": "R-ATOMIC", "quote": "shall log each boot", "message": "Three obligations.", "suggestion": "Split."}]},
+    "expect": {"rules_any": ["R-ATOMIC"], "quotes": true}
+  },
+  {
+    "id": "verify-en-clean",
+    "command": "verify",
+    "arguments": "",
+    "text": "The software shall boot within 2 s after power-on.",
+    "reference": {"verdict": "pass", "findings": []},
+    "expect": {"clean": true}
+  },
+  {
+    "id": "verify-fr-vague",
+    "command": "verify",
+    "arguments": "",
+    "text": "Le logiciel doit être rapide et convivial.",
+    "reference": {"verdict": "fail", "findings": [{"severity": "error", "rule": "R-VERIFIABLE", "quote": "rapide et convivial", "message": "Non vérifiable.", "suggestion": "Chiffrer."}]},
+    "expect": {"rules_any": ["R-AMBIG", "R-VERIFIABLE"], "quotes": true}
+  },
+  {
+    "id": "verify-en-complete",
+    "command": "verify",
+    "arguments": "",
+    "text": "The software shall handle all failures.",
+    "reference": {"verdict": "fail", "findings": [{"severity": "warning", "rule": "R-COMPLETE", "quote": "all failures", "message": "Which failures, and what happens?", "suggestion": "List them."}]},
+    "expect": {"rules_any": ["R-COMPLETE", "R-VERIFIABLE", "R-AMBIG"], "quotes": true}
+  },
+  {
+    "id": "comment-en",
+    "command": "comment",
+    "arguments": "",
+    "text": "The software shall handle all failures appropriately.",
+    "reference": {"comments": [{"severity": "warning", "quote": "appropriately", "body": "What is appropriate here? Please say what the software does for each failure."}]},
+    "expect": {"min": 1, "quotes": true}
+  },
+  {
+    "id": "comment-fr",
+    "command": "comment",
+    "arguments": "",
+    "text": "Le logiciel doit enregistrer les événements.",
+    "reference": {"comments": [{"severity": "warning", "quote": "les événements", "body": "Quels événements, et pendant combien de temps ?"}]},
+    "expect": {"min": 1, "quotes": true}
+  },
+  {
+    "id": "translate-fr-en",
+    "command": "translate",
+    "arguments": "English",
+    "text": "Le logiciel doit transmettre la télémesure TM(3,25) toutes les 2 s, voir REQ-14.",
+    "reference": {"text": "The software shall send the telemetry TM(3,25) every 2 s, see REQ-14."},
+    "expect": {"preserve": true, "lang": "en", "modal": "en"}
+  },
+  {
+    "id": "translate-en-fr",
+    "command": "translate",
+    "arguments": "French",
+    "text": "The software shall reject any packet with a wrong CRC.",
+    "reference": {"text": "Le logiciel doit rejeter tout paquet dont le CRC est erroné."},
+    "expect": {"lang": "fr", "modal": "fr"}
+  },
+  {
+    "id": "fix-en",
+    "command": "fix",
+    "arguments": "",
+    "text": "The software shall be fast and shall log errors as needed.",
+    "reference": {"text": "The software shall log each error.", "notes": "Vague words removed; the speed needs a value."},
+    "expect": {"modal": "en", "no_vague": true, "atomic": true}
+  },
+  {
+    "id": "split-en",
+    "command": "split",
+    "arguments": "",
+    "text": "The software shall boot within 2 s and shall log each boot.",
+    "reference": {"items": [{"title": "Boot time", "statement": "The software shall boot within 2 s."}, {"title": "Boot log", "statement": "The software shall log each boot."}]},
+    "expect": {"min": 2, "max": 3, "modal": "en", "preserve_all": true}
+  }
+]

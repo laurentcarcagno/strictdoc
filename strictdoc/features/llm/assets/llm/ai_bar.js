@@ -77,8 +77,9 @@
 
   // Word level difference of two texts: [[kind, text], ...], kind in = + -.
   function diffWords(before, after) {
-    const a = before.split(/(\s+)/).filter((part) => part !== '');
-    const b = after.split(/(\s+)/).filter((part) => part !== '');
+    // A word keeps its trailing space, so that only words are matched.
+    const a = before.split(/(?<=\s)(?=\S)/).filter((part) => part !== '');
+    const b = after.split(/(?<=\s)(?=\S)/).filter((part) => part !== '');
     if (a.length > MAX_DIFF_WORDS || b.length > MAX_DIFF_WORDS) {
       return [['-', before], ['+', after]];
     }
@@ -114,9 +115,21 @@
     return out;
   }
 
+  // Neighbouring pieces of the same kind make one piece (one <ins> per run
+  // of new words, not one per word); a space between two changes joins them.
+  function mergeRuns(pieces) {
+    const merged = [];
+    for (const [kind, text] of pieces) {
+      const last = merged[merged.length - 1];
+      if (last && last[0] === kind) last[1] += text;
+      else merged.push([kind, text]);
+    }
+    return merged;
+  }
+
   function diffView(before, after) {
     const box = element('div', 'ai-bar__diff');
-    for (const [kind, text] of diffWords(before, after)) {
+    for (const [kind, text] of mergeRuns(diffWords(before, after))) {
       if (kind === '=') box.append(document.createTextNode(text));
       else box.append(element(kind === '-' ? 'del' : 'ins', '', text));
     }

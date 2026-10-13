@@ -18,9 +18,12 @@ from tests.end2end.helpers.screens.project_index.screen_project_index import (
 from tests.end2end.server import SDocTestServer
 
 EDITOR = "sdoc-markdown-editor[data-ready=true] .ProseMirror"
-BAR = 'sdoc-ai-bar [data-testid="ai-bar-input"]'
-MENU_ITEM = '[data-testid="ai-bar-menu"] .ai-bar__menu-item'
-PANEL = '[data-testid="ai-bar-panel"]'
+# The bar of the form (the document has its own bar above).
+FORM_BAR = "form sdoc-ai-bar"
+BAR = FORM_BAR + ' [data-testid="ai-bar-input"]'
+MENU = FORM_BAR + ' [data-testid="ai-bar-menu"]'
+MENU_ITEM = MENU + " .ai-bar__menu-item"
+PANEL = FORM_BAR + ' [data-testid="ai-bar-panel"]'
 
 
 class Test(E2ECase):
@@ -47,16 +50,16 @@ class Test(E2ECase):
             bar.click()
             bar.send_keys("/rew")
             self.wait_for_element(MENU_ITEM)
-            self.assert_text("/rewrite", '[data-testid="ai-bar-menu"]')
+            self.assert_text("/rewrite", MENU)
             bar.send_keys(Keys.ENTER)
             assert bar.get_attribute("value") == "/rewrite "
             bar.send_keys("concise")
             bar.send_keys(Keys.ENTER)
             self.wait_for_element(f"{PANEL} .ai-bar__diff ins")
             self.assert_text("within 2 s", f"{PANEL} .ai-bar__diff ins")
-            self.click('[data-testid="ai-bar-apply"]')
+            self.click(FORM_BAR + ' [data-testid="ai-bar-apply"]')
             self.wait_for_text("within 2 s", EDITOR)
-            self.assert_text("Ctrl+Z", '[data-testid="ai-bar-done"]')
+            self.assert_text("Ctrl+Z", FORM_BAR + ' [data-testid="ai-bar-done"]')
             form.do_form_submit()
             screen_document.assert_text("The system shall start within 2 s.")
 
@@ -76,7 +79,7 @@ class Test(E2ECase):
             self.assert_text(
                 "Which start", f'{PANEL} [data-testid="ai-bar-action"]'
             )
-            self.click('[data-testid="ai-bar-apply"]')
-            self.wait_for_element('[data-testid="ai-bar-done"]')
+            self.click(FORM_BAR + ' [data-testid="ai-bar-apply"]')
+            self.wait_for_element(FORM_BAR + ' [data-testid="ai-bar-done"]')
             # The page reloads and shows the comment in the margin.
             self.wait_for_text("Which start: power on or after a reset?")

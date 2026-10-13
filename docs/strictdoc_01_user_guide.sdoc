@@ -4840,6 +4840,14 @@ automatically), ``@this``, ``@parents``, ``@children``, ``@neighbours``, ``@doc`
 outline only; the bar says so. The text of a document is data between ``BEGIN``/``END`` lines,
 as for the draft page.
 
+**Quality.** ``python -m strictdoc.features.llm.assist.golden --base-url http://127.0.0.1:11434/v1
+--model <model>`` runs 15 cases (French and English: rewrite, verify, comment, translate, fix,
+split) with rule checks (numbers and identifiers kept, the verb of obligation of the language, no
+vague word, the planted defect found with a quote that is in the text) and prints a report. A 3 B
+model (``qwen2.5:3b``) passes 10 to 11 of 15: it keeps the numbers and finds the defects (with the
+checks), but it leaves vague words in a rewrite, writes "must" for "shall" and sometimes answers in the
+wrong language. Use a 7 to 14 B model, or a cloud one, for the commands that write.
+
 **Providers and data.** The bar uses the providers of the ``llm`` option and the same policy as
 the draft page: a cloud provider must be opened by the project, shows exactly what will be
 sent and waits for your click, and a classified document never goes to one. When there are

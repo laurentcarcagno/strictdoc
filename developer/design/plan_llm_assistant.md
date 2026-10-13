@@ -223,3 +223,10 @@ in `screens/document/document/main.jinja`; `/ask /summarize /consistency` are on
 Not done: `/translate` of a whole document (it needs a decision: the new document repeats the UIDs, so they would need a suffix; open question 2), the golden set per command,
 a comparison of models, `/gaps` and `/glossary`. The bar needs a provider: the live instance has the `LLM` feature off until a model server and its relay are chosen
 (open question above).
+
+Golden set of the bar (`assist/golden.py`, `golden/assist_cases.json`, 15 cases, CI runs it with the reference answers): `qwen2.5:3b` through Ollama passes 10 to 11 of 15
+(run to run, temperature 0.2): `/verify` 5 of 5 (the checks find the planted defects, the model adds little), `/comment` 2 of 2, `/split` 1 of 1, `/rewrite` 2 of 4 (a vague word stays,
+the French case is answered in English or in the future tense), `/translate` 1 of 2 ("must" for "shall"), `/fix` 0 of 1. The line "Language of the text: ..." that
+the prompt now carries and a few rules added to the prompts moved the numbers a little; the larger models of the host (`qwen3-coder:30b`, `devstral-small-2`) could not be
+loaded (about 4 GB of memory were free), so they are not measured. A real finding of this work: the first version did not send the text of the field for
+`/split /test /trace /retranslate` (the fake provider did not notice); a test now checks that every command on a text sends it.

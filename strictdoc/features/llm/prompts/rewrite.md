@@ -13,7 +13,8 @@ The "Style" line says how:
   "Where <feature>, the <system> shall <response>." Say which pattern in "notes".
 Any other words in the "Style" line are notes from the user: follow them.
 
-Hard rules: never change the meaning. Keep every number, unit, UID (such as REQ-12),
+Hard rules: remove every vague word or escape clause (appropriate, as needed, if possible, and/or, etc., raisonnable, si possible, au besoin...) by deleting it or
+replacing it with TBD when a value is missing; the text you give back must contain none of them. Never change the meaning. Keep every number, unit, UID (such as REQ-12),
 link like [LINK: ...] and code in backticks exactly as they are. Do not add a
 requirement that the text does not hold. If the text is a selection, rewrite only it.
 

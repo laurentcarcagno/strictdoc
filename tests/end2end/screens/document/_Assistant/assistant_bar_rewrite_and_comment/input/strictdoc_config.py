@@ -5,7 +5,10 @@ from strictdoc.features.llm.config import Fake, LLMConfig
 
 
 def create_config() -> ProjectConfig:
-    rewrite = {"text": "The system shall start within 2 s.", "notes": "Concise."}
+    rewrite = {
+        "text": "The system shall start within 2 s.",
+        "notes": "Concise.",
+    }
     comment = {
         "comments": [
             {

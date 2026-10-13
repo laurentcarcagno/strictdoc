@@ -765,3 +765,30 @@ def test_030_the_document_bar_checks_roles_and_scope(tmp_path):
         client.get("/actions/llm/jobs/nothing", headers=AUTHOR).status_code
         == 404
     )
+
+
+@pytest.mark.parametrize(
+    ("command", "answer"),
+    [
+        ("/rewrite", {"text": TEXT}),
+        ("/ears", {"text": TEXT}),
+        ("/verify", {"findings": []}),
+        ("/comment", {"comments": []}),
+        ("/translate fr", {"text": "x"}),
+        ("/split", {"items": [{"statement": TEXT}]}),
+        ("/fix", {"text": TEXT}),
+        ("/test", {"cases": []}),
+        ("/trace @DA-2", {"links": []}),
+        ("/retranslate en", {"translation": "x", "differences": []}),
+        ("/explain", {"answer": "x"}),
+    ],
+)
+def test_031_every_command_on_a_text_sends_the_text(
+    tmp_path, provider, command, answer
+):
+    fake = provider(answer)
+    client = make_client(tmp_path, _llm("x"))
+    response = _ask(client, command, headers=AUTHOR)
+    assert response.status_code == 200, response.text
+    user = fake.requests[0].user
+    assert f"BEGIN text uid=FSW-1\n{TEXT}\nEND" in user, user
