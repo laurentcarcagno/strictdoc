@@ -18,6 +18,10 @@ from strictdoc.features.llm.assist.commands import (
 )
 from strictdoc.features.llm.context import neutralise
 
+# Tokens a model may use for one answer: a reasoning model spends part of them
+# thinking before it writes the JSON (gpt-oss answered nothing with 2000).
+MAX_TOKENS = 4000
+
 # The commands that work on the text of the field.
 TEXT_KINDS = (
     KIND_EDIT,

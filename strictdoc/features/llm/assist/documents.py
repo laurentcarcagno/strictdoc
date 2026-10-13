@@ -70,6 +70,7 @@ from strictdoc.features.llm.assist.mentions import (
     find_mentions,
     resolve_mentions,
 )
+from strictdoc.features.llm.assist.prompting import MAX_TOKENS
 from strictdoc.features.llm.assist.runner import Calls, ask_validated
 from strictdoc.features.llm.assist.store import Stored
 from strictdoc.features.llm.context import (
@@ -261,6 +262,7 @@ class DocumentCommands:
                 known_uids=set(uids),
             )
             llm_request = LLMRequest(
+                max_tokens=MAX_TOKENS,
                 system=prompt.system,
                 user=user_text,
                 schema=model_schema(command, convert_context),
@@ -447,6 +449,7 @@ class DocumentCommands:
             job.check()
             text, uids = self._blocks(batch_, service.llm.max_context_chars)
             request = LLMRequest(
+                max_tokens=MAX_TOKENS,
                 system=prompt.system,
                 user=(
                     "Command: review\n\nFocus: "
@@ -556,6 +559,7 @@ class DocumentCommands:
             provider,
             outline.label,
             LLMRequest(
+                max_tokens=MAX_TOKENS,
                 system=outline.system,
                 user=(
                     "Command: write\n\nRequest:\n"
@@ -611,6 +615,7 @@ class DocumentCommands:
                 provider,
                 topic_prompt.label,
                 LLMRequest(
+                    max_tokens=MAX_TOKENS,
                     system=topic_prompt.system,
                     user=user,
                     schema=output_schema(methods),
@@ -704,6 +709,7 @@ class DocumentCommands:
                 provider,
                 prompt.label,
                 LLMRequest(
+                    max_tokens=MAX_TOKENS,
                     system=prompt.system,
                     user=(
                         "Command: trace\n\nRequirements to link:\n"
@@ -809,6 +815,7 @@ class DocumentCommands:
             ]
             wanted = {item_.ref: set(item_.fields) for item_ in batch_}
             request = LLMRequest(
+                max_tokens=MAX_TOKENS,
                 system=prompt.system,
                 user=(
                     f"Command: translate\n\nTarget language: {name}\n\n"
@@ -908,6 +915,7 @@ class DocumentCommands:
             text, uids = self._blocks(batch_, service.llm.max_context_chars)
             uid_set = set(uids)
             request = LLMRequest(
+                max_tokens=MAX_TOKENS,
                 system=prompt.system,
                 user=(
                     "Command: glossary\n\nRequirements:\n"

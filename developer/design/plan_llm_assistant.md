@@ -244,3 +244,7 @@ A document that includes others is refused. `/glossary` is a job per batch of no
 Alternative suggested, not built: keep one node and store each language in extra fields (`STATEMENT_FR`...), with a switch of the display language. It avoids duplicated UIDs and keeps the translations next to the
 source, but it changes the grammar, the form of every node, the HTML and Word exports and the traceability views (which language is the requirement text?). The new-document way costs nothing in the core and
 keeps each language reviewable and baselined on its own.
+
+Models, measured on the golden set after `OLLAMA_CONTEXT_LENGTH` went from 65536 to 16384 (the 15 GB `devstral-small-2` was spilling into the RAM and never loaded; now `gpt-oss:20b` is 100 % on the
+16 GB GPU and `devstral` 88 %): `gpt-oss:20b` 14 of 15, `devstral-small-2` 12 of 15, `qwen2.5:3b` 10 to 11 of 15. `qwen3-coder:30b` (18.6 GB) cannot be on the GPU alone, it was not measured.
+The first run of `gpt-oss` failed `/fix` with an empty answer: a reasoning model spent the 2000 tokens thinking; an answer may now use 4000. The live project uses `gpt-oss` by default.

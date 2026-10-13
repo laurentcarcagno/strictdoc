@@ -36,7 +36,10 @@ from strictdoc.features.llm.assist.converters import (
 )
 from strictdoc.features.llm.assist.envelope import parse_request
 from strictdoc.features.llm.assist.lint import OBLIGATION, lint
-from strictdoc.features.llm.assist.prompting import build_user_prompt
+from strictdoc.features.llm.assist.prompting import (
+    MAX_TOKENS,
+    build_user_prompt,
+)
 from strictdoc.features.llm.assist.runner import Calls, ask_validated
 from strictdoc.features.llm.config import OpenAICompatible
 from strictdoc.features.llm.fake import FakeProvider
@@ -118,6 +121,7 @@ def build(case: AssistCase) -> "tuple[ConvertContext, LLMRequest]":
         problems=problems or "- improve the clarity",
     )
     llm_request = LLMRequest(
+        max_tokens=MAX_TOKENS,
         system=load_assist_prompt(command.prompt).system,
         user=user,
         schema=model_schema(command, context),

@@ -65,6 +65,7 @@ from strictdoc.features.llm.assist.mentions import (
     resolve_mentions,
 )
 from strictdoc.features.llm.assist.prompting import (
+    MAX_TOKENS,
     TEXT_KINDS,
     build_user_prompt,
 )
@@ -305,6 +306,7 @@ class AssistService:
             end=selection.end if selection is not None else None,
         )
         llm_request = LLMRequest(
+            max_tokens=MAX_TOKENS,
             system=prompt.system,
             user=build_user_prompt(
                 command=command,
