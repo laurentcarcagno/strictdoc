@@ -9,6 +9,7 @@ a question (/ask): it changes nothing.
 from dataclasses import dataclass
 from typing import Dict, List, Optional, Tuple
 
+from strictdoc.features.llm.assist.envelope import AssistResult
 from strictdoc.features.roles.roles import (
     ROLE_AUTHOR,
     ROLE_READER,
@@ -25,6 +26,12 @@ KIND_COMMENTS = "comments"  # add_comment actions
 KIND_NODES = "nodes"  # insert_node actions
 KIND_ANSWER = "answer"  # a message
 KIND_LOCAL = "local"  # answered by the server, no model
+KIND_SPLIT = "split"  # replace_text and insert_node actions
+KIND_TEST = "test"  # a message and an optional comment
+KIND_LINKS = "links"  # add_relation actions
+KIND_DRIFT = "drift"  # findings only
+KIND_JOB = "job"  # a long job on a whole document: write, review, trace
+KIND_CONSISTENCY = "consistency"  # findings with no text of their own
 
 
 @dataclass(frozen=True)
@@ -97,6 +104,87 @@ COMMANDS: Dict[str, Command] = {
             ROLE_AUTHOR,
             KIND_NODES,
             "req",
+        ),
+        Command(
+            "split",
+            (SCOPE_FIELD,),
+            "/split",
+            "Splits a compound requirement into atomic ones (the others as Draft).",
+            ROLE_AUTHOR,
+            KIND_SPLIT,
+            "split",
+        ),
+        Command(
+            "fix",
+            (SCOPE_FIELD,),
+            "/fix [notes]",
+            "Rewrites the text to solve the points of the last /verify.",
+            ROLE_AUTHOR,
+            KIND_EDIT,
+            "fix",
+        ),
+        Command(
+            "test",
+            (SCOPE_FIELD,),
+            "/test",
+            "Proposes a verification method and acceptance cases.",
+            ROLE_REVIEWER,
+            KIND_TEST,
+            "test",
+        ),
+        Command(
+            "trace",
+            (SCOPE_FIELD, SCOPE_DOCUMENT),
+            "/trace @REQ-1 @DA1 ...",
+            "Proposes parents among the mentioned requirements and sections (of the whole document in the document bar).",
+            ROLE_AUTHOR,
+            KIND_LINKS,
+            "trace",
+        ),
+        Command(
+            "retranslate",
+            (SCOPE_FIELD,),
+            "/retranslate <language>",
+            "Translates and translates back, and lists where the meaning drifted.",
+            ROLE_REVIEWER,
+            KIND_DRIFT,
+            "retranslate",
+        ),
+        Command(
+            "write",
+            (SCOPE_DOCUMENT,),
+            "/write <what to write, from @sources>",
+            "Plans and writes the requirements of a document from the sources you mention (as Draft).",
+            ROLE_AUTHOR,
+            KIND_JOB,
+            "write_topic",
+        ),
+        Command(
+            "review",
+            (SCOPE_DOCUMENT,),
+            "/review [focus]",
+            "Reads every requirement and proposes comments to tick.",
+            ROLE_REVIEWER,
+            KIND_JOB,
+            "review",
+        ),
+        Command(
+            "summarize",
+            (SCOPE_DOCUMENT,),
+            "/summarize [@section]",
+            "Summarises the document, or the sections you mention.",
+            ROLE_READER,
+            KIND_ANSWER,
+            "summarize",
+        ),
+        Command(
+            "consistency",
+            (SCOPE_DOCUMENT,),
+            "/consistency [@documents]",
+            "Looks for contradictions, duplicates and term clashes.",
+            ROLE_REVIEWER,
+            KIND_CONSISTENCY,
+            "consistency",
         ),
         Command(
             "explain",
@@ -184,3 +272,18 @@ def catalogue(scope: Optional[str] = None) -> List[Dict[str, str]]:
         for command_ in COMMANDS.values()
         if scope is None or scope in command_.scopes
     ]
+
+
+def help_result(command: Command) -> AssistResult:
+    lines = ["**Commands**", ""]
+    for entry_ in catalogue(None):
+        lines.append(f"- `{entry_['usage']}`: {entry_['summary']}")
+    lines += [
+        "",
+        (
+            "Type `@` to mention a requirement (`@REQ-12`), a document "
+            "(`@icd1`), a section of an input document (`@DA1 §5.2`) or the "
+            "selection (`@selection`)."
+        ),
+    ]
+    return AssistResult(command=command.name, message="\n".join(lines))

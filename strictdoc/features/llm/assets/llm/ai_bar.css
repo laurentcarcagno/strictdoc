@@ -285,3 +285,8 @@ sdoc-ai-bar .ai-bar__input {
   outline: none;
   background: transparent;
 }
+
+/* The bar at the top of a document. */
+sdoc-ai-bar[data-scope='document'] {
+  margin: 0 0 var(--hem-space-md, 16px);
+}

@@ -22,8 +22,9 @@ from strictdoc.features.llm.assist.envelope import (
     EnvelopeError,
     parse_request,
 )
+from strictdoc.features.llm.assist.errors import AssistError
 from strictdoc.features.llm.assist.mentions import search_mentions
-from strictdoc.features.llm.assist.service import AssistError, AssistService
+from strictdoc.features.llm.assist.service import AssistService
 from strictdoc.features.roles.router import get_principal
 
 _BODY = Body(...)
@@ -81,6 +82,21 @@ def create_assist_routers(
             selection_available=selection,
         )
         return JSONResponse({"mentions": found})
+
+    @read_router.get("/actions/llm/jobs/{job_id}", response_class=Response)
+    def job_state(request: Request, job_id: str) -> Response:
+        principal = get_principal(request)
+        result = service.documents.snapshot(job_id[:32], principal.user)
+        if result is None:
+            return fail(404, "This job does not exist (any more).")
+        return JSONResponse(result.to_json())
+
+    @read_router.delete("/actions/llm/jobs/{job_id}", response_class=Response)
+    def job_cancel(request: Request, job_id: str) -> Response:
+        principal = get_principal(request)
+        if not service.documents.cancel(job_id[:32], principal.user):
+            return fail(404, "This job does not exist (any more).")
+        return JSONResponse({"cancelled": True})
 
     @write_router.post("/actions/llm/apply", response_class=Response)
     def apply(request: Request, payload: Dict[str, Any] = _BODY) -> Response:

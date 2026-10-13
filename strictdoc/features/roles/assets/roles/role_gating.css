@@ -4,7 +4,7 @@
  * The attribute data-role of <html> is set by role_gating.js from /whoami.
  */
 
-html[data-role="reader"] sdoc-ai-bar {
+html[data-role="reader"] sdoc-ai-bar:not([data-scope="document"]) {
   display: none;
 }
 

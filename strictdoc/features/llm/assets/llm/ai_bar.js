@@ -12,20 +12,22 @@
     mentions: '/llm/assist/mentions',
     assist: '/actions/llm/assist',
     apply: '/actions/llm/apply',
+    jobs: '/actions/llm/jobs',
   };
+  const POLL_MS = 1500;
   const HISTORY_KEY = 'sdoc-ai-history';
   const MAX_DIFF_WORDS = 600;
 
-  let catalogue = null;
-  async function loadCatalogue() {
-    if (!catalogue) {
-      catalogue = fetch(`${URLS.commands}?scope=field`, {
+  const catalogues = {};
+  async function loadCatalogue(scope) {
+    if (!catalogues[scope]) {
+      catalogues[scope] = fetch(`${URLS.commands}?scope=${scope}`, {
         credentials: 'same-origin',
       })
         .then((response) => (response.ok ? response.json() : null))
         .catch(() => null);
     }
-    return catalogue;
+    return catalogues[scope];
   }
 
   function element(tag, className, text) {
@@ -125,7 +127,10 @@
     connectedCallback() {
       if (this._built) return;
       this._built = true;
+      // "field": above a Markdown editor; "document": at the top of a document.
+      this._scope = this.dataset.scope === 'document' ? 'document' : 'field';
       this._result = null;
+      this._job = null;
       this._busy = false;
       this._menuItems = [];
       this._menuIndex = -1;
@@ -167,7 +172,7 @@
         setTimeout(() => this._closeMenu(), 150)
       );
       this._send.addEventListener('click', () => this._run());
-      loadCatalogue().then((data) => this._setCatalogue(data));
+      loadCatalogue(this._scope).then((data) => this._setCatalogue(data));
     }
 
     // ---- the editor and the form ----
@@ -177,6 +182,14 @@
     }
 
     _context() {
+      if (this._scope === 'document') {
+        return {
+          document_mid: this.dataset.documentMid ?? '',
+          node_mid: '',
+          reference_mid: '',
+          field: '',
+        };
+      }
       const form = this.closest('form');
       const value = (name) =>
         form?.querySelector(`input[name="${name}"]`)?.value ?? '';
@@ -200,6 +213,7 @@
     }
 
     _target() {
+      if (this._scope === 'document') return this._context();
       const editor = this._editor;
       const text = editor ? editor.getMarkdown() : '';
       const selection = editor ? editor.getSelection() : null;
@@ -276,7 +290,8 @@
       this._mentionSeq = (this._mentionSeq ?? 0) + 1;
       const sequence = this._mentionSeq;
       const context = this._context();
-      const selected = Boolean(this._editor?.getSelection());
+      const selected =
+        this._scope === 'field' && Boolean(this._editor?.getSelection());
       const url =
         `${URLS.mentions}?q=${encodeURIComponent(query)}` +
         `&node_mid=${encodeURIComponent(context.node_mid)}` +
@@ -422,7 +437,7 @@
       this._showStatus('Working…');
       const payload = {
         v: 1,
-        scope: 'field',
+        scope: this._scope,
         input,
         target: this._target(),
         provider: this._providerName(),
@@ -440,6 +455,8 @@
           this._showError(body.detail ?? `Error ${response.status}.`);
         } else if (body.status === 'needs_confirmation') {
           this._showConfirmation(body);
+        } else if (body.status === 'running') {
+          this._followJob(body.meta.job.id);
         } else {
           this._showResult(body);
         }
@@ -449,6 +466,57 @@
         this._busy = false;
         this._send.disabled = false;
       }
+    }
+
+    // ---- jobs (the commands of the document bar that take long) ----
+
+    _followJob(jobId) {
+      this._job = jobId;
+      this._busy = true;
+      this._send.disabled = true;
+      const poll = async () => {
+        if (this._job !== jobId || !this.isConnected) return;
+        let body = null;
+        try {
+          const response = await fetch(`${URLS.jobs}/${jobId}`, {
+            credentials: 'same-origin',
+          });
+          body = await response.json().catch(() => null);
+          if (!response.ok) {
+            this._endJob();
+            this._showError(body?.detail ?? 'The job is gone.');
+            return;
+          }
+        } catch (error) {
+          this._endJob();
+          this._showError(`The assistant cannot be reached: ${error.message}`);
+          return;
+        }
+        if (body.status === 'running') {
+          this._showResult(body);
+          setTimeout(poll, POLL_MS);
+        } else {
+          this._endJob();
+          if (body.status === 'error') this._showError(body.message || 'The job failed.');
+          else this._showResult(body);
+        }
+      };
+      poll();
+    }
+
+    _endJob() {
+      this._job = null;
+      this._busy = false;
+      this._send.disabled = false;
+    }
+
+    async _cancelJob() {
+      const jobId = this._job;
+      if (!jobId) return;
+      await fetch(`${URLS.jobs}/${jobId}`, {
+        method: 'DELETE',
+        credentials: 'same-origin',
+      }).catch(() => null);
     }
 
     // ---- showing ----
@@ -517,6 +585,18 @@
     _showResult(result) {
       this._result = result;
       const nodes = [];
+      const job = result.meta?.job;
+      const running = Boolean(job?.running);
+      if (job) {
+        const progress = element(
+          'div',
+          'ai-bar__status',
+          `${running ? 'Working' : 'Done'}: ${job.done} of ${job.total || '?'}` +
+            (job.label ? ` \u2014 ${job.label}` : '')
+        );
+        progress.dataset.testid = 'ai-bar-progress';
+        nodes.push(progress);
+      }
       if (result.message) {
         const message = markdownLite(result.message);
         message.dataset.testid = 'ai-bar-message';
@@ -533,6 +613,16 @@
         nodes.push(this._actionCard(action));
       }
       const buttons = element('div', 'ai-bar__buttons');
+      if (running) {
+        const cancel = element('button', 'ai-bar__button', 'Cancel');
+        cancel.type = 'button';
+        cancel.dataset.testid = 'ai-bar-cancel';
+        cancel.addEventListener('click', () => this._cancelJob());
+        buttons.append(cancel);
+        nodes.push(buttons);
+        this._show(...nodes);
+        return;
+      }
       if (hasActions) {
         const apply = element(
           'button',
@@ -605,6 +695,10 @@
           body.append(element('blockquote', '', action.anchor.text));
         }
         body.append(element('p', '', action.body));
+      } else if (action.op === 'add_relation') {
+        if (action.reason) {
+          body.append(element('p', 'ai-bar__suggestion', action.reason));
+        }
       } else if (action.op === 'insert_node') {
         const fields = action.node.fields;
         body.append(element('p', 'ai-bar__card-title', fields.TITLE));
@@ -634,7 +728,7 @@
       }
       const edits = actions.filter((action) => action.op === 'replace_text');
       const remote = actions.filter((action) => action.op !== 'replace_text');
-      const editor = this._editor;
+      const editor = this._scope === 'field' ? this._editor : null;
       const notes = [];
       if (remote.length > 0 && editor) {
         // The form that is open would send the old comments and the old

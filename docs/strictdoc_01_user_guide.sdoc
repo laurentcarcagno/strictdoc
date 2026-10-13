@@ -4723,7 +4723,7 @@ TITLE: The assistant bar in the Markdown editor (experimental)
 MID: 5197dfa26f024df48ba660cd2f3303c7
 STATEMENT: >>>
 With the ``LLM`` feature and the ``llm`` option (see above), every Markdown editor of a form
-has a **bar** above it: a ✦ icon and a field. Type ``/`` for the commands, ``@`` to mention
+has a **bar** above it: a ✦ icon and a field (the commands of a field; the document has its own bar, see below). Type ``/`` for the commands, ``@`` to mention
 something, ``Enter`` to run, ``Ctrl+/`` to put the cursor in the bar, ``Up`` for the previous
 inputs. Text with no command is a question (``/ask``). The bar is hidden for readers.
 
@@ -4758,6 +4758,21 @@ save or discard your changes first, then reloads the page.
    * - ``/req <request> [@...]``
      - writes new requirements (as Draft) from your request and the mentions
      - author
+   * - ``/split``
+     - splits a compound requirement; the first part stays, the others are added after it as Draft
+     - author
+   * - ``/fix [notes]``
+     - rewrites the text to solve the points of the last ``/verify`` (or of the checks)
+     - author
+   * - ``/test``
+     - proposes a verification method and acceptance cases (the cases can become a comment)
+     - reviewer
+   * - ``/trace @REQ-1 @DA1 ...``
+     - proposes parents among the mentioned requirements and sections; ticked ones are added
+     - author
+   * - ``/retranslate <language>``
+     - translates and translates back, and lists the differences of meaning
+     - reviewer
    * - ``/explain``
      - explains the text in plain words
      - reader
@@ -4774,6 +4789,46 @@ words, unresolved TBD, several obligations in one statement), so it is useful wi
 or none. Its findings carry a rule id: ``R-SHALL``, ``R-ATOMIC``, ``R-AMBIG``, ``R-VERIFIABLE``,
 ``R-ACTOR``, ``R-DESIGN``, ``R-TERM``, ``R-TBD``, ``R-COMPLETE``, ``R-NEG``, ``R-LANG``,
 ``R-RELEVANT``.
+
+**The bar of the document.** With the feature on, the top of a document view has a bar of its
+own, for the commands that read or write many requirements. They run as **jobs** in the
+background (a local model needs minutes): the bar shows the progress and the proposals found so
+far, you can cancel, and you tick what you keep when the job is done. One job per person at a
+time. The commands are ``/write``, ``/review``, ``/trace``, ``/summarize``, ``/consistency`` and
+``/ask``.
+
+.. list-table::
+   :header-rows: 1
+
+   * - Command
+     - What it does
+     - Role
+   * - ``/write <what to write> @sources``
+     - plans the topics, then writes the requirements of each one from the sources you mention
+       (reference, applicable or quality documents: say so in the sentence); they are added at the
+       end of the document as Draft. For example ``/write software requirements based on
+       @function_specification and @icd1 as reference documents and @quality_doc1 as applicable
+       document``
+     - author
+   * - ``/review [focus]``
+     - reads every requirement and proposes comments to tick
+     - reviewer
+   * - ``/trace @DA1 @icd1``
+     - proposes parents, among the mentioned documents, for the requirements that have none
+     - author
+   * - ``/summarize [@section]``
+     - summarises the document or the mentioned sections
+     - reader
+   * - ``/consistency [@documents]``
+     - lists contradictions, duplicates and term clashes
+     - reviewer
+   * - ``/ask <question> [@mentions]``
+     - answers about the document and the mentions
+     - reader
+
+The requirements are sent in batches, so that each answer stays small; at most 60 requirements
+or remarks come out of one job. ``/translate`` of a whole document into a new document is not
+available yet.
 
 **Comments from the bar** are comments of the person who ticked them: they carry no mark of the
 assistant. What was sent to a model, by whom, is in the audit log of the assistant.

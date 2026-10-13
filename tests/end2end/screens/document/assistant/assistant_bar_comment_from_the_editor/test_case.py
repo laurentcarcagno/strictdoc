@@ -16,8 +16,10 @@ from tests.end2end.helpers.screens.project_index.screen_project_index import (
 from tests.end2end.server import SDocTestServer
 
 EDITOR = "sdoc-markdown-editor[data-ready=true] .ProseMirror"
-BAR_INPUT = '[data-testid="ai-bar-input"]'
-PANEL = '[data-testid="ai-bar-panel"]'
+# The bar of the form (the document has its own bar above).
+BAR = "form sdoc-ai-bar"
+BAR_INPUT = BAR + ' [data-testid="ai-bar-input"]'
+PANEL = BAR + ' [data-testid="ai-bar-panel"]'
 
 
 class Test(E2ECase):
@@ -50,7 +52,7 @@ class Test(E2ECase):
             boxes = self.find_elements(f"{PANEL} input[type=checkbox]")
             assert [box.is_selected() for box in boxes] == [True, False]
 
-            self.click('[data-testid="ai-bar-apply"]')
+            self.click(BAR + ' [data-testid="ai-bar-apply"]')
             self.wait_for_text("change(s) saved", PANEL)
 
         saved = test_setup.path_to_sandbox + "/document.sdoc"

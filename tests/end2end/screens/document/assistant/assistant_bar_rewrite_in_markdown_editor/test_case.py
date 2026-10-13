@@ -18,9 +18,11 @@ from tests.end2end.helpers.screens.project_index.screen_project_index import (
 from tests.end2end.server import SDocTestServer
 
 EDITOR = "sdoc-markdown-editor[data-ready=true] .ProseMirror"
-BAR_INPUT = '[data-testid="ai-bar-input"]'
-MENU = '[data-testid="ai-bar-menu"]'
-PANEL = '[data-testid="ai-bar-panel"]'
+# The bar of the form (the document has its own bar above).
+BAR = "form sdoc-ai-bar"
+BAR_INPUT = BAR + ' [data-testid="ai-bar-input"]'
+MENU = BAR + ' [data-testid="ai-bar-menu"]'
+PANEL = BAR + ' [data-testid="ai-bar-panel"]'
 
 
 class Test(E2ECase):
@@ -70,7 +72,7 @@ class Test(E2ECase):
             assert "When started" not in editor_text, editor_text
 
             # Applying puts it in the editor; the form saves it.
-            self.click('[data-testid="ai-bar-apply"]')
+            self.click(BAR + ' [data-testid="ai-bar-apply"]')
             self.wait_for_text("Text replaced", PANEL)
             self.wait_for_text("When started, the system shall start", EDITOR)
             form_edit_requirement.do_form_submit()

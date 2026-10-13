@@ -58,6 +58,8 @@ ROUTE_ROLES: Dict[RouteKey, str] = {
         "GET /llm/assist/mentions",
         "POST /actions/llm/assist",
         "POST /actions/llm/apply",
+        "GET /actions/llm/jobs/{job_id}",
+        "DELETE /actions/llm/jobs/{job_id}",
         "GET /actions/project_index/export_docx_form",
         "POST /actions/project_index/export_docx_preview",
         "POST /docx/export",

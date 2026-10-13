@@ -17,8 +17,15 @@ VERSION = 1
 OP_REPLACE_TEXT = "replace_text"
 OP_INSERT_NODE = "insert_node"
 OP_ADD_COMMENT = "add_comment"
+OP_ADD_RELATION = "add_relation"
 OP_MESSAGE = "message"
-OPS = (OP_REPLACE_TEXT, OP_INSERT_NODE, OP_ADD_COMMENT, OP_MESSAGE)
+OPS = (
+    OP_REPLACE_TEXT,
+    OP_INSERT_NODE,
+    OP_ADD_COMMENT,
+    OP_ADD_RELATION,
+    OP_MESSAGE,
+)
 
 SEVERITIES = ("error", "warning", "info")
 MAX_INPUT = 4000
@@ -235,7 +242,15 @@ RESULT_SCHEMA: Dict[str, Any] = {
     "required": ["v", "status", "command", "actions", "findings"],
     "properties": {
         "v": {"const": VERSION},
-        "status": {"enum": ["ok", "error", "needs_confirmation"]},
+        "status": {
+            "enum": [
+                "ok",
+                "error",
+                "running",
+                "cancelled",
+                "needs_confirmation",
+            ]
+        },
         "command": {"type": "string"},
         "message": {"type": "string"},
         "actions": {

@@ -214,6 +214,12 @@ from `developer/milkdown`).
 Decisions: comments from `/comment` and `/verify` are added **as comments of the user**, without any mark of the assistant (the audit log keeps who asked what);
 comments and new nodes are saved by the server and need a saved form (the open form would send the old comments and revision), edits go into the editor.
 
-Not done yet (phases 4 to 6): the document bar and the jobs (`/write /review /translate` of a whole document, `/consistency /summarize`), the second set
-(`/split /test /trace /fix /retranslate`), the golden set per command, a comparison of models. The bar needs a provider: the live instance has the `LLM`
-feature off until a model server and its relay are chosen (open question above).
+Phases 4 and 5 are done too. Second set of field commands: `/split` (replace the text by the first part, add the others as Draft after the node, in order),
+`/fix` (uses the findings of the last `/verify` of the same text, else the checks), `/test` (cases in the message, optional comment), `/trace` (only UIDs of the
+mentions, never a parent that exists; `add_relation` is applied through the form of the node), `/retranslate` (findings `R-DRIFT`). Document bar: the element is
+in `screens/document/document/main.jinja`; `/ask /summarize /consistency` are one call, `/write` (a plan, then one call per topic), `/review` and `/trace` run as jobs
+(`jobs.py`: a thread, progress, partial proposals, cancel, one job per person, results kept an hour; `documents.py`). A cloud confirmation covers the whole job.
+
+Not done: `/translate` of a whole document (it needs a decision: the new document repeats the UIDs, so they would need a suffix; open question 2), the golden set per command,
+a comparison of models, `/gaps` and `/glossary`. The bar needs a provider: the live instance has the `LLM` feature off until a model server and its relay are chosen
+(open question above).

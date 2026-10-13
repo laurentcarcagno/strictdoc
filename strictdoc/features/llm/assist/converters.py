@@ -14,14 +14,21 @@ from dataclasses import dataclass, field
 from typing import Any, Callable, Collection, Dict, List, Optional
 
 from strictdoc.features.llm.assist.commands import (
+    COMMANDS,
     KIND_COMMENTS,
+    KIND_CONSISTENCY,
+    KIND_DRIFT,
     KIND_EDIT,
     KIND_FINDINGS,
+    KIND_LINKS,
     KIND_NODES,
+    KIND_SPLIT,
+    KIND_TEST,
     Command,
 )
 from strictdoc.features.llm.assist.envelope import (
     OP_ADD_COMMENT,
+    OP_ADD_RELATION,
     OP_INSERT_NODE,
     OP_REPLACE_TEXT,
     SEVERITIES,
@@ -38,6 +45,7 @@ from strictdoc.features.llm.schema import (
 )
 
 MAX_FINDINGS = 8
+MAX_SPLIT = 6
 MAX_BODY = 1500
 RULES = (
     "R-SHALL",
@@ -52,6 +60,8 @@ RULES = (
     "R-NEG",
     "R-LANG",
     "R-RELEVANT",
+    "R-DRIFT",
+    "R-CONSISTENCY",
 )
 _FENCE = re.compile(r"^```(?:json)?\s*(.*?)\s*```$", re.DOTALL)
 _NUMBER = re.compile(r"\d+(?:[.,]\d+)?")
@@ -123,6 +133,9 @@ def _text(data: Dict[str, Any], key: str, required: bool = True) -> str:
 # -- schemas for the providers that take one ----------------------------------
 
 
+COMMANDS_BY_NAME = COMMANDS
+
+
 def model_schema(command: Command, context: ConvertContext) -> Dict[str, Any]:
     if command.name == "rewrite":
         return {
@@ -133,13 +146,97 @@ def model_schema(command: Command, context: ConvertContext) -> Dict[str, Any]:
             },
             "required": ["text"],
         }
+    if command.name == "fix":
+        return model_schema(COMMANDS_BY_NAME["rewrite"], context)
+    if command.name == "split":
+        return {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "maxItems": MAX_SPLIT,
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "title": {"type": "string"},
+                            "statement": {"type": "string"},
+                        },
+                        "required": ["statement"],
+                    },
+                }
+            },
+            "required": ["items"],
+        }
+    if command.name == "test":
+        return {
+            "type": "object",
+            "properties": {
+                "verification_method": {"type": "string"},
+                "cases": {
+                    "type": "array",
+                    "maxItems": 5,
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "name": {"type": "string"},
+                            "given": {"type": "string"},
+                            "when": {"type": "string"},
+                            "then": {"type": "string"},
+                        },
+                        "required": ["then"],
+                    },
+                },
+            },
+            "required": ["cases"],
+        }
+    if command.name == "trace":
+        return {
+            "type": "object",
+            "properties": {
+                "links": {
+                    "type": "array",
+                    "maxItems": 5,
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "uid": {"type": "string"},
+                            "reason": {"type": "string"},
+                        },
+                        "required": ["uid"],
+                    },
+                }
+            },
+            "required": ["links"],
+        }
+    if command.name == "retranslate":
+        return {
+            "type": "object",
+            "properties": {
+                "translation": {"type": "string"},
+                "back": {"type": "string"},
+                "differences": {
+                    "type": "array",
+                    "maxItems": MAX_FINDINGS,
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "original": {"type": "string"},
+                            "back": {"type": "string"},
+                            "message": {"type": "string"},
+                        },
+                        "required": ["message"],
+                    },
+                },
+            },
+            "required": ["translation", "differences"],
+        }
     if command.name == "translate":
         return {
             "type": "object",
             "properties": {"text": {"type": "string"}},
             "required": ["text"],
         }
-    if command.name == "verify":
+    if command.name in ("verify", "consistency"):
         return {
             "type": "object",
             "properties": {
@@ -205,9 +302,51 @@ def parse_answer(context: ConvertContext, text: str) -> Dict[str, Any]:
         )
         return {"proposals": proposals}
     data = _object(parse_json(text))
-    if name in ("rewrite", "translate"):
+    if name in ("rewrite", "translate", "fix"):
         _text(data, "text")
-    elif name == "verify":
+    elif name == "split":
+        items = data.get("items")
+        if not isinstance(items, list) or len(items) == 0:
+            raise OutputError('The answer has no "items" list.')
+        if len(items) > MAX_SPLIT:
+            raise OutputError(f"More than {MAX_SPLIT} items.")
+        for number_, item_ in enumerate(items, start=1):
+            if not isinstance(item_, dict):
+                raise OutputError(f"Item {number_} is not an object.")
+            _text(item_, "statement")
+            _text(item_, "title", required=False)
+    elif name == "test":
+        cases = data.get("cases")
+        if not isinstance(cases, list):
+            raise OutputError('The answer has no "cases" list.')
+        for number_, item_ in enumerate(cases, start=1):
+            if not isinstance(item_, dict):
+                raise OutputError(f"Case {number_} is not an object.")
+            _text(item_, "then")
+    elif name == "trace":
+        links = data.get("links")
+        if not isinstance(links, list):
+            raise OutputError('The answer has no "links" list.')
+        known = context.known_uids
+        for number_, item_ in enumerate(links, start=1):
+            if not isinstance(item_, dict):
+                raise OutputError(f"Link {number_} is not an object.")
+            uid = _text(item_, "uid")
+            if known is not None and uid not in known:
+                raise OutputError(
+                    f"Link {number_}: unknown UID {uid}. Use only the UIDs "
+                    "of the material."
+                )
+    elif name == "retranslate":
+        _text(data, "translation")
+        differences = data.get("differences")
+        if not isinstance(differences, list):
+            raise OutputError('The answer has no "differences" list.')
+        for number_, item_ in enumerate(differences, start=1):
+            if not isinstance(item_, dict):
+                raise OutputError(f"Difference {number_} is not an object.")
+            _text(item_, "message")
+    elif name in ("verify", "consistency"):
         findings = data.get("findings")
         if not isinstance(findings, list):
             raise OutputError('The answer has no "findings" list.')
@@ -242,6 +381,16 @@ def convert(context: ConvertContext, data: Dict[str, Any]) -> Conversion:
         return _convert_comments(context, data)
     if command.kind == KIND_NODES:
         return _convert_nodes(context, data)
+    if command.kind == KIND_CONSISTENCY:
+        return _convert_consistency(data)
+    if command.kind == KIND_SPLIT:
+        return _convert_split(context, data)
+    if command.kind == KIND_TEST:
+        return _convert_test(context, data)
+    if command.kind == KIND_LINKS:
+        return _convert_links(context, data)
+    if command.kind == KIND_DRIFT:
+        return _convert_drift(context, data)
     conversion = Conversion()
     conversion.message = clean_markdown(
         str(data.get("answer", "")), conversion.warnings
@@ -271,7 +420,9 @@ def _convert_edit(context: ConvertContext, data: Dict[str, Any]) -> Conversion:
             + ". Check before applying."
         )
     where = "selection" if context.start is not None else "text"
-    verb = "Translate" if context.command.name == "translate" else "Rewrite"
+    verb = {"translate": "Translate", "fix": "Fix"}.get(
+        context.command.name, "Rewrite"
+    )
     conversion.message = notes or f"{verb} of the {where}."
     conversion.actions.append(
         Action(
@@ -454,4 +605,244 @@ def _convert_nodes(context: ConvertContext, data: Dict[str, Any]) -> Conversion:
     return conversion
 
 
+def _convert_consistency(data: Dict[str, Any]) -> Conversion:
+    conversion = Conversion()
+    for item_ in data.get("findings", [])[:MAX_FINDINGS]:
+        conversion.findings.append(
+            Finding(
+                severity=_severity(item_.get("severity")),
+                rule="R-CONSISTENCY",
+                quote="",
+                message=_text(item_, "message"),
+                suggestion=_text(item_, "suggestion", required=False),
+            )
+        )
+    count = len(conversion.findings)
+    conversion.message = (
+        "No inconsistency found."
+        if count == 0
+        else f"{count} inconsistenc{'ies' if count > 1 else 'y'}."
+    )
+    return conversion
+
+
+def _convert_split(context: ConvertContext, data: Dict[str, Any]) -> Conversion:
+    conversion = Conversion()
+    items = data["items"]
+    whole = context.request.target.text
+    if len(items) == 1:
+        conversion.message = "The requirement is already atomic."
+        return conversion
+    first = clean_markdown(str(items[0]["statement"]), conversion.warnings)
+    conversion.actions.append(
+        Action(
+            op=OP_REPLACE_TEXT,
+            label="Keep the first part here",
+            data={
+                "field": context.request.target.field,
+                "range": None,
+                "old": whole,
+                "new": first,
+            },
+        )
+    )
+    for item_ in items[1:]:
+        statement = clean_markdown(str(item_["statement"]), conversion.warnings)
+        title = str(item_.get("title") or "").strip() or statement[:60]
+        conversion.actions.append(
+            Action(
+                op=OP_INSERT_NODE,
+                label=title,
+                data={
+                    "position": {
+                        "where": "after"
+                        if context.insert_after
+                        else "last_child",
+                        "ref": context.insert_ref,
+                    },
+                    "node": {
+                        "type": "REQUIREMENT",
+                        "status": "Draft",
+                        "fields": {
+                            "TITLE": title,
+                            "STATEMENT": statement,
+                            "RATIONALE": "",
+                            "VERIFICATION_METHOD": "",
+                        },
+                        "linked_to": [],
+                    },
+                },
+            )
+        )
+    conversion.message = (
+        f"Split into {len(items)} requirements: the first stays here, "
+        f"{len(items) - 1} more are added after it as Draft."
+    )
+    if not context.insert_ref:
+        conversion.warnings.append(
+            "There is no place for the new requirements: nothing to insert."
+        )
+        conversion.actions = conversion.actions[:1]
+    return conversion
+
+
+def _convert_test(context: ConvertContext, data: Dict[str, Any]) -> Conversion:
+    conversion = Conversion()
+    method = str(data.get("verification_method") or "").strip()
+    lines: List[str] = []
+    if method:
+        lines.append(f"**Verification method:** {method}")
+    for number_, case_ in enumerate(data["cases"], start=1):
+        name = str(case_.get("name") or f"Case {number_}").strip()
+        lines.append(f"- **{name}**")
+        for key_, label_ in (
+            ("given", "Given"),
+            ("when", "When"),
+            ("then", "Then"),
+        ):
+            value = str(case_.get(key_) or "").strip()
+            if value:
+                lines.append(f"  {label_}: {value}")
+    text = clean_markdown("\n".join(lines), conversion.warnings)
+    conversion.message = text or "No case proposed."
+    if context.can_add_comments and data["cases"]:
+        conversion.actions.append(
+            _comment_action(
+                context,
+                "",
+                "info",
+                "Proposed verification:\n" + text,
+                None,
+            )
+        )
+        conversion.actions[-1].label = "Add the cases as a comment"
+        conversion.actions[-1].default = False
+    return conversion
+
+
+def _convert_links(context: ConvertContext, data: Dict[str, Any]) -> Conversion:
+    conversion = Conversion()
+    seen = set()
+    for item_ in data["links"]:
+        uid = str(item_["uid"]).strip()
+        if uid in seen:
+            continue
+        seen.add(uid)
+        reason = str(item_.get("reason") or "").strip()
+        conversion.actions.append(
+            Action(
+                op=OP_ADD_RELATION,
+                label=f"Parent: {uid}",
+                data={
+                    "node": context.node_mid,
+                    "uid": uid,
+                    "role": None,
+                    "reason": reason[:300],
+                },
+            )
+        )
+    if not context.node_mid and conversion.actions:
+        conversion.warnings.append(
+            "Save the requirement first to add parents to it."
+        )
+        conversion.actions = []
+    count = len(conversion.actions)
+    conversion.message = (
+        "No parent found among the mentions."
+        if count == 0
+        else f"{count} possible parent{'s' if count > 1 else ''}."
+    )
+    return conversion
+
+
+def _convert_drift(context: ConvertContext, data: Dict[str, Any]) -> Conversion:
+    conversion = Conversion()
+    translation = clean_markdown(
+        str(data.get("translation", "")), conversion.warnings
+    )
+    for item_ in data.get("differences", [])[:MAX_FINDINGS]:
+        quote = str(item_.get("original") or "").strip()
+        conversion.findings.append(
+            Finding(
+                severity="warning",
+                rule="R-DRIFT",
+                quote=quote if quote in context.request.target.text else "",
+                message=_text(item_, "message"),
+                suggestion=str(item_.get("back") or "").strip()[:300],
+            )
+        )
+    count = len(conversion.findings)
+    head = (
+        "The meaning is kept."
+        if count == 0
+        else f"{count} difference{'s' if count > 1 else ''} of meaning."
+    )
+    conversion.message = f"{head}\n\n**Translation:** {translation}"
+    return conversion
+
+
 Parser = Callable[[ConvertContext, str], Dict[str, Any]]
+
+
+# -- the answers of the document jobs -------------------------------------------
+
+
+def parse_review(text: str, batch_uids: Collection[str]) -> Dict[str, Any]:
+    """The comments of a batch of requirements. Raises OutputError."""
+    data = _object(parse_json(text))
+    comments = data.get("comments")
+    if not isinstance(comments, list):
+        raise OutputError('The answer has no "comments" list.')
+    for number_, item_ in enumerate(comments, start=1):
+        if not isinstance(item_, dict):
+            raise OutputError(f"Comment {number_} is not an object.")
+        uid = _text(item_, "node")
+        if uid not in batch_uids:
+            raise OutputError(
+                f"Comment {number_}: {uid} is not one of the requirements "
+                "of the batch."
+            )
+        _text(item_, "body")
+    return data
+
+
+def parse_trace_batch(
+    text: str, batch_uids: Collection[str], candidate_uids: Collection[str]
+) -> Dict[str, Any]:
+    """The links of a batch of requirements. Raises OutputError."""
+    data = _object(parse_json(text))
+    links = data.get("links")
+    if not isinstance(links, list):
+        raise OutputError('The answer has no "links" list.')
+    for number_, item_ in enumerate(links, start=1):
+        if not isinstance(item_, dict):
+            raise OutputError(f"Link {number_} is not an object.")
+        node = _text(item_, "node")
+        uid = _text(item_, "uid")
+        if node not in batch_uids:
+            raise OutputError(f"Link {number_}: {node} is not in the batch.")
+        if uid not in candidate_uids:
+            raise OutputError(
+                f"Link {number_}: unknown UID {uid}. Use only the UIDs of "
+                "the material."
+            )
+    return data
+
+
+def parse_topics(text: str) -> List[Dict[str, str]]:
+    """The topics of the plan of /write. Raises OutputError."""
+    data = _object(parse_json(text))
+    topics = data.get("topics")
+    if not isinstance(topics, list) or len(topics) == 0:
+        raise OutputError('The answer has no "topics" list.')
+    result: List[Dict[str, str]] = []
+    for number_, item_ in enumerate(topics[:12], start=1):
+        if not isinstance(item_, dict):
+            raise OutputError(f"Topic {number_} is not an object.")
+        result.append(
+            {
+                "title": _text(item_, "title"),
+                "scope": _text(item_, "scope", required=False),
+            }
+        )
+    return result

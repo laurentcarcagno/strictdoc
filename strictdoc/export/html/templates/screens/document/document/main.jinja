@@ -3,5 +3,9 @@
   js-toc_highlighting-content_root
   js-content-viewport
 >
+  {#- The assistant bar of the document (project feature LLM). -#}
+  {%- if view_object.is_running_on_server and view_object.project_config.is_activated_llm() %}
+  <sdoc-ai-bar data-scope="document" data-document-mid="{{ view_object.document.reserved_mid }}"></sdoc-ai-bar>
+  {%- endif %}
   {% include "screens/document/document/frame_document_content.jinja.html" %}
 </div>
