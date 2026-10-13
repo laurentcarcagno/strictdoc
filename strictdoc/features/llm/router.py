@@ -23,6 +23,8 @@ from strictdoc.core.document_iterator import SDocDocumentIterator
 from strictdoc.core.transforms.constants import NodeCreationOrder
 from strictdoc.features.comments.model import parse_comment
 from strictdoc.features.hierarchy.source import build_reference_resolver
+from strictdoc.features.llm.assist.router import create_assist_routers
+from strictdoc.features.llm.assist.service import AssistService
 from strictdoc.features.llm.audit import LLMAudit, LLMCall
 from strictdoc.features.llm.context import (
     BuiltPrompt,
@@ -78,6 +80,15 @@ def create_llm_routers(
         llm_audit_path(context), store_prompts=llm.audit_store_prompts
     )
     policy = Policy(llm, audit)
+
+    # The command bar of the editors (assist/): same provider layer and policy.
+    assist_read, assist_write = create_assist_routers(
+        service=AssistService(
+            context=context, llm=llm, audit=audit, policy=policy
+        )
+    )
+    read_router.include_router(assist_read)
+    write_router.include_router(assist_write)
 
     def index() -> Any:
         return context.export_action.traceability_index

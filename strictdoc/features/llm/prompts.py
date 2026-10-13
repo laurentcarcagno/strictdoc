@@ -66,3 +66,40 @@ def load_template(name: str = TEMPLATE_NAME) -> PromptTemplate:
         system=sections["SYSTEM"],
         patterns=patterns,
     )
+
+
+@dataclass(frozen=True)
+class AssistPrompt:
+    """The system prompt of one command of the assistant bar."""
+
+    name: str
+    version: int
+    system: str
+
+    @property
+    def label(self) -> str:
+        return f"{self.name}@{self.version}"
+
+
+def _read_versioned(name: str) -> "tuple[int, str]":
+    path = os.path.join(PROMPT_DIR, f"{name}.md")
+    with open(path, encoding="utf-8") as file_:
+        text = file_.read()
+    first_line, _, rest = text.partition("\n")
+    match = re.fullmatch(r"version:\s*(\d+)", first_line.strip())
+    if match is None:
+        raise ValueError(f"{path}: the first line must be 'version: N'.")
+    return int(match.group(1)), rest.strip()
+
+
+def load_assist_prompt(name: str) -> AssistPrompt:
+    """
+    The prompt of a command: the shared part (common.md) followed by the
+    part of the command (<name>.md). The version recorded is the one of the
+    command file.
+    """
+    _, common = _read_versioned("common")
+    version, body = _read_versioned(name)
+    return AssistPrompt(
+        name=name, version=version, system=common + "\n\n" + body
+    )
