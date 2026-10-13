@@ -4794,8 +4794,8 @@ or none. Its findings carry a rule id: ``R-SHALL``, ``R-ATOMIC``, ``R-AMBIG``, `
 own, for the commands that read or write many requirements. They run as **jobs** in the
 background (a local model needs minutes): the bar shows the progress and the proposals found so
 far, you can cancel, and you tick what you keep when the job is done. One job per person at a
-time. The commands are ``/write``, ``/review``, ``/trace``, ``/summarize``, ``/consistency`` and
-``/ask``.
+time. The commands are ``/write``, ``/review``, ``/trace``, ``/translate``, ``/glossary``, ``/gap``,
+``/summarize``, ``/consistency`` and ``/ask``.
 
 .. list-table::
    :header-rows: 1
@@ -4816,6 +4816,22 @@ time. The commands are ``/write``, ``/review``, ``/trace``, ``/summarize``, ``/c
    * - ``/trace @DA1 @icd1``
      - proposes parents, among the mentioned documents, for the requirements that have none
      - author
+   * - ``/translate <language> [path]``
+     - translates the whole document into a **new** document (``document_FR.sdoc`` by default, or
+       the path you give). Every UID gets the suffix of the language (``REQ-12`` becomes ``REQ-12-FR``,
+       ``-EN``, ``-DE``...), the links and anchors inside the document follow, references to other
+       documents stay, comments are not copied, new MIDs are written and the metadata get
+       ``LANGUAGE`` and ``TRANSLATION_OF``. The language is a code (``fr``, ``en``...) or a name
+       (``French``, ``allemand``). Applying checks the path and that no UID exists already
+       - author
+   * - ``/glossary``
+     - extracts the terms and their definitions (with the UID where they are used); one tick
+       inserts the list as a paragraph at the end of the document
+     - author
+   * - ``/gap [@DA1 ...]`` (or ``/gaps``)
+     - lists what is not covered, with no model: with mentions, the nodes of those documents or sections
+       that no requirement derives from; without, the requirements of this document that have no parent
+     - reader
    * - ``/summarize [@section]``
      - summarises the document or the mentioned sections
      - reader
@@ -4827,8 +4843,8 @@ time. The commands are ``/write``, ``/review``, ``/trace``, ``/summarize``, ``/c
      - reader
 
 The requirements are sent in batches, so that each answer stays small; at most 60 requirements
-or remarks come out of one job. ``/translate`` of a whole document into a new document is not
-available yet.
+or remarks come out of one job. A translated document keeps the structure of the source; a node whose
+batch the model answered badly stays in the source language (the result says how many).
 
 **Comments from the bar** are comments of the person who ticked them: they carry no mark of the
 assistant. What was sent to a model, by whom, is in the audit log of the assistant.

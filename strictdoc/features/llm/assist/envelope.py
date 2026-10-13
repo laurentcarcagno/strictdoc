@@ -18,12 +18,16 @@ OP_REPLACE_TEXT = "replace_text"
 OP_INSERT_NODE = "insert_node"
 OP_ADD_COMMENT = "add_comment"
 OP_ADD_RELATION = "add_relation"
+OP_INSERT_TEXT = "insert_text"
+OP_CREATE_DOCUMENT = "create_document"
 OP_MESSAGE = "message"
 OPS = (
     OP_REPLACE_TEXT,
     OP_INSERT_NODE,
     OP_ADD_COMMENT,
     OP_ADD_RELATION,
+    OP_INSERT_TEXT,
+    OP_CREATE_DOCUMENT,
     OP_MESSAGE,
 )
 
@@ -137,6 +141,9 @@ class Action:
     default: bool = True
     data: Dict[str, Any] = field(default_factory=dict)
     id: str = field(default_factory=new_id)
+    # What only the server needs (the text of a whole new document): never
+    # sent to the browser.
+    hidden: Dict[str, Any] = field(default_factory=dict)
 
     def to_json(self) -> Dict[str, Any]:
         return {

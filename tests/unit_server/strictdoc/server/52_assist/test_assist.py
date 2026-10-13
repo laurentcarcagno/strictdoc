@@ -69,7 +69,10 @@ def provider(monkeypatch):
 
     def install(*answers):
         holder["provider"] = FakeProvider(
-            [a if isinstance(a, str) else json.dumps(a) for a in answers]
+            [
+                a if isinstance(a, str) or callable(a) else json.dumps(a)
+                for a in answers
+            ]
         )
         monkeypatch.setattr(
             assist_service,
@@ -792,3 +795,160 @@ def test_031_every_command_on_a_text_sends_the_text(
     assert response.status_code == 200, response.text
     user = fake.requests[0].user
     assert f"BEGIN text uid=FSW-1\n{TEXT}\nEND" in user, user
+
+
+# -- /gap, /glossary, /translate of a document -----------------------------------
+
+
+def test_032_gap_lists_what_is_not_covered_without_a_model(tmp_path):
+    client = make_client(tmp_path, _llm({"answer": "unused"}))
+    body = _doc(client, "/gap @DA-1 @DA-2", headers=READER).json()
+    assert body["status"] == "ok"
+    assert [f["rule"] for f in body["findings"]] == ["R-GAP"]
+    assert "DA-2" in body["findings"][0]["message"]
+    assert body["message"] == "1 of 2 covered, 1 not."
+    assert _audit(tmp_path) == []
+
+    # The plural is accepted; with no mention: the requirements with no parent.
+    orphans = _doc(client, "/gaps", headers=READER).json()
+    uids = sorted(f["message"].split()[0] for f in orphans["findings"])
+    assert uids == ["FSW-2", "FSW-3"]
+    assert any("No source was mentioned" in w for w in orphans["warnings"])
+
+
+def test_033_glossary_is_a_job_that_inserts_a_paragraph(tmp_path):
+    answer = {
+        "terms": [
+            {"term": "TM", "definition": "Telemetry.", "uid": "FSW-3"},
+            {
+                "term": "Boot",
+                "definition": "Start-up of the software.",
+                "uid": "NOPE",
+            },
+        ]
+    }
+    client = make_client(tmp_path, _llm(answer))
+    started = _doc(client, "/glossary").json()
+    done = _wait(client, started["meta"]["job"]["id"])
+    assert done["status"] == "ok", done
+    action = done["actions"][0]
+    assert action["op"] == "insert_text" and action["terms"] == 2
+    # Alphabetical; an UID that is not in the batch is dropped.
+    assert action["text"].index("**Boot**") < action["text"].index("**TM**")
+    assert "(NOPE)" not in action["text"] and "(FSW-3)" in action["text"]
+    response = client.post(
+        "/actions/llm/apply",
+        json={
+            "call_id": started["meta"]["job"]["id"],
+            "action_ids": [action["id"]],
+        },
+        headers=AUTHOR,
+    )
+    assert response.json()["errors"] == [], response.json()
+    text = _flight(tmp_path)
+    assert "**Glossary**" in text and "**TM**: Telemetry. (FSW-3)" in text
+
+
+def _translating(suffix_note=" [LINK: FSW-2]"):
+    """A provider that 'translates' every text of a batch, as a model would."""
+
+    def answer(request):
+        payload = request.user.split("BEGIN nodes\n", 1)[1].rsplit("\nEND", 1)[
+            0
+        ]
+        nodes = []
+        for item in json.loads(payload):
+            fields = {
+                name: f"[FR] {text}"
+                + (suffix_note if name == "STATEMENT" else "")
+                for name, text in item["fields"].items()
+            }
+            nodes.append({"ref": item["ref"], "fields": fields})
+        return json.dumps({"nodes": nodes})
+
+    return answer
+
+
+def test_034_translate_a_document_into_a_new_one_with_suffixed_uids(
+    tmp_path, provider
+):
+    fake = provider(_translating())
+    client = make_client(tmp_path, _llm("x"))
+    started = _doc(client, "/translate fr").json()
+    job_id = started["meta"]["job"]["id"]
+    done = _wait(client, job_id)
+    assert done["status"] == "ok", done
+    action = done["actions"][0]
+    assert action["op"] == "create_document"
+    assert action["path"] == "flight_FR.sdoc" and action["uid_suffix"] == "-FR"
+    assert action["translated"] == 3 and action["skipped"] == 0
+    assert "sdoc_text" not in json.dumps(done)  # the text stays on the server
+    assert "Target language: French" in fake.requests[0].user
+
+    response = client.post(
+        "/actions/llm/apply",
+        json={"call_id": job_id, "action_ids": [action["id"]]},
+        headers=AUTHOR,
+    )
+    outcome = response.json()
+    assert outcome["errors"] == [], outcome
+    assert outcome["open"].endswith("flight_FR.html")
+    new = (tmp_path / "input" / "flight_FR.sdoc").read_text(encoding="utf8")
+    assert "UID: FLIGHT-FR" in new and "UID: FSW-1-FR" in new
+    assert "TITLE: [FR] Flight software" in new
+    # A link inside the document follows the suffix; the parent in the
+    # customer document does not.
+    assert "[FR] The software shall use at most 32 MB. [LINK: FSW-2-FR]" in new
+    assert "VALUE: DA-1\n" in new and "DA-1-FR" not in new
+    assert "LANGUAGE: fr" in new and "TRANSLATION_OF: FLIGHT" in new
+    # The source is untouched, and the MIDs are new.
+    source = _flight(tmp_path)
+    assert "[FR]" not in source and source.count("\nMID:") == 4
+    old_mids = {line for line in source.splitlines() if line.startswith("MID:")}
+    assert not old_mids & {l for l in new.splitlines() if l.startswith("MID:")}
+
+    # Applying twice, or to a UID that exists, is refused.
+    again = client.post(
+        "/actions/llm/apply",
+        json={"call_id": job_id, "action_ids": [action["id"]]},
+        headers=AUTHOR,
+    ).json()
+    assert "exists already" in again["errors"][0]["message"]
+
+
+def test_035_translate_checks_language_path_and_role(tmp_path, provider):
+    provider(_translating())
+    client = make_client(tmp_path, _llm("x"))
+    assert _doc(client, "/translate", headers=AUTHOR).status_code == 400
+    assert (
+        _doc(client, "/translate klingon-xyz", headers=AUTHOR).status_code
+        == 400
+    )
+    assert _doc(client, "/translate fr", headers=READER).status_code == 403
+    assert _doc(client, "/glossary", headers=REVIEWER).status_code == 403
+
+    started = _doc(client, "/translate Allemand ../outside.sdoc").json()
+    job_id = started["meta"]["job"]["id"]
+    done = _wait(client, job_id)
+    action = done["actions"][0]
+    assert action["uid_suffix"] == "-DE"
+    refused = client.post(
+        "/actions/llm/apply",
+        json={"call_id": job_id, "action_ids": [action["id"]]},
+        headers=AUTHOR,
+    ).json()
+    assert refused["errors"], refused
+    assert not (tmp_path / "outside.sdoc").exists()
+
+
+def test_036_a_batch_that_fails_leaves_those_nodes_untranslated(
+    tmp_path, provider
+):
+    provider("not json")
+    client = make_client(tmp_path, _llm("x"))
+    started = _doc(client, "/translate en").json()
+    done = _wait(client, started["meta"]["job"]["id"])
+    assert done["status"] == "ok"
+    assert done["actions"][0]["translated"] == 0
+    assert any("could not be translated" in w for w in done["warnings"])
+    assert any("A batch was skipped" in w for w in done["warnings"])

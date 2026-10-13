@@ -708,6 +708,18 @@
           body.append(element('blockquote', '', action.anchor.text));
         }
         body.append(element('p', '', action.body));
+      } else if (action.op === 'insert_text') {
+        body.append(element('pre', 'ai-bar__prompt', action.text));
+      } else if (action.op === 'create_document') {
+        body.append(
+          element(
+            'p',
+            '',
+            `${action.translated} of ${action.nodes} nodes translated. ` +
+              `UIDs get the suffix ${action.uid_suffix}; the document is ` +
+              `written to ${action.path}.`
+          )
+        );
       } else if (action.op === 'add_relation') {
         if (action.reason) {
           body.append(element('p', 'ai-bar__suggestion', action.reason));
@@ -789,7 +801,12 @@
         }
         if ((body.applied ?? []).length > 0) {
           notes.push(`${body.applied.length} change(s) saved. The page reloads.`);
-          setTimeout(() => window.Turbo?.visit(window.location.href, { action: 'replace' }), 1200);
+          // A new document opens; otherwise the page shows what changed.
+          const target = body.open || window.location.href;
+          setTimeout(() => {
+            if (body.open) window.location.href = target;
+            else window.Turbo?.visit(target, { action: 'replace' });
+          }, 1200);
         }
       }
       const done = element('div', 'ai-bar__status', notes.join(' '));

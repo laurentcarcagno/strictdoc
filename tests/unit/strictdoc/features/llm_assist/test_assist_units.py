@@ -20,6 +20,13 @@ from strictdoc.features.llm.assist.envelope import (
 )
 from strictdoc.features.llm.assist.lint import lint
 from strictdoc.features.llm.assist.mentions import find_mentions
+from strictdoc.features.llm.assist.translation import (
+    TranslationError,
+    default_path,
+    parse_arguments,
+    resolve_language,
+    rewrite_ids,
+)
 from strictdoc.features.llm.prompts import load_assist_prompt
 from strictdoc.features.llm.schema import OutputError
 
@@ -210,3 +217,26 @@ def test_012_without_a_saved_node_there_are_no_comment_actions():
     assert conversion.actions == []
     assert any(f.rule == "R-AMBIG" for f in conversion.findings)
     assert any("Save the requirement first" in w for w in conversion.warnings)
+
+
+def test_013_languages_are_resolved_by_code_or_name():
+    assert resolve_language("fr") == ("fr", "French")
+    assert resolve_language("Allemand") == ("de", "German")
+    assert resolve_language("English") == ("en", "English")
+    assert resolve_language("xx") == ("xx", "XX")
+    with pytest.raises(TranslationError):
+        resolve_language("klingon-1")
+    assert parse_arguments("fr docs/a_fr.sdoc") == (
+        "fr",
+        "French",
+        "docs/a_fr.sdoc",
+    )
+    assert parse_arguments("de")[2] == ""
+    assert default_path("spec/req.sdoc", "fr") == "spec/req_FR.sdoc"
+    assert default_path("req.md", "en") == "req_EN.md"
+
+    ids = {"REQ-1": "REQ-1-FR", "anch": "anch-FR"}
+    text = "See [LINK: REQ-1], [LINK: OTHER-2] and [ANCHOR: anch, Title]."
+    assert rewrite_ids(text, ids) == (
+        "See [LINK: REQ-1-FR], [LINK: OTHER-2] and [ANCHOR: anch-FR, Title]."
+    )

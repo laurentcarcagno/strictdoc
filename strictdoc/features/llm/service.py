@@ -233,3 +233,65 @@ def _set(form: RequirementFormObject, name: str, value: str) -> None:
     for field_ in form.fields.get(name, []):
         field_.field_value = value
         return
+
+
+def create_text_node(
+    context: "ProjectContext",
+    *,
+    reference_mid: str,
+    whereto: str,
+    text: str,
+) -> str:
+    """
+    Creates a TEXT node (a paragraph) with the text, at `whereto` of the
+    reference node. Returns an error message, or an empty string.
+    """
+    index = context.export_action.traceability_index
+    config = context.project_config
+    reference: Any = index.get_node_by_mid(MID(reference_mid))
+    if not isinstance(reference, (SDocDocument, SDocNode)):
+        return "The reference node does not exist."
+    if not index.can_create_node_at(reference, whereto):
+        return "Adding nodes here is not allowed."
+    document = _document_for(reference)
+    assert document.grammar is not None
+    element = document.grammar.elements_by_type.get("TEXT")
+    if element is None:
+        return "The grammar of this document has no TEXT node."
+    form = RequirementFormObject.create_new(
+        document=document,
+        context_document_mid=document.reserved_mid,
+        next_uid=None,
+        element_type="TEXT",
+    )
+    _set(form, element.content_field[0], text)
+    form.validate(
+        traceability_index=index,
+        context_document=document,
+        config=config,
+        existing_revision=0,
+    )
+    if form.any_errors():
+        messages = [
+            message_
+            for messages_ in form.errors.values()
+            for message_ in messages_
+        ]
+        return " ".join(messages) or "The text is not valid."
+    CreateOrUpdateNodeCommand(
+        form_object=form,
+        node_info=CreateNodeInfo(
+            whereto=whereto,
+            requirement_mid=form.requirement_mid,
+            reference_mid=_mid_of(reference),
+        ),
+        traceability_index=index,
+        project_config=config,
+    ).perform()
+    context.write_document_to_file(document)
+    context.html_generator.export_single_document_with_performance(
+        document=document,
+        traceability_index=index,
+        specific_documents=(DocumentType.DOCUMENT,),
+    )
+    return ""

@@ -230,3 +230,17 @@ the French case is answered in English or in the future tense), `/translate` 1 o
 the prompt now carries and a few rules added to the prompts moved the numbers a little; the larger models of the host (`qwen3-coder:30b`, `devstral-small-2`) could not be
 loaded (about 4 GB of memory were free), so they are not measured. A real finding of this work: the first version did not send the text of the field for
 `/split /test /trace /retranslate` (the fake provider did not notice); a test now checks that every command on a text sends it.
+
+### Delivered later: `/translate` of a document, `/glossary`, `/gap`
+
+`/translate <language> [path]` in the document bar is a job (`translation.py`, `documents.py`): the source is written by the SDoc writer and read again (a copy that shares nothing with the project), the
+texts of its nodes (TITLE, content, RATIONALE and every other multiline field, not the comments) are sent in batches as a JSON list with refs (`n1`, `n2`... and `doc` for the title), the
+answer is checked (known refs and field names, texts only), and the copy gets the translations, the UIDs suffixed with the language (`-FR`), the `[LINK: ...]` and `[ANCHOR: ...]` that
+point inside the document rewritten, the references to other documents left alone, new MIDs, no comments, and the metadata `LANGUAGE` and `TRANSLATION_OF`. The result is one `create_document` action whose
+text stays on the server (`Action.hidden`); applying checks the path (same rules as the new-document form, inside the project, not existing), that the text parses and that none of its UIDs exists.
+A document that includes others is refused. `/glossary` is a job per batch of nodes that merges the terms (alphabetical, one definition per term) into one `insert_text` action (a TEXT node, written by
+`create_text_node`). `/gap` needs no model: the mentioned nodes with no child, or the requirements with no parent.
+
+Alternative suggested, not built: keep one node and store each language in extra fields (`STATEMENT_FR`...), with a switch of the display language. It avoids duplicated UIDs and keeps the translations next to the
+source, but it changes the grammar, the form of every node, the HTML and Word exports and the traceability views (which language is the requirement text?). The new-document way costs nothing in the core and
+keeps each language reviewable and baselined on its own.

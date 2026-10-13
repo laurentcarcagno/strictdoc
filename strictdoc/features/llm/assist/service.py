@@ -9,6 +9,7 @@ operation before it goes back. Nothing here writes a document except `apply`.
 """
 
 import hashlib
+import os
 import time
 from typing import Any, Dict, List, Optional, Set, Tuple
 
@@ -49,7 +50,9 @@ from strictdoc.features.llm.assist.documents import DocumentCommands
 from strictdoc.features.llm.assist.envelope import (
     OP_ADD_COMMENT,
     OP_ADD_RELATION,
+    OP_CREATE_DOCUMENT,
     OP_INSERT_NODE,
+    OP_INSERT_TEXT,
     Action,
     AssistRequest,
     AssistResult,
@@ -67,6 +70,7 @@ from strictdoc.features.llm.assist.prompting import (
 )
 from strictdoc.features.llm.assist.runner import Calls, ask_validated
 from strictdoc.features.llm.assist.store import ResultStore, Stored
+from strictdoc.features.llm.assist.translation import check_text
 from strictdoc.features.llm.audit import LLMAudit, LLMCall
 from strictdoc.features.llm.config import LLMConfig
 from strictdoc.features.llm.context import (
@@ -79,7 +83,11 @@ from strictdoc.features.llm.policy import Policy, PolicyError
 from strictdoc.features.llm.prompts import AssistPrompt, load_assist_prompt
 from strictdoc.features.llm.providers import create_provider
 from strictdoc.features.llm.schema import OutputError, Proposal
-from strictdoc.features.llm.service import DraftOrigin, create_proposal_nodes
+from strictdoc.features.llm.service import (
+    DraftOrigin,
+    create_proposal_nodes,
+    create_text_node,
+)
 from strictdoc.features.llm.types import LLMError, LLMRequest
 from strictdoc.features.reviewers.reviewers import can_comment
 from strictdoc.features.roles.principal import Principal
@@ -90,7 +98,10 @@ from strictdoc.features.roles.roles import (
     role_allows,
 )
 from strictdoc.helpers.cast import assert_cast
+from strictdoc.helpers.exception import StrictDocException
 from strictdoc.helpers.mid import MID
+from strictdoc.helpers.path_filter import PathFilter
+from strictdoc.helpers.string import is_safe_alphanumeric_string
 from strictdoc.server.project_context import ProjectContext
 
 MAX_STORED = 200
@@ -552,6 +563,7 @@ class AssistService:
             chosen.append(by_id[id_])
         applied: List[str] = []
         errors: List[Dict[str, str]] = []
+        opened = ""
 
         def done(actions: List[Action], error: str) -> None:
             for action_ in actions:
@@ -572,6 +584,13 @@ class AssistService:
                 relations_by_node.setdefault(action_.data["node"], []).append(
                     action_
                 )
+            elif action_.op == OP_INSERT_TEXT:
+                done([action_], self._insert_text(principal, action_))
+            elif action_.op == OP_CREATE_DOCUMENT:
+                error, link = self._create_document(principal, action_)
+                done([action_], error)
+                if link:
+                    opened = link
             elif action_.op == OP_INSERT_NODE:
                 position = action_.data["position"]
                 inserts.setdefault(
@@ -590,7 +609,93 @@ class AssistService:
             done(actions_, self._relate(principal, node_mid, actions_))
         for node_mid, actions_ in comments_by_node.items():
             done(actions_, self._comment(principal, node_mid, actions_))
-        return {"applied": applied, "errors": errors}
+        outcome: Dict[str, Any] = {"applied": applied, "errors": errors}
+        if opened:
+            outcome["open"] = opened
+        return outcome
+
+    def _insert_text(self, principal: Principal, action: Action) -> str:
+        """Adds a paragraph (the glossary) at the place the result named."""
+        if not role_allows(principal.role, ROLE_AUTHOR):
+            return "Your role does not allow adding text."
+        position = action.data["position"]
+        reference = self._index().get_node_by_mid_weak(MID(position["ref"]))
+        if isinstance(reference, SDocDocument):
+            whereto = NodeCreationOrder.CHILD
+        elif isinstance(reference, SDocNode):
+            whereto = NodeCreationOrder.AFTER
+        else:
+            return "The place for the text does not exist."
+        return create_text_node(
+            self.context,
+            reference_mid=position["ref"],
+            whereto=whereto,
+            text=str(action.data["text"]),
+        )
+
+    def _create_document(
+        self, principal: Principal, action: Action
+    ) -> Tuple[str, str]:
+        """
+        Writes the translated document that a job prepared, after checking its
+        path and that none of its UIDs exists. Returns an error message (or
+        an empty string) and the address of the new document.
+        """
+        if not role_allows(principal.role, ROLE_AUTHOR):
+            return "Your role does not allow creating documents.", ""
+        config = self.context.project_config
+        path = str(action.data["path"]).strip().lstrip("/")
+        if not is_safe_alphanumeric_string(path):
+            return (
+                "The path may only hold letters, digits, '_', '.', and '/'.",
+                "",
+            )
+        extensions = tuple(config.get_editable_document_extensions())
+        if not path.endswith(extensions):
+            return (
+                f"The path must end with one of: {', '.join(extensions)}.",
+                "",
+            )
+        if config.include_doc_paths is not None and not PathFilter(
+            config.include_doc_paths, positive_or_negative=True
+        ).match(path):
+            return "The path is not allowed by include_doc_paths.", ""
+        if config.exclude_doc_paths is not None and PathFilter(
+            config.exclude_doc_paths, positive_or_negative=False
+        ).match(path):
+            return "The path is excluded by exclude_doc_paths.", ""
+        assert isinstance(config.input_paths, list)
+        root = os.path.realpath(config.input_paths[0])
+        full = os.path.realpath(os.path.join(root, path))
+        if os.path.commonpath([root, full]) != root:
+            return "The path leaves the project.", ""
+        if os.path.exists(full):
+            return f"{path} exists already: choose another path.", ""
+        text = str(action.hidden["sdoc_text"])
+        try:
+            uids = check_text(text)
+        except StrictDocException as exception_:
+            return f"The translated document is not valid: {exception_}", ""
+        index = self._index()
+        taken = [uid_ for uid_ in uids if index.get_node_by_uid_weak2(uid_)]
+        if taken:
+            return (
+                "These UIDs exist already: " + ", ".join(taken[:5]) + ".",
+                "",
+            )
+        os.makedirs(os.path.dirname(full), exist_ok=True)
+        with open(full, "w", encoding="utf8") as file_:
+            file_.write(text)
+        self.context.export_action.build_index()
+        self.context.export_action.export()
+        for document_ in self._index().document_tree.document_list:
+            meta = document_.meta
+            if (
+                meta is not None
+                and os.path.realpath(meta.input_doc_full_path) == full
+            ):
+                return "", "/" + meta.get_html_doc_link()
+        return "", ""
 
     def _relate(
         self, principal: Principal, node_mid: str, actions: List[Action]

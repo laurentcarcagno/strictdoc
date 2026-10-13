@@ -846,3 +846,64 @@ def parse_topics(text: str) -> List[Dict[str, str]]:
             }
         )
     return result
+
+
+def parse_translation_batch(
+    text: str, wanted: Dict[str, Collection[str]]
+) -> Dict[str, Any]:
+    """
+    The translated texts of a batch: {"nodes": {ref: {field: text}}}. `wanted`
+    gives the fields of each ref of the batch. Raises OutputError.
+    """
+    data = _object(parse_json(text))
+    nodes = data.get("nodes")
+    if not isinstance(nodes, list) or len(nodes) == 0:
+        raise OutputError('The answer has no "nodes" list.')
+    result: Dict[str, Dict[str, str]] = {}
+    for number_, item_ in enumerate(nodes, start=1):
+        if not isinstance(item_, dict):
+            raise OutputError(f"Node {number_} is not an object.")
+        ref = _text(item_, "ref")
+        if ref not in wanted:
+            raise OutputError(
+                f"Node {number_}: the ref {ref} is not in the batch. Keep "
+                "the refs you were given."
+            )
+        fields = item_.get("fields")
+        if not isinstance(fields, dict):
+            raise OutputError(f"Node {ref} has no fields.")
+        cleaned: Dict[str, str] = {}
+        for name_, value_ in fields.items():
+            if name_ not in wanted[ref]:
+                raise OutputError(
+                    f"Node {ref}: the field {name_} was not given. Keep the "
+                    "field names."
+                )
+            if not isinstance(value_, str) or not value_.strip():
+                raise OutputError(f"Node {ref}: {name_} must be text.")
+            cleaned[name_] = value_
+        result[ref] = cleaned
+    return {"nodes": result}
+
+
+def parse_glossary(text: str, batch_uids: Collection[str]) -> Dict[str, Any]:
+    """The terms of a batch of requirements. Raises OutputError."""
+    data = _object(parse_json(text))
+    terms = data.get("terms")
+    if not isinstance(terms, list):
+        raise OutputError('The answer has no "terms" list.')
+    cleaned: List[Dict[str, str]] = []
+    for number_, item_ in enumerate(terms[:15], start=1):
+        if not isinstance(item_, dict):
+            raise OutputError(f"Term {number_} is not an object.")
+        term = _text(item_, "term")
+        definition = _text(item_, "definition")
+        uid = _text(item_, "uid", required=False)
+        cleaned.append(
+            {
+                "term": term[:80],
+                "definition": definition[:400],
+                "uid": uid if uid in batch_uids else "",
+            }
+        )
+    return {"terms": cleaned}

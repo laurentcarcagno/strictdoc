@@ -32,6 +32,7 @@ KIND_LINKS = "links"  # add_relation actions
 KIND_DRIFT = "drift"  # findings only
 KIND_JOB = "job"  # a long job on a whole document: write, review, trace
 KIND_CONSISTENCY = "consistency"  # findings with no text of their own
+KIND_GAPS = "gaps"  # findings found without a model
 
 
 @dataclass(frozen=True)
@@ -89,9 +90,9 @@ COMMANDS: Dict[str, Command] = {
         ),
         Command(
             "translate",
-            (SCOPE_FIELD,),
-            "/translate <language>",
-            "Translates the text (or the selection), keeping UIDs, units and terms.",
+            (SCOPE_FIELD, SCOPE_DOCUMENT),
+            "/translate <language> [path]",
+            "Translates the text (or the selection); in the document bar, the whole document into a new one with the UIDs suffixed (-FR, -EN...).",
             ROLE_AUTHOR,
             KIND_EDIT,
             "translate",
@@ -169,6 +170,23 @@ COMMANDS: Dict[str, Command] = {
             "review",
         ),
         Command(
+            "glossary",
+            (SCOPE_DOCUMENT,),
+            "/glossary [@sources]",
+            "Extracts the terms and their definitions; the list can be inserted at the end of the document.",
+            ROLE_AUTHOR,
+            KIND_JOB,
+            "glossary",
+        ),
+        Command(
+            "gap",
+            (SCOPE_DOCUMENT,),
+            "/gap [@DA1 ...]",
+            "Lists what is not covered: the nodes of the mentioned documents that no requirement derives from, or the requirements of this document that have no parent.",
+            ROLE_READER,
+            KIND_GAPS,
+        ),
+        Command(
             "summarize",
             (SCOPE_DOCUMENT,),
             "/summarize [@section]",
@@ -244,7 +262,7 @@ def parse_input(text: str) -> ParsedInput:
     if not stripped.startswith("/"):
         return ParsedInput(DEFAULT_COMMAND, stripped, implicit=True)
     name, _, arguments = stripped[1:].partition(" ")
-    name = name.lower()
+    name = {"gaps": "gap"}.get(name.lower(), name.lower())
     if name not in COMMANDS:
         known = ", ".join("/" + name_ for name_ in sorted(COMMANDS))
         raise CommandError(f"Unknown command /{name}. Known: {known}.")
