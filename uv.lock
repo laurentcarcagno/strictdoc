@@ -749,6 +749,30 @@ wheels = [
 ]
 
 [[package]]
+name = "gitdb"
+version = "4.0.12"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "smmap" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/72/94/63b0fc47eb32792c7ba1fe1b694daec9a63620db1e313033d18140c2320a/gitdb-4.0.12.tar.gz", hash = "sha256:5ef71f855d191a3326fcfbc0d5da835f26b13fbcba60c32c21091c349ffdb571", size = 394684, upload-time = "2025-01-02T07:20:46.413Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/a0/61/5c78b91c3143ed5c14207f463aecfc8f9dbb5092fb2869baf37c273b2705/gitdb-4.0.12-py3-none-any.whl", hash = "sha256:67073e15955400952c6565cc3e707c554a4eea2e428946f7a4c162fab9bd9bcf", size = 62794, upload-time = "2025-01-02T07:20:43.624Z" },
+]
+
+[[package]]
+name = "gitpython"
+version = "3.2.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "gitdb" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/6e/2d/6f6e649818da44d4499604802c89329b8d9799687a124e3a5e467a643336/gitpython-3.2.0.tar.gz", hash = "sha256:fb92310af6844d96adc95ca066ed2e617c00e1dbd146a326626c81e72e18cc2e", size = 238091, upload-time = "2026-09-30T09:10:32.65Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/fa/48/f36d233ce749d1bb880cb5e6f8bb171dc2effabc7435c31da604d831b3ec/gitpython-3.2.0-py3-none-any.whl", hash = "sha256:bd70c5ec05cd2b797423e7eb312147d2458d3cca92085888fba2213f85905537", size = 228537, upload-time = "2026-09-30T09:10:31.159Z" },
+]
+
+[[package]]
 name = "greenlet"
 version = "3.5.5"
 source = { registry = "https://pypi.org/simple" }
@@ -2820,6 +2844,19 @@ wheels = [
 ]
 
 [[package]]
+name = "python-gitlab"
+version = "8.6.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "requests" },
+    { name = "requests-toolbelt" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/5c/dc/292d32245ca35447b265c47a0ed9f35de1ab280a05da1da306b61a035833/python_gitlab-8.6.0.tar.gz", hash = "sha256:d1602164fb58ab280ceef460faf015cec6e7d83bb2d9cbae44ba448adb5568ef", size = 423347, upload-time = "2026-09-28T03:13:53.86Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/55/aa/9c96a88d79453eaea91f301c318dc3c5e95b195087759fd94fedf1104386/python_gitlab-8.6.0-py3-none-any.whl", hash = "sha256:34fee7e5576cf01982c4bfa98f94d50e24733edb66beba3cb8ef286287723019", size = 159654, upload-time = "2026-09-28T03:13:52.285Z" },
+]
+
+[[package]]
 name = "python-multipart"
 version = "0.0.32"
 source = { registry = "https://pypi.org/simple" }
@@ -3304,6 +3341,15 @@ wheels = [
 ]
 
 [[package]]
+name = "smmap"
+version = "5.0.3"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/1f/ea/49c993d6dfdd7338c9b1000a0f36817ed7ec84577ae2e52f890d1a4ff909/smmap-5.0.3.tar.gz", hash = "sha256:4d9debb8b99007ae47165abc08670bd74cb74b5227dda7f643eccc4e9eb5642c", size = 22506, upload-time = "2026-03-09T03:43:26.1Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/c1/d4/59e74daffcb57a07668852eeeb6035af9f32cbfd7a1d2511f17d2fe6a738/smmap-5.0.3-py3-none-any.whl", hash = "sha256:c106e05d5a61449cf6ba9a1e650227ecfb141590d2a98412103ff35d89fc7b2f", size = 24390, upload-time = "2026-03-09T03:43:24.361Z" },
+]
+
+[[package]]
 name = "sniffio"
 version = "1.3.1"
 source = { registry = "https://pypi.org/simple" }
@@ -3372,6 +3418,7 @@ dependencies = [
     { name = "beautifulsoup4" },
     { name = "docutils" },
     { name = "fastapi" },
+    { name = "gitpython" },
     { name = "html2pdf4doc" },
     { name = "html5lib" },
     { name = "jinja2" },
@@ -3385,6 +3432,7 @@ dependencies = [
     { name = "pygments" },
     { name = "pypdf" },
     { name = "python-datauri" },
+    { name = "python-gitlab" },
     { name = "python-multipart" },
     { name = "reqif" },
     { name = "resvg-py" },
@@ -3474,6 +3522,7 @@ requires-dist = [
     { name = "beautifulsoup4", specifier = "==4.*,>=4.12.0" },
     { name = "docutils", specifier = "==0.*,>=0.22.2" },
     { name = "fastapi", specifier = ">=0.83.0" },
+    { name = "gitpython", specifier = ">=3.1.40" },
     { name = "html2pdf4doc", specifier = "==0.0.35" },
     { name = "html5lib", specifier = ">=1.1" },
     { name = "invoke", marker = "extra == 'development'", specifier = ">=1.4.1" },
@@ -3489,6 +3538,7 @@ requires-dist = [
     { name = "pygments", specifier = "==2.21.0" },
     { name = "pypdf", specifier = "==6.*,>=6.5.0" },
     { name = "python-datauri", specifier = "==2.*,>=2.1.1" },
+    { name = "python-gitlab", specifier = ">=4.0.0" },
     { name = "python-multipart" },
     { name = "reqif", specifier = "==0.1.*,>=0.1.0" },
     { name = "resvg-py", specifier = ">=0.5.0" },
