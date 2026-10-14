@@ -4637,7 +4637,7 @@ with Git tags. One document (or a few related ones) is one Git repository. A
 project is a repository that holds the document repositories as submodules, so
 the same document can be shared by several projects.
 
-Activate the ``GIT`` project feature in ``strictdoc.py`` and run StrictDoc on
+Activate the ``GIT`` project feature in ``strictdoc_config.py`` and run StrictDoc on
 the project repository (or on a document repository alone):
 
 .. code-block:: py
