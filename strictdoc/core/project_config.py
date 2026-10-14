@@ -45,6 +45,7 @@ from strictdoc.features.hierarchy.levels import (
     validate_hierarchy,
 )
 from strictdoc.features.i18n.languages import set_language, validate_language
+from strictdoc.features.git_config.config import GitConfig
 from strictdoc.features.llm.config import LLMConfig
 from strictdoc.features.roles.roles import validate_roles
 from strictdoc.helpers.auto_described import auto_described
@@ -121,6 +122,7 @@ class ProjectFeature(str, Enum):
     DOCX = "DOCX"
     COMMENTS = "COMMENTS"
     LLM = "LLM"
+    GIT = "GIT"
     DIFF = "DIFF"
     PROJECT_STATISTICS_SCREEN = "PROJECT_STATISTICS_SCREEN"
     TREE_MAP_SCREEN = "TREE_MAP_SCREEN"
@@ -226,6 +228,7 @@ class ProjectConfig:
         suspect_links: bool = False,
         suspect_fields: Optional[List[str]] = None,
         llm: Optional[LLMConfig] = None,
+        git: Optional[GitConfig] = None,
         reqif_profile: str = ReqIFProfile.P01_SDOC,
         # FIXME: Change to true by default.
         reqif_multiline_is_xhtml: bool = False,
@@ -547,6 +550,7 @@ class ProjectConfig:
         self.suspect_fields: List[str] = list(suspect_fields or [])
         # The assistant that drafts requirements with a language model.
         self.llm: Optional[LLMConfig] = llm
+        self.git: Optional[GitConfig] = git
         self.reqif_profile: str = reqif_profile
 
         assert isinstance(reqif_multiline_is_xhtml, bool), (
@@ -977,6 +981,8 @@ class ProjectConfig:
 
         if self.llm is not None:
             self.llm.validate()
+        if self.git is not None:
+            self.git.validate()
 
         #
         # Validate source nodes config.
@@ -1218,6 +1224,11 @@ class ProjectConfig:
     def is_activated_llm(self) -> bool:
         return (
             ProjectFeature.LLM in self.project_features and self.llm is not None
+        )
+
+    def is_activated_git(self) -> bool:
+        return (
+            ProjectFeature.GIT in self.project_features and self.git is not None
         )
 
     def is_activated_docx(self) -> bool:

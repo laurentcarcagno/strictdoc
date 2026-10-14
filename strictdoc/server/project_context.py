@@ -23,6 +23,8 @@ from strictdoc.core.traceability_index_builder import TraceabilityIndexBuilder
 from strictdoc.export.html.html_generator import HTMLGenerator
 from strictdoc.export.html.html_templates import HTMLTemplates, JinjaEnvironment
 from strictdoc.features.export.export_action import ExportAction
+from strictdoc.features.git_config.committer import GitCommitter
+from strictdoc.features.git_config.setup import create_committer
 from strictdoc.helpers.parallelizer import NullParallelizer
 from strictdoc.server.document_watcher import DocumentWatcher
 from strictdoc.server.helpers.hierarchical_rw_lock_manager import (
@@ -69,6 +71,11 @@ class ProjectContext:
         self.revisions: Dict[str, int] = defaultdict(int)
 
         project_config.is_running_on_server = True
+
+        # Commits what is written, when the project option "git" is on.
+        self.git_committer: Optional[GitCommitter] = create_committer(
+            project_config
+        )
 
         self.export_action = ExportAction(
             project_config=project_config,
@@ -159,6 +166,11 @@ class ProjectContext:
             )
         else:
             self.sdoc_writer.write_to_file(document)
+
+        if self.git_committer is not None and document.meta is not None:
+            self.git_committer.on_document_written(
+                document.meta.input_doc_full_path
+            )
 
     def rebuild_index(
         self, lock_manager: HierarchicalRWLockManager

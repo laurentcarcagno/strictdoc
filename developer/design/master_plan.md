@@ -4,7 +4,8 @@ Branch: `feature/plans`, based on `feature/isis-integration`. Written 2026-10-10
 
 Dedicated plans (same folder): [roles and identity](plan_roles_and_identity.md), [comments](plan_comments.md),
 [SVG images](plan_svg_images.md), [document hierarchy and input documents](plan_document_hierarchy_and_inputs.md),
-[multi-project](plan_multi_project.md), [LLM assistant](plan_llm_assistant.md). The Word import and export plan
+[multi-project](plan_multi_project.md), [LLM assistant](plan_llm_assistant.md),
+[configuration management with Git and GitLab](plan_git_configuration.md). The Word import and export plan
 (`docx_import_export_plan.md`) is on branch `feature/docx-import-export`; the web dialogs plan is `docx_gui_plan.md`.
 
 ## 1. Where we are
@@ -47,8 +48,9 @@ working copy that keeps traceability.
 | 4 | Document hierarchy and input documents | 1 (read-only kind, author role) | 12 | `feature/hierarchy-` |
 | 5 | Multi-project in one server | 1 (`ProjectContext`, per-project roles), 4 (projects have a hierarchy) | 10 | `feature/projects-` |
 | 6 | LLM assistant | 1 (author role, audit), 4 (context from parents and inputs) | 12 | `feature/llm-` |
+| 7 | Configuration management with Git and GitLab (commit on save, submodules, version tags) | 1 (roles for tag and push), 3 (assets are committed with the document) | 6 | `feature/git-` |
 
-Total about 53 days. The figures are estimates to be revised after each milestone, as in the Word plan.
+Total about 59 days. The figures are estimates to be revised after each milestone, as in the Word plan.
 
 Why this order:
 
@@ -59,6 +61,7 @@ Why this order:
 - Hierarchy before multi-project: a project is "a hierarchy of documents", so the structure is settled first.
 - LLM last: it consumes relations, input documents and roles, and its quality needs the other features to give it context.
 - SVG is independent and small; it fits anywhere without blocking the others.
+- Git configuration management is last: it commits what the other features write (documents, comments, assets) and uses the roles for tag and push. It touches only the save path, the upload and delete routes and two menu templates, so it does not block them.
 
 ## 5. Cross-cutting rules
 
@@ -121,6 +124,7 @@ relations that the traceability screens can follow.
 | M-S (SVG) | An SVG uploaded in the editor shows in the web page and in Word (PNG fallback plus vector extension); a hostile SVG file is neutralised (tests); the package opens in LibreOffice |
 | M-H (hierarchy) | REQ_02 `Linked Req` references to DA1 and DA2 become relations to imported input documents; changing an input document lists the suspect downstream requirements; input documents cannot be edited in the interface |
 | M-P (projects) | Two projects run in one process on two host names with separate data, roles and output; a user of project A gets 403 on project B; memory per project is measured and documented |
+| M-G (Git) | A save makes one commit by the configured author, in the repository that owns the file (a submodule commit is followed by the pointer commit of the project); an uploaded image and the removal of the assets of a deleted node are committed with the next save; tags go `A1`, `A2`, `A`, `B1`; a diverged push is refused; the page is in the menu only with the feature on |
 | M-L (LLM) | An author drafts requirements from a parent and an input section with the local model; the proposals are saved only after editing; a cloud call needs the project option and a confirmation and is logged; the golden set passes with a mocked provider |
 
 ## 10. Open decisions (consolidated)

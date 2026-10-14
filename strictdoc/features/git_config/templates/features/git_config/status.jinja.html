@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <title>{{ _("Configuration management") }}</title>
+  <style>
+    body { font-family: sans-serif; margin: 24px; }
+    table { border-collapse: collapse; }
+    th, td { border: 1px solid #ccc; padding: 4px 8px; text-align: left; }
+    .error { color: #b00020; }
+    .warning { color: #8a6d00; }
+    form { display: inline; }
+  </style>
+</head>
+<body>
+  <h1>{{ _("Configuration management") }}</h1>
+  {%- if message %}<p class="error" data-testid="git-message">{{ message }}</p>{%- endif %}
+  {%- if last_error %}<p class="error" data-testid="git-last-error">{{ last_error }}</p>{%- endif %}
+  {%- for warning in warnings %}<p class="warning">{{ warning }}</p>{%- endfor %}
+  <table data-testid="git-repositories">
+    <tr><th>{{ _("Repository") }}</th><th>{{ _("Branch") }}</th><th>{{ _("Version") }}</th><th>{{ _("Changes") }}</th>{%- if can_administrate %}<th>{{ _("Actions") }}</th>{%- endif %}</tr>
+    {%- for repository in repositories %}
+    <tr data-testid="git-repository">
+      <td>{{ repository.relative_path }}</td>
+      <td>{{ repository.branch or "-" }}</td>
+      <td>{{ repository.latest_tag or "-" }}</td>
+      <td>{{ _("yes") if repository.dirty else _("no") }}</td>
+      {%- if can_administrate %}
+      <td>
+        <form method="post" action="/actions/git/tag">
+          <input type="hidden" name="repository" value="{{ repository.relative_path }}"/>
+          <button name="kind" value="draft" data-testid="git-tag-draft">{{ _("Tag draft") }} {{ repository.next_intermediate }}</button>
+          {%- if repository.next_major %}
+          <button name="kind" value="major" data-testid="git-tag-major">{{ _("Tag major") }} {{ repository.next_major }}</button>
+          {%- endif %}
+        </form>
+        <form method="post" action="/actions/git/push">
+          <input type="hidden" name="repository" value="{{ repository.relative_path }}"/>
+          <button data-testid="git-push">{{ _("Push") }}</button>
+        </form>
+      </td>
+      {%- endif %}
+    </tr>
+    {%- endfor %}
+  </table>
+  <h2>{{ _("Assets waiting for a commit") }}</h2>
+  <p data-testid="git-pending">{{ pending|length }} {{ _("file(s)") }}
+  <form method="post" action="/actions/git/commit_pending"><button>{{ _("Commit now") }}</button></form></p>
+</body>
+</html>

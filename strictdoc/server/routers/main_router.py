@@ -153,6 +153,11 @@ from strictdoc.features.html2pdf.pdf_print_driver import (
     PDFPrintDriverException,
 )
 from strictdoc.features.i18n.i18n import gettext
+from strictdoc.features.git_config.router import create_git_routers
+from strictdoc.features.git_config.setup import (
+    collect_node_assets,
+    remove_node_assets,
+)
 from strictdoc.features.llm.router import create_llm_routers
 from strictdoc.features.nestor.view_object import (
     NestorViewObject,
@@ -1121,6 +1126,7 @@ def create_main_router(
             SDocDocument,
         )
 
+        asset_names = collect_node_assets(node)
         try:
             DeleteRequirementCommand(
                 requirement=node,
@@ -1132,6 +1138,9 @@ def create_main_router(
                 status_code=422,
                 headers={"Content-Type": "text/vnd.turbo-stream.html"},
             )
+        remove_node_assets(
+            project_config, context.git_committer, document, asset_names
+        )
 
         write_document_to_file(document)
         if document != editing_context_document:
@@ -2646,12 +2655,16 @@ def create_main_router(
                 },
             )
 
+        asset_names = collect_node_assets(requirement)
         try:
             delete_command = DeleteRequirementCommand(
                 requirement=requirement,
                 traceability_index=export_action.traceability_index,
             )
             delete_command.perform()
+            remove_node_assets(
+                project_config, context.git_committer, document, asset_names
+            )
         except MultipleValidationError:
             return HTMLResponse(
                 content="",
@@ -2897,6 +2910,8 @@ def create_main_router(
                     ) from svg_exception_
             with open(full_file_save_path, "wb") as buffer:
                 buffer.write(file_contents)
+            if context.git_committer is not None:
+                context.git_committer.on_asset_written(full_file_save_path)
 
             # Group uploaded filenames by stem before resolving wildcard pairs.
             stem, extension = os.path.splitext(rst_safe_filename)
@@ -5231,6 +5246,10 @@ def create_main_router(
     llm_read_router, llm_write_router, _ = create_llm_routers(context=context)
     read_router.include_router(llm_read_router)
     write_router.include_router(llm_write_router)
+
+    git_read_router, git_write_router = create_git_routers(context=context)
+    read_router.include_router(git_read_router)
+    write_router.include_router(git_write_router)
 
     router.include_router(read_router)
     router.include_router(write_router)

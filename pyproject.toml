@@ -113,6 +113,9 @@ dependencies = [
     "python-multipart",
     "uvicorn[standard] >= 0.14.0",
     "WebSockets",
+    # Configuration management of the documents (strictdoc/features/git_config).
+    "GitPython >= 3.1.40",
+    "python-gitlab >= 4.0.0",
     # Watching project files for the server's --watch live-reload.
     "watchdog >= 2.1.7",
 

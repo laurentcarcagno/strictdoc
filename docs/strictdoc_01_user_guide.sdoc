@@ -4625,6 +4625,80 @@ a crash stops all. The memory cost of one more project is small (see the plan).
 [[/SECTION]]
 
 [[SECTION]]
+MID: 78c431e0fefb4bb992cc0c728db97d39
+UID: SECTION-UG-Git-configuration-management
+TITLE: Configuration management with Git and GitLab (experimental)
+
+[TEXT]
+MID: eaec321eca98486195cbb90605463423
+STATEMENT: >>>
+StrictDoc can commit every saved change and number the versions of a document
+with Git tags. One document (or a few related ones) is one Git repository. A
+project is a repository that holds the document repositories as submodules, so
+the same document can be shared by several projects.
+
+Activate the ``GIT`` project feature in ``strictdoc.py`` and run StrictDoc on
+the project repository (or on a document repository alone):
+
+.. code-block:: py
+
+    from strictdoc.core.project_config import ProjectConfig
+    from strictdoc.features.git_config.config import GitConfig
+
+    def create_config() -> ProjectConfig:
+        return ProjectConfig(
+            project_features=["GIT"],
+            git=GitConfig(
+                gitlab_url="https://gitlab.example.com",
+                token_env="GITLAB_TOKEN",
+            ),
+        )
+
+The token of the GitLab instance is never written in the configuration:
+``token_env`` is the name of an environment variable. If the instance uses a
+certificate that your machine does not know, set ``ca_bundle`` to the path of
+the certificate file; the verification is not switched off.
+
+**Author.** Every commit and tag has the same author, set by ``author_name``
+and ``author_email`` of ``GitConfig`` (by default Laurent Carcagno), whoever is
+signed in.
+
+**Commits.** Each save writes one commit in the repository that owns the file,
+with a message such as ``feat(doc): update requirement [REQ-042]``. Only the
+saved files are committed, never the other changes of the working tree. When
+the document is a submodule, the commit is made in the document repository
+first, then the project repository commits the new pointer
+(``chore(submodule): update <name> to <sha>``). Images and other files uploaded
+to a document (the ``_assets`` folder) are committed in the same repository,
+with the next save, or with the button "Commit now" of the page ``/git``. When
+a node is deleted, its asset folders (and those of its children) are deleted
+too; the deletion is part of the next commit, so the files stay in the history. With
+``use_lfs=True``, StrictDoc adds the Git LFS rule for ``_assets`` to
+``.gitattributes``; the GitLab project must have LFS enabled.
+
+**Versions.** A version is a Git tag. ``A1``, ``A2``, ... are drafts, ``A`` is
+the major version that freezes the document and its assets, ``B1`` starts the
+next one. After ``Z`` come ``ZA``, ``ZB``, ... ``ZZ``, then ``ZZA``. The page
+``/git`` lists the repositories and offers the next draft and the next major
+tag. Creating a tag first commits the waiting assets, then pushes the commits
+and the tag when ``push_on_tag`` is on. A tag name that already exists on the
+server for another commit is refused.
+
+**Push.** Saves are never pushed one by one. The button "Push" fetches the
+server first. If the server is ahead, StrictDoc fast-forwards; if both sides
+have new commits, it stops and tells you, and you resolve it with Git. It never
+merges and never forces a push. In a project, the submodules are pushed before
+the project repository, so the project never points to a commit that the server
+does not have.
+
+Creating a repository on GitLab (with its groups), adding a submodule and
+initialising the submodules of a fresh clone are actions of the page ``/git``
+for the administrator role. A submodule address must use ``https`` or ``ssh``.
+<<<
+
+[[/SECTION]]
+
+[[SECTION]]
 MID: 830c77e219e24ca897c9ffdd842608a6
 UID: SECTION-UG-LLM-assistant
 TITLE: Drafting requirements with a language model (experimental)

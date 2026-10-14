@@ -50,6 +50,25 @@ releases:
 <<<
 
 [[SECTION]]
+MID: b6e1e041e4c843a7acd03e1aa1e1a4ad
+TITLE: Unreleased
+
+[TEXT]
+MID: f5188fa3a89b40aaba1606fb23e738ed
+STATEMENT: >>>
+This release contains the following enhancements:
+
+1\) Configuration management with Git and GitLab (experimental, project
+feature ``GIT``). Each saved change is committed in the repository of its
+document, document repositories can be submodules of a project repository,
+versions are Git tags (``A1``, ``A2``, ``A``, ``B1``, ...), and a page lists the
+repositories to tag and push them. Uploaded images are committed with the
+document.
+<<<
+
+[[/SECTION]]
+
+[[SECTION]]
 MID: 94dfec2aad924748bc13f9dff81965ca
 TITLE: 0.30.2 (2026-10-09)
 

@@ -54,6 +54,7 @@ ROUTE_ROLES: Dict[RouteKey, str] = {
         "GET /suspect_links",
         "GET /hierarchy",
         "GET /llm/drafts",
+        "GET /git",
         "GET /llm/assist/commands",
         "GET /llm/assist/mentions",
         "POST /actions/llm/assist",
@@ -75,6 +76,7 @@ ROUTE_ROLES: Dict[RouteKey, str] = {
     ),
     **_routes(
         ROLE_AUTHOR,
+        "POST /actions/git/commit_pending",
         "GET /actions/project_index/new_document",
         "GET /actions/project_index/new_folder",
         "POST /actions/project_index/create_folder",
@@ -118,6 +120,11 @@ ROUTE_ROLES: Dict[RouteKey, str] = {
     ),
     **_routes(
         ROLE_ADMINISTRATOR,
+        "POST /actions/git/tag",
+        "POST /actions/git/push",
+        "POST /actions/git/create_repository",
+        "POST /actions/git/submodule_add",
+        "POST /actions/git/submodule_update",
         "GET /actions/project_index/edit_project_title_form",
         "GET /actions/project_index/import_reqif_document_form",
         "GET /actions/document/edit_config",
