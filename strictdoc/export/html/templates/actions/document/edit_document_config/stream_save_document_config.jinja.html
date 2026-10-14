@@ -8,8 +8,9 @@
     {% include "screens/document/_shared/frame_header_document_title.jinja" %}
   </template>
 </turbo-stream>
-<turbo-stream action="update" target="frame_aside_project_tree">
+{#- The title of the document is in the tree of the sidebar: it asks for the tree again (sidebar_tree.js). -#}
+<turbo-stream action="append" target="sdoc_tree_refresh">
   <template>
-    {% include "screens/document/_shared/project_tree.jinja" %}
+    <span data-sdoc-tree-refresh hidden></span>
   </template>
 </turbo-stream>

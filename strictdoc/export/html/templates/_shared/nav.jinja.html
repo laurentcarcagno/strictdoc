@@ -10,7 +10,12 @@
       <span class="nav__lockup_full">STRICTDOC<span class="nav__lockup_dot"></span>HEMERIA</span>
       <span class="nav__lockup_short">S<span class="nav__lockup_dot"></span>H</span>
     </span>
+    {%- if view_object.project_config.is_running_on_server %}
+    {#- The name of the project leads to its home page (the dashboard of the Project index). -#}
+    <a class="nav__subtitle nav__subtitle--link" href="{{ view_object.render_url('index.html') }}" data-link="home" title="{{ _("Project home") }}" data-testid="project-tree-link-project-index">{{ view_object.project_config.project_title }}</a>
+    {%- else %}
     <span class="nav__subtitle">{{ view_object.project_config.project_title }}</span>
+    {%- endif %}
   </div>
 {%- if view_object.project_config.is_running_on_server and view_object.project_config.members_admin is not none %}
 
@@ -21,7 +26,22 @@
       </label>
 {%- endif %}
 
+{%- if view_object.project_config.is_running_on_server %}
+  {#- The project tree (features/project_index/sidebar.py) replaces the Project index button; sidebar_tree.js fills it. -#}
+  <link rel="stylesheet" href="{{ view_object.render_static_url('sidebar_tree.css') }}"/>
+  <div
+    class="nav__tree"
+    id="frame_project_tree"
+    data-src="/fragments/project_tree"
+    data-scripts='{{ {"turbo": view_object.render_static_url("turbo.min.js"), "modal": view_object.render_static_url("modal.js"), "editable": view_object.render_static_url("editable_field.js"), "guard": view_object.render_static_url("action_button_guard.js")}|tojson|e }}'
+    data-testid="nav-tree"
+  ></div>
+  <div id="sdoc_tree_refresh" hidden></div>
+  <script src="{{ view_object.render_static_url('sidebar_tree.js') }}" defer></script>
+{%- endif %}
+
   <div class="nav__items">
+{%- if not view_object.project_config.is_running_on_server %}
   <a
     data-link="index"
     class="nav_button"
@@ -32,6 +52,7 @@
     {% include "icons/ico16_index.svg" %}
     <span class="nav_button__label">{{ _("Project index") }}</span>
   </a>
+{%- endif %}
 
 {%- set project_statistics_feature = view_object.project_config.get_feature("PROJECT_STATISTICS_SCREEN") -%}
 {%- if project_statistics_feature is not none -%}

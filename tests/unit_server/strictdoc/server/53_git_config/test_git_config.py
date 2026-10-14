@@ -183,9 +183,15 @@ def test_008_deleting_a_node_removes_its_assets(tmp_path: Path) -> None:
 def test_009_menu_entry_only_when_activated(tmp_path: Path) -> None:
     (tmp_path / "on").mkdir()
     client = _client(tmp_path / "on")
-    assert "tree-git-action" in client.get("/", headers=READER).text
+    assert (
+        "tree-git-action"
+        in client.get("/fragments/project_tree", headers=READER).text
+    )
     document = client.get("/UID/FSW-2", headers=READER, follow_redirects=True)
     assert "document-git-action" in document.text
 
     off = _client(tmp_path / "off", feature=False)
-    assert "tree-git-action" not in off.get("/", headers=READER).text
+    assert (
+        "tree-git-action"
+        not in off.get("/fragments/project_tree", headers=READER).text
+    )

@@ -41,7 +41,7 @@ def test_001_an_author_creates_nested_folders_that_the_tree_shows(
     assert response.status_code == 200
     assert (tmp_path / "data" / "alpha" / "specs" / "system").is_dir()
     assert (tmp_path / "data" / "alpha" / "specs" / ".sdoc-folder").is_file()
-    page = client.get("/", headers=ben).text
+    page = client.get("/fragments/project_tree", headers=ben).text
     assert "specs/" in page and "system/" in page
 
 

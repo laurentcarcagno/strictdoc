@@ -35,6 +35,14 @@ UNTITLED_TEXT_25_MID = f"{25:032x}"
 
 
 class Test(E2ECase):
+    def setUp(self):
+        super().setUp()
+        # The fixture geometry (chunk heights) was set when the content column
+        # sat beside the project tree panel; the tree is now in the left bar,
+        # so the window is narrowed to give the content column its old width.
+        size = self.driver.get_window_size()
+        self.set_window_size(size["width"] - 346, size["height"])
+
     def _open_main_document(self):
         screen_project_index = Screen_ProjectIndex(self)
         screen_project_index.assert_on_screen()

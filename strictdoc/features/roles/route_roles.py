@@ -54,6 +54,7 @@ ROUTE_ROLES: Dict[RouteKey, str] = {
         "GET /suspect_links",
         "GET /hierarchy",
         "GET /llm/drafts",
+        "GET /fragments/project_tree",
         "GET /git",
         "GET /llm/assist/commands",
         "GET /llm/assist/mentions",

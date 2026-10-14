@@ -1,7 +1,11 @@
 <div class="main">
   <div class="dashboard">
     <div class="dashboard-main">
+      {%- if view_object.project_config.is_running_on_server %}
+      <p class="dashboard-hint" data-testid="dashboard-tree-hint">{{ _("The project tree is in the left bar. Click a document to open it; a right click on the project, a folder or a document opens its menu.") }}</p>
+      {%- else %}
       {% include "features/project_index/frame_project_tree.jinja.html" %}
+      {%- endif %}
     </div>
     <div class="dashboard-aside">
       {% if view_object.should_display_fragments_toggle() %}

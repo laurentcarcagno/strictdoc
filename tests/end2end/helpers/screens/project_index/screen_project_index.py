@@ -1,8 +1,8 @@
 from selenium.webdriver.common.by import By
 from seleniumbase import BaseCase
 
-from tests.end2end.helpers.components.actions_menu import (
-    ActionsMenu,
+from tests.end2end.helpers.components.tree_context_menu import (
+    TreeContextMenu,
 )
 from tests.end2end.helpers.screens.diff.diff import Screen_Diff
 from tests.end2end.helpers.screens.document.screen_document import (
@@ -43,7 +43,7 @@ class Screen_ProjectIndex(Screen):  # pylint: disable=invalid-name
     def __init__(self, test_case: BaseCase) -> None:
         assert isinstance(test_case, BaseCase)
         self.test_case: BaseCase = test_case
-        self.actions_menu = ActionsMenu(test_case)
+        self.actions_menu = TreeContextMenu(test_case)
 
     def assert_on_screen(self) -> None:
         self.test_case.assert_element(
@@ -237,7 +237,7 @@ class Screen_ProjectIndex(Screen):  # pylint: disable=invalid-name
         self, document_title: str
     ) -> Screen_Document:
         self.test_case.click_xpath(
-            f"//a[@data-testid='tree-file-link'][.//div[@class='project_tree-file-title' and normalize-space(text())='{document_title}']]"
+            f"//a[@data-testid='tree-file-link'][.//*[(@class='sdoc-tree__title' or @class='project_tree-file-title') and normalize-space(text())='{document_title}']]"
         )
         return Screen_Document(self.test_case)
 
@@ -393,8 +393,8 @@ class Screen_ProjectIndex(Screen):  # pylint: disable=invalid-name
 
     def assert_contains_folder(self, folder_name: str) -> None:
         self.test_case.assert_element(
-            "//*[contains(@class, 'project_tree-folder-title')]"
-            f"[contains(., '{folder_name}/')]",
+            "//*[@data-testid='tree-folder-title']"
+            f"[normalize-space(.)='{folder_name}/']",
             by=By.XPATH,
         )
 

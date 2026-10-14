@@ -2367,3 +2367,47 @@ msgstr "Utilisez / pour créer plusieurs niveaux d'un coup. Le dossier apparaît
 #: strictdoc/features/folders/templates/features/folders/frame_form_new_folder.jinja.html:36
 msgid "Existing folders:"
 msgstr "Dossiers existants :"
+
+#: strictdoc/export/html/templates/_shared/nav.jinja.html:15
+msgid "Project home"
+msgstr "Accueil du projet"
+
+#: strictdoc/features/project_index/templates/features/project_index/sidebar_tree.jinja.html
+msgid "Add document"
+msgstr "Ajouter un document"
+
+#: strictdoc/features/project_index/templates/features/project_index/sidebar_tree.jinja.html
+msgid "Add subfolder here"
+msgstr "Ajouter un sous-dossier ici"
+
+#: strictdoc/features/project_index/templates/features/project_index/sidebar_tree.jinja.html
+msgid "Open"
+msgstr "Ouvrir"
+
+#: strictdoc/features/project_index/templates/features/project_index/sidebar_tree.jinja.html
+msgid "Import from Word"
+msgstr "Importer depuis Word"
+
+#: strictdoc/features/project_index/templates/features/project_index/sidebar_tree.jinja.html
+msgid "Export to Word"
+msgstr "Exporter vers Word"
+
+#: strictdoc/features/project_index/templates/features/project_index/sidebar_tree.jinja.html
+msgid "Import from ReqIF"
+msgstr "Importer depuis ReqIF"
+
+#: strictdoc/features/project_index/templates/features/project_index/sidebar_tree.jinja.html
+msgid "Export to ReqIF"
+msgstr "Exporter vers ReqIF"
+
+#: strictdoc/features/project_index/templates/features/project_index/sidebar_tree.jinja.html
+msgid "Configuration management"
+msgstr "Gestion de configuration"
+
+#: strictdoc/features/project_index/templates/features/project_index/main.jinja
+msgid "The project tree is in the left bar. Click a document to open it; a right click on the project, a folder or a document opens its menu."
+msgstr "L'arbre du projet est dans la barre de gauche. Cliquez sur un document pour l'ouvrir ; un clic droit sur le projet, un dossier ou un document ouvre son menu."
+
+#: strictdoc/features/project_index/templates/features/project_index/sidebar_tree.jinja.html
+msgid "Add document here"
+msgstr "Ajouter un document ici"

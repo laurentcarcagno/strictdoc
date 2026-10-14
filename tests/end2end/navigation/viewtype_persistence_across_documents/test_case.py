@@ -36,7 +36,7 @@ class Test(E2ECase):
             screen_table.assert_on_screen_table()
             screen_table.assert_header_document_title("Document 1 title")
 
-            self.click_xpath('(//*[@data-testid="tree-document-link"])[2]')
+            self.click_xpath('(//*[@data-testid="tree-file-link"])[2]')
 
             screen_table_second_document = Screen_Table(self)
             screen_table_second_document.assert_on_screen_table()

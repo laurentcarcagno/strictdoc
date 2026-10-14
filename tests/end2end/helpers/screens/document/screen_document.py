@@ -1202,7 +1202,7 @@ class Screen_Document(Screen):  # pylint: disable=invalid-name
     def do_click_on_tree_document(self, doc_order: int = 1) -> None:
         self.test_case.assert_element_not_present("//sdoc-modal", by=By.XPATH)
         self.test_case.click_xpath(
-            f'(//*[@data-testid="tree-document-link"])[{doc_order}]'
+            f'(//*[@data-testid="tree-file-link"])[{doc_order}]'
         )
 
     def assert_document_config_edit_is_locked(self):

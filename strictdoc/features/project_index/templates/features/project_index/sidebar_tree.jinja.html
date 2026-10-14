@@ -1,0 +1,144 @@
+{#-
+  The project tree of the sidebar (see sidebar.py and assets/sidebar_tree.js):
+  the project as the root, its folders and documents below it, and the menus of
+  the right click on each kind of node (as templates that the script clones).
+  Everything that the tests and project_tree.js look for keeps its test id.
+-#}
+{%- macro menu_item(testid, label, icon, href, role="", turbo=true, method="", href_template="") -%}
+<a
+  class="sdoc-tree-menu__item"
+  role="menuitem"
+  href="{{ href }}"
+  {%- if href_template %} data-href="{{ href_template }}"{% endif %}
+  {%- if turbo %} data-turbo="true"{% endif %}
+  {%- if method %} data-turbo-method="{{ method }}"{% endif %}
+  {%- if role %} data-requires-role="{{ role }}"{% endif %}
+  data-testid="{{ testid }}"
+>{% if icon %}{% include icon %}{% endif %}<span>{{ label }}</span></a>
+{%- endmacro -%}
+
+{%- macro file_row(file) -%}
+  {%- set document = view_object.traceability_index.document_tree.get_document_by_path(file.full_path) -%}
+  {%- set is_included = document.document_is_included() -%}
+  <div class="sdoc-tree__row sdoc-tree__file_row"{% if is_included %} included-document="is-hidden-by-default"{% endif %}>
+    <a
+      class="sdoc-tree__file"
+      href="/{{ document.meta.get_html_doc_link() }}"
+      data-turbo="false"
+      data-tree-node="document"
+      data-document-mid="{{ document.reserved_mid }}"
+      data-testid="tree-file-link"
+      title="{{ document.title }} ({{ file.file_name }})"
+    >
+      {%- if is_included -%}
+        {%- include "icons/ico16_fragment.svg" -%}
+      {%- else -%}
+        {%- include "icons/ico16_document.svg" -%}
+      {%- endif -%}
+      <span class="sdoc-tree__title">{{ document.title }}</span>
+    </a>
+    <button type="button" class="sdoc-tree__more" aria-label="{{ _("Actions") }}" aria-haspopup="menu" data-testid="tree-more-action">&#8943;</button>
+  </div>
+{%- endmacro -%}
+
+{%- macro folder_node(folder) -%}
+  {%- if view_object.should_display_folder(folder) %}
+  <details open class="sdoc-tree__folder" data-path="{{ folder.rel_path.rstrip('/') }}">
+    <summary
+      class="sdoc-tree__row sdoc-tree__folder_summary"
+      data-tree-node="folder"
+      data-path="{{ folder.rel_path.rstrip('/') }}"
+      data-testid="tree-folder-node"
+    >
+      <span class="sdoc-tree__chevron" aria-hidden="true"></span>
+      {% include "icons/ico16_folder.svg" %}
+      <span class="sdoc-tree__title" data-testid="tree-folder-title">{{ folder.folder_name }}/</span>
+      <button type="button" class="sdoc-tree__more" aria-label="{{ _("Actions") }}" aria-haspopup="menu" data-testid="tree-more-action">&#8943;</button>
+    </summary>
+    <div class="sdoc-tree__children">
+      {{ folder_children(folder) }}
+    </div>
+  </details>
+  {%- endif -%}
+{%- endmacro -%}
+
+{%- macro folder_children(folder) -%}
+  {%- for folder_ in folder.subfolder_trees -%}
+    {{ folder_node(folder_) }}
+  {%- endfor -%}
+  {%- for file_ in folder.files -%}
+    {%- if view_object.should_display_file(file_) -%}
+      {{ file_row(file_) }}
+    {%- endif -%}
+  {%- endfor -%}
+{%- endmacro -%}
+
+<div class="sdoc-tree" data-tree-root data-testid="nav-project-tree">
+  <div class="sdoc-tree__row sdoc-tree__root" data-tree-node="root" data-testid="tree-root-node" title="{{ view_object.project_config.project_title }}">
+    {% include "icons/ico16_index.svg" %}
+    <span class="sdoc-tree__title">{{ view_object.project_config.project_title }}</span>
+    <button type="button" class="sdoc-tree__more" aria-label="{{ _("Actions") }}" aria-haspopup="menu" data-testid="tree-more-action">&#8943;</button>
+  </div>
+
+  {%- if not view_object.is_empty_tree() %}
+  <div class="sdoc-tree__children sdoc-tree__top">
+    {%- set roots = view_object.document_tree_iterator.document_tree.file_tree -%}
+    {%- for root_tree_ in roots -%}
+      {%- set root_ = root_tree_.root_folder_or_file -%}
+      {%- if root_.is_folder() -%}
+        {#- One input folder: its content is the content of the project; several: each one is a folder. -#}
+        {%- if roots|length == 1 -%}
+          {{ folder_children(root_) }}
+        {%- else -%}
+          {{ folder_node(root_) }}
+        {%- endif -%}
+      {%- elif view_object.should_display_file(root_) -%}
+        {{ file_row(root_) }}
+      {%- endif -%}
+    {%- endfor -%}
+  </div>
+  {%- else %}
+  <span class="sdoc-tree__empty" data-testid="document-tree-empty-text">{{ _("The document tree has no documents yet.") }}</span>
+  {%- endif %}
+
+  {#- The menus of the right click: the script clones one of them. -#}
+  {%- set config = view_object.project_config %}
+  <template data-tree-menu="root">
+    {{ menu_item("tree-add-document-action", _("Add document"), "icons/ico16_add.svg", "/actions/project_index/new_document", role="author") }}
+    {{ menu_item("tree-add-folder-action", _("Add folder"), "icons/ico16_folder.svg", "/actions/project_index/new_folder", role="author") }}
+    {%- if config.is_activated_docx() %}
+    <hr class="sdoc-tree-menu__separator"/>
+    {{ menu_item("tree-import-docx-action", _("Import from Word"), "icons/ico16_import.svg", "/actions/project_index/import_docx_form", role="author") }}
+    {%- if not view_object.is_empty_tree() %}
+    {{ menu_item("tree-export-docx-action", _("Export to Word"), "icons/ico16_export.svg", "/actions/project_index/export_docx_form") }}
+    {%- endif %}
+    {%- endif %}
+    {%- if config.is_activated_reqif() %}
+    <hr class="sdoc-tree-menu__separator"/>
+    {{ menu_item("tree-import-reqif-action", _("Import from ReqIF"), "icons/ico16_import.svg", "/actions/project_index/import_reqif_document_form", role="administrator") }}
+    {%- if not view_object.is_empty_tree() %}
+    {{ menu_item("tree-export-reqif-action", _("Export to ReqIF"), "icons/ico16_export.svg", "/reqif/export_tree", turbo=false) }}
+    {%- endif %}
+    {%- endif %}
+    {%- if config.is_running_on_server and config.is_activated_git() %}
+    <hr class="sdoc-tree-menu__separator"/>
+    {{ menu_item("tree-git-action", _("Configuration management"), "", "/git", turbo=false) }}
+    {%- endif %}
+    <hr class="sdoc-tree-menu__separator"/>
+    {{ menu_item("project-edit-title-action", _("Edit project title"), "", "/actions/project_index/edit_project_title_form", role="administrator") }}
+  </template>
+
+  <template data-tree-menu="folder">
+    {{ menu_item("tree-add-document-here-action", _("Add document here"), "icons/ico16_add.svg", "/actions/project_index/new_document", role="author", href_template="/actions/project_index/new_document?folder={path}") }}
+    {{ menu_item("tree-add-folder-here-action", _("Add subfolder here"), "icons/ico16_folder.svg", "/actions/project_index/new_folder", role="author", href_template="/actions/project_index/new_folder?parent={path}") }}
+  </template>
+
+  <template data-tree-menu="document">
+    {{ menu_item("tree-open-document-action", _("Open"), "icons/ico16_document.svg", "#", turbo=false, href_template="{href}") }}
+    {%- if config.is_activated_docx() and not view_object.is_empty_tree() %}
+    {{ menu_item("tree-export-docx-document-action", _("Export to Word"), "icons/ico16_export.svg", "/actions/project_index/export_docx_form") }}
+    {%- endif %}
+    <hr class="sdoc-tree-menu__separator"/>
+    {{ menu_item("tree-delete-document-action", _("Delete document"), "", "/actions/document/delete_document", role="administrator", method="delete", href_template="/actions/document/delete_document?document_mid={mid}") }}
+  </template>
+</div>

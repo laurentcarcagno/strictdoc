@@ -41,7 +41,10 @@
 {% endblock header_content %}
 
 {% block tree_content %}
+  {#- On the server the tree is in the sidebar (features/project_index/sidebar.py). -#}
+  {%- if not view_object.project_config.is_running_on_server %}
   {% include "features/source_file_view/aside.jinja" %}
+  {%- endif %}
 {% endblock tree_content %}
 
 {% block main_content %}

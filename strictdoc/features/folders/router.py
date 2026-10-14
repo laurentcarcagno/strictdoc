@@ -59,8 +59,9 @@ def create_folders_routers(
     @read_router.get(
         "/actions/project_index/new_folder", response_class=Response
     )
-    def new_folder() -> Response:
-        return form()
+    def new_folder(parent: str = "") -> Response:
+        # A right click on a folder of the tree gives its path.
+        return form(parent.strip().strip("/") + "/" if parent.strip() else "")
 
     @write_router.post(
         "/actions/project_index/create_folder", response_class=Response

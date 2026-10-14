@@ -33,7 +33,7 @@ def test_001_the_portal_and_the_project_speak_french(tmp_path, monkeypatch):
 
     alpha = client_for(dispatcher, f"alpha.{ROOT}")
     document = alpha.get("/alpha/alpha_doc.html", headers=ALPHA_ADMIN).text
-    assert "Index du projet" in document
+    assert "Accueil du projet" in document
     # The scripts get their texts: "Expand the sidebar" (nav.js).
     assert "window.SDOC_I18N" in document
     assert '"Expand the sidebar"' in document

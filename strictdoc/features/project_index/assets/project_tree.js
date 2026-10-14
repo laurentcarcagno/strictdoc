@@ -6,9 +6,9 @@
 const FRAME_SELECTOR = '#frame_project_tree';
 const SWITCH_SELECTOR = '#project_tree_controls';
 const FRAGMENT_ATTR = 'included-document';
-const FRAGMENT_SELECTOR = `.project_tree-file[${FRAGMENT_ATTR}]`;
-const FILE_SELECTOR = `.project_tree-file`;
-const FOLDER_SELECTOR = `.project_tree-folder`;
+const FRAGMENT_SELECTOR = `.project_tree-file[${FRAGMENT_ATTR}], .sdoc-tree__file_row[${FRAGMENT_ATTR}]`;
+const FILE_SELECTOR = `.project_tree-file, .sdoc-tree__file_row`;
+const FOLDER_SELECTOR = `.project_tree-folder, .sdoc-tree__folder`;
 
 function createSwitch({ labelText, checked, dataTestID, callback }) {
   const template = document.getElementById('template-switch');

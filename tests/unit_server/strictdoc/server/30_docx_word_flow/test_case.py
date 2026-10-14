@@ -109,10 +109,14 @@ def test_002_the_dialogs_open(tmp_path):
 
 def test_003_the_tree_menu_offers_the_actions(tmp_path):
     client = _client(tmp_path)
-    page = client.get("/index.html").text
+    page = client.get("/fragments/project_tree").text
     assert "tree-import-docx-action" in page
     assert "tree-export-docx-action" in page
-    off = _client(tmp_path / "off", activated=False).get("/index.html").text
+    off = (
+        _client(tmp_path / "off", activated=False)
+        .get("/fragments/project_tree")
+        .text
+    )
     assert "tree-import-docx-action" not in off
 
 
@@ -148,7 +152,7 @@ def test_005_import_writes_the_sdoc_and_the_tree_shows_it(tmp_path):
     written = os.path.join(str(tmp_path), "input", "Spec.sdoc")
     with open(written, encoding="utf8") as file_:
         assert "The system shall stop." in file_.read()
-    assert "Spec" in client.get("/index.html").text
+    assert "Spec" in client.get("/fragments/project_tree").text
 
 
 def test_006_a_second_import_merges_by_uid(tmp_path):

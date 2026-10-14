@@ -4182,7 +4182,8 @@ them with the ``DOCX`` project feature:
 Without the feature, the dialogs do not appear and their addresses answer
 with HTTP status 412.
 
-Both dialogs are in the menu of the project tree.
+Both dialogs are in the menu of the project tree: right-click the project name
+at the top of the tree in the left bar.
 
 **Import from Word.** Choose a ``.docx`` file, say how its tracked changes are
 read, and choose between merging into the existing SDoc file by UID (default)
@@ -4356,7 +4357,9 @@ TITLE: Folders and Markdown in the web interface
 [TEXT]
 MID: fea8831f0b034ed8acac27297f5e3296
 STATEMENT: >>>
-**Folders.** The menu of the project tree has *Add folder* (authors and administrators).
+**Folders.** The menu of the project (right-click its name in the tree of the left bar) has
+*Add folder* (authors and administrators). The menu of a folder has *Add subfolder here* and
+*Add document here*, which fill in the path of the folder.
 Type the path of the folder, with ``/`` between the levels to create several levels at
 once (``specifications/system``); the form lists the folders that exist. The folder is
 created in the first input folder of the project and appears in the tree at once, even

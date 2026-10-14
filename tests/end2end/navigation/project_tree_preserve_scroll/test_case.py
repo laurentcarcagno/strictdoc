@@ -27,9 +27,7 @@ class Test(E2ECase):
             aside_project_tree = AsideProjectTree(self)
             aside_project_tree.assert_is_aside_tree()
 
-            tree_scroll_selector = (
-                '[js-resizable_bar-scroll][data-content="tree"]'
-            )
+            tree_scroll_selector = '[data-testid="nav-tree"]'
             baseline_scroll_top = 100
             document_25_title = "Test document 25"
 
@@ -119,7 +117,7 @@ class Test(E2ECase):
                 f"""
                 const container = document.querySelector('{tree_scroll_selector}');
                 const active = document.querySelector(
-                  '[js-project_tree_preserve_scroll] .tree_item[active="true"]'
+                  '[data-testid="nav-tree"] .sdoc-tree__file.is-current'
                 );
                 if (!container || !active) return null;
 

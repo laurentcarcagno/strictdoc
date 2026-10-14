@@ -140,6 +140,11 @@ from strictdoc.export.html.renderers.link_renderer import LinkRenderer
 from strictdoc.export.html.renderers.markup_renderer import MarkupRenderer
 from strictdoc.features.comments.router import create_comments_routers
 from strictdoc.features.folders.router import create_folders_routers
+from strictdoc.features.git_config.router import create_git_routers
+from strictdoc.features.git_config.setup import (
+    collect_node_assets,
+    remove_node_assets,
+)
 from strictdoc.features.hierarchy.guard import create_input_guard
 from strictdoc.features.hierarchy.router import (
     create_baseline_sync,
@@ -153,15 +158,11 @@ from strictdoc.features.html2pdf.pdf_print_driver import (
     PDFPrintDriverException,
 )
 from strictdoc.features.i18n.i18n import gettext
-from strictdoc.features.git_config.router import create_git_routers
-from strictdoc.features.git_config.setup import (
-    collect_node_assets,
-    remove_node_assets,
-)
 from strictdoc.features.llm.router import create_llm_routers
 from strictdoc.features.nestor.view_object import (
     NestorViewObject,
 )
+from strictdoc.features.project_index.sidebar import create_sidebar_router
 from strictdoc.features.project_index.view_object import (
     ProjectTreeViewObject,
 )
@@ -3263,7 +3264,7 @@ def create_main_router(
     @read_router.get(
         "/actions/project_index/new_document", response_class=Response
     )
-    def get_new_document() -> Response:
+    def get_new_document(folder: str = "") -> Response:
         """
         @relation(SDOC-SRS-107, scope=function)
         """
@@ -3272,7 +3273,10 @@ def create_main_router(
             "actions/project_index/stream_new_document.jinja.html",
             error_object=ErrorObject(),
             document_title="",
-            document_path="",
+            # A right click on a folder of the tree gives its path.
+            document_path=(folder.strip().strip("/") + "/")
+            if folder.strip()
+            else "",
             show_reviewers=project_config.is_activated_comments(),
             reviewers="",
             member_names=_member_names(),
@@ -5216,6 +5220,8 @@ def create_main_router(
     )
     read_router.include_router(comments_read_router)
     write_router.include_router(comments_write_router)
+
+    read_router.include_router(create_sidebar_router(context=context))
 
     folders_read_router, folders_write_router = create_folders_routers(
         context=context

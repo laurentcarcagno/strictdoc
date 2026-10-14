@@ -27,6 +27,14 @@ LAST_TOC_LINK_XPATH = "(//turbo-frame[@id='frame-toc']//a[@anchor])[last()]"
 
 
 class Test(E2ECase):
+    def setUp(self):
+        super().setUp()
+        # The fixture geometry (chunk heights) was set when the content column
+        # sat beside the project tree panel; the tree is now in the left bar,
+        # so the window is narrowed to give the content column its old width.
+        size = self.driver.get_window_size()
+        self.set_window_size(size["width"] - 346, size["height"])
+
     def test(self):
         test_setup = End2EndTestSetup(path_to_test_file=__file__)
 
