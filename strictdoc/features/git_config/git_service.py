@@ -14,7 +14,11 @@ import urllib.parse
 from dataclasses import dataclass
 from typing import Dict, List, Optional, Sequence, Tuple
 
-from git import GitCommandError, Repo
+# GitPython refuses to be imported when the git program is missing, which
+# would stop the whole server. With "quiet" only the use of Git fails.
+os.environ.setdefault("GIT_PYTHON_REFRESH", "quiet")
+
+from git import GitCommandError, Repo  # noqa: E402
 
 from strictdoc.features.git_config.versioning import (
     NoMajorVersionToTag,
