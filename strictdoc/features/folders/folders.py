@@ -18,6 +18,7 @@ from strictdoc.helpers.exception import StrictDocException
 MARKER = ".sdoc-folder"
 
 _SEGMENT = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$")
+_FILE_NAME = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]{0,119}$")
 _RESERVED = ("_assets", "output", "Output", "word")
 MAX_DEPTH = 8
 
@@ -346,6 +347,46 @@ def rename_folder(roots: Roots, relative_path: str, new_name: str) -> str:
     return _move_folder_to(
         roots, source, os.path.join(os.path.dirname(source), name)
     )
+
+
+def rename_document(roots: Roots, relative_path: str, new_name: str) -> str:
+    """
+    Gives a document file a new name (".sdoc" is added when missing); returns
+    its new path. The title of the document does not change.
+    """
+    old = relative_path.strip("/")
+    source = locate(roots, old, "document")
+    if not os.path.isfile(source) or not old.endswith(DOCUMENT_EXTENSION):
+        raise StrictDocException(f"'{old}' is not a document.")
+    name = new_name.strip()
+    if "/" in name or "\\" in name:
+        raise StrictDocException(
+            "A file name has no '/': use the move to change its place."
+        )
+    if not name.endswith(DOCUMENT_EXTENSION):
+        name += DOCUMENT_EXTENSION
+    stem = name[: -len(DOCUMENT_EXTENSION)]
+    if (
+        _FILE_NAME.match(name) is None
+        or stem == ""
+        or stem.endswith(".")
+        or stem in _RESERVED
+    ):
+        raise StrictDocException(
+            f"Invalid document name '{new_name.strip()}': use letters, digits, "
+            "'_', '-' and '.', starting with a letter or a digit."
+        )
+    target = os.path.join(os.path.dirname(source), name)
+    if target == source:
+        raise StrictDocException("The name is the same.")
+    if os.path.lexists(target):
+        raise StrictDocException(
+            f"'{tree_path(roots, target)}' exists already."
+        )
+    moves = [(source, target)]
+    plan = _plan_rewrites(roots, moves)
+    _apply(moves, plan)
+    return tree_path(roots, target)
 
 
 def move_folder(roots: Roots, relative_path: str, destination: str) -> str:

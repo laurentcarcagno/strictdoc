@@ -143,6 +143,7 @@
     {{ menu_item("tree-export-docx-document-action", _("Export to Word"), "icons/ico16_export.svg", "/actions/project_index/export_docx_form") }}
     {%- endif %}
     <hr class="sdoc-tree-menu__separator"/>
+    {{ menu_item("tree-rename-document-action", _("Rename document"), "", "/actions/project_index/rename_document", role="author", href_template="/actions/project_index/rename_document?path={path}") }}
     {{ menu_item("tree-delete-document-action", _("Delete document"), "", "/actions/document/delete_document", role="administrator", method="delete", href_template="/actions/document/delete_document?document_mid={mid}") }}
   </template>
 </div>

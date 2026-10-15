@@ -445,7 +445,7 @@
     item.setAttribute(
       'href',
       template
-        .replace('{path}', encodeURIComponent(node.dataset.path || ''))
+        .replace('{path}', encodeURIComponent(node.dataset.path || node.dataset.relPath || ''))
         .replace('{mid}', encodeURIComponent(node.dataset.documentMid || ''))
         .replace('{href}', link.getAttribute('href') || '#')
     );

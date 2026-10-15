@@ -55,3 +55,25 @@ class Test(E2ECase):
             self.click_xpath("//*[@data-testid='confirm-action']")
             self.assert_element_not_present(folder("fresh"), by=By.XPATH)
             screen_project_index.assert_contains_document("Keep")
+
+            # A document file is renamed; the title stays.
+            document = (
+                "//a[@data-testid='tree-file-link'][@data-rel-path='keep.sdoc']"
+            )
+            menu.do_click_action(
+                "tree-rename-document-action", node_xpath=document
+            )
+            form = Form(self)
+            form.do_fill_in("new_name", "a b")
+            self.click_xpath("//*[@data-testid='form-submit-action']")
+            form.assert_error("Invalid document name")
+            form.do_fill_in("new_name", "")
+            form.do_fill_in("new_name", "kept")
+            form.do_form_submit()
+            self.assert_element(
+                "//a[@data-testid='tree-file-link']"
+                "[@data-rel-path='kept.sdoc']",
+                by=By.XPATH,
+            )
+            self.assert_element_not_present(document, by=By.XPATH)
+            screen_project_index.assert_contains_document("Keep")

@@ -238,8 +238,7 @@ def test_016_a_move_rewrites_the_includes_that_point_to_the_moved_folder(
     )
     data = tmp_path / "data" / "alpha"
     (data / "main.sdoc").write_text(
-        "[DOCUMENT]\nTITLE: Main\n\n[DOCUMENT_FROM_FILE]\n"
-        "FILE: docs/t.sdoc\n",
+        "[DOCUMENT]\nTITLE: Main\n\n[DOCUMENT_FROM_FILE]\nFILE: docs/t.sdoc\n",
         encoding="utf8",
     )
     moved = client.post(
@@ -249,6 +248,50 @@ def test_016_a_move_rewrites_the_includes_that_point_to_the_moved_folder(
     )
     assert moved.status_code == 200
     assert "FILE: archive/docs/t.sdoc\n" in (data / "main.sdoc").read_text()
+
+
+def test_017_an_author_renames_a_document_and_a_reader_cannot(
+    tmp_path, monkeypatch
+):
+    client = _alpha(tmp_path, monkeypatch)
+    ben = as_user(user="ben")
+    data = tmp_path / "data" / "alpha"
+    form = client.get(
+        "/actions/project_index/rename_document",
+        params={"path": "alpha_doc.sdoc"},
+        headers=ben,
+    )
+    assert form.status_code == 200 and "new_name" in form.text
+
+    bad = client.post(
+        "/actions/project_index/rename_document",
+        data={"path": "alpha_doc.sdoc", "new_name": "a b"},
+        headers=ben,
+    )
+    assert bad.status_code == 200 and "Invalid document name" in bad.text
+
+    response = client.post(
+        "/actions/project_index/rename_document",
+        data={"path": "alpha_doc.sdoc", "new_name": "renamed"},
+        headers=ben,
+    )
+    assert response.status_code == 200
+    assert (data / "renamed.sdoc").is_file()
+    assert not (data / "alpha_doc.sdoc").exists()
+    assert 'data-to="renamed.sdoc"' in response.text
+    page = client.get("/fragments/project_tree", headers=ben).text
+    assert 'data-rel-path="renamed.sdoc"' in page
+
+    for method in ("GET", "POST"):
+        refused = client.request(
+            method,
+            "/actions/project_index/rename_document",
+            params={"path": "renamed.sdoc"},
+            data={"path": "renamed.sdoc", "new_name": "x"},
+            headers=EVE,
+        )
+        assert refused.status_code == 403
+    assert (data / "renamed.sdoc").is_file()
 
 
 def test_014_only_an_administrator_deletes_an_empty_folder(

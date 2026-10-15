@@ -2415,6 +2415,15 @@ msgstr "Ajouter un document ici"
 msgid "Rename folder"
 msgstr "Renommer le dossier"
 
+msgid "Rename document"
+msgstr "Renommer le document"
+
+msgid "Enter the new file name of the document here..."
+msgstr "Saisissez ici le nouveau nom de fichier du document..."
+
+msgid "Only the file name changes, not the title; the address of the document changes."
+msgstr "Seul le nom de fichier change, pas le titre ; l'adresse du document change."
+
 msgid "Delete folder"
 msgstr "Supprimer le dossier"
 

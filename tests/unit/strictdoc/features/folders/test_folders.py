@@ -9,6 +9,7 @@ from strictdoc.features.folders.folders import (
     delete_folder,
     move_document,
     move_folder,
+    rename_document,
     rename_folder,
     tree_path,
 )
@@ -263,3 +264,40 @@ def test_022_only_an_empty_folder_is_deleted(tmp_path):
     assert (tmp_path / "c" / "d" / "one.sdoc").is_file()
     with pytest.raises(StrictDocException, match="does not exist"):
         delete_folder(str(tmp_path), "gone")
+
+
+def test_025_a_document_is_renamed_and_the_includes_follow(tmp_path):
+    _doc(
+        tmp_path / "main.sdoc",
+        "[DOCUMENT]\nTITLE: M\n\n[DOCUMENT_FROM_FILE]\nFILE: part.sdoc\n",
+    )
+    _doc(tmp_path / "part.sdoc")
+    assert rename_document(str(tmp_path), "part.sdoc", "piece") == "piece.sdoc"
+    assert (tmp_path / "piece.sdoc").is_file()
+    assert "FILE: piece.sdoc\n" in (tmp_path / "main.sdoc").read_text()
+    assert rename_document(str(tmp_path), "main.sdoc", "root.sdoc") == (
+        "root.sdoc"
+    )
+    assert (tmp_path / "root.sdoc").is_file()
+
+
+@pytest.mark.parametrize(
+    "bad", ["", ".sdoc", "a b", "a/b", "..", "_assets", "x" * 130, "name..sdoc"]
+)
+def test_026_a_bad_document_name_is_refused(tmp_path, bad):
+    _doc(tmp_path / "one.sdoc")
+    with pytest.raises(StrictDocException):
+        rename_document(str(tmp_path), "one.sdoc", bad)
+    assert (tmp_path / "one.sdoc").is_file()
+
+
+def test_027_a_document_rename_refuses_a_clash_or_a_non_document(tmp_path):
+    _doc(tmp_path / "one.sdoc")
+    _doc(tmp_path / "two.sdoc")
+    (tmp_path / "notes.txt").write_text("x")
+    with pytest.raises(StrictDocException, match="exists"):
+        rename_document(str(tmp_path), "one.sdoc", "two")
+    with pytest.raises(StrictDocException, match="same"):
+        rename_document(str(tmp_path), "one.sdoc", "one.sdoc")
+    with pytest.raises(StrictDocException, match="document"):
+        rename_document(str(tmp_path), "notes.txt", "x")

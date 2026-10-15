@@ -19,6 +19,7 @@ from strictdoc.features.folders.folders import (
     locate,
     move_document,
     move_folder,
+    rename_document,
     rename_folder,
 )
 from strictdoc.features.project_index.view_object import ProjectTreeViewObject
@@ -142,7 +143,12 @@ def create_folders_routers(
         )
         return HTMLResponse(content=output, headers=_STREAM)
 
-    def rename_form(path: str, new_name: str, error: Optional[str] = None):
+    def rename_form(
+        path: str,
+        new_name: str,
+        error: Optional[str] = None,
+        kind: str = "folder",
+    ):
         error_object = ErrorObject()
         if error:
             error_object.add_error("new_name", error)
@@ -151,6 +157,7 @@ def create_folders_routers(
             error_object=error_object,
             path=path,
             new_name=new_name,
+            kind=kind,
         )
         return HTMLResponse(content=output, headers=_STREAM)
 
@@ -169,6 +176,26 @@ def create_folders_routers(
             new_path = rename_folder(roots(), path, new_name)
         except StrictDocException as exception_:
             return rename_form(path, new_name, str(exception_))
+        rebuild(stale)
+        return changed(path.strip("/"), new_path)
+
+    @read_router.get(
+        "/actions/project_index/rename_document", response_class=Response
+    )
+    def rename_document_form(path: str = "") -> Response:
+        return rename_form(
+            path, os.path.basename(path.strip("/")), kind="document"
+        )
+
+    @write_router.post(
+        "/actions/project_index/rename_document", response_class=Response
+    )
+    def rename_doc(path: str = Form(""), new_name: str = Form("")) -> Response:
+        try:
+            stale = output_files_under(path.strip("/"))
+            new_path = rename_document(roots(), path, new_name)
+        except StrictDocException as exception_:
+            return rename_form(path, new_name, str(exception_), "document")
         rebuild(stale)
         return changed(path.strip("/"), new_path)
 

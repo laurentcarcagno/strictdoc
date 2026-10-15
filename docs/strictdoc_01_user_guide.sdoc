@@ -4360,7 +4360,9 @@ STATEMENT: >>>
 **Folders.** The menu of the project (right-click its name in the tree of the left bar) has
 *Add folder* (authors and administrators). The menu of a folder has *Add subfolder here* and
 *Add document here*, which fill in the path of the folder.
-Right-click a folder for *Rename folder* (authors and administrators) and *Delete folder*
+Right-click a document for *Rename document* (authors and administrators): it changes the
+file name (``.sdoc`` is added when missing), not the title. Right-click a folder for
+*Rename folder* (authors and administrators) and *Delete folder*
 (administrators, for an empty folder only). Drag a document or a folder onto another folder,
 or onto the project name for the top level, to move it (authors and administrators). A move
 is refused, with the reason under the project name, when the target has the same name or
