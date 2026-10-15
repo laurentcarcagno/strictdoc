@@ -4784,14 +4784,31 @@ def create_main_router(
     @read_router.get(
         "/reqif/export_document/{document_mid}", response_class=Response
     )
-    def get_reqif_export_document(document_mid: str) -> Response:  # noqa: ARG001
-        # TODO: Export single document, not the whole tree.
-        return get_reqif_export_tree()
+    def get_reqif_export_document(document_mid: str) -> Response:
+        document = export_action.traceability_index.get_node_by_mid(
+            MID(document_mid)
+        )
+        # The converter reads only the list of documents of the tree.
+        return _reqif_response(
+            types.SimpleNamespace(document_list=[document]),  # type: ignore[arg-type]
+            f"{_safe_file_name(document.title)}.reqif",
+        )
 
     @read_router.get("/reqif/export_tree", response_class=Response)
     def get_reqif_export_tree() -> Response:
+        return _reqif_response(
+            export_action.traceability_index.document_tree, "export.reqif"
+        )
+
+    def _safe_file_name(title: Optional[str]) -> str:
+        name = re.sub(r"[^A-Za-z0-9_.-]+", "_", title or "document")
+        return name.strip("_.") or "document"
+
+    def _reqif_response(
+        document_tree: DocumentTree, file_name: str
+    ) -> Response:
         reqif_bundle = P01_SDocToReqIFObjectConverter.convert_document_tree(
-            document_tree=export_action.traceability_index.document_tree,
+            document_tree=document_tree,
             multiline_is_xhtml=project_config.reqif_multiline_is_xhtml,
             enable_mid=project_config.reqif_enable_mid,
         )
@@ -4801,7 +4818,7 @@ def create_main_router(
             status_code=200,
             media_type="application/octet-stream",
             headers={
-                "Content-Disposition": 'attachment; filename="export.reqif"',
+                "Content-Disposition": f'attachment; filename="{file_name}"',
             },
         )
 

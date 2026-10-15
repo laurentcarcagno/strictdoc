@@ -85,6 +85,7 @@ def make_dispatcher(
     proxy: bool = True,
     platform_admins=None,
     comments: bool = False,
+    features=None,
 ) -> ProjectDispatcher:
     if monkeypatch is not None:
         if proxy:
@@ -94,9 +95,12 @@ def make_dispatcher(
             monkeypatch.delenv("STRICTDOC_AUTH_MODE", raising=False)
     specs = make_specs(root)
     if comments:
+        features = ["COMMENTS"]
+    if features:
+        listed = ", ".join(f'"{feature_}"' for feature_ in features)
         for spec_ in specs:
             (Path(spec_.path) / "strictdoc.toml").write_text(
-                '[project]\nfeatures = ["COMMENTS"]\n', encoding="utf8"
+                f"[project]\nfeatures = [{listed}]\n", encoding="utf8"
             )
     return create_projects_app(
         create_app=create_app,

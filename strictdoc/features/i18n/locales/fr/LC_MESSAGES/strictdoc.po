@@ -2397,6 +2397,9 @@ msgid "Import from ReqIF"
 msgstr "Importer depuis ReqIF"
 
 #: strictdoc/features/project_index/templates/features/project_index/sidebar_tree.jinja.html
+msgid "Export to PDF"
+msgstr "Exporter en PDF"
+
 msgid "Export to ReqIF"
 msgstr "Exporter vers ReqIF"
 

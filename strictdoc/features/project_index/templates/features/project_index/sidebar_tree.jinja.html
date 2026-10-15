@@ -142,6 +142,12 @@
     {%- if config.is_activated_docx() and not view_object.is_empty_tree() %}
     {{ menu_item("tree-export-docx-document-action", _("Export to Word"), "icons/ico16_export.svg", "/actions/project_index/export_docx_form") }}
     {%- endif %}
+    {%- if config.is_activated_html2pdf() %}
+    {{ menu_item("tree-export-pdf-document-action", _("Export to PDF"), "icons/ico16_export.svg", "/export_html2pdf/", turbo=false, href_template="/export_html2pdf/{mid}") }}
+    {%- endif %}
+    {%- if config.is_activated_reqif() %}
+    {{ menu_item("tree-export-reqif-document-action", _("Export to ReqIF"), "icons/ico16_export.svg", "/reqif/export_document/", turbo=false, href_template="/reqif/export_document/{mid}") }}
+    {%- endif %}
     <hr class="sdoc-tree-menu__separator"/>
     {{ menu_item("tree-rename-document-action", _("Rename document"), "", "/actions/project_index/rename_document", role="author", href_template="/actions/project_index/rename_document?path={path}") }}
     {{ menu_item("tree-delete-document-action", _("Delete document"), "", "/actions/document/delete_document", role="administrator", method="delete", href_template="/actions/document/delete_document?document_mid={mid}") }}

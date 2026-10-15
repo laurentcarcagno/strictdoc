@@ -370,3 +370,30 @@ def test_015_a_reader_cannot_rename_move_or_delete(tmp_path, monkeypatch):
         assert response.status_code == 403, path
     assert (data / "docs" / "t.sdoc").is_file()
     assert (data / "alpha_doc.sdoc").is_file()
+
+
+def test_018_the_document_menu_exports_to_pdf_and_reqif(tmp_path, monkeypatch):
+    dispatcher = make_dispatcher(
+        tmp_path,
+        monkeypatch,
+        platform_admins=["platform-admins"],
+        features=["REQIF", "HTML2PDF"],
+    )
+    client = client_for(dispatcher, ROOT)
+    client.cookies.set("sdoc_project", "alpha")
+    client.post(
+        "/actions/members/set",
+        data={"user": "eve", "role": "reader"},
+        headers=ANN,
+    )
+    page = client.get("/fragments/project_tree", headers=EVE).text
+    assert "tree-export-pdf-document-action" in page
+    assert "/export_html2pdf/{mid}" in page
+    assert "tree-export-reqif-document-action" in page
+
+    mid = page.split('data-document-mid="')[1].split('"')[0]
+    response = client.get(f"/reqif/export_document/{mid}", headers=EVE)
+    assert response.status_code == 200
+    assert 'filename="' in response.headers["content-disposition"]
+    assert "export.reqif" not in response.headers["content-disposition"]
+    assert "<REQ-IF" in response.text
