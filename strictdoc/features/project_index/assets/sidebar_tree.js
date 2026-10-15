@@ -304,6 +304,12 @@
   });
 
   let openTimer = null;
+  // A drop target has to cancel dragenter as well as dragover, or some
+  // browsers never send the drop.
+  container.addEventListener('dragenter', (event) => {
+    if (mayDrop(dropTarget(event))) event.preventDefault();
+  });
+
   container.addEventListener('dragover', (event) => {
     const target = dropTarget(event);
     if (!mayDrop(target)) {
