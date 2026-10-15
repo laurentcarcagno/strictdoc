@@ -74,11 +74,16 @@ class PDFPrintDriver:
             "--cache-dir",
             path_to_html2pdf4doc_cache,
         ]
-        if project_config.chromedriver is not None:
+        # A deployment without network access (a container with Chromium from
+        # its distribution) names the driver once for all projects.
+        chromedriver = project_config.chromedriver or os.environ.get(
+            "STRICTDOC_CHROMEDRIVER"
+        )
+        if chromedriver:
             cmd.extend(
                 [
                     "--chromedriver",
-                    project_config.chromedriver,
+                    chromedriver,
                 ]
             )
         if project_config.chrome_binary is not None:
