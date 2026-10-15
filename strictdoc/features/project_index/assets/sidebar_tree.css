@@ -219,6 +219,27 @@ html[data-nav="collapsed"] .nav__tree {
   outline-offset: -1px;
 }
 
+/* While something is dragged: no text selection, and the label that follows the pointer. */
+.sdoc-tree.is-dragging {
+  cursor: grabbing;
+  user-select: none;
+}
+
+.sdoc-tree__ghost {
+  position: fixed;
+  z-index: 10000;
+  max-width: 260px;
+  padding: 2px 8px;
+  overflow: hidden;
+  font-size: 13px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  pointer-events: none;
+  background: rgb(0 120 190 / 90%);
+  border-radius: 3px;
+  color: #fff;
+}
+
 .sdoc-tree__notice {
   margin: 6px 10px;
   padding: 6px 8px;

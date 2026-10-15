@@ -254,9 +254,18 @@
   }
 
   // ---- drag and drop: a document or a folder to another folder ----
+  //
+  // Done with the pointer events, not with the drag and drop of the browser:
+  // that one depends on the system (a drop that never comes on some desktops).
 
   const MOVE_URL = '/actions/project_index/move';
-  let dragged = null;
+  const DRAG_DISTANCE = 5;
+  let press = null; // the node under the pointer, before the drag starts
+  let dragged = null; // { kind, source, label } once it moved far enough
+  let ghost = null;
+  let hovered = null;
+  let openTimer = null;
+  let swallowClick = false;
 
   function mayMove() {
     const role = document.documentElement.dataset.role;
@@ -266,10 +275,6 @@
   function parentOf(path) {
     const at = path.lastIndexOf('/');
     return at < 0 ? '' : path.slice(0, at);
-  }
-
-  function dropTarget(event) {
-    return event.target.closest('[data-tree-node="folder"], [data-tree-node="root"]');
   }
 
   function destinationOf(target) {
@@ -288,62 +293,92 @@
 
   function clearDropTargets() {
     container.querySelectorAll('.is-drop-target').forEach((row) => row.classList.remove('is-drop-target'));
+    clearTimeout(openTimer);
+    hovered = null;
   }
 
-  container.addEventListener('dragstart', (event) => {
-    const node = event.target.closest('[data-tree-node="document"], [data-tree-node="folder"]');
-    if (!node || !mayMove()) {
-      event.preventDefault();
-      return;
-    }
-    const kind = node.dataset.treeNode;
-    dragged = { kind, source: kind === 'document' ? node.dataset.relPath : node.dataset.path };
-    event.dataTransfer.effectAllowed = 'move';
-    event.dataTransfer.setData('text/plain', dragged.source);
-    closeMenu();
-  });
+  function targetAt(event) {
+    const element = document.elementFromPoint(event.clientX, event.clientY);
+    return element && container.contains(element)
+      ? element.closest('[data-tree-node="folder"], [data-tree-node="root"]')
+      : null;
+  }
 
-  let openTimer = null;
-  // A drop target has to cancel dragenter as well as dragover, or some
-  // browsers never send the drop.
-  container.addEventListener('dragenter', (event) => {
-    if (mayDrop(dropTarget(event))) event.preventDefault();
-  });
-
-  container.addEventListener('dragover', (event) => {
-    const target = dropTarget(event);
-    if (!mayDrop(target)) {
-      clearDropTargets();
-      return;
-    }
-    event.preventDefault();
-    event.dataTransfer.dropEffect = 'move';
-    if (!target.classList.contains('is-drop-target')) {
-      clearDropTargets();
-      target.classList.add('is-drop-target');
-      clearTimeout(openTimer);
-      const folder = target.closest('details');
-      if (folder && !folder.open) openTimer = setTimeout(() => { folder.open = true; }, 700);
-    }
-  });
-
-  container.addEventListener('dragleave', (event) => {
-    if (!container.contains(event.relatedTarget)) clearDropTargets();
-  });
-
-  container.addEventListener('drop', async (event) => {
-    const target = dropTarget(event);
-    const moving = dragged;
+  function endDrag() {
     clearDropTargets();
-    clearTimeout(openTimer);
-    if (!moving || !mayDrop(target)) return;
+    ghost?.remove();
+    ghost = null;
+    dragged = null;
+    press = null;
+    container.querySelector('.sdoc-tree')?.classList.remove('is-dragging');
+    document.removeEventListener('pointermove', onPointerMove, true);
+    document.removeEventListener('pointerup', onPointerUp, true);
+    document.removeEventListener('pointercancel', cancelDrag, true);
+    document.removeEventListener('keydown', onDragKey, true);
+  }
+
+  function cancelDrag() {
+    swallowClick = Boolean(dragged);
+    endDrag();
+  }
+
+  function onDragKey(event) {
+    if (event.key === 'Escape') cancelDrag();
+  }
+
+  function startDrag() {
+    const node = press.node;
+    const kind = node.dataset.treeNode;
+    dragged = {
+      kind,
+      source: kind === 'document' ? node.dataset.relPath : node.dataset.path,
+    };
+    closeMenu();
+    ghost = document.createElement('div');
+    ghost.className = 'sdoc-tree__ghost';
+    ghost.textContent = node.querySelector('.sdoc-tree__title')?.textContent || dragged.source;
+    document.body.append(ghost);
+    container.querySelector('.sdoc-tree').classList.add('is-dragging');
+  }
+
+  function onPointerMove(event) {
+    if (!press) return;
+    if (!dragged) {
+      if (Math.hypot(event.clientX - press.x, event.clientY - press.y) < DRAG_DISTANCE) return;
+      if (!mayMove()) {
+        showNotice('Your role does not allow moving documents or folders.');
+        swallowClick = true;
+        endDrag();
+        return;
+      }
+      startDrag();
+    }
     event.preventDefault();
+    ghost.style.left = `${event.clientX + 12}px`;
+    ghost.style.top = `${event.clientY + 8}px`;
+    const target = targetAt(event);
+    if (target === hovered) return;
+    clearDropTargets();
+    if (!mayDrop(target)) return;
+    hovered = target;
+    target.classList.add('is-drop-target');
+    const folder = target.closest('details');
+    if (folder && !folder.open) openTimer = setTimeout(() => { folder.open = true; }, 700);
+  }
+
+  async function onPointerUp(event) {
+    const moving = dragged;
+    const target = moving ? targetAt(event) : null;
+    const accepted = moving && mayDrop(target) ? destinationOf(target) : null;
+    swallowClick = Boolean(moving);
+    endDrag();
+    if (accepted === null) return;
     try {
       const response = await fetch(MOVE_URL, {
         method: 'POST',
         credentials: 'same-origin',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({ source: moving.source, destination: destinationOf(target) }),
+        body: new URLSearchParams({ source: moving.source, destination: accepted }),
       });
       let answer = {};
       try {
@@ -359,13 +394,34 @@
     } catch (error) {
       showNotice('The move failed: the server does not answer.');
     }
+  }
+
+  container.addEventListener('pointerdown', (event) => {
+    if (event.button !== 0 || event.target.closest('.sdoc-tree__more')) return;
+    const node = event.target.closest('[data-tree-node="document"], [data-tree-node="folder"]');
+    if (!node) return;
+    press = { node, x: event.clientX, y: event.clientY };
+    swallowClick = false;
+    document.addEventListener('pointermove', onPointerMove, true);
+    document.addEventListener('pointerup', onPointerUp, true);
+    document.addEventListener('pointercancel', cancelDrag, true);
+    document.addEventListener('keydown', onDragKey, true);
   });
 
-  container.addEventListener('dragend', () => {
-    dragged = null;
-    clearDropTargets();
-    clearTimeout(openTimer);
-  });
+  // The browser's own drag of a link would take the pointer over.
+  container.addEventListener('dragstart', (event) => event.preventDefault());
+
+  // What ends a drag is not a click on the node under the pointer.
+  container.addEventListener(
+    'click',
+    (event) => {
+      if (!swallowClick) return;
+      swallowClick = false;
+      event.preventDefault();
+      event.stopPropagation();
+    },
+    true,
+  );
 
   // ---- the menu of the right click ----
 

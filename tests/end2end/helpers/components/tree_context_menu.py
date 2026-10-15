@@ -42,29 +42,21 @@ class TreeContextMenu:
 
     def do_drag_and_drop(self, source_xpath: str, target_xpath: str) -> None:
         """
-        Drags a node of the tree onto another one. The browser driver does not
-        do HTML5 drag and drop, so the events are sent with a DataTransfer.
+        Drags a node of the tree onto another one with the mouse: the tree
+        follows the pointer, it does not use the drag and drop of the browser.
         """
         self.test_case.assert_element(source_xpath, by=By.XPATH)
         self.test_case.assert_element(target_xpath, by=By.XPATH)
-        self.test_case.execute_script(
-            """
-            const find = (xpath) => document.evaluate(
-              xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null
-            ).singleNodeValue;
-            const source = find(arguments[0]);
-            const target = find(arguments[1]);
-            const data = new DataTransfer();
-            const fire = (node, type) => node.dispatchEvent(
-              new DragEvent(type, {bubbles: true, cancelable: true,
-                                   dataTransfer: data})
-            );
-            fire(source, 'dragstart');
-            fire(target, 'dragenter');
-            fire(target, 'dragover');
-            fire(target, 'drop');
-            fire(source, 'dragend');
-            """,
-            source_xpath,
-            target_xpath,
+        source = self.test_case.find_element(source_xpath, by=By.XPATH)
+        target = self.test_case.find_element(target_xpath, by=By.XPATH)
+        (
+            ActionChains(self.test_case.driver)
+            .move_to_element(source)
+            .click_and_hold()
+            .move_by_offset(8, 8)
+            .move_by_offset(8, 8)
+            .move_to_element(target)
+            .move_by_offset(2, 0)
+            .release()
+            .perform()
         )
