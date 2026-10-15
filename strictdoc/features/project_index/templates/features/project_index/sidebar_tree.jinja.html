@@ -148,6 +148,9 @@
     {%- if config.is_activated_reqif() %}
     {{ menu_item("tree-export-reqif-document-action", _("Export to ReqIF"), "icons/ico16_export.svg", "/reqif/export_document/", turbo=false, href_template="/reqif/export_document/{mid}") }}
     {%- endif %}
+    {%- if config.is_running_on_server and config.is_activated_git() %}
+    {{ menu_item("tree-version-document-action", _("Version document"), "", "/actions/git/version_document", role="administrator", href_template="/actions/git/version_document?for_mid={mid}") }}
+    {%- endif %}
     <hr class="sdoc-tree-menu__separator"/>
     {{ menu_item("tree-rename-document-action", _("Rename document"), "", "/actions/project_index/rename_document", role="author", href_template="/actions/project_index/rename_document?path={path}") }}
     {{ menu_item("tree-delete-document-action", _("Delete document"), "", "/actions/document/delete_document", role="administrator", method="delete", href_template="/actions/document/delete_document?document_mid={mid}") }}

@@ -25,8 +25,10 @@ from strictdoc.features.git_config.gitlab_service import (
     GitLabService,
     GitLabServiceError,
 )
+from strictdoc.features.git_config.versioning import latest_valid_tag
 from strictdoc.features.roles.roles import ROLE_ADMINISTRATOR
 from strictdoc.features.roles.router import get_principal
+from strictdoc.helpers.mid import MID
 from strictdoc.server.project_context import ProjectContext
 
 HTTP_BAD_REQUEST = 400
@@ -132,6 +134,67 @@ def create_git_routers(
         except GitServiceError as error:
             return render(request, str(error), HTTP_BAD_REQUEST)
         return redirect()
+
+    def document_repository(for_mid: str) -> str:
+        """The repository (absolute path) that holds a document."""
+        try:
+            node = context.export_action.traceability_index.get_node_by_mid(
+                MID(for_mid)
+            )
+            return service().repository_root(node.meta.input_doc_full_path)
+        except (KeyError, AttributeError, GitServiceError) as error:
+            raise HTTPException(
+                status_code=HTTP_BAD_REQUEST,
+                detail="The document is not in a Git repository.",
+            ) from error
+
+    def version_form(for_mid: str, error: str = "", done: str = "") -> Response:
+        root = document_repository(for_mid)
+        try:
+            next_major = service().next_major_tag(root)
+        except GitServiceError:
+            next_major = ""
+        output = context.env().render_template_as_markup(
+            "features/git_config/stream_version_document.jinja.html",
+            for_mid=for_mid,
+            repository=os.path.relpath(root, service().project_root),
+            latest_tag=latest_valid_tag(service().list_tags(root)),
+            next_draft=service().next_intermediate_tag(root),
+            next_major=next_major,
+            error=error,
+            done=done,
+        )
+        return HTMLResponse(
+            content=output,
+            headers={"Content-Type": "text/vnd.turbo-stream.html"},
+        )
+
+    @read_router.get("/actions/git/version_document", response_class=Response)
+    def version_document_form(for_mid: str = "") -> Response:
+        return version_form(for_mid)
+
+    @write_router.post("/actions/git/version_document", response_class=Response)
+    def version_document(
+        for_mid: str = Form(""), kind: str = Form("draft")
+    ) -> Response:
+        """Tags the repository of a document (a draft or a major version)."""
+        assert context.git_committer is not None
+        root = document_repository(for_mid)
+        author = author_of()
+        try:
+            context.git_committer.flush()
+            if kind == "major":
+                name = service().next_major_tag(root)
+            elif kind == "draft":
+                name = service().next_intermediate_tag(root)
+            else:
+                return version_form(for_mid, "Unknown kind of version.")
+            service().create_tag(root, name, author)
+            if git_config().push_on_tag:
+                service().push(root, tag=name)
+        except GitServiceError as error:
+            return version_form(for_mid, str(error))
+        return version_form(for_mid, done=name)
 
     @write_router.post("/actions/git/push")
     def push(request: Request, repository: str = Form(...)) -> Response:

@@ -1,0 +1,45 @@
+{% extends "components/modal/form.jinja" %}
+{% set form = "sdoc_modal_form" %}
+{% block modal__context %}{% endblock modal__context %}
+{% block modal_form__header %}
+{{ _("Version document") }}
+{% endblock modal_form__header %}
+{% block modal_form__content %}
+  {%- if done %}
+  <p data-testid="version-document-done">{{ _("Version %(tag)s created.", tag=done) }}</p>
+  {%- else %}
+  <form
+    id="{{ form }}"  {# defined in the parent template #}
+    action="/actions/git/version_document"
+    method="POST"
+    data-turbo="true"
+  >
+    <input type="hidden" name="for_mid" value="{{ for_mid }}"/>
+    <p>
+      {{ _("The version applies to the whole repository of the document:") }}
+      <strong data-testid="version-document-repository">{{ repository }}</strong><br/>
+      {{ _("Latest version:") }} <strong>{{ latest_tag or "-" }}</strong>
+    </p>
+    {%- if error %}
+    <p class="sdoc-form-error" data-testid="version-document-error">{{ error }}</p>
+    {%- endif %}
+    <p>
+      <label>
+        <input type="radio" name="kind" value="draft" checked data-testid="version-document-draft"/>
+        {{ _("Draft version") }} <strong>{{ next_draft }}</strong>
+      </label><br/>
+      <label>
+        <input type="radio" name="kind" value="major" {% if not next_major %}disabled{% endif %} data-testid="version-document-major"/>
+        {{ _("Major version") }} <strong>{{ next_major or "-" }}</strong>
+        {%- if not next_major %} ({{ _("a draft version is needed first") }}){% endif %}
+      </label>
+    </p>
+    <sdoc-form-hint>
+      ☞ {{ _("The pending changes are committed first. The PDF export marks what changed since the latest version.") }}
+    </sdoc-form-hint>
+  </form>
+  {%- endif %}
+{% endblock modal_form__content %}
+{% block modal_form__footer_submit %}
+  {%- if not done %}{{ super() }}{% endif %}
+{% endblock modal_form__footer_submit %}

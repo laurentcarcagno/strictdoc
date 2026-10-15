@@ -4390,6 +4390,13 @@ taller than a page makes its sheet taller. The sheets are scaled down when the w
 too narrow for them. It is a view of the screen, not the layout of the PDF export, and the
 choice is kept in the browser.
 
+**Versioning a document.** The right-click menu of a document has *Version document*
+(administrators, with the ``GIT`` feature). A form shows the repository of the document, its
+latest version and the next draft (A1, A2...) and major (A, B...) names. The version is a Git
+tag of the whole repository, not of the single document: the pending changes are committed
+first, and the tag is pushed when ``push_on_tag`` is on. It is the same action as the tags of
+the configuration management page.
+
 **PDF export.** The PDF has no node type labels, no separator lines and no comments. When the
 project has the ``GIT`` feature and the repository has a version tag, a red bar on the left
 marks the nodes (sections, requirements, text) that are new or modified since the latest

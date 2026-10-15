@@ -195,3 +195,69 @@ def test_009_menu_entry_only_when_activated(tmp_path: Path) -> None:
         "tree-git-action"
         not in off.get("/fragments/project_tree", headers=READER).text
     )
+
+
+def _document_mid(client: Any) -> str:
+    tree = client.get("/fragments/project_tree", headers=ADMIN).text
+    return tree.split('data-document-mid="')[1].split('"')[0]
+
+
+def test_010_the_document_menu_has_version_document(tmp_path: Path) -> None:
+    client = _client(tmp_path)
+    tree = client.get("/fragments/project_tree", headers=ADMIN).text
+    assert "tree-version-document-action" in tree
+    assert "/actions/git/version_document?for_mid={mid}" in tree
+
+
+def test_011_an_admin_versions_a_document(tmp_path: Path) -> None:
+    client = _client(tmp_path)
+    mid = _document_mid(client)
+    form = client.get(
+        "/actions/git/version_document",
+        params={"for_mid": mid},
+        headers=ADMIN,
+    )
+    assert form.status_code == 200
+    assert "version-document-draft" in form.text and "A1" in form.text
+
+    done = client.post(
+        "/actions/git/version_document",
+        data={"for_mid": mid, "kind": "draft"},
+        headers=ADMIN,
+    )
+    assert done.status_code == 200
+    assert "version-document-done" in done.text
+    assert _git(tmp_path, "tag").split() == ["A1"]
+
+    client.post(
+        "/actions/git/version_document",
+        data={"for_mid": mid, "kind": "major"},
+        headers=ADMIN,
+    )
+    assert _git(tmp_path, "tag").split() == ["A", "A1"]
+
+
+def test_012_only_an_admin_versions_a_document(tmp_path: Path) -> None:
+    client = _client(tmp_path)
+    mid = _document_mid(client)
+    for headers in (READER, AUTHOR):
+        for method in ("GET", "POST"):
+            response = client.request(
+                method,
+                "/actions/git/version_document",
+                params={"for_mid": mid},
+                data={"for_mid": mid, "kind": "draft"},
+                headers=headers,
+            )
+            assert response.status_code == 403
+    assert _git(tmp_path, "tag") == ""
+
+
+def test_013_an_unknown_document_is_refused(tmp_path: Path) -> None:
+    client = _client(tmp_path)
+    response = client.post(
+        "/actions/git/version_document",
+        data={"for_mid": "nope", "kind": "draft"},
+        headers=ADMIN,
+    )
+    assert response.status_code == 400

@@ -127,6 +127,8 @@ ROUTE_ROLES: Dict[RouteKey, str] = {
     **_routes(
         ROLE_ADMINISTRATOR,
         "POST /actions/git/tag",
+        "GET /actions/git/version_document",
+        "POST /actions/git/version_document",
         "POST /actions/git/push",
         "POST /actions/git/create_repository",
         "POST /actions/git/submodule_add",

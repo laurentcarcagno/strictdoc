@@ -2462,3 +2462,27 @@ msgstr "Feuilles A4, une page de large"
 
 msgid "A4 sheets, two pages side by side"
 msgstr "Feuilles A4, deux pages côte à côte"
+
+msgid "Version document"
+msgstr "Versionner le document"
+
+msgid "Version %(tag)s created."
+msgstr "Version %(tag)s créée."
+
+msgid "The version applies to the whole repository of the document:"
+msgstr "La version s'applique à tout le dépôt du document :"
+
+msgid "Latest version:"
+msgstr "Dernière version :"
+
+msgid "Draft version"
+msgstr "Version intermédiaire"
+
+msgid "Major version"
+msgstr "Version majeure"
+
+msgid "a draft version is needed first"
+msgstr "une version intermédiaire est nécessaire d'abord"
+
+msgid "The pending changes are committed first. The PDF export marks what changed since the latest version."
+msgstr "Les modifications en attente sont d'abord enregistrées. L'export PDF marque ce qui a changé depuis la dernière version."
