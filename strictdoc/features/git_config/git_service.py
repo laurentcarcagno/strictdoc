@@ -67,9 +67,15 @@ class GitService:
         self,
         project_root: str,
         allowed_url_schemes: Tuple[str, ...] = ("https", "ssh"),
+        token_env: str = "",
+        ca_bundle: str = "",
     ) -> None:
         self.project_root = os.path.realpath(project_root)
         self.allowed_url_schemes = allowed_url_schemes
+        # The name of the environment variable that holds the token of the
+        # remote (never the token itself) and the CA bundle of its server.
+        self.token_env = token_env
+        self.ca_bundle = ca_bundle
 
     # ---- Repositories
 
@@ -94,8 +100,7 @@ class GitService:
     def _is_inside(path: str, folder: str) -> bool:
         return path == folder or path.startswith(folder + os.sep)
 
-    @staticmethod
-    def _repo(root: str, author: Optional[Author] = None) -> Repo:
+    def _repo(self, root: str, author: Optional[Author] = None) -> Repo:
         repo = Repo(root)
         identity = author or Author(
             DEFAULT_IDENTITY_NAME, DEFAULT_IDENTITY_EMAIL
@@ -105,8 +110,38 @@ class GitService:
             GIT_COMMITTER_EMAIL=identity.email,
             GIT_AUTHOR_NAME=identity.name,
             GIT_AUTHOR_EMAIL=identity.email,
+            GIT_TERMINAL_PROMPT="0",
+            **self._remote_environment(repo),
         )
         return repo
+
+    def _remote_environment(self, repo: Repo) -> Dict[str, str]:
+        """
+        What git needs to reach the remote: the CA bundle, and the token for
+        the host of the remote (an https URL), given through a credential
+        helper that reads the environment variable when git runs it. The token
+        is in no command line, no file and no URL.
+        """
+        found: Dict[str, str] = {}
+        if self.ca_bundle:
+            found["GIT_SSL_CAINFO"] = self.ca_bundle
+        if self.token_env and os.environ.get(self.token_env):
+            try:
+                url = repo.remotes[REMOTE].url
+            except (IndexError, AttributeError):
+                return found
+            parsed = urllib.parse.urlparse(url)
+            if parsed.scheme == "https" and parsed.hostname:
+                helper = (
+                    "!f() { echo username=oauth2; "
+                    f'echo "password=${self.token_env}"; }}; f'
+                )
+                found.update(
+                    GIT_CONFIG_COUNT="1",
+                    GIT_CONFIG_KEY_0=f"credential.https://{parsed.hostname}.helper",
+                    GIT_CONFIG_VALUE_0=helper,
+                )
+        return found
 
     # ---- Commits
 

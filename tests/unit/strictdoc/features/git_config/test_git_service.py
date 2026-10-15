@@ -1,3 +1,4 @@
+import os
 import subprocess
 from pathlib import Path
 from typing import List
@@ -274,3 +275,42 @@ def test_describe_lists_the_repositories(super_project: Path) -> None:
     assert sub.next_major == "A"
     assert by_name["."].next_major is None
     assert by_name["."].dirty is False
+
+
+def _credential(repo: Path, service: GitService, host: str) -> str:
+    environment = service._remote_environment(Repo(str(repo)))
+    return subprocess.run(
+        ["git", "-C", str(repo), "credential", "fill"],
+        input=f"protocol=https\nhost={host}\n\n",
+        capture_output=True,
+        text=True,
+        env={**os.environ, **environment, "GIT_TERMINAL_PROMPT": "0"},
+        check=False,
+    ).stdout
+
+
+def test_remote_token_goes_to_the_host_of_the_remote_only(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    repo = _init(tmp_path / "r")
+    _git(repo, "remote", "add", "origin", "https://gitlab.example/g/p.git")
+    monkeypatch.setenv("SDOC_TEST_TOKEN", "s3cret")
+    service = GitService(
+        str(repo), token_env="SDOC_TEST_TOKEN", ca_bundle="/etc/ca.pem"
+    )
+    asked = _credential(repo, service, "gitlab.example")
+    assert "username=oauth2" in asked and "password=s3cret" in asked
+    assert "s3cret" not in _credential(repo, service, "elsewhere.example")
+    environment = service._remote_environment(Repo(str(repo)))
+    assert environment["GIT_SSL_CAINFO"] == "/etc/ca.pem"
+    assert "s3cret" not in " ".join(environment.values())
+
+
+def test_no_token_means_no_credential_helper(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    repo = _init(tmp_path / "r")
+    _git(repo, "remote", "add", "origin", "https://gitlab.example/g/p.git")
+    monkeypatch.delenv("SDOC_TEST_TOKEN", raising=False)
+    service = GitService(str(repo), token_env="SDOC_TEST_TOKEN")
+    assert service._remote_environment(Repo(str(repo))) == {}

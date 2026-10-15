@@ -35,7 +35,11 @@ def create_committer(project_config: ProjectConfig) -> Optional[GitCommitter]:
     if root is None:
         return None
     return GitCommitter(
-        GitService(root),
+        GitService(
+            root,
+            token_env=project_config.git.token_env,
+            ca_bundle=project_config.git.ca_bundle,
+        ),
         lambda: author,
         use_lfs=project_config.git.use_lfs,
         asset_warning_bytes=project_config.git.asset_warning_bytes,
