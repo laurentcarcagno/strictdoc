@@ -145,6 +145,9 @@
     {%- if config.is_activated_html2pdf() %}
     {{ menu_item("tree-export-pdf-document-action", _("Export to PDF"), "icons/ico16_export.svg", "/export_html2pdf/", turbo=false, href_template="/export_html2pdf/{mid}") }}
     {%- endif %}
+    {%- if config.is_activated_html2pdf() and config.is_activated_git() %}
+    {{ menu_item("tree-export-pdf-clean-document-action", _("Export to PDF without revision marks"), "icons/ico16_export.svg", "/export_html2pdf/", turbo=false, href_template="/export_html2pdf/{mid}?revision_marks=false") }}
+    {%- endif %}
     {%- if config.is_activated_reqif() %}
     {{ menu_item("tree-export-reqif-document-action", _("Export to ReqIF"), "icons/ico16_export.svg", "/reqif/export_document/", turbo=false, href_template="/reqif/export_document/{mid}") }}
     {%- endif %}

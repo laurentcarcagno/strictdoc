@@ -186,6 +186,10 @@ class DocumentScreenViewObject:
             ]
         ] = None
 
+        # PDF: mark what changed since the latest version tag (the export
+        # can switch it off).
+        self.pdf_revision_marks: bool = True
+
         self.custom_html2pdf_template: Optional[Template] = None
         if project_config.html2pdf_template is not None:
             with file_open_read_utf8(project_config.html2pdf_template) as f_:
@@ -197,7 +201,7 @@ class DocumentScreenViewObject:
         (the project has the GIT feature and the document is in a repository
         that has a version tag).
         """
-        if not self.document_type.is_pdf():
+        if not self.document_type.is_pdf() or not self.pdf_revision_marks:
             return False
         if not self.project_config.is_activated_git():
             return False

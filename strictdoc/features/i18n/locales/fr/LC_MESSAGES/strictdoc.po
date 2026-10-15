@@ -2492,3 +2492,6 @@ msgstr "non poussée : le dépôt n'a pas de dépôt distant."
 
 msgid "not pushed: %(reason)s"
 msgstr "non poussée : %(reason)s"
+
+msgid "Export to PDF without revision marks"
+msgstr "Exporter en PDF sans marques de révision"

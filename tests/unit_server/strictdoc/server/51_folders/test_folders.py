@@ -1,3 +1,5 @@
+import subprocess
+
 from strictdoc.server.routers import main_router
 from tests.support.projects_fixture import (
     ROOT,
@@ -431,3 +433,72 @@ def test_019_the_pdf_export_works_when_the_project_has_members(
     response = client.get(f"/export_html2pdf/{mid}", headers=EVE)
     assert response.status_code == 200
     assert response.content.startswith(b"%PDF")
+
+
+def _pdf_html_with(tmp_path, monkeypatch, query: str) -> str:
+    seen = {}
+
+    def fake_print(*args):
+        paths = args[2]
+        seen["html"] = open(paths[0][0], encoding="utf8").read()
+        with open(paths[0][1], "wb") as file_:
+            file_.write(b"%PDF-1.4 fake")
+
+    monkeypatch.setattr(
+        main_router.PDFPrintDriver, "get_pdf_from_html", fake_print
+    )
+    dispatcher = make_dispatcher(
+        tmp_path,
+        monkeypatch,
+        platform_admins=["platform-admins"],
+        features=["HTML2PDF", "GIT"],
+    )
+    client = client_for(dispatcher, ROOT)
+    client.cookies.set("sdoc_project", "alpha")
+    folder = tmp_path / "data" / "alpha"
+    document = folder / "alpha_doc.sdoc"
+    current = document.read_text(encoding="utf8")
+
+    def git(*args):
+        subprocess.run(
+            [
+                "git",
+                "-C",
+                str(folder),
+                "-c",
+                "user.name=t",
+                "-c",
+                "user.email=t@t",
+                *args,
+            ],
+            check=True,
+            capture_output=True,
+        )
+
+    # The version A1 has another text than the document of the server.
+    git("init", "-q", "-b", "main")
+    document.write_text(
+        current.replace("shall work", "shall work well"), encoding="utf8"
+    )
+    git("add", "alpha_doc.sdoc")
+    git("commit", "-q", "-m", "one")
+    git("tag", "A1")
+    document.write_text(current, encoding="utf8")
+
+    page = client.get("/fragments/project_tree", headers=ANN).text
+    mid = page.split('data-document-mid="')[1].split('"')[0]
+    response = client.get(f"/export_html2pdf/{mid}{query}", headers=ANN)
+    assert response.status_code == 200
+    return seen["html"]
+
+
+def test_020_the_pdf_has_revision_marks_unless_asked_not_to(
+    tmp_path, monkeypatch
+):
+    html = _pdf_html_with(tmp_path, monkeypatch, "")
+    assert "data-changed-since-tag" in html
+
+
+def test_021_the_pdf_without_revision_marks(tmp_path, monkeypatch):
+    html = _pdf_html_with(tmp_path, monkeypatch, "?revision_marks=false")
+    assert "data-changed-since-tag" not in html

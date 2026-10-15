@@ -4665,7 +4665,10 @@ def create_main_router(
         )
 
     @router.get("/export_html2pdf/{document_mid}", response_class=Response)
-    def get_export_html2pdf(document_mid: str) -> Response:  # noqa: ARG001
+    def get_export_html2pdf(
+        document_mid: str,  # noqa: ARG001
+        revision_marks: bool = True,
+    ) -> Response:
         if not project_config.is_activated_html2pdf():
             return Response(
                 content=gettext(
@@ -4711,6 +4714,7 @@ def create_main_router(
                     link_renderer=link_renderer,
                     git_client=html_generator.git_client,
                     html_templates=html_templates,
+                    revision_marks=revision_marks,
                 )
 
             # Copy values needed below so the expensive filesystem and subprocess

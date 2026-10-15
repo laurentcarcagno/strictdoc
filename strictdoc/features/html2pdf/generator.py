@@ -28,6 +28,7 @@ class DocumentHTML2PDFGenerator:
         link_renderer: LinkRenderer,
         git_client: GitClient,
         html_templates: HTMLTemplates,
+        revision_marks: bool = True,
     ) -> Markup:
         view_object = DocumentScreenViewObject(
             document_type=DocumentType.PDF,
@@ -39,4 +40,6 @@ class DocumentHTML2PDFGenerator:
             jinja_environment=html_templates.jinja_environment(),
             git_client=git_client,
         )
+        # The change bars since the latest version tag can be left out.
+        view_object.pdf_revision_marks = revision_marks
         return view_object.render_screen()

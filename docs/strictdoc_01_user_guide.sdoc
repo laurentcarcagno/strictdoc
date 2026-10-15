@@ -4409,7 +4409,9 @@ for the host of the remote only. Without a token the project works without a rem
 **PDF export.** The PDF has no node type labels, no separator lines and no comments. When the
 project has the ``GIT`` feature and the repository has a version tag, a red bar on the left
 marks the nodes (sections, requirements, text) that are new or modified since the latest
-tag; the comments do not count as a change. The table of contents has no bar.
+tag; the comments do not count as a change. The table of contents has no bar. *Export to PDF
+without revision marks* (menu of the document, and the actions menu of the document screen)
+leaves the bars out; the address ``/export_html2pdf/<mid>?revision_marks=false`` does the same.
 
 **Markdown.** A document that the web interface creates is in Markdown
 (``MARKUP: Markdown``), so its fields are edited with the visual editor. So is a document
