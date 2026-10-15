@@ -149,3 +149,18 @@
 [data-viewtype="html2pdf"] .layout_main :is(sdoc-node-content, sdoc-meta) {
   border-radius: 4px;
 }
+
+/*
+  No node type marker (SECTION, REQUIREMENT...) and no separator line in the
+  PDF: the numbering and the titles tell what a node is.
+*/
+[data-viewtype="html2pdf"] .layout_main sdoc-node[show-node-type-name]::before {
+  content: none;
+  display: none;
+}
+
+[data-viewtype="html2pdf"] .layout_main sdoc-node-content,
+[data-viewtype="html2pdf"] .layout_main sdoc-meta {
+  border: 0;
+  outline: 0;
+}
