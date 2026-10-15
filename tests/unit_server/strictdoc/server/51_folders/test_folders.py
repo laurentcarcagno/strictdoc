@@ -106,3 +106,198 @@ def test_004_a_new_document_goes_in_the_folder(tmp_path, monkeypatch):
     text = (tmp_path / "data" / "alpha" / "docs" / "t.sdoc").read_text()
     # New documents are in Markdown.
     assert "MARKUP: Markdown" in text
+
+
+def _with_docs_folder(client, ben):
+    client.post(
+        "/actions/project_index/create_folder",
+        data={"folder_path": "docs"},
+        headers=ben,
+    )
+    client.post(
+        "/actions/project_index/create_document",
+        data={"document_title": "T", "document_path": "docs/t.sdoc"},
+        headers=ben,
+    )
+
+
+def test_010_an_author_renames_a_folder(tmp_path, monkeypatch):
+    client = _alpha(tmp_path, monkeypatch)
+    ben = as_user(user="ben")
+    _with_docs_folder(client, ben)
+    data = tmp_path / "data" / "alpha"
+
+    form = client.get(
+        "/actions/project_index/rename_folder",
+        params={"path": "docs"},
+        headers=ben,
+    )
+    assert form.status_code == 200 and "new_name" in form.text
+
+    response = client.post(
+        "/actions/project_index/rename_folder",
+        data={"path": "docs", "new_name": "papers"},
+        headers=ben,
+    )
+    assert response.status_code == 200
+    assert (data / "papers" / "t.sdoc").is_file() and not (
+        data / "docs"
+    ).exists()
+    page = client.get("/fragments/project_tree", headers=ben).text
+    assert "papers/" in page and "docs/" not in page
+    # The page that shows the old path asks where the document went.
+    assert 'data-from="docs"' in response.text
+    assert 'data-to="papers"' in response.text
+
+    bad = client.post(
+        "/actions/project_index/rename_folder",
+        data={"path": "papers", "new_name": "a b"},
+        headers=ben,
+    )
+    assert bad.status_code == 200 and "Invalid folder name" in bad.text
+    assert (data / "papers").is_dir()
+
+
+def test_011_the_tree_gives_what_a_move_needs(tmp_path, monkeypatch):
+    client = _alpha(tmp_path, monkeypatch)
+    ben = as_user(user="ben")
+    _with_docs_folder(client, ben)
+    page = client.get("/fragments/project_tree", headers=ben).text
+    assert 'data-rel-path="docs/t.sdoc"' in page
+    assert 'data-rel-path="alpha_doc.sdoc"' in page
+    assert 'data-tree-node="folder"' in page
+
+
+def test_012_documents_and_folders_move(tmp_path, monkeypatch):
+    client = _alpha(tmp_path, monkeypatch)
+    ben = as_user(user="ben")
+    _with_docs_folder(client, ben)
+    client.post(
+        "/actions/project_index/create_folder",
+        data={"folder_path": "archive"},
+        headers=ben,
+    )
+    data = tmp_path / "data" / "alpha"
+
+    moved = client.post(
+        "/actions/project_index/move",
+        data={"source": "alpha_doc.sdoc", "destination": "docs"},
+        headers=ben,
+    )
+    assert moved.status_code == 200
+    assert moved.json() == {
+        "ok": True,
+        "from": "alpha_doc.sdoc",
+        "to": "docs/alpha_doc.sdoc",
+    }
+    assert (data / "docs" / "alpha_doc.sdoc").is_file()
+
+    moved = client.post(
+        "/actions/project_index/move",
+        data={"source": "docs", "destination": "archive"},
+        headers=ben,
+    )
+    assert moved.status_code == 200
+    assert moved.json()["to"] == "archive/docs"
+    assert (data / "archive" / "docs" / "t.sdoc").is_file()
+    page = client.get("/fragments/project_tree", headers=ben).text
+    assert 'data-rel-path="archive/docs/t.sdoc"' in page
+
+
+def test_013_a_move_that_cannot_be_done_says_why(tmp_path, monkeypatch):
+    client = _alpha(tmp_path, monkeypatch)
+    ben = as_user(user="ben")
+    _with_docs_folder(client, ben)
+    data = tmp_path / "data" / "alpha"
+    response = client.post(
+        "/actions/project_index/move",
+        data={"source": "docs", "destination": "docs"},
+        headers=ben,
+    )
+    assert response.status_code == 422
+    assert "itself" in response.json()["error"]
+    response = client.post(
+        "/actions/project_index/move",
+        data={"source": "alpha_doc.sdoc", "destination": "nowhere"},
+        headers=ben,
+    )
+    assert response.status_code == 422
+    assert (data / "alpha_doc.sdoc").is_file()
+
+
+def test_014_only_an_administrator_deletes_an_empty_folder(
+    tmp_path, monkeypatch
+):
+    client = _alpha(tmp_path, monkeypatch)
+    ben = as_user(user="ben")
+    client.post(
+        "/actions/project_index/create_folder",
+        data={"folder_path": "empty"},
+        headers=ben,
+    )
+    _with_docs_folder(client, ben)
+    data = tmp_path / "data" / "alpha"
+
+    refused = client.delete(
+        "/actions/project_index/delete_folder",
+        params={"path": "empty", "confirmed": "1"},
+        headers=ben,
+    )
+    assert refused.status_code == 403 and (data / "empty").is_dir()
+
+    ask = client.delete(
+        "/actions/project_index/delete_folder",
+        params={"path": "empty"},
+        headers=ANN,
+    )
+    assert ask.status_code == 200 and "confirmed=1" in ask.text
+    assert (data / "empty").is_dir()
+
+    done = client.delete(
+        "/actions/project_index/delete_folder",
+        params={"path": "empty", "confirmed": "1"},
+        headers=ANN,
+    )
+    assert done.status_code == 200 and not (data / "empty").exists()
+
+    full = client.delete(
+        "/actions/project_index/delete_folder",
+        params={"path": "docs", "confirmed": "1"},
+        headers=ANN,
+    )
+    assert full.status_code == 422 and "t.sdoc" in full.text
+    assert (data / "docs" / "t.sdoc").is_file()
+
+
+def test_015_a_reader_cannot_rename_move_or_delete(tmp_path, monkeypatch):
+    client = _alpha(tmp_path, monkeypatch)
+    ben = as_user(user="ben")
+    _with_docs_folder(client, ben)
+    data = tmp_path / "data" / "alpha"
+    for method, path, payload in (
+        ("GET", "/actions/project_index/rename_folder", {"path": "docs"}),
+        (
+            "POST",
+            "/actions/project_index/rename_folder",
+            {"path": "docs", "new_name": "x"},
+        ),
+        (
+            "POST",
+            "/actions/project_index/move",
+            {"source": "alpha_doc.sdoc", "destination": "docs"},
+        ),
+        (
+            "DELETE",
+            "/actions/project_index/delete_folder",
+            {"path": "docs", "confirmed": "1"},
+        ),
+    ):
+        kwargs = (
+            {"params": payload}
+            if method in ("GET", "DELETE")
+            else {"data": payload}
+        )
+        response = client.request(method, path, headers=EVE, **kwargs)
+        assert response.status_code == 403, path
+    assert (data / "docs" / "t.sdoc").is_file()
+    assert (data / "alpha_doc.sdoc").is_file()

@@ -4360,6 +4360,12 @@ STATEMENT: >>>
 **Folders.** The menu of the project (right-click its name in the tree of the left bar) has
 *Add folder* (authors and administrators). The menu of a folder has *Add subfolder here* and
 *Add document here*, which fill in the path of the folder.
+Right-click a folder for *Rename folder* (authors and administrators) and *Delete folder*
+(administrators, for an empty folder only). Drag a document or a folder onto another folder,
+or onto the project name for the top level, to move it (authors and administrators). A move
+is refused, with the reason under the project name, when the target has the same name, when
+it would put a folder in itself, or when it would break the relative path of an included
+document or of an imported grammar (move the documents that belong together as one folder).
 Type the path of the folder, with ``/`` between the levels to create several levels at
 once (``specifications/system``); the form lists the folders that exist. The folder is
 created in the first input folder of the project and appears in the tree at once, even

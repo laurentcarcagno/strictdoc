@@ -211,3 +211,21 @@ html[data-nav="collapsed"] .nav__tree {
   max-width: 46ch;
   color: var(--hem-dim-ink);
 }
+
+/* Drag and drop: the folder (or the project) that takes what is dragged. */
+.sdoc-tree__row.is-drop-target {
+  background: rgb(0 120 190 / 35%);
+  outline: 1px dashed rgb(120 190 235 / 90%);
+  outline-offset: -1px;
+}
+
+.sdoc-tree__notice {
+  margin: 6px 10px;
+  padding: 6px 8px;
+  font-size: var(--hem-size-body);
+  line-height: 1.3;
+  color: rgb(255 235 235);
+  background: rgb(150 30 40 / 55%);
+  border-left: 3px solid rgb(230 70 80);
+  cursor: pointer;
+}

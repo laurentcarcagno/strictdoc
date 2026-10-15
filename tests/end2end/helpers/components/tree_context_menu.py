@@ -39,3 +39,32 @@ class TreeContextMenu:
             f"//*[@data-testid='tree-context-menu']//a[@data-testid='{testid}']",
             by=By.XPATH,
         )
+
+    def do_drag_and_drop(self, source_xpath: str, target_xpath: str) -> None:
+        """
+        Drags a node of the tree onto another one. The browser driver does not
+        do HTML5 drag and drop, so the events are sent with a DataTransfer.
+        """
+        self.test_case.assert_element(source_xpath, by=By.XPATH)
+        self.test_case.assert_element(target_xpath, by=By.XPATH)
+        self.test_case.execute_script(
+            """
+            const find = (xpath) => document.evaluate(
+              xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null
+            ).singleNodeValue;
+            const source = find(arguments[0]);
+            const target = find(arguments[1]);
+            const data = new DataTransfer();
+            const fire = (node, type) => node.dispatchEvent(
+              new DragEvent(type, {bubbles: true, cancelable: true,
+                                   dataTransfer: data})
+            );
+            fire(source, 'dragstart');
+            fire(target, 'dragenter');
+            fire(target, 'dragover');
+            fire(target, 'drop');
+            fire(source, 'dragend');
+            """,
+            source_xpath,
+            target_xpath,
+        )

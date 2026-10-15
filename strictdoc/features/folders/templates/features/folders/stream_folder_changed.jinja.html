@@ -1,0 +1,14 @@
+{#- The tree of the left bar asks for itself again (sidebar_tree.js); the page that shows a path that moved goes to the new one. -#}
+<turbo-stream action="update" target="modal">
+  <template></template>
+</turbo-stream>
+
+<turbo-stream action="update" target="confirm">
+  <template></template>
+</turbo-stream>
+
+<turbo-stream action="append" target="sdoc_tree_refresh">
+  <template>
+    <span data-sdoc-tree-refresh hidden data-from="{{ moved_from }}" data-to="{{ moved_to }}"></span>
+  </template>
+</turbo-stream>

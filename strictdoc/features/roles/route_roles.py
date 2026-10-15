@@ -81,6 +81,9 @@ ROUTE_ROLES: Dict[RouteKey, str] = {
         "GET /actions/project_index/new_document",
         "GET /actions/project_index/new_folder",
         "POST /actions/project_index/create_folder",
+        "GET /actions/project_index/rename_folder",
+        "POST /actions/project_index/rename_folder",
+        "POST /actions/project_index/move",
         "POST /actions/project_index/create_document",
         "GET /actions/reviewers/form",
         "POST /actions/reviewers/set",
@@ -163,6 +166,7 @@ ROUTE_ROLES: Dict[RouteKey, str] = {
         "POST /actions/table/update_document_config_field",
         "POST /actions/table/update_document_custom_meta",
         "DELETE /actions/document/delete_document",
+        "DELETE /actions/project_index/delete_folder",
     ),
 }
 

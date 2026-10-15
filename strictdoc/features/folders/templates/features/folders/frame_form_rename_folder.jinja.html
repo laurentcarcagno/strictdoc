@@ -1,0 +1,40 @@
+{% extends "components/modal/form.jinja" %}
+{% set form = "sdoc_modal_form" %}
+{% block modal__context %}{% endblock modal__context %}
+{% block modal_form__header %}
+{{ _("Rename folder") }}
+{% endblock modal_form__header %}
+{% block modal_form__content %}
+  <form
+    id="{{ form }}"  {# defined in the parent template #}
+    action="/actions/project_index/rename_folder"
+    method="POST"
+    data-turbo="true"
+  >
+    <input type="hidden" name="path" value="{{ path }}"/>
+    <sdoc-form-grid>
+      <sdoc-form-row>
+        <sdoc-form-row-aside></sdoc-form-row-aside>
+        <sdoc-form-row-main>
+          {%- with
+            field_class_name=none,
+            field_editable=true,
+            field_input_name="new_name",
+            field_label=_("new name of ") ~ path,
+            field_placeholder=_("Enter the new name of the folder here..."),
+            field_type="singleline",
+            field_value=new_name,
+            testid_postfix="new_name",
+            errors=error_object.get_errors("new_name")
+          -%}
+            {%- include "components/form/field/contenteditable/index.jinja" %}
+          {%- endwith -%}
+          <sdoc-form-hint>
+            ☞ {{ _("The documents of the folder keep their content; their address changes.") }}
+          </sdoc-form-hint>
+        </sdoc-form-row-main>
+        <sdoc-form-row-aside></sdoc-form-row-aside>
+      </sdoc-form-row>
+    </sdoc-form-grid>
+  </form>
+{% endblock modal_form__content %}

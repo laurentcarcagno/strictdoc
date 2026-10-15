@@ -2411,3 +2411,21 @@ msgstr "L'arbre du projet est dans la barre de gauche. Cliquez sur un document p
 #: strictdoc/features/project_index/templates/features/project_index/sidebar_tree.jinja.html
 msgid "Add document here"
 msgstr "Ajouter un document ici"
+
+msgid "Rename folder"
+msgstr "Renommer le dossier"
+
+msgid "Delete folder"
+msgstr "Supprimer le dossier"
+
+msgid "Enter the new name of the folder here..."
+msgstr "Saisissez ici le nouveau nom du dossier..."
+
+msgid "new name of "
+msgstr "nouveau nom de "
+
+msgid "The documents of the folder keep their content; their address changes."
+msgstr "Les documents du dossier gardent leur contenu ; leur adresse change."
+
+msgid "deleting a folder is an unrecoverable action."
+msgstr "la suppression d'un dossier est irréversible."

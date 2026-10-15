@@ -6,6 +6,10 @@ from strictdoc.features.folders.folders import (
     MARKER,
     clean_folder_path,
     create_folder,
+    delete_folder,
+    move_document,
+    move_folder,
+    rename_folder,
 )
 from strictdoc.helpers.exception import StrictDocException
 
@@ -64,3 +68,148 @@ def test_005_a_link_is_not_followed(tmp_path):
     with pytest.raises(StrictDocException):
         create_folder(str(root), "link/inside")
     assert list(outside.iterdir()) == []
+
+
+def _doc(path, text="[DOCUMENT]\nTITLE: T\n"):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(text, encoding="utf8")
+
+
+def test_010_a_folder_is_renamed_with_its_content(tmp_path):
+    create_folder(str(tmp_path), "specs/sub")
+    _doc(tmp_path / "specs" / "a.sdoc")
+    assert rename_folder(str(tmp_path), "specs", "requirements") == (
+        "requirements"
+    )
+    assert not (tmp_path / "specs").exists()
+    assert (tmp_path / "requirements" / "a.sdoc").is_file()
+    assert (tmp_path / "requirements" / "sub" / MARKER).is_file()
+
+
+@pytest.mark.parametrize("bad", ["", "a/b", "..", "_assets", "a b", "x" * 70])
+def test_011_a_bad_new_name_is_refused(tmp_path, bad):
+    create_folder(str(tmp_path), "specs")
+    with pytest.raises(StrictDocException):
+        rename_folder(str(tmp_path), "specs", bad)
+    assert (tmp_path / "specs").is_dir()
+
+
+def test_012_a_rename_onto_an_existing_name_is_refused(tmp_path):
+    create_folder(str(tmp_path), "a")
+    create_folder(str(tmp_path), "b")
+    with pytest.raises(StrictDocException, match="exists"):
+        rename_folder(str(tmp_path), "a", "b")
+
+
+def test_013_a_folder_moves_into_another_one_or_to_the_root(tmp_path):
+    create_folder(str(tmp_path), "a/sub")
+    create_folder(str(tmp_path), "b")
+    assert move_folder(str(tmp_path), "a/sub", "b") == "b/sub"
+    assert (tmp_path / "b" / "sub" / MARKER).is_file()
+    assert move_folder(str(tmp_path), "b/sub", "") == "sub"
+    assert (tmp_path / "sub").is_dir()
+
+
+def test_014_a_folder_cannot_move_into_itself_or_stay_where_it_is(tmp_path):
+    create_folder(str(tmp_path), "a/sub")
+    with pytest.raises(StrictDocException, match="itself"):
+        move_folder(str(tmp_path), "a", "a/sub")
+    with pytest.raises(StrictDocException, match="itself"):
+        move_folder(str(tmp_path), "a", "a")
+    with pytest.raises(StrictDocException, match="already"):
+        move_folder(str(tmp_path), "a/sub", "a")
+
+
+def test_015_a_move_that_is_too_deep_or_to_a_missing_folder_is_refused(
+    tmp_path,
+):
+    create_folder(str(tmp_path), "a/b/c/d/e/f/g")
+    create_folder(str(tmp_path), "x/y")
+    with pytest.raises(StrictDocException, match="levels"):
+        move_folder(str(tmp_path), "x", "a/b/c/d/e/f/g")
+    with pytest.raises(StrictDocException, match="does not exist"):
+        move_folder(str(tmp_path), "x", "nowhere")
+
+
+def test_016_paths_outside_the_project_are_refused(tmp_path):
+    (tmp_path / "root").mkdir()
+    create_folder(str(tmp_path / "root"), "a")
+    (tmp_path / "other").mkdir()
+    for call in (
+        lambda: move_folder(str(tmp_path / "root"), "../other", "a"),
+        lambda: move_folder(str(tmp_path / "root"), "a", "../other"),
+        lambda: rename_folder(str(tmp_path / "root"), "../other", "z"),
+        lambda: delete_folder(str(tmp_path / "root"), "../other"),
+    ):
+        with pytest.raises(StrictDocException):
+            call()
+    assert (tmp_path / "other").is_dir()
+
+
+def test_017_a_document_moves_and_the_emptied_folder_stays(tmp_path):
+    create_folder(str(tmp_path), "b")
+    _doc(tmp_path / "a" / "one.sdoc")
+    assert move_document(str(tmp_path), "a/one.sdoc", "b") == "b/one.sdoc"
+    assert (tmp_path / "b" / "one.sdoc").is_file()
+    assert (tmp_path / "a" / MARKER).is_file()  # the tree still shows it
+
+
+def test_018_a_document_move_refuses_a_name_clash_or_a_non_document(tmp_path):
+    create_folder(str(tmp_path), "b")
+    _doc(tmp_path / "a" / "one.sdoc")
+    _doc(tmp_path / "b" / "one.sdoc")
+    (tmp_path / "a" / "notes.txt").write_text("x")
+    with pytest.raises(StrictDocException, match="exists"):
+        move_document(str(tmp_path), "a/one.sdoc", "b")
+    with pytest.raises(StrictDocException, match="document"):
+        move_document(str(tmp_path), "a/notes.txt", "b")
+    with pytest.raises(StrictDocException, match="already"):
+        move_document(str(tmp_path), "a/one.sdoc", "a")
+
+
+def test_019_a_move_that_breaks_an_include_is_refused(tmp_path):
+    create_folder(str(tmp_path), "b")
+    _doc(
+        tmp_path / "main.sdoc",
+        "[DOCUMENT]\nTITLE: M\n\n[DOCUMENT_FROM_FILE]\nFILE: part.sdoc\n",
+    )
+    _doc(tmp_path / "part.sdoc")
+    with pytest.raises(StrictDocException, match="main.sdoc"):
+        move_document(str(tmp_path), "part.sdoc", "b")
+    with pytest.raises(StrictDocException, match="part.sdoc"):
+        move_document(str(tmp_path), "main.sdoc", "b")
+    assert (tmp_path / "part.sdoc").is_file()
+
+
+def test_020_documents_that_move_together_keep_their_includes(tmp_path):
+    create_folder(str(tmp_path), "dest")
+    _doc(
+        tmp_path / "pack" / "main.sdoc",
+        "[DOCUMENT]\nTITLE: M\n\n[DOCUMENT_FROM_FILE]\nFILE: part.sdoc\n",
+    )
+    _doc(tmp_path / "pack" / "part.sdoc")
+    assert move_folder(str(tmp_path), "pack", "dest") == "dest/pack"
+    assert (tmp_path / "dest" / "pack" / "part.sdoc").is_file()
+
+
+def test_021_a_folder_move_that_breaks_a_grammar_import_is_refused(tmp_path):
+    create_folder(str(tmp_path), "dest")
+    _doc(
+        tmp_path / "pack" / "main.sdoc",
+        "[DOCUMENT]\nTITLE: M\n\n[GRAMMAR]\nIMPORT_FROM_FILE: ../shared.sgra\n",
+    )
+    (tmp_path / "shared.sgra").write_text("x")
+    with pytest.raises(StrictDocException, match="shared.sgra"):
+        move_folder(str(tmp_path), "pack", "dest")
+
+
+def test_022_only_an_empty_folder_is_deleted(tmp_path):
+    create_folder(str(tmp_path), "a/b")
+    delete_folder(str(tmp_path), "a")
+    assert not (tmp_path / "a").exists()
+    _doc(tmp_path / "c" / "d" / "one.sdoc")
+    with pytest.raises(StrictDocException, match="one.sdoc"):
+        delete_folder(str(tmp_path), "c")
+    assert (tmp_path / "c" / "d" / "one.sdoc").is_file()
+    with pytest.raises(StrictDocException, match="does not exist"):
+        delete_folder(str(tmp_path), "gone")

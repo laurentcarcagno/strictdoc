@@ -86,6 +86,7 @@
   }
 
   function afterRender() {
+    container.querySelectorAll('summary[data-tree-node="folder"]').forEach((row) => row.setAttribute('draggable', 'true'));
     const closed = readClosed();
     container.querySelectorAll('.sdoc-tree__folder').forEach((folder) => {
       folder.open = !closed.has(folder.dataset.path);
@@ -209,16 +210,156 @@
     }
   }).observe(container, { childList: true });
 
-  // A change that the tree shows (the title of a document) asks for the tree
-  // again by adding something to #sdoc_tree_refresh.
+  // A message under the project name (a move that was refused...).
+  function showNotice(text) {
+    container.parentElement.querySelectorAll('.sdoc-tree__notice').forEach((old) => old.remove());
+    const notice = document.createElement('div');
+    notice.className = 'sdoc-tree__notice';
+    notice.setAttribute('role', 'alert');
+    notice.dataset.testid = 'tree-notice';
+    notice.textContent = text;
+    notice.addEventListener('click', () => notice.remove());
+    container.before(notice);
+    setTimeout(() => notice.remove(), 10000);
+  }
+
+  // The tree again, after a change. When a path moved (from -> to) and the
+  // page on screen is that document, or in that folder, the page follows it.
+  async function reloadAfterMove(from, to) {
+    const current = container.querySelector('.sdoc-tree__file.is-current');
+    const here = current ? current.dataset.relPath : '';
+    let next = '';
+    if (from && to && here) {
+      if (here === from) next = to;
+      else if (here.startsWith(`${from}/`)) next = to + here.slice(from.length);
+    }
+    await load();
+    if (next) {
+      const moved = container.querySelector(`.sdoc-tree__file[data-rel-path="${CSS.escape(next)}"]`);
+      if (moved) window.location.href = moved.getAttribute('href');
+    }
+  }
+
+  // A change that the tree shows (the title of a document, a renamed folder)
+  // asks for the tree again by adding a marker to #sdoc_tree_refresh.
   const refresh = document.getElementById('sdoc_tree_refresh');
   if (refresh) {
     new MutationObserver(() => {
-      if (!refresh.firstChild) return;
+      const marker = refresh.firstElementChild;
+      if (!marker) return;
+      const { from, to } = marker.dataset;
       refresh.replaceChildren();
-      load();
+      reloadAfterMove(from, to);
     }).observe(refresh, { childList: true });
   }
+
+  // ---- drag and drop: a document or a folder to another folder ----
+
+  const MOVE_URL = '/actions/project_index/move';
+  let dragged = null;
+
+  function mayMove() {
+    const role = document.documentElement.dataset.role;
+    return !role || role === 'author' || role === 'administrator';
+  }
+
+  function parentOf(path) {
+    const at = path.lastIndexOf('/');
+    return at < 0 ? '' : path.slice(0, at);
+  }
+
+  function dropTarget(event) {
+    return event.target.closest('[data-tree-node="folder"], [data-tree-node="root"]');
+  }
+
+  function destinationOf(target) {
+    return target.dataset.treeNode === 'root' ? '' : target.dataset.path;
+  }
+
+  function mayDrop(target) {
+    if (!dragged || !target) return false;
+    const destination = destinationOf(target);
+    if (destination === parentOf(dragged.source)) return false;
+    if (dragged.kind === 'folder') {
+      if (destination === dragged.source || destination.startsWith(`${dragged.source}/`)) return false;
+    }
+    return true;
+  }
+
+  function clearDropTargets() {
+    container.querySelectorAll('.is-drop-target').forEach((row) => row.classList.remove('is-drop-target'));
+  }
+
+  container.addEventListener('dragstart', (event) => {
+    const node = event.target.closest('[data-tree-node="document"], [data-tree-node="folder"]');
+    if (!node || !mayMove()) {
+      event.preventDefault();
+      return;
+    }
+    const kind = node.dataset.treeNode;
+    dragged = { kind, source: kind === 'document' ? node.dataset.relPath : node.dataset.path };
+    event.dataTransfer.effectAllowed = 'move';
+    event.dataTransfer.setData('text/plain', dragged.source);
+    closeMenu();
+  });
+
+  let openTimer = null;
+  container.addEventListener('dragover', (event) => {
+    const target = dropTarget(event);
+    if (!mayDrop(target)) {
+      clearDropTargets();
+      return;
+    }
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'move';
+    if (!target.classList.contains('is-drop-target')) {
+      clearDropTargets();
+      target.classList.add('is-drop-target');
+      clearTimeout(openTimer);
+      const folder = target.closest('details');
+      if (folder && !folder.open) openTimer = setTimeout(() => { folder.open = true; }, 700);
+    }
+  });
+
+  container.addEventListener('dragleave', (event) => {
+    if (!container.contains(event.relatedTarget)) clearDropTargets();
+  });
+
+  container.addEventListener('drop', async (event) => {
+    const target = dropTarget(event);
+    const moving = dragged;
+    clearDropTargets();
+    clearTimeout(openTimer);
+    if (!moving || !mayDrop(target)) return;
+    event.preventDefault();
+    try {
+      const response = await fetch(MOVE_URL, {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({ source: moving.source, destination: destinationOf(target) }),
+      });
+      let answer = {};
+      try {
+        answer = await response.json();
+      } catch (error) {
+        // Not JSON: the message below tells the status.
+      }
+      if (!response.ok) {
+        showNotice(answer.error || `The move was refused (${response.status}).`);
+        return;
+      }
+      await reloadAfterMove(answer.from, answer.to);
+    } catch (error) {
+      showNotice('The move failed: the server does not answer.');
+    }
+  });
+
+  container.addEventListener('dragend', () => {
+    dragged = null;
+    clearDropTargets();
+    clearTimeout(openTimer);
+  });
 
   // ---- the menu of the right click ----
 

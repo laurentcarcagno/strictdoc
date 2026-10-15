@@ -27,6 +27,7 @@
       data-turbo="false"
       data-tree-node="document"
       data-document-mid="{{ document.reserved_mid }}"
+      data-rel-path="{{ document.meta.input_doc_rel_path.relative_path_posix }}"
       data-testid="tree-file-link"
       title="{{ document.title }} ({{ file.file_name }})"
     >
@@ -131,6 +132,9 @@
   <template data-tree-menu="folder">
     {{ menu_item("tree-add-document-here-action", _("Add document here"), "icons/ico16_add.svg", "/actions/project_index/new_document", role="author", href_template="/actions/project_index/new_document?folder={path}") }}
     {{ menu_item("tree-add-folder-here-action", _("Add subfolder here"), "icons/ico16_folder.svg", "/actions/project_index/new_folder", role="author", href_template="/actions/project_index/new_folder?parent={path}") }}
+    <hr class="sdoc-tree-menu__separator"/>
+    {{ menu_item("tree-rename-folder-action", _("Rename folder"), "", "/actions/project_index/rename_folder", role="author", href_template="/actions/project_index/rename_folder?path={path}") }}
+    {{ menu_item("tree-delete-folder-action", _("Delete folder"), "", "/actions/project_index/delete_folder", role="administrator", method="delete", href_template="/actions/project_index/delete_folder?path={path}") }}
   </template>
 
   <template data-tree-menu="document">

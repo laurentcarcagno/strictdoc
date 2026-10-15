@@ -1,0 +1,13 @@
+<turbo-stream action="update" target="confirm">
+  <template>
+  {% with
+    confirm_title = default,
+    confirm_message = path ~ ": " ~ _("deleting a folder is an unrecoverable action."),
+    confirm_name = _("Delete folder"),
+    confirm_href = "/actions/project_index/delete_folder?path=" ~ (path|urlencode) ~ "&confirmed=1",
+    confirm_disabled = (errors|length > 0)
+  %}
+    {% include "components/confirm/index.jinja" %}
+  {% endwith %}
+  </template>
+</turbo-stream>
