@@ -7,6 +7,9 @@
 {% block modal_form__content %}
   {%- if done %}
   <p data-testid="version-document-done">{{ _("Version %(tag)s created.", tag=done) }}</p>
+  {%- if note %}
+  <p data-testid="version-document-note">{{ note }}</p>
+  {%- endif %}
   {%- else %}
   <form
     id="{{ form }}"  {# defined in the parent template #}

@@ -26,6 +26,7 @@ from strictdoc.features.git_config.gitlab_service import (
     GitLabServiceError,
 )
 from strictdoc.features.git_config.versioning import latest_valid_tag
+from strictdoc.features.i18n.i18n import gettext
 from strictdoc.features.roles.roles import ROLE_ADMINISTRATOR
 from strictdoc.features.roles.router import get_principal
 from strictdoc.helpers.mid import MID
@@ -129,11 +130,28 @@ def create_git_routers(
                     status_code=HTTP_BAD_REQUEST, detail="Unknown kind of tag."
                 )
             service().create_tag(path, name, author)
-            if git_config().push_on_tag:
-                service().push(path, tag=name)
         except GitServiceError as error:
             return render(request, str(error), HTTP_BAD_REQUEST)
+        note = push_new_tag(path, name)
+        if note:
+            return render(request, f"{name}: {note}")
         return redirect()
+
+    def push_new_tag(path: str, name: str) -> str:
+        """
+        Pushes a tag that was just created, when the option says so. The tag
+        exists whatever happens here, so a problem is a note, not an error.
+        Returns the note ("" when pushed or when nothing is to be pushed).
+        """
+        if not git_config().push_on_tag:
+            return ""
+        if not service().has_remote(path):
+            return gettext("not pushed: the repository has no remote.")
+        try:
+            service().push(path, tag=name)
+        except GitServiceError as error:
+            return gettext("not pushed: %(reason)s") % {"reason": str(error)}
+        return ""
 
     def document_repository(for_mid: str) -> str:
         """The repository (absolute path) that holds a document."""
@@ -148,7 +166,9 @@ def create_git_routers(
                 detail="The document is not in a Git repository.",
             ) from error
 
-    def version_form(for_mid: str, error: str = "", done: str = "") -> Response:
+    def version_form(
+        for_mid: str, error: str = "", done: str = "", note: str = ""
+    ) -> Response:
         root = document_repository(for_mid)
         try:
             next_major = service().next_major_tag(root)
@@ -163,6 +183,7 @@ def create_git_routers(
             next_major=next_major,
             error=error,
             done=done,
+            note=note,
         )
         return HTMLResponse(
             content=output,
@@ -190,11 +211,10 @@ def create_git_routers(
             else:
                 return version_form(for_mid, "Unknown kind of version.")
             service().create_tag(root, name, author)
-            if git_config().push_on_tag:
-                service().push(root, tag=name)
         except GitServiceError as error:
             return version_form(for_mid, str(error))
-        return version_form(for_mid, done=name)
+        note = push_new_tag(root, name)
+        return version_form(for_mid, done=name, note=note)
 
     @write_router.post("/actions/git/push")
     def push(request: Request, repository: str = Form(...)) -> Response:

@@ -24,7 +24,12 @@ def _git(cwd: Path, *args: str) -> str:
     ).stdout.strip()
 
 
-def _client(root: Path, feature: bool = True, git_repo: bool = True) -> Any:
+def _client(
+    root: Path,
+    feature: bool = True,
+    git_repo: bool = True,
+    push_on_tag: bool = False,
+) -> Any:
     config = make_config(root, None)
     if git_repo:
         _git(root, "init", "-q", "-b", "master")
@@ -34,7 +39,7 @@ def _client(root: Path, feature: bool = True, git_repo: bool = True) -> Any:
         _git(root, "commit", "-q", "-m", "init", "--allow-empty")
     if feature:
         config.project_features.append(ProjectFeature.GIT)
-        config.git = GitConfig(push_on_tag=False)
+        config.git = GitConfig(push_on_tag=push_on_tag)
     config.auth_mode = "proxy"
     config.trusted_proxies = ["10.89.2.0/24"]
     config.roles = ROLE_GROUPS
@@ -261,3 +266,29 @@ def test_013_an_unknown_document_is_refused(tmp_path: Path) -> None:
         headers=ADMIN,
     )
     assert response.status_code == 400
+
+
+def test_014_a_tag_without_remote_is_kept_and_says_it_is_not_pushed(
+    tmp_path: Path,
+) -> None:
+    client = _client(tmp_path, push_on_tag=True)
+    mid = _document_mid(client)
+    done = client.post(
+        "/actions/git/version_document",
+        data={"for_mid": mid, "kind": "draft"},
+        headers=ADMIN,
+    )
+    assert done.status_code == 200
+    assert "version-document-done" in done.text
+    assert "version-document-note" in done.text
+    assert "no remote" in done.text
+    assert _git(tmp_path, "tag").split() == ["A1"]
+
+    page = client.post(
+        "/actions/git/tag",
+        data={"repository": ".", "kind": "draft"},
+        headers=ADMIN,
+    )
+    assert page.status_code == 200
+    assert "no remote" in page.text
+    assert _git(tmp_path, "tag").split() == ["A1", "A2"]

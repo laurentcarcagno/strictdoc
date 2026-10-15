@@ -218,6 +218,11 @@ class GitService:
 
     # ---- Push
 
+    def has_remote(self, path: str) -> bool:
+        """The repository has the remote that a push goes to."""
+        repo = self._repo(self.repository_root(path))
+        return REMOTE in [remote.name for remote in repo.remotes]
+
     def push(self, path: str, tag: Optional[str] = None) -> None:
         """Fast-forward from the remote if needed, push the branch (and tag)."""
         root = self.repository_root(path)

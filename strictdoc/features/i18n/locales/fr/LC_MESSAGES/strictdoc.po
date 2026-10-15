@@ -2486,3 +2486,9 @@ msgstr "une version intermédiaire est nécessaire d'abord"
 
 msgid "The pending changes are committed first. The PDF export marks what changed since the latest version."
 msgstr "Les modifications en attente sont d'abord enregistrées. L'export PDF marque ce qui a changé depuis la dernière version."
+
+msgid "not pushed: the repository has no remote."
+msgstr "non poussée : le dépôt n'a pas de dépôt distant."
+
+msgid "not pushed: %(reason)s"
+msgstr "non poussée : %(reason)s"
