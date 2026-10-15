@@ -1,3 +1,4 @@
+from strictdoc.server.routers import main_router
 from tests.support.projects_fixture import (
     ROOT,
     as_user,
@@ -397,3 +398,36 @@ def test_018_the_document_menu_exports_to_pdf_and_reqif(tmp_path, monkeypatch):
     assert 'filename="' in response.headers["content-disposition"]
     assert "export.reqif" not in response.headers["content-disposition"]
     assert "<REQ-IF" in response.text
+
+
+def test_019_the_pdf_export_works_when_the_project_has_members(
+    tmp_path, monkeypatch
+):
+    # The project config of a multi-project server holds the member lookup,
+    # which cannot be deep-copied: the export used to fail with a 500.
+    def fake_print(*args):
+        paths = args[2]
+        with open(paths[0][1], "wb") as file_:
+            file_.write(b"%PDF-1.4 fake")
+
+    monkeypatch.setattr(
+        main_router.PDFPrintDriver, "get_pdf_from_html", fake_print
+    )
+    dispatcher = make_dispatcher(
+        tmp_path,
+        monkeypatch,
+        platform_admins=["platform-admins"],
+        features=["HTML2PDF"],
+    )
+    client = client_for(dispatcher, ROOT)
+    client.cookies.set("sdoc_project", "alpha")
+    client.post(
+        "/actions/members/set",
+        data={"user": "eve", "role": "reader"},
+        headers=ANN,
+    )
+    page = client.get("/fragments/project_tree", headers=EVE).text
+    mid = page.split('data-document-mid="')[1].split('"')[0]
+    response = client.get(f"/export_html2pdf/{mid}", headers=EVE)
+    assert response.status_code == 200
+    assert response.content.startswith(b"%PDF")

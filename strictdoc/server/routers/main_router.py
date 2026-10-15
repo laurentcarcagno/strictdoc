@@ -4699,7 +4699,7 @@ def create_main_router(
                 context_document=document,
             )
 
-            pdf_project_config = copy.deepcopy(project_config)
+            pdf_project_config = copy.copy(project_config)
             pdf_project_config.is_running_on_server = False
 
             with measure_performance("Generating printable HTML document"):
