@@ -253,6 +253,17 @@ class GitService:
 
     # ---- Push
 
+    def remote_url(self, path: str) -> str:
+        """The URL of the remote of the repository ("" if it has none)."""
+        repo = self._repo(self.repository_root(path))
+        if REMOTE not in [remote.name for remote in repo.remotes]:
+            return ""
+        return str(repo.remotes[REMOTE].url)
+
+    def add_remote(self, path: str, url: str) -> None:
+        repo = self._repo(self.repository_root(path))
+        repo.create_remote(REMOTE, url)
+
     def has_remote(self, path: str) -> bool:
         """The repository has the remote that a push goes to."""
         repo = self._repo(self.repository_root(path))

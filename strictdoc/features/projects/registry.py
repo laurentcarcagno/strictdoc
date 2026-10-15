@@ -32,6 +32,7 @@ from strictdoc.core.project_config import (
     ProjectConfigLoader,
     ProjectFeature,
 )
+from strictdoc.features.git_config.config import GitConfig
 from strictdoc.features.roles.roles import validate_roles
 from strictdoc.helpers.exception import StrictDocException
 
@@ -178,6 +179,10 @@ def build_project_config(
     # Word import and export are on in every project, whatever its file says.
     if ProjectFeature.DOCX not in config.project_features:
         config.project_features.append(ProjectFeature.DOCX)
+    # The GIT feature of a project that the web interface created has no
+    # Python configuration file: it takes the defaults.
+    if ProjectFeature.GIT in config.project_features and config.git is None:
+        config.git = GitConfig()
     config.project_title = spec.title
     config.roles = roles
     audit_dir = os.path.join(audit_root or output_root, spec.slug)

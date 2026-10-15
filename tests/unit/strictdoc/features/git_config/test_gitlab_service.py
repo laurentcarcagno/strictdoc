@@ -44,6 +44,12 @@ class FakeGroups:
 class FakeProjects:
     def __init__(self) -> None:
         self.created: List[Dict[str, Any]] = []
+        self.existing: Dict[str, FakeObject] = {}
+
+    def get(self, path: str) -> FakeObject:
+        if path not in self.existing:
+            raise GitlabGetError("404 Project Not Found", 404)
+        return self.existing[path]
 
     def create(self, data: Dict[str, Any]) -> FakeObject:
         self.created.append(data)
@@ -99,3 +105,14 @@ def test_missing_token_is_reported_without_its_value(monkeypatch) -> None:  # ty
     monkeypatch.delenv("GITLAB_TOKEN", raising=False)
     with pytest.raises(GitLabServiceError, match="GITLAB_TOKEN"):
         GitLabService(GitConfig()).create_repository("a", "doc")
+
+
+def test_ensure_repository_creates_only_a_missing_project() -> None:
+    client = FakeClient()
+    client.groups.existing["a"] = FakeObject(id=7)
+    service = GitLabService(GitConfig(), client=client)
+    assert service.ensure_repository("a", "doc") is True
+    assert [p["path"] for p in client.projects.created] == ["doc"]
+    client.projects.existing["a/doc"] = FakeObject()
+    assert service.ensure_repository("a", "doc") is False
+    assert len(client.projects.created) == 1

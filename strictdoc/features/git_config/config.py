@@ -18,6 +18,9 @@ class GitConfig:
     author_email: str = "laurent.carcagno@hemeria-group.com"
     gitlab_url: str = "https://gitlab.karka.lan"
     token_env: str = "GITLAB_TOKEN"
+    # The group (with its parents) where the repositories of the projects that
+    # the web interface creates are made on the GitLab instance.
+    group_path: str = "documentation/projects"
     # Push the commits and the new tag when a version tag is created.
     push_on_tag: bool = True
     # Path of a CA bundle for an instance behind TLS inspection. The

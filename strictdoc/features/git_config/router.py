@@ -25,6 +25,7 @@ from strictdoc.features.git_config.gitlab_service import (
     GitLabService,
     GitLabServiceError,
 )
+from strictdoc.features.git_config.setup import ensure_remote_repository
 from strictdoc.features.git_config.versioning import latest_valid_tag
 from strictdoc.features.i18n.i18n import gettext
 from strictdoc.features.roles.roles import ROLE_ADMINISTRATOR
@@ -147,6 +148,9 @@ def create_git_routers(
             return ""
         if not service().has_remote(path):
             return gettext("not pushed: the repository has no remote.")
+        problem = ensure_remote_repository(service(), path, git_config())
+        if problem:
+            return gettext("not pushed: %(reason)s") % {"reason": problem}
         try:
             service().push(path, tag=name)
         except GitServiceError as error:
@@ -219,6 +223,9 @@ def create_git_routers(
     @write_router.post("/actions/git/push")
     def push(request: Request, repository: str = Form(...)) -> Response:
         path = repository_path(repository)
+        problem = ensure_remote_repository(service(), path, git_config())
+        if problem:
+            return render(request, problem, HTTP_BAD_REQUEST)
         try:
             service().push_with_submodules(path)
         except GitServiceError as error:

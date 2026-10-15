@@ -21,6 +21,8 @@ from typing import Any, Callable, Dict, List, Optional, Sequence
 from fastapi import FastAPI
 from starlette.concurrency import run_in_threadpool
 
+from strictdoc.features.git_config.config import GitConfig
+from strictdoc.features.git_config.setup import provision_repository
 from strictdoc.features.i18n.i18n import gettext
 from strictdoc.features.projects.directory import KeycloakDirectory
 from strictdoc.features.projects.dispatcher import ProjectDispatcher
@@ -47,6 +49,7 @@ DEFAULT_FEATURES = (
     "SEARCH",
     "DOCX",
     "COMMENTS",
+    "GIT",
 )
 
 # A group that nobody has: a project with no groups of its own still needs one
@@ -241,6 +244,17 @@ class ProjectManager:
             file_.write(
                 f'[project]\ntitle = "{clean_title}"\nfeatures = [{features}]\n'
             )
+        if "GIT" in self.features:
+            # A repository on the GitLab of the platform when the server has a
+            # token; the project works without it.
+            problem = await run_in_threadpool(
+                provision_repository, folder, slug, GitConfig()
+            )
+            if problem:
+                print(  # noqa: T201
+                    f"project {slug}: no GitLab repository: {problem}",
+                    flush=True,
+                )
         spec = self.spec_for_dynamic(slug, clean_title)
         self.store.add_project(
             slug,

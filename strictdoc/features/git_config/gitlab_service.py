@@ -40,7 +40,9 @@ class GitLabService:
             self._client = gitlab.Gitlab(
                 self.config.gitlab_url,
                 private_token=token,
-                ssl_verify=self.config.ca_bundle or True,
+                ssl_verify=self.config.ca_bundle
+                or os.environ.get("GIT_SSL_CAINFO")
+                or True,
             )
         return self._client
 
@@ -59,6 +61,23 @@ class GitLabService:
         except GitlabError as error:
             raise GitLabServiceError(f"GitLab refused: {error}") from error
         return str(project.http_url_to_repo)
+
+    def ensure_repository(self, group_path: str, name: str) -> bool:
+        """Create the project if it does not exist; True when it was created."""
+        if REPOSITORY_NAME_PATTERN.match(name) is None:
+            raise GitLabServiceError(f"Not a repository name: {name!r}.")
+        if GROUP_PATH_PATTERN.match(group_path) is None:
+            raise GitLabServiceError(f"Not a group path: {group_path!r}.")
+        client = self._connect()
+        try:
+            client.projects.get(f"{group_path}/{name}")
+            return False
+        except GitlabGetError:
+            pass
+        except GitlabError as error:
+            raise GitLabServiceError(f"GitLab refused: {error}") from error
+        self.create_repository(group_path, name)
+        return True
 
     @staticmethod
     def _ensure_group(client: Any, group_path: str) -> int:

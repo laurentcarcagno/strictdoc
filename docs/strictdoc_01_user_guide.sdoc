@@ -4397,6 +4397,15 @@ tag of the whole repository, not of the single document: the pending changes are
 first, and the tag is pushed when ``push_on_tag`` is on. It is the same action as the tags of
 the configuration management page.
 
+**GitLab repositories.** When the server has a GitLab token (the environment variable named by
+``token_env``, ``GITLAB_TOKEN`` by default; in the ISIS deployment it comes from OpenBao), a
+project that an administrator creates in the portal gets a Git repository, the project of the
+same name in the GitLab group ``group_path`` (``documentation/projects`` by default), the
+remote ``origin`` and a first push. A project that already has a remote on that GitLab gets
+its project created when it is first pushed (a version tag, or the push of the
+configuration management page). The token is given to git through a credential helper,
+for the host of the remote only. Without a token the project works without a remote.
+
 **PDF export.** The PDF has no node type labels, no separator lines and no comments. When the
 project has the ``GIT`` feature and the repository has a version tag, a red bar on the left
 marks the nodes (sections, requirements, text) that are new or modified since the latest
