@@ -23,7 +23,7 @@ from strictdoc.export.html.generators.view_objects.helpers import (
 )
 from strictdoc.export.html.html_templates import JinjaEnvironment
 from strictdoc.export.html.renderers.link_renderer import LinkRenderer
-from strictdoc.features.folders.folders import has_folder_marker
+from strictdoc.features.folders.folders import has_folder_marker, tree_path
 from strictdoc.helpers.cast import assert_cast
 
 
@@ -113,6 +113,14 @@ class ProjectTreeViewObject:
 
     def should_display_fragments_toggle(self) -> bool:
         return self.project_config.export_included_documents
+
+    def tree_path(self, absolute_path: str) -> str:
+        """The path that the tree menus and the drag and drop send."""
+        input_paths = self.project_config.input_paths
+        assert isinstance(input_paths, list)
+        return tree_path(
+            [os.path.abspath(path_) for path_ in input_paths], absolute_path
+        )
 
     def should_display_folder(self, folder: Folder) -> bool:
         return screen_should_display_folder(

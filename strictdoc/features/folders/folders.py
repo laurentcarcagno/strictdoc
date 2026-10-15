@@ -9,7 +9,8 @@ document and is never read as one (it has no document extension).
 
 import os
 import re
-from typing import Dict, Iterator, List
+import shutil
+from typing import Iterator, List, Sequence, Tuple, Union
 
 from strictdoc.core.file_system.file_tree import Folder
 from strictdoc.helpers.exception import StrictDocException
@@ -19,6 +20,9 @@ MARKER = ".sdoc-folder"
 _SEGMENT = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$")
 _RESERVED = ("_assets", "output", "Output", "word")
 MAX_DEPTH = 8
+
+# The input folders of the project: one path, or a list of paths.
+Roots = Union[str, Sequence[str]]
 
 
 def has_folder_marker(folder: Folder) -> bool:
@@ -48,25 +52,35 @@ def clean_folder_path(text: str) -> str:
     return "/".join(segments)
 
 
-def create_folder(root: str, relative_path: str) -> List[str]:
+def create_folder(roots: Roots, relative_path: str) -> List[str]:
     """
     Creates the folder (and the missing levels above it), each with the
-    marker. Returns the relative paths of the folders that did not exist.
+    marker. Returns the paths of the folders that did not exist. With several
+    input folders, the first level of the path is the name of one of them.
     Raises StrictDocException when it exists, or when a file is in the way.
     """
     path = clean_folder_path(relative_path)
-    real_root = os.path.realpath(root)
+    real_roots = _roots(roots)
+    segments = path.split("/")
+    prefix = ""
+    base = real_roots[0]
+    if len(real_roots) > 1:
+        base = _root_named(real_roots, segments[0], relative_path)
+        prefix = segments[0] + "/"
+        segments = segments[1:]
+        if len(segments) == 0:
+            raise StrictDocException(f"The folder '{path}' already exists.")
     created: List[str] = []
-    current = real_root
+    current = base
     parts: List[str] = []
-    for segment_ in path.split("/"):
+    for segment_ in segments:
         parts.append(segment_)
         current = os.path.join(current, segment_)
         if os.path.islink(current) or (
             os.path.exists(current) and not os.path.isdir(current)
         ):
             raise StrictDocException(
-                f"'{'/'.join(parts)}' exists and is not a folder."
+                f"'{prefix}{'/'.join(parts)}' exists and is not a folder."
             )
         if not os.path.isdir(current):
             os.mkdir(current)
@@ -74,55 +88,115 @@ def create_folder(root: str, relative_path: str) -> List[str]:
     if len(created) == 0:
         raise StrictDocException(f"The folder '{path}' already exists.")
     for relative_ in created:
-        marker = os.path.join(real_root, relative_, MARKER)
+        marker = os.path.join(base, relative_, MARKER)
         with open(marker, "w", encoding="utf8"):
             pass
-    return created
+    return [prefix + relative_ for relative_ in created]
 
 
-def folder_paths(folder: Folder) -> Iterator[str]:
+def folder_paths(folder: Folder, prefix: str = "") -> Iterator[str]:
     """
     The relative paths of the folders below a folder, that can hold
-    documents (without the reserved ones).
+    documents (without the reserved ones). With several input folders,
+    `prefix` is the name of the input folder and a slash.
     """
     for sub_ in folder.subfolder_trees:
         name = sub_.folder_name
         if name in _RESERVED or name.startswith((".", "_")):
             continue
-        yield sub_.rel_path.rstrip("/")
-        yield from folder_paths(sub_)
+        yield prefix + sub_.rel_path.rstrip("/")
+        yield from folder_paths(sub_, prefix)
 
 
 #
 # Rename, move and delete.
 #
-# Paths are relative to the root of the project ("specs/system",
-# "specs/a.sdoc"); "" is the root itself.
+# Paths are the ones of the project tree: relative to the input folder of the
+# project ("specs/system", "specs/a.sdoc"; "" is the input folder itself). With
+# several input folders, the first level is the name of one of them
+# ("isis/specs/a.sdoc").
 #
 
-_INCLUDE = re.compile(r"\[DOCUMENT_FROM_FILE\]\s*\nFILE: *(.+)")
-_IMPORT = re.compile(r"^IMPORT_FROM_FILE: *([^@\s].*)$", re.MULTILINE)
+# The path of an include or an import is relative to the document that has it.
+_INCLUDE = re.compile(
+    r"^(\[DOCUMENT_FROM_FILE\]\s*\nFILE: *)(.+?)(\s*)$", re.MULTILINE
+)
+_IMPORT = re.compile(r"^(IMPORT_FROM_FILE: *)([^@\s].*?)(\s*)$", re.MULTILINE)
 DOCUMENT_EXTENSION = ".sdoc"
 
+Moves = List[Tuple[str, str]]
 
-def _inside(root: str, relative_path: str, what: str) -> str:
+
+def _roots(roots: Roots) -> List[str]:
+    """The real paths of the input folders (the files are not folders)."""
+    given = [roots] if isinstance(roots, str) else list(roots)
+    found: List[str] = []
+    for root_ in given:
+        real = os.path.realpath(root_)
+        if os.path.isdir(real) and real not in found:
+            found.append(real)
+    if len(found) == 0:
+        raise StrictDocException("The project has no input folder.")
+    return found
+
+
+def _root_named(real_roots: List[str], name: str, shown: str) -> str:
+    matches = [root_ for root_ in real_roots if os.path.basename(root_) == name]
+    if len(matches) != 1:
+        raise StrictDocException(f"Invalid path '{shown}'.")
+    return matches[0]
+
+
+def tree_path(roots: Roots, absolute_path: str) -> str:
+    """The path of the project tree of a file or a folder ("" if outside)."""
+    real_roots = _roots(roots)
+    real = os.path.realpath(absolute_path)
+    for root_ in real_roots:
+        if real == root_ or real.startswith(root_ + os.sep):
+            relative = os.path.relpath(real, root_).replace(os.sep, "/")
+            relative = "" if relative == "." else relative
+            if len(real_roots) == 1:
+                return relative
+            return "/".join(
+                part_ for part_ in (os.path.basename(root_), relative) if part_
+            )
+    return ""
+
+
+def locate(roots: Roots, tree_path_: str, what: str = "folder") -> str:
     """
-    The absolute path of a relative path of the project, which must exist and
-    must not go out of the project (no "..", no link).
+    The absolute path of a path of the project tree. It must exist and must
+    not go out of the input folders (no "..", no link).
     """
-    real_root = os.path.realpath(root)
-    path = relative_path.strip().replace("\\", "/").strip("/")
+    real_roots = _roots(roots)
+    path = tree_path_.strip().replace("\\", "/").strip("/")
     segments = [] if path == "" else path.split("/")
-    current = real_root
     for segment_ in segments:
         if segment_ in ("", ".", "..") or "\0" in segment_:
-            raise StrictDocException(f"Invalid {what} '{relative_path}'.")
+            raise StrictDocException(f"Invalid {what} '{tree_path_}'.")
+    if len(real_roots) == 1:
+        current = real_roots[0]
+    elif len(segments) == 0:
+        raise StrictDocException(
+            "The project has several input folders: choose one of them."
+        )
+    else:
+        current = _root_named(real_roots, segments[0], tree_path_)
+        segments = segments[1:]
+    for segment_ in segments:
         current = os.path.join(current, segment_)
         if os.path.islink(current):
-            raise StrictDocException(f"Invalid {what} '{relative_path}'.")
+            raise StrictDocException(f"Invalid {what} '{tree_path_}'.")
     if not os.path.exists(current):
         raise StrictDocException(f"The {what} '{path}' does not exist.")
     return current
+
+
+def _refuse_input_folder(roots: Roots, absolute_path: str, shown: str) -> None:
+    if absolute_path in _roots(roots):
+        raise StrictDocException(
+            f"'{shown}' is an input folder of the project: it stays where it is."
+        )
 
 
 def _clean_name(name: str) -> str:
@@ -134,9 +208,8 @@ def _clean_name(name: str) -> str:
     return clean_folder_path(text)
 
 
-def _documents_under(root: str, relative_path: str) -> List[str]:
-    """The relative paths of the documents in a folder, at any depth."""
-    base = os.path.join(os.path.realpath(root), relative_path)
+def _documents_under(base: str) -> List[str]:
+    """The absolute paths of the documents in a folder, at any depth."""
     found: List[str] = []
     for folder_, dirs_, files_ in os.walk(base):
         dirs_[:] = [
@@ -146,88 +219,103 @@ def _documents_under(root: str, relative_path: str) -> List[str]:
         ]
         for file_ in files_:
             if file_.endswith(DOCUMENT_EXTENSION):
-                found.append(
-                    os.path.relpath(
-                        os.path.join(folder_, file_), os.path.realpath(root)
-                    ).replace(os.sep, "/")
-                )
+                found.append(os.path.join(folder_, file_))
     return sorted(found)
 
 
-def _dependencies(root: str) -> Dict[str, List[str]]:
+def _depth(roots: Roots, absolute_path: str) -> int:
+    """The levels of folders of a path, below its input folder."""
+    segments = [
+        segment_
+        for segment_ in tree_path(roots, absolute_path).split("/")
+        if segment_
+    ]
+    return len(segments) - (1 if len(_roots(roots)) > 1 else 0)
+
+
+def _mapped(path: str, moves: Moves) -> str:
+    """Where a file or a folder is after the moves."""
+    for old_, new_ in moves:
+        if path == old_ or path.startswith(old_ + os.sep):
+            return new_ + path[len(old_) :]
+    return path
+
+
+def _rewritten(text: str, document: str, moves: Moves) -> str:
+    """The text of a document, with the paths of its includes and imports."""
+    directory = os.path.dirname(document)
+    new_directory = os.path.dirname(_mapped(document, moves))
+
+    def rewrite(match: "re.Match[str]") -> str:
+        target = os.path.normpath(os.path.join(directory, match.group(2)))
+        new_path = os.path.relpath(
+            _mapped(target, moves), new_directory
+        ).replace(os.sep, "/")
+        if new_path == os.path.relpath(target, directory).replace(os.sep, "/"):
+            return match.group(0)
+        return match.group(1) + new_path + match.group(3)
+
+    return _IMPORT.sub(rewrite, _INCLUDE.sub(rewrite, text))
+
+
+def _plan_rewrites(roots: Roots, moves: Moves) -> List[Tuple[str, str]]:
     """
-    The files that each document includes or imports by a relative path (the
-    paths are relative to the root of the project).
+    Documents include and import each other by relative paths. For each
+    document that has such a path changed by the moves (the document moves, or
+    its target does), the (old path, new text) with the path rewritten.
     """
-    found: Dict[str, List[str]] = {}
-    real_root = os.path.realpath(root)
-    for document_ in _documents_under(root, ""):
+    plan: List[Tuple[str, str]] = []
+    documents: List[str] = []
+    for root_ in _roots(roots):
+        documents.extend(_documents_under(root_))
+    for document_ in sorted(set(documents)):
         try:
-            with open(
-                os.path.join(real_root, document_), encoding="utf8"
-            ) as file_:
+            with open(document_, encoding="utf8", newline="") as file_:
                 text = file_.read()
         except (OSError, UnicodeDecodeError):
             continue
-        targets = _INCLUDE.findall(text) + _IMPORT.findall(text)
-        directory = os.path.dirname(document_)
-        found[document_] = [
-            os.path.normpath(os.path.join(directory, target_.strip())).replace(
-                os.sep, "/"
-            )
-            for target_ in targets
-        ]
-    return found
+        new_text = _rewritten(text, document_, moves)
+        if new_text != text:
+            plan.append((document_, new_text))
+    return plan
 
 
-def _check_paths_still_resolve(root: str, moving: Dict[str, str]) -> None:
-    """
-    Documents include and import each other by relative paths. A move is
-    refused when it changes one of those paths (when only one side moves).
-    `moving` maps the old relative path of each moved document to the new one.
-    """
-    broken: List[str] = []
-    for document_, targets_ in _dependencies(root).items():
-        for target_ in targets_:
-            new_document = moving.get(document_, document_)
-            new_target = moving.get(target_, target_)
-            if os.path.relpath(
-                new_target, os.path.dirname(new_document) or "."
-            ) != os.path.relpath(target_, os.path.dirname(document_) or "."):
-                broken.append(f"{document_} -> {target_}")
-    if broken:
-        raise StrictDocException(
-            "The paths of these includes or imports would break: "
-            + ", ".join(broken)
-            + "."
-        )
+def _apply(moves: Moves, plan: List[Tuple[str, str]]) -> None:
+    """Moves the files, then writes the documents with their new paths."""
+    for old_, new_ in moves:
+        shutil.move(old_, new_)
+    for document_, text_ in plan:
+        with open(
+            _mapped(document_, moves), "w", encoding="utf8", newline=""
+        ) as file_:
+            file_.write(text_)
 
 
-def _destination(root: str, destination: str, name: str) -> str:
-    """The relative path of `name` in the destination folder (checked)."""
-    folder = _inside(root, destination, "destination folder")
+def _destination(roots: Roots, destination: str, name: str) -> str:
+    """The absolute path of `name` in the destination folder (checked)."""
+    folder = locate(roots, destination, "destination folder")
     if not os.path.isdir(folder):
         raise StrictDocException(
             f"The destination '{destination}' is not a folder."
         )
-    return "/".join(part_ for part_ in (destination.strip("/"), name) if part_)
+    return os.path.join(folder, name)
 
 
-def _keep_folder(root: str, relative_folder: str) -> None:
+def _keep_folder(roots: Roots, folder: str) -> None:
     """A folder that loses its last document stays in the tree."""
-    if relative_folder == "":
+    if folder in _roots(roots):
         return
-    marker = os.path.join(os.path.realpath(root), relative_folder, MARKER)
+    marker = os.path.join(folder, MARKER)
     if not os.path.exists(marker):
         with open(marker, "w", encoding="utf8"):
             pass
 
 
-def _move_folder_to(root: str, relative_path: str, new_relative: str) -> str:
-    source = _inside(root, relative_path, "folder")
+def _move_folder_to(roots: Roots, source: str, target: str) -> str:
     if not os.path.isdir(source):
-        raise StrictDocException(f"'{relative_path}' is not a folder.")
-    new_relative = clean_folder_path(new_relative)
+        raise StrictDocException(
+            f"'{tree_path(roots, source)}' is not a folder."
+        )
     deepest = max(
         (
             len(os.path.relpath(folder_, source).split(os.sep))
@@ -236,64 +324,70 @@ def _move_folder_to(root: str, relative_path: str, new_relative: str) -> str:
         ),
         default=0,
     )
-    if len(new_relative.split("/")) + deepest > MAX_DEPTH:
+    if _depth(roots, os.path.dirname(target)) + 1 + deepest > MAX_DEPTH:
         raise StrictDocException(f"At most {MAX_DEPTH} levels of folders.")
-    target = os.path.join(os.path.realpath(root), new_relative)
     if os.path.lexists(target):
-        raise StrictDocException(f"'{new_relative}' exists already.")
-    old = relative_path.strip("/")
-    moving = {
-        document_: new_relative + document_[len(old) :]
-        for document_ in _documents_under(root, old)
-    }
-    _check_paths_still_resolve(root, moving)
-    os.rename(source, target)
-    return new_relative
+        raise StrictDocException(
+            f"'{tree_path(roots, target)}' exists already."
+        )
+    moves = [(source, target)]
+    plan = _plan_rewrites(roots, moves)
+    if os.path.dirname(target) != os.path.dirname(source):
+        _keep_folder(roots, os.path.dirname(source))
+    _apply(moves, plan)
+    return tree_path(roots, target)
 
 
-def rename_folder(root: str, relative_path: str, new_name: str) -> str:
-    """Gives a folder a new name; returns its new relative path."""
+def rename_folder(roots: Roots, relative_path: str, new_name: str) -> str:
+    """Gives a folder a new name; returns its new path."""
     name = _clean_name(new_name)
-    parent = os.path.dirname(relative_path.strip("/"))
-    new_relative = "/".join(part_ for part_ in (parent, name) if part_)
-    return _move_folder_to(root, relative_path, new_relative)
+    source = locate(roots, relative_path)
+    _refuse_input_folder(roots, source, relative_path.strip("/"))
+    return _move_folder_to(
+        roots, source, os.path.join(os.path.dirname(source), name)
+    )
 
 
-def move_folder(root: str, relative_path: str, destination: str) -> str:
-    """Moves a folder into another folder ("" is the root of the project)."""
+def move_folder(roots: Roots, relative_path: str, destination: str) -> str:
+    """
+    Moves a folder into another folder ("" is the project, if it has one input
+    folder).
+    """
     old = relative_path.strip("/")
-    new_parent = destination.strip("/")
-    _inside(root, old, "folder")
-    if new_parent == old or new_parent.startswith(old + "/"):
+    source = locate(roots, old)
+    _refuse_input_folder(roots, source, old)
+    folder = _destination(roots, destination, os.path.basename(source))
+    parent = os.path.dirname(folder)
+    if parent == source or parent.startswith(source + os.sep):
         raise StrictDocException("A folder cannot move into itself.")
-    if new_parent == os.path.dirname(old):
+    if parent == os.path.dirname(source):
         raise StrictDocException(f"'{old}' is already in that folder.")
-    new_relative = _destination(root, new_parent, os.path.basename(old))
-    return _move_folder_to(root, old, new_relative)
+    return _move_folder_to(roots, source, folder)
 
 
-def move_document(root: str, relative_path: str, destination: str) -> str:
-    """Moves a document into a folder ("" is the root of the project)."""
+def move_document(roots: Roots, relative_path: str, destination: str) -> str:
+    """Moves a document into a folder."""
     old = relative_path.strip("/")
-    source = _inside(root, old, "document")
+    source = locate(roots, old, "document")
     if not os.path.isfile(source) or not old.endswith(DOCUMENT_EXTENSION):
         raise StrictDocException(f"'{old}' is not a document.")
-    new_parent = destination.strip("/")
-    if new_parent == os.path.dirname(old):
+    target = _destination(roots, destination, os.path.basename(source))
+    if os.path.dirname(target) == os.path.dirname(source):
         raise StrictDocException(f"'{old}' is already in that folder.")
-    new_relative = _destination(root, new_parent, os.path.basename(old))
-    target = os.path.join(os.path.realpath(root), new_relative)
     if os.path.lexists(target):
-        raise StrictDocException(f"'{new_relative}' exists already.")
-    _check_paths_still_resolve(root, {old: new_relative})
-    _keep_folder(root, os.path.dirname(old))
-    os.rename(source, target)
-    return new_relative
+        raise StrictDocException(
+            f"'{tree_path(roots, target)}' exists already."
+        )
+    moves = [(source, target)]
+    plan = _plan_rewrites(roots, moves)
+    _keep_folder(roots, os.path.dirname(source))
+    _apply(moves, plan)
+    return tree_path(roots, target)
 
 
-def blocking_files(root: str, relative_path: str) -> List[str]:
+def blocking_files(roots: Roots, relative_path: str) -> List[str]:
     """The files of a folder that keep it from being deleted (not markers)."""
-    folder = _inside(root, relative_path.strip("/"), "folder")
+    folder = locate(roots, relative_path.strip("/"))
     if not os.path.isdir(folder):
         raise StrictDocException(f"'{relative_path}' is not a folder.")
     found: List[str] = []
@@ -308,17 +402,16 @@ def blocking_files(root: str, relative_path: str) -> List[str]:
     return sorted(found)
 
 
-def delete_folder(root: str, relative_path: str) -> None:
+def delete_folder(roots: Roots, relative_path: str) -> None:
     """Deletes a folder that has no file but its markers."""
     old = relative_path.strip("/")
-    if old == "":
-        raise StrictDocException("The project itself cannot be deleted.")
-    blocking = blocking_files(root, old)
+    folder = locate(roots, old)
+    _refuse_input_folder(roots, folder, old or "the project")
+    blocking = blocking_files(roots, old)
     if blocking:
         raise StrictDocException(
             f"The folder is not empty: move or delete '{blocking[0]}' first."
         )
-    folder = _inside(root, old, "folder")
     for folder_, _, files_ in os.walk(folder, topdown=False):
         for file_ in files_:
             os.remove(os.path.join(folder_, file_))

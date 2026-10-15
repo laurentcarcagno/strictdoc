@@ -10,6 +10,7 @@ from strictdoc.features.folders.folders import (
     move_document,
     move_folder,
     rename_folder,
+    tree_path,
 )
 from strictdoc.helpers.exception import StrictDocException
 
@@ -167,40 +168,89 @@ def test_018_a_document_move_refuses_a_name_clash_or_a_non_document(tmp_path):
         move_document(str(tmp_path), "a/one.sdoc", "a")
 
 
-def test_019_a_move_that_breaks_an_include_is_refused(tmp_path):
+def test_019_a_move_rewrites_the_include_of_a_moved_target_or_includer(
+    tmp_path,
+):
     create_folder(str(tmp_path), "b")
     _doc(
         tmp_path / "main.sdoc",
         "[DOCUMENT]\nTITLE: M\n\n[DOCUMENT_FROM_FILE]\nFILE: part.sdoc\n",
     )
     _doc(tmp_path / "part.sdoc")
-    with pytest.raises(StrictDocException, match="main.sdoc"):
-        move_document(str(tmp_path), "part.sdoc", "b")
-    with pytest.raises(StrictDocException, match="part.sdoc"):
-        move_document(str(tmp_path), "main.sdoc", "b")
-    assert (tmp_path / "part.sdoc").is_file()
+    move_document(str(tmp_path), "part.sdoc", "b")
+    assert "FILE: b/part.sdoc\n" in (tmp_path / "main.sdoc").read_text()
+    move_document(str(tmp_path), "main.sdoc", "b")
+    assert "FILE: part.sdoc\n" in (tmp_path / "b" / "main.sdoc").read_text()
+    assert (tmp_path / "b" / "part.sdoc").is_file()
 
 
 def test_020_documents_that_move_together_keep_their_includes(tmp_path):
     create_folder(str(tmp_path), "dest")
-    _doc(
-        tmp_path / "pack" / "main.sdoc",
-        "[DOCUMENT]\nTITLE: M\n\n[DOCUMENT_FROM_FILE]\nFILE: part.sdoc\n",
-    )
+    text = "[DOCUMENT]\nTITLE: M\n\n[DOCUMENT_FROM_FILE]\nFILE: part.sdoc\n"
+    _doc(tmp_path / "pack" / "main.sdoc", text)
     _doc(tmp_path / "pack" / "part.sdoc")
     assert move_folder(str(tmp_path), "pack", "dest") == "dest/pack"
     assert (tmp_path / "dest" / "pack" / "part.sdoc").is_file()
+    assert (tmp_path / "dest" / "pack" / "main.sdoc").read_text() == text
 
 
-def test_021_a_folder_move_that_breaks_a_grammar_import_is_refused(tmp_path):
+def test_021_a_folder_move_rewrites_a_grammar_import_and_keeps_the_rest(
+    tmp_path,
+):
     create_folder(str(tmp_path), "dest")
     _doc(
         tmp_path / "pack" / "main.sdoc",
-        "[DOCUMENT]\nTITLE: M\n\n[GRAMMAR]\nIMPORT_FROM_FILE: ../shared.sgra\n",
+        "[DOCUMENT]\r\nTITLE: M\r\n\r\n[GRAMMAR]\r\n"
+        "IMPORT_FROM_FILE: ../shared.sgra\r\n",
+    )
+    _doc(
+        tmp_path / "pack" / "other.sdoc",
+        "[DOCUMENT]\nTITLE: O\n\n[GRAMMAR]\nIMPORT_FROM_FILE: @x.sgra\n",
     )
     (tmp_path / "shared.sgra").write_text("x")
-    with pytest.raises(StrictDocException, match="shared.sgra"):
-        move_folder(str(tmp_path), "pack", "dest")
+    move_folder(str(tmp_path), "pack", "dest")
+    moved = (tmp_path / "dest" / "pack" / "main.sdoc").read_bytes()
+    assert b"IMPORT_FROM_FILE: ../../shared.sgra\r\n" in moved
+    assert b"TITLE: M\r\n" in moved
+    other = (tmp_path / "dest" / "pack" / "other.sdoc").read_text()
+    assert "IMPORT_FROM_FILE: @x.sgra\n" in other
+
+
+def test_023_an_include_from_another_folder_follows_a_folder_rename(tmp_path):
+    _doc(
+        tmp_path / "a" / "main.sdoc",
+        "[DOCUMENT]\nTITLE: M\n\n[DOCUMENT_FROM_FILE]\nFILE: ../parts/p.sdoc\n",
+    )
+    _doc(tmp_path / "parts" / "p.sdoc")
+    rename_folder(str(tmp_path), "parts", "pieces")
+    assert (
+        "FILE: ../pieces/p.sdoc\n" in (tmp_path / "a" / "main.sdoc").read_text()
+    )
+
+
+def test_024_several_input_folders_name_their_paths_by_the_folder(tmp_path):
+    one = tmp_path / "one"
+    two = tmp_path / "two"
+    one.mkdir()
+    two.mkdir()
+    roots = [str(one), str(two)]
+    assert create_folder(roots, "two/x/y") == ["two/x", "two/x/y"]
+    _doc(
+        one / "main.sdoc",
+        "[DOCUMENT]\nTITLE: M\n\n[DOCUMENT_FROM_FILE]\nFILE: part.sdoc\n",
+    )
+    _doc(one / "part.sdoc")
+    assert move_document(roots, "one/part.sdoc", "two/x") == "two/x/part.sdoc"
+    assert "FILE: ../two/x/part.sdoc\n" in (one / "main.sdoc").read_text()
+    assert move_folder(roots, "two/x", "one") == "one/x"
+    assert "FILE: x/part.sdoc\n" in (one / "main.sdoc").read_text()
+    assert tree_path(roots, str(one / "x" / "y")) == "one/x/y"
+    with pytest.raises(StrictDocException, match="several"):
+        move_folder(roots, "one/x", "")
+    with pytest.raises(StrictDocException, match="input folder"):
+        rename_folder(roots, "one", "uno")
+    with pytest.raises(StrictDocException, match="input folder"):
+        delete_folder(roots, "two")
 
 
 def test_022_only_an_empty_folder_is_deleted(tmp_path):

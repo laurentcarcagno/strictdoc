@@ -4363,12 +4363,16 @@ STATEMENT: >>>
 Right-click a folder for *Rename folder* (authors and administrators) and *Delete folder*
 (administrators, for an empty folder only). Drag a document or a folder onto another folder,
 or onto the project name for the top level, to move it (authors and administrators). A move
-is refused, with the reason under the project name, when the target has the same name, when
-it would put a folder in itself, or when it would break the relative path of an included
-document or of an imported grammar (move the documents that belong together as one folder).
+is refused, with the reason under the project name, when the target has the same name or
+when it would put a folder in itself. A move or a rename rewrites the relative paths of the
+``[DOCUMENT_FROM_FILE]`` includes and the ``IMPORT_FROM_FILE`` grammar imports that it
+changes, in the moved documents and in the others. With several input folders, each one is
+a top-level folder of the tree and a document can move from one to another; the input
+folders themselves cannot be renamed, moved or deleted.
 Type the path of the folder, with ``/`` between the levels to create several levels at
 once (``specifications/system``); the form lists the folders that exist. The folder is
-created in the first input folder of the project and appears in the tree at once, even
+created in the input folder of the project (with several, the first level of the path is
+the name of one of them) and appears in the tree at once, even
 while it is empty: a folder that the interface creates holds a marker file,
 ``.sdoc-folder``, and the tree shows the folders that have one (a folder without a
 document and without the marker stays hidden, as before). To put a document in a folder,

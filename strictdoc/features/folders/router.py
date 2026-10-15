@@ -16,6 +16,7 @@ from strictdoc.features.folders.folders import (
     create_folder,
     delete_folder,
     folder_paths,
+    locate,
     move_document,
     move_folder,
     rename_folder,
@@ -35,16 +36,26 @@ def create_folders_routers(
     read_router = APIRouter()
     write_router = APIRouter()
 
+    def roots() -> List[str]:
+        config = context.project_config
+        assert isinstance(config.input_paths, list)
+        return [os.path.abspath(path_) for path_ in config.input_paths]
+
     def existing_folders() -> List[str]:
         tree = assert_cast(
             context.export_action.traceability_index.document_tree,
             DocumentTree,
         )
         found: List[str] = []
+        several = len(tree.file_tree) > 1
         for file_tree_ in tree.file_tree:
             root = file_tree_.root_folder_or_file
             if root.is_folder():
-                found.extend(folder_paths(root))  # type: ignore[arg-type]
+                # With several input folders, each one is a folder of the tree.
+                prefix = root.folder_name + "/" if several else ""  # type: ignore[union-attr]
+                if several:
+                    found.append(root.folder_name)  # type: ignore[union-attr]
+                found.extend(folder_paths(root, prefix))  # type: ignore[arg-type]
         return found
 
     def form(
@@ -73,9 +84,8 @@ def create_folders_routers(
     )
     def create(folder_path: str = Form("")) -> Response:
         config = context.project_config
-        assert isinstance(config.input_paths, list)
         try:
-            create_folder(os.path.abspath(config.input_paths[0]), folder_path)
+            create_folder(roots(), folder_path)
         except StrictDocException as exception_:
             return form(folder_path, str(exception_))
         context.export_action.build_index()
@@ -90,14 +100,9 @@ def create_folders_routers(
         )
         return HTMLResponse(content=output, headers=_STREAM)
 
-    def root_path() -> str:
-        config = context.project_config
-        assert isinstance(config.input_paths, list)
-        return os.path.abspath(config.input_paths[0])
-
     def output_files_under(relative_path: str) -> List[str]:
         """The generated pages of the documents that are in a path."""
-        base = os.path.realpath(os.path.join(root_path(), relative_path))
+        base = locate(roots(), relative_path, "path")
         tree = assert_cast(
             context.export_action.traceability_index.document_tree,
             DocumentTree,
@@ -161,7 +166,7 @@ def create_folders_routers(
     def rename(path: str = Form(""), new_name: str = Form("")) -> Response:
         try:
             stale = output_files_under(path.strip("/"))
-            new_path = rename_folder(root_path(), path, new_name)
+            new_path = rename_folder(roots(), path, new_name)
         except StrictDocException as exception_:
             return rename_form(path, new_name, str(exception_))
         rebuild(stale)
@@ -173,9 +178,9 @@ def create_folders_routers(
         try:
             stale = output_files_under(source.strip("/"))
             if source.strip("/").endswith(".sdoc"):
-                new_path = move_document(root_path(), source, destination)
+                new_path = move_document(roots(), source, destination)
             else:
-                new_path = move_folder(root_path(), source, destination)
+                new_path = move_folder(roots(), source, destination)
         except StrictDocException as exception_:
             return JSONResponse({"error": str(exception_)}, status_code=422)
         rebuild(stale)
@@ -191,10 +196,10 @@ def create_folders_routers(
         try:
             errors = [
                 f"{path.strip('/')}/{file_}"
-                for file_ in blocking_files(root_path(), path)
+                for file_ in blocking_files(roots(), path)
             ]
             if confirmed and not errors:
-                delete_folder(root_path(), path)
+                delete_folder(roots(), path)
         except StrictDocException as exception_:
             errors = [str(exception_)]
         if confirmed and not errors:

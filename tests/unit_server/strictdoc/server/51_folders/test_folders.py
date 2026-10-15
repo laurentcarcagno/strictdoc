@@ -225,6 +225,32 @@ def test_013_a_move_that_cannot_be_done_says_why(tmp_path, monkeypatch):
     assert (data / "alpha_doc.sdoc").is_file()
 
 
+def test_016_a_move_rewrites_the_includes_that_point_to_the_moved_folder(
+    tmp_path, monkeypatch
+):
+    client = _alpha(tmp_path, monkeypatch)
+    ben = as_user(user="ben")
+    _with_docs_folder(client, ben)
+    client.post(
+        "/actions/project_index/create_folder",
+        data={"folder_path": "archive"},
+        headers=ben,
+    )
+    data = tmp_path / "data" / "alpha"
+    (data / "main.sdoc").write_text(
+        "[DOCUMENT]\nTITLE: Main\n\n[DOCUMENT_FROM_FILE]\n"
+        "FILE: docs/t.sdoc\n",
+        encoding="utf8",
+    )
+    moved = client.post(
+        "/actions/project_index/move",
+        data={"source": "docs", "destination": "archive"},
+        headers=ben,
+    )
+    assert moved.status_code == 200
+    assert "FILE: archive/docs/t.sdoc\n" in (data / "main.sdoc").read_text()
+
+
 def test_014_only_an_administrator_deletes_an_empty_folder(
     tmp_path, monkeypatch
 ):
