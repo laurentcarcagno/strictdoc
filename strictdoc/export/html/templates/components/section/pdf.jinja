@@ -8,7 +8,7 @@
   document metadata block instead of just the UID.
 #}
 
-<sdoc-section>
+<sdoc-section{% if changed_since_tag|default(false) %} data-changed-since-tag{% endif %}>
   {# Use h/print, it contains anchor: #}
   {% include "components/node_field/section_h/pdf.jinja" %}
   {%- if sdoc_entity.is_document_node() %}

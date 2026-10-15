@@ -164,3 +164,17 @@
   border: 0;
   outline: 0;
 }
+
+/*
+  Change bar: a red bar on the left of the nodes that are new or modified
+  since the latest version tag. The table of contents and the lists are not
+  nodes, so they have none.
+*/
+[data-viewtype="html2pdf"] .layout_main :is(sdoc-node-content, sdoc-section)[data-changed-since-tag] {
+  display: block;
+  margin-left: 0;
+  padding-left: 6px;
+  border-left: 3px solid #d00000;
+  border-radius: 0;
+}
+

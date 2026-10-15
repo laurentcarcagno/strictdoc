@@ -4390,6 +4390,11 @@ taller than a page makes its sheet taller. The sheets are scaled down when the w
 too narrow for them. It is a view of the screen, not the layout of the PDF export, and the
 choice is kept in the browser.
 
+**PDF export.** The PDF has no node type labels, no separator lines and no comments. When the
+project has the ``GIT`` feature and the repository has a version tag, a red bar on the left
+marks the nodes (sections, requirements, text) that are new or modified since the latest
+tag; the comments do not count as a change. The table of contents has no bar.
+
 **Markdown.** A document that the web interface creates is in Markdown
 (``MARKUP: Markdown``), so its fields are edited with the visual editor. So is a document
 that the Word import writes when the project has no ``docx_profile`` (the generic

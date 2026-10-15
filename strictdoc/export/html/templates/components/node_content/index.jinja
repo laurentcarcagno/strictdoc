@@ -28,6 +28,7 @@
     data-status='{{ sdoc_entity.reserved_status.lower() }}'
   {%- endif %}
   show-node-type-name="{{ sdoc_entity.get_node_type_string() }}"
+  {%- if changed_since_tag|default(false) %} data-changed-since-tag{% endif %}
   data-testid="requirement-style-{{ requirement_style|d(sdoc_entity.get_requirement_style_mode()) }}"
 >
   {% set title_number = true %}

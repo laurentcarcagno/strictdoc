@@ -24,6 +24,8 @@
         -#}
 
         {%- for node, _unused in view_object.document_content_iterator() %}
+        {#- Read by node_content/index.jinja and section/pdf.jinja: the change bar. -#}
+        {%- set changed_since_tag = view_object.node_changed_since_last_tag(node) %}
 
         {%- if node.is_content_node() %}
           {%- set sdoc_entity = node -%}

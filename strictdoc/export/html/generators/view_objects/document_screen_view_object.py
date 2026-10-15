@@ -69,6 +69,7 @@ from strictdoc.features.comments.service import (
     supports_comments,
 )
 from strictdoc.features.hierarchy.suspect import suspect_parents
+from strictdoc.features.html2pdf.changes import changed_nodes_since_last_tag
 from strictdoc.features.reviewers.reviewers import document_reviewers
 from strictdoc.helpers.cast import assert_cast
 from strictdoc.helpers.file_system import file_open_read_utf8
@@ -189,6 +190,25 @@ class DocumentScreenViewObject:
         if project_config.html2pdf_template is not None:
             with file_open_read_utf8(project_config.html2pdf_template) as f_:
                 self.custom_html2pdf_template = Template(f_.read())
+
+    def node_changed_since_last_tag(self, node: Any) -> bool:
+        """
+        PDF only: the node is new or modified since the latest version tag
+        (the project has the GIT feature and the document is in a repository
+        that has a version tag).
+        """
+        if not self.document_type.is_pdf():
+            return False
+        if not self.project_config.is_activated_git():
+            return False
+        if not hasattr(self, "_changed_since_last_tag"):
+            meta = self.document.meta
+            self._changed_since_last_tag = changed_nodes_since_last_tag(
+                self.document,
+                meta.input_doc_full_path if meta is not None else None,
+            )
+        changed = self._changed_since_last_tag
+        return changed is not None and id(node) in changed
 
     def node_supports_comments(self, node: SDocNode) -> bool:
         return supports_comments(node)

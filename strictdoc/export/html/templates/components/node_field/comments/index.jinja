@@ -1,4 +1,6 @@
 {# comments #}
+{#- The PDF has no comments. -#}
+{%- if not view_object.document_type.is_pdf() %}
 {# needs sdoc_entity, see README.txt #}
 
 {% if view_object.project_config.is_activated_comments() %}
@@ -23,4 +25,5 @@
     </sdoc-node-field>
   {%- endfor %}
   {{ view_object.render_issues(sdoc_entity, field="COMMENT") }}
+{%- endif %}
 {%- endif %}
