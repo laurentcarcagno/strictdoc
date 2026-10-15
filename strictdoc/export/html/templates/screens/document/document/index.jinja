@@ -3,6 +3,7 @@
 {% block head_css %}
   {{ super() }}
   <link rel="stylesheet" href="{{ view_object.render_static_url('media_zoom.css') }}"/>
+  <link rel="stylesheet" href="{{ view_object.render_static_url('page_view/page_view.css') }}"/>
   {%- if view_object.is_running_on_server %}
   <link rel="stylesheet" href="{{ view_object.render_static_url('move_node_tree.css') }}"/>
   {%- endif %}
@@ -16,6 +17,7 @@
   <script src="{{ view_object.render_static_url('app_core.js') }}"></script>
 
   <script src="{{ view_object.render_static_url('media_zoom.js') }}"></script>
+  <script src="{{ view_object.render_static_url('page_view/page_view.js') }}"></script>
 
   <script src="{{ view_object.render_static_url('dropdown_menu.js') }}"></script>
 
@@ -250,7 +252,8 @@
 
 {%- set header_items = [
       "screens/document/_shared/frame_header_document_title.jinja",
-      "screens/document/_shared/frame_viewtype_menu.jinja"
+      "screens/document/_shared/frame_viewtype_menu.jinja",
+      "features/page_view/control.jinja.html"
     ]
 -%}
 

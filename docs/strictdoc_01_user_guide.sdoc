@@ -4382,6 +4382,14 @@ use *Add document* and give its path (``specifications/system/interface.sdoc``).
 has letters, digits, ``_``, ``-`` and ``.``, up to 8 levels; ``_assets``, ``output`` and
 ``word`` are reserved. There is no rename or delete for folders yet: do it on disk.
 
+**Page view.** The document view is a wide column (up to 1280 px). The *Normal*, *1 page* and
+*2 pages* buttons next to the view menu show the document on A4 sheets, one or two side by
+side, to see how long a page is while editing. A node that does not fit at the bottom of a
+sheet starts the next one, a section title stays with the node that follows it, and a node
+taller than a page makes its sheet taller. The sheets are scaled down when the window is
+too narrow for them. It is a view of the screen, not the layout of the PDF export, and the
+choice is kept in the browser.
+
 **Markdown.** A document that the web interface creates is in Markdown
 (``MARKUP: Markdown``), so its fields are edited with the visual editor. So is a document
 that the Word import writes when the project has no ``docx_profile`` (the generic

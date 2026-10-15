@@ -1,0 +1,85 @@
+/*
+ * The document view is wider than the stock 900px column, and a page view
+ * puts the document on A4 sheets (page_view.js sets the sizes and offsets).
+ */
+
+html [data-viewtype="document"] .content {
+  max-width: 1280px;
+}
+
+.pageview {
+  display: inline-flex;
+  margin-left: var(--hem-space-md, 12px);
+  border: 1px solid var(--hem-muted, #9aa7b2);
+  border-radius: 3px;
+  overflow: hidden;
+  vertical-align: middle;
+}
+
+.pageview__button {
+  padding: 2px 10px;
+  font: inherit;
+  font-size: 12px;
+  line-height: 20px;
+  color: inherit;
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+  border-left: 1px solid var(--hem-muted, #9aa7b2);
+}
+
+.pageview__button:first-child {
+  border-left: 0;
+}
+
+.pageview__button:hover {
+  background: var(--color-bg-accent, #e6eef5);
+}
+
+.pageview__button[aria-pressed="true"] {
+  color: #fff;
+  background: var(--color-bg-ui, #12293a);
+}
+
+/* The sheets. */
+
+html.sdoc-page-view [data-viewtype="document"] .main {
+  background: #cfd6dc;
+  align-items: flex-start;
+}
+
+html.sdoc-page-view [data-viewtype="document"] .content {
+  position: relative;
+  flex: none;
+  min-width: 0;
+  max-width: none;
+  background: transparent;
+  transform-origin: 0 0;
+}
+
+/* The sheet is the page: the nodes do not paint their own background. */
+html.sdoc-page-view [data-viewtype="document"] .content sdoc-node {
+  background: transparent;
+}
+
+.sdoc-page-sheets {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.sdoc-page-sheet {
+  position: absolute;
+  background: #fff;
+  box-shadow: 0 1px 6px rgb(0 0 0 / 30%);
+}
+
+.sdoc-page-sheet__number {
+  position: absolute;
+  right: 0;
+  bottom: 4mm;
+  left: 0;
+  font-size: 11px;
+  color: #7a8793;
+  text-align: center;
+}

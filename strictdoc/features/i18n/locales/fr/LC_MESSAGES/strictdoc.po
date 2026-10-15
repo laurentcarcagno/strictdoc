@@ -2438,3 +2438,24 @@ msgstr "Les documents du dossier gardent leur contenu ; leur adresse change."
 
 msgid "deleting a folder is an unrecoverable action."
 msgstr "la suppression d'un dossier est irréversible."
+
+msgid "Page view"
+msgstr "Vue en pages"
+
+msgid "Normal"
+msgstr "Normal"
+
+msgid "1 page"
+msgstr "1 page"
+
+msgid "2 pages"
+msgstr "2 pages"
+
+msgid "Wide column, no pages"
+msgstr "Colonne large, sans pages"
+
+msgid "A4 sheets, one page wide"
+msgstr "Feuilles A4, une page de large"
+
+msgid "A4 sheets, two pages side by side"
+msgstr "Feuilles A4, deux pages côte à côte"

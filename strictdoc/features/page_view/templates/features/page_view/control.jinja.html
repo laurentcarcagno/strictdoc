@@ -1,0 +1,10 @@
+{#-
+  The page view of the document screen (assets/page_view/page_view.js): the
+  document on A4 sheets, one or two side by side, to see the length of a page
+  while editing. "Normal" is the wide column.
+-#}
+<div class="pageview" role="group" aria-label="{{ _("Page view") }}" data-testid="page-view">
+  <button type="button" class="pageview__button" data-page-view="normal" aria-pressed="true" title="{{ _("Wide column, no pages") }}" data-testid="page-view-normal">{{ _("Normal") }}</button>
+  <button type="button" class="pageview__button" data-page-view="one" aria-pressed="false" title="{{ _("A4 sheets, one page wide") }}" data-testid="page-view-one">{{ _("1 page") }}</button>
+  <button type="button" class="pageview__button" data-page-view="two" aria-pressed="false" title="{{ _("A4 sheets, two pages side by side") }}" data-testid="page-view-two">{{ _("2 pages") }}</button>
+</div>
