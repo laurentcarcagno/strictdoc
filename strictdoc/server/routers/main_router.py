@@ -141,6 +141,8 @@ from strictdoc.export.html.renderers.markup_renderer import MarkupRenderer
 from strictdoc.features.comments.router import create_comments_routers
 from strictdoc.features.folders.router import create_folders_routers
 from strictdoc.features.git_config.router import create_git_routers
+from strictdoc.features.git_sync.guard import create_merge_guard
+from strictdoc.features.git_sync.router import create_git_sync_routers
 from strictdoc.features.git_config.setup import (
     collect_node_assets,
     remove_node_assets,
@@ -352,9 +354,11 @@ def create_main_router(
     baseline_sync = create_baseline_sync(
         project_config, lambda: export_action.traceability_index
     )
+    merge_guard = create_merge_guard(context)
     write_router = APIRouter(
         dependencies=[
             Depends(write_lock),
+            Depends(merge_guard),
             Depends(input_guard),
             Depends(baseline_sync),
         ]
@@ -5277,6 +5281,12 @@ def create_main_router(
     git_read_router, git_write_router = create_git_routers(context=context)
     read_router.include_router(git_read_router)
     write_router.include_router(git_write_router)
+
+    sync_read_router, sync_write_router = create_git_sync_routers(
+        context=context
+    )
+    read_router.include_router(sync_read_router)
+    write_router.include_router(sync_write_router)
 
     router.include_router(read_router)
     router.include_router(write_router)

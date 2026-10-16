@@ -4406,6 +4406,24 @@ its project created when it is first pushed (a version tag, or the push of the
 configuration management page). The token is given to git through a credential helper,
 for the host of the remote only. Without a token the project works without a remote.
 
+**Synchronization.** *Synchronize* (menu of the project, administrators, with the ``GIT`` feature
+and a remote ``origin``) pulls what the server has, then pushes the commits and the tags. The
+changes that are not committed are saved in a commit first. When the server is only ahead, the
+branch is moved forward; when both sides have commits, the server branch is merged into the
+project and the merge is committed. A document that both sides changed is merged again node
+by node (a section, a requirement, a text): what only one side changed is taken, and a node
+that both sides changed differently is a conflict. The conflicts open the conflict view, with
+two pages: the server on the left, the local project on the right, the nodes that differ in a
+frame (red for a conflict, blue for what was merged for you). For each conflict, *Keep the
+server*, *Keep the local*, *Keep both* or *Edit the result* (the text of the .sdoc file); *n*
+and *p* go to the next and the previous conflict. *Finish this document* writes it, and when
+every document is solved the merge is committed and pushed. *Abandon the merge* goes back to
+the state before. While a merge waits, the project cannot be changed (HTTP 423). Keeping both
+sides of a node that both changed is refused (its MID and UID would be twice in the document).
+Only documents are merged here: a conflict in another file (an asset, the configuration)
+abandons the merge, and Git solves it. The server side of the node order is not compared: a
+moved node follows the local order.
+
 **PDF export.** The PDF has no node type labels, no separator lines and no comments. When the
 project has the ``GIT`` feature and the repository has a version tag, a red bar on the left
 marks the nodes (sections, requirements, text) that are new or modified since the latest

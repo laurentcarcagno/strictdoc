@@ -2495,3 +2495,111 @@ msgstr "non poussée : %(reason)s"
 
 msgid "Export to PDF without revision marks"
 msgstr "Exporter en PDF sans marques de révision"
+
+msgid "Synchronization"
+msgstr "Synchronisation"
+
+msgid "Synchronize"
+msgstr "Synchroniser"
+
+msgid "Synchronize now"
+msgstr "Synchroniser maintenant"
+
+msgid "Conflicts"
+msgstr "Conflits"
+
+msgid "Already up to date."
+msgstr "Déjà à jour."
+
+msgid "%(count)s commit(s) pulled."
+msgstr "%(count)s commit(s) récupéré(s)."
+
+msgid "%(count)s commit(s) pulled and merged."
+msgstr "%(count)s commit(s) récupéré(s) et fusionné(s)."
+
+msgid "The repository has no remote (origin): nothing to synchronize with."
+msgstr "Le dépôt n'a pas de dépôt distant (origin) : rien à synchroniser."
+
+msgid "The repository has no remote (origin): there is nothing to synchronize with."
+msgstr "Le dépôt n'a pas de dépôt distant (origin) : il n'y a rien à synchroniser."
+
+msgid "Your commits are pushed."
+msgstr "Vos commits sont poussés."
+
+msgid "A merge is waiting for its conflicts to be solved"
+msgstr "Une fusion attend la résolution de ses conflits"
+
+msgid "The project cannot be changed until the merge is finished or abandoned."
+msgstr "Le projet ne peut pas être modifié tant que la fusion n'est pas terminée ou abandonnée."
+
+msgid "Abandon the merge"
+msgstr "Abandonner la fusion"
+
+msgid "Pulls what the server has (merging it with your changes), then pushes your commits and tags."
+msgstr "Récupère ce que le serveur a (en le fusionnant avec vos modifications), puis pousse vos commits et vos tags."
+
+msgid "conflicts solved"
+msgstr "conflits résolus"
+
+msgid "Previous conflict"
+msgstr "Conflit précédent"
+
+msgid "Next conflict"
+msgstr "Conflit suivant"
+
+msgid "Finish this document"
+msgstr "Terminer ce document"
+
+msgid "Server"
+msgstr "Serveur"
+
+msgid "Local"
+msgstr "Local"
+
+msgid "this project"
+msgstr "ce projet"
+
+msgid "Changed here only: kept"
+msgstr "Modifié ici seulement : conservé"
+
+msgid "Changed on the server only: taken"
+msgstr "Modifié sur le serveur seulement : repris"
+
+msgid "Conflict: both sides changed this"
+msgstr "Conflit : les deux côtés l'ont modifié"
+
+msgid "(nothing)"
+msgstr "(rien)"
+
+msgid "Keep the server"
+msgstr "Garder le serveur"
+
+msgid "Keep the local"
+msgstr "Garder le local"
+
+msgid "Keep both"
+msgstr "Garder les deux"
+
+msgid "Edit the result"
+msgstr "Éditer le résultat"
+
+msgid "Result (the text of the document, as written in the .sdoc file)"
+msgstr "Résultat (le texte du document, tel qu'écrit dans le fichier .sdoc)"
+
+msgid "kept"
+msgstr "gardé"
+
+msgid "the server"
+msgstr "le serveur"
+
+msgid "the local project"
+msgstr "le projet local"
+
+msgid "both"
+msgstr "les deux"
+
+msgid "edited by hand"
+msgstr "édité à la main"
+
+msgid "The server does not answer."
+msgstr "Le serveur ne répond pas."

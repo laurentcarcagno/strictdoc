@@ -330,6 +330,122 @@ class GitService:
                 self.push_with_submodules(str(submodule.abspath))
         self.push(root)
 
+    # ---- Pull by merge
+
+    def current_branch(self, path: str) -> str:
+        repo = self._repo(self.repository_root(path))
+        if repo.head.is_detached:
+            raise GitServiceError("No branch is checked out.")
+        return str(repo.active_branch.name)
+
+    def fetch(self, path: str) -> None:
+        repo = self._repo(self.repository_root(path))
+        try:
+            repo.git.fetch(REMOTE, "--tags")
+        except GitCommandError as error:
+            raise GitServiceError(f"fetch failed: {error}") from error
+
+    def remote_branch_exists(self, path: str, branch: str) -> bool:
+        repo = self._repo(self.repository_root(path))
+        return f"{REMOTE}/{branch}" in [
+            ref.name for ref in repo.remotes[REMOTE].refs
+        ]
+
+    def ahead_behind(self, path: str, branch: str) -> "tuple[int, int]":
+        """(commits only on the server, commits only here)."""
+        repo = self._repo(self.repository_root(path))
+        return self._behind_ahead(repo, f"{REMOTE}/{branch}")
+
+    def is_dirty(self, path: str) -> bool:
+        repo = self._repo(self.repository_root(path))
+        return bool(repo.is_dirty(untracked_files=True))
+
+    def merge_in_progress(self, path: str) -> bool:
+        repo = self._repo(self.repository_root(path))
+        return os.path.exists(os.path.join(repo.git_dir, "MERGE_HEAD"))
+
+    def fast_forward(self, path: str, branch: str) -> None:
+        repo = self._repo(self.repository_root(path))
+        try:
+            repo.git.merge("--ff-only", f"{REMOTE}/{branch}")
+        except GitCommandError as error:
+            raise GitServiceError(f"merge failed: {error}") from error
+
+    def start_merge(self, path: str, branch: str, author: Author) -> bool:
+        """
+        Merges the server branch into the working tree without committing.
+        True when there is no conflict (the merge is ready to commit); False
+        when Git stopped on conflicts (see unmerged_paths).
+        """
+        repo = self._repo(self.repository_root(path), author)
+        try:
+            repo.git.merge("--no-commit", "--no-ff", f"{REMOTE}/{branch}")
+        except GitCommandError as error:
+            if self.unmerged_paths(path):
+                return False
+            raise GitServiceError(f"merge failed: {error}") from error
+        return True
+
+    def unmerged_paths(self, path: str) -> List[str]:
+        repo = self._repo(self.repository_root(path))
+        listing = str(repo.git.diff("--name-only", "--diff-filter=U"))
+        return [line for line in listing.splitlines() if line]
+
+    def stage_text(self, path: str, relative: str, stage: int) -> Optional[str]:
+        """
+        A version of an unmerged file: 1 the common ancestor, 2 ours (here),
+        3 theirs (the server). None when that version has no such file.
+        """
+        repo = self._repo(self.repository_root(path))
+        try:
+            text: str = repo.git.show(
+                f":{stage}:{relative}", strip_newline_in_stdout=False
+            )
+        except GitCommandError:
+            return None
+        return text
+
+    def write_working_file(self, path: str, relative: str, text: str) -> None:
+        """Writes a file of the working tree, without touching the index."""
+        target = os.path.join(self.repository_root(path), relative)
+        with open(target, "w", encoding="utf8", newline="") as file_:
+            file_.write(text)
+
+    def write_resolved(self, path: str, relative: str, text: str) -> None:
+        """Writes the merged text of a file and marks the conflict resolved."""
+        root = self.repository_root(path)
+        target = os.path.join(root, relative)
+        with open(target, "w", encoding="utf8", newline="") as file_:
+            file_.write(text)
+        repo = self._repo(root)
+        try:
+            repo.git.add("--", relative)
+        except GitCommandError as error:
+            raise GitServiceError(f"add failed: {error}") from error
+
+    def commit_merge(self, path: str, message: str, author: Author) -> None:
+        repo = self._repo(self.repository_root(path), author)
+        try:
+            repo.git.commit("-m", message, "--author", author.line)
+        except GitCommandError as error:
+            raise GitServiceError(f"merge commit failed: {error}") from error
+
+    def abort_merge(self, path: str) -> None:
+        repo = self._repo(self.repository_root(path))
+        try:
+            repo.git.merge("--abort")
+        except GitCommandError as error:
+            raise GitServiceError(f"abort failed: {error}") from error
+
+    def push_tags(self, path: str) -> str:
+        """Pushes the tags the server does not have; "" or what went wrong."""
+        repo = self._repo(self.repository_root(path))
+        try:
+            repo.git.push(REMOTE, "--tags")
+        except GitCommandError as error:
+            return str(error)
+        return ""
+
     # ---- Submodules
 
     def _check_submodule_arguments(self, url: str, path: str) -> None:

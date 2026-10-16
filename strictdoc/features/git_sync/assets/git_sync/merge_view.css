@@ -1,0 +1,291 @@
+/*
+ * The synchronization pages. The conflict view has two pages side by side,
+ * like the page view of the document screen: the server on the left, the
+ * local project on the right, each region of the merge as one row so that the
+ * two sides stay aligned.
+ */
+
+:root {
+  --gs-bg: #e3e8ed;
+  --gs-sheet: #fff;
+  --gs-ink: #12293a;
+  --gs-dim: #5c6f7d;
+  --gs-conflict: #c62828;
+  --gs-conflict-bg: #fdecea;
+  --gs-auto: #1565c0;
+  --gs-auto-bg: #e8f1fb;
+  --gs-done: #2e7d32;
+  --gs-done-bg: #e9f5ea;
+}
+
+.gs-page {
+  margin: 0;
+  color: var(--gs-ink);
+  background: var(--gs-bg);
+  font-family: "Noto Sans", system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.gs-status {
+  max-width: 760px;
+  padding: 24px;
+  margin: 0 auto;
+}
+
+.gs-error {
+  padding: 8px 12px;
+  margin: 8px 24px;
+  color: var(--gs-conflict);
+  background: var(--gs-conflict-bg);
+  border-left: 4px solid var(--gs-conflict);
+}
+
+.gs-result {
+  padding: 8px 12px;
+  background: var(--gs-done-bg);
+  border-left: 4px solid var(--gs-done);
+}
+
+.gs-button {
+  padding: 4px 12px;
+  font: inherit;
+  color: var(--gs-ink);
+  cursor: pointer;
+  background: #fff;
+  border: 1px solid #9fb0bd;
+  border-radius: 3px;
+}
+
+.gs-button:hover:not(:disabled):not([aria-pressed="true"]) {
+  background: #eef3f7;
+}
+
+.gs-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.gs-button--primary,
+.gs-button[aria-pressed="true"] {
+  color: #fff;
+  background: #12293a;
+  border-color: #12293a;
+}
+
+.gs-inline {
+  display: inline;
+}
+
+/* The bar */
+
+.gs-bar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  background: #fff;
+  border-bottom: 1px solid #c5d0d8;
+}
+
+.gs-bar__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.gs-bar__file {
+  margin-left: 8px;
+  color: var(--gs-dim);
+}
+
+.gs-counter {
+  font-weight: 600;
+}
+
+/* The two pages */
+
+.gs-heads,
+.gs-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 16px;
+  max-width: 1760px;
+  padding: 0 16px;
+  margin: 0 auto;
+}
+
+.gs-heads {
+  position: sticky;
+  top: 49px;
+  z-index: 10;
+  padding-top: 8px;
+  padding-bottom: 4px;
+  background: var(--gs-bg);
+}
+
+.gs-head {
+  padding: 4px 12px;
+  background: #fff;
+  border-top: 3px solid #12293a;
+}
+
+.gs-head span {
+  margin-left: 8px;
+  color: var(--gs-dim);
+  font-family: monospace;
+}
+
+.gs-sheets {
+  padding-bottom: 80px;
+}
+
+.gs-row {
+  position: relative;
+  margin-bottom: 0;
+}
+
+.gs-sheet {
+  min-height: 12px;
+  padding: 8px 28px;
+  background: var(--gs-sheet);
+  box-shadow: 0 1px 4px rgb(0 0 0 / 18%);
+}
+
+.gs-row--same .gs-sheet {
+  color: var(--gs-dim);
+}
+
+/* The regions that one side changed alone and that were merged for you */
+
+.gs-row--local,
+.gs-row--server {
+  outline: 2px solid var(--gs-auto);
+  outline-offset: 2px;
+  margin-top: 6px;
+  margin-bottom: 6px;
+}
+
+.gs-row--local .gs-node--differs,
+.gs-row--server .gs-node--differs {
+  background: var(--gs-auto-bg);
+}
+
+.gs-tag {
+  grid-column: 1 / -1;
+  padding: 0 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--gs-auto);
+}
+
+/* The conflicts */
+
+.gs-row--conflict {
+  padding-bottom: 8px;
+  margin: 12px auto;
+  background: var(--gs-conflict-bg);
+  outline: 2px solid var(--gs-conflict);
+  outline-offset: 2px;
+}
+
+.gs-row--conflict.is-current {
+  outline-width: 4px;
+}
+
+.gs-row--conflict.is-solved {
+  background: var(--gs-done-bg);
+  outline-color: var(--gs-done);
+}
+
+.gs-tag--conflict {
+  color: var(--gs-conflict);
+}
+
+.is-solved .gs-tag--conflict {
+  color: var(--gs-done);
+}
+
+.gs-row--conflict .gs-node--differs {
+  outline: 2px solid var(--gs-conflict);
+  outline-offset: 2px;
+  background: #fff;
+}
+
+.is-solved .gs-node--differs {
+  outline-color: var(--gs-done);
+}
+
+.gs-actions {
+  display: flex;
+  flex-wrap: wrap;
+  grid-column: 1 / -1;
+  gap: 8px;
+  justify-content: center;
+}
+
+.gs-edit {
+  grid-column: 1 / -1;
+}
+
+.gs-edit textarea {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 8px;
+  font: 12px / 1.4 "Noto Sans Mono", monospace;
+}
+
+.gs-empty {
+  color: var(--gs-dim);
+  font-style: italic;
+}
+
+/* The nodes */
+
+.gs-node {
+  padding: 4px 0;
+  margin: 4px 0;
+}
+
+.gs-node__head {
+  display: flex;
+  gap: 12px;
+  align-items: baseline;
+}
+
+.gs-node__type {
+  font: 10px monospace;
+  color: var(--gs-dim);
+  text-transform: uppercase;
+}
+
+.gs-node__title {
+  font-weight: 700;
+}
+
+.gs-node--section > .gs-node__head .gs-node__title {
+  font-size: 1.25em;
+}
+
+.gs-node__uid {
+  font: 11px monospace;
+  color: var(--gs-dim);
+}
+
+.gs-field__label {
+  margin-top: 4px;
+  font: 11px monospace;
+  color: var(--gs-dim);
+}
+
+.gs-text {
+  margin: 0;
+  font: 12px / 1.4 "Noto Sans Mono", monospace;
+  white-space: pre-wrap;
+}

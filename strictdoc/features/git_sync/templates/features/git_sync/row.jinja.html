@@ -1,0 +1,54 @@
+{#- One row of the view: a region of the merge, or a run of regions that did not change. -#}
+{%- macro node(view) -%}
+  {%- if view.closing -%}
+  {%- elif view.raw -%}
+  <article class="gs-node gs-node--raw{% if view.differs %} gs-node--differs{% endif %}" data-testid="sync-node">
+    <pre class="gs-text">{{ view.raw }}</pre>
+  </article>
+  {%- else -%}
+  <article class="gs-node gs-node--{{ view.kind|lower }}{% if view.differs %} gs-node--differs{% endif %}" data-testid="sync-node">
+    <header class="gs-node__head">
+      <span class="gs-node__type">{{ view.kind }}</span>
+      {%- if view.title %}<span class="gs-node__title">{{ view.title }}</span>{%- endif %}
+      {%- if view.uid %}<span class="gs-node__uid">{{ view.uid }}</span>{%- endif %}
+    </header>
+    {%- for field in view.fields %}
+    <div class="gs-field">
+      <div class="gs-field__label">{{ field.label }}</div>
+      <div class="gs-field__value">{{ field.html }}</div>
+    </div>
+    {%- endfor %}
+  </article>
+  {%- endif -%}
+{%- endmacro -%}
+<section
+  class="gs-row gs-row--{{ row.kind }}"
+  data-region="{{ row.index }}"
+  data-kind="{{ row.kind }}"
+  data-testid="sync-row-{{ row.kind }}"
+>
+  {%- if row.kind == "local" %}<div class="gs-tag">{{ _("Changed here only: kept") }}</div>
+  {%- elif row.kind == "server" %}<div class="gs-tag">{{ _("Changed on the server only: taken") }}</div>
+  {%- elif row.kind == "conflict" %}<div class="gs-tag gs-tag--conflict">{{ _("Conflict: both sides changed this") }} <span class="gs-state" data-state></span></div>
+  {%- endif %}
+  <div class="gs-sheet gs-sheet--server">
+    {%- for view in row.left %}{{ node(view) }}{%- endfor %}
+    {%- if not row.left %}<div class="gs-empty">{{ _("(nothing)") }}</div>{%- endif %}
+  </div>
+  <div class="gs-sheet gs-sheet--local">
+    {%- for view in row.right %}{{ node(view) }}{%- endfor %}
+    {%- if not row.right %}<div class="gs-empty">{{ _("(nothing)") }}</div>{%- endif %}
+  </div>
+  {%- if row.kind == "conflict" %}
+  <div class="gs-actions" data-requires-role="administrator">
+    <button type="button" class="gs-button" data-choice="server" data-testid="sync-keep-server">{{ _("Keep the server") }}</button>
+    <button type="button" class="gs-button" data-choice="local" data-testid="sync-keep-local">{{ _("Keep the local") }}</button>
+    <button type="button" class="gs-button" data-choice="both" data-testid="sync-keep-both">{{ _("Keep both") }}</button>
+    <button type="button" class="gs-button" data-choice="edit" data-testid="sync-edit">{{ _("Edit the result") }}</button>
+  </div>
+  <div class="gs-edit" hidden>
+    <label>{{ _("Result (the text of the document, as written in the .sdoc file)") }}</label>
+    <textarea spellcheck="false" rows="12" data-testid="sync-textarea"></textarea>
+  </div>
+  {%- endif %}
+</section>

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>{{ _("Conflicts") }} - {{ file }}</title>
+  <link rel="stylesheet" href="/_static/git_sync/merge_view.css"/>
+  <link rel="stylesheet" href="/_static/roles/role_gating.css"/>
+  <script src="/_static/roles/role_gating.js"></script>
+  <script src="/_static/git_sync/merge_view.js" defer></script>
+</head>
+<body class="gs-page" data-file="{{ file }}" data-conflicts="{{ conflict_count }}">
+  <header class="gs-bar">
+    <div class="gs-bar__title">
+      <a href="/git/sync">{{ _("Synchronization") }}</a> /
+      <strong>{{ title }}</strong>
+      {%- if files|length > 1 %}
+      <select id="gs-file" data-testid="sync-file">
+        {%- for path in files %}<option value="{{ path }}" {% if path == file %}selected{% endif %}>{{ path }}</option>{%- endfor %}
+      </select>
+      {%- else %}<span class="gs-bar__file">{{ file }}</span>{%- endif %}
+    </div>
+    <div class="gs-bar__actions">
+      <span class="gs-counter" data-testid="sync-counter"><span id="gs-resolved">0</span> / {{ conflict_count }} {{ _("conflicts solved") }}</span>
+      <button type="button" class="gs-button" id="gs-prev" title="p" data-testid="sync-prev">{{ _("Previous conflict") }}</button>
+      <button type="button" class="gs-button" id="gs-next" title="n" data-testid="sync-next">{{ _("Next conflict") }}</button>
+      <button type="button" class="gs-button gs-button--primary" id="gs-finish" disabled data-requires-role="administrator" data-testid="sync-finish">{{ _("Finish this document") }}</button>
+      <form method="post" action="/actions/git/sync/abort" data-requires-role="administrator" class="gs-inline">
+        <button class="gs-button" data-testid="sync-abort">{{ _("Abandon the merge") }}</button>
+      </form>
+    </div>
+  </header>
+  <p class="gs-error" id="gs-error" hidden data-testid="sync-error"></p>
+
+  <div class="gs-heads">
+    <div class="gs-head gs-head--server"><strong>{{ _("Server") }}</strong> <span>origin/{{ branch }}</span></div>
+    <div class="gs-head gs-head--local"><strong>{{ _("Local") }}</strong> <span>{{ _("this project") }}</span></div>
+  </div>
+
+  <main class="gs-sheets" data-testid="sync-sheets">
+    {%- for row in rows %}
+    {%- include "features/git_sync/row.jinja.html" %}
+    {%- endfor %}
+  </main>
+  <script type="application/json" id="gs-data">{{ data_json|safe }}</script>
+</body>
+</html>

@@ -14,6 +14,7 @@
 </head>
 <body>
   <h1>{{ _("Configuration management") }}</h1>
+  <p><a href="/git/sync" data-testid="git-sync-link">{{ _("Synchronize") }}</a></p>
   {%- if message %}<p class="error" data-testid="git-message">{{ message }}</p>{%- endif %}
   {%- if last_error %}<p class="error" data-testid="git-last-error">{{ last_error }}</p>{%- endif %}
   {%- for warning in warnings %}<p class="warning">{{ warning }}</p>{%- endfor %}

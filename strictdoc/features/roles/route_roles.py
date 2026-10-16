@@ -56,6 +56,7 @@ ROUTE_ROLES: Dict[RouteKey, str] = {
         "GET /llm/drafts",
         "GET /fragments/project_tree",
         "GET /git",
+        "GET /git/sync",
         "GET /llm/assist/commands",
         "GET /llm/assist/mentions",
         "POST /actions/llm/assist",
@@ -127,6 +128,10 @@ ROUTE_ROLES: Dict[RouteKey, str] = {
     **_routes(
         ROLE_ADMINISTRATOR,
         "POST /actions/git/tag",
+        "POST /actions/git/sync",
+        "POST /actions/git/sync/resolve",
+        "POST /actions/git/sync/abort",
+        "GET /git/sync/conflicts",
         "GET /actions/git/version_document",
         "POST /actions/git/version_document",
         "POST /actions/git/push",
