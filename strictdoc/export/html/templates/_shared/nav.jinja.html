@@ -38,6 +38,11 @@
   ></div>
   <div id="sdoc_tree_refresh" hidden></div>
   <script src="{{ view_object.render_static_url('sidebar_tree.js') }}" defer></script>
+  {#- The modals of the configuration management and of the synchronization (features/git_sync). -#}
+  {%- if view_object.project_config.is_activated_git() %}
+  <link rel="stylesheet" href="{{ view_object.render_static_url('git_sync/merge_view.css') }}"/>
+  <script src="{{ view_object.render_static_url('git_sync/merge_view.js') }}" defer></script>
+  {%- endif %}
 {%- endif %}
 
   <div class="nav__items">

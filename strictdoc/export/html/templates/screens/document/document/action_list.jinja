@@ -38,7 +38,8 @@
 {%- if view_object.project_config.is_running_on_server and view_object.project_config.is_activated_git() -%}
 <a
   class="dropdown_menu_item"
-  href="/git"
+  href="/actions/git/overview"
+  data-turbo="true"
   title="{{ _("Versions, tags and push of the document repositories") }}"
   data-testid="document-git-action"
   role="menuitem"

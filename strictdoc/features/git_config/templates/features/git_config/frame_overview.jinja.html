@@ -1,0 +1,59 @@
+{% extends "components/modal/form.jinja" %}
+{% set form = "sdoc_modal_form" %}
+{% block modal__context %}git{% endblock modal__context %}
+{% block modal_form__header %}{{ _("Configuration management") }}{% endblock modal_form__header %}
+{% block modal_form__content %}
+  <div class="gs-dialog" data-testid="git-overview">
+    {%- if message %}<p class="gs-notice gs-notice--danger" data-testid="git-message">{{ message }}</p>{%- endif %}
+    {%- if last_error %}<p class="gs-notice gs-notice--danger" data-testid="git-last-error">{{ last_error }}</p>{%- endif %}
+    {%- for warning in warnings %}<p class="gs-notice gs-notice--warning">{{ warning }}</p>{%- endfor %}
+
+    <table class="gs-table" data-testid="git-repositories">
+      <thead>
+        <tr>
+          <th>{{ _("Repository") }}</th><th>{{ _("Branch") }}</th><th>{{ _("Version") }}</th><th>{{ _("Changes") }}</th>
+          {%- if can_administrate %}<th>{{ _("Actions") }}</th>{%- endif %}
+        </tr>
+      </thead>
+      <tbody>
+        {%- for repository in repositories %}
+        <tr data-testid="git-repository">
+          <td class="gs-mono">{{ repository.relative_path }}</td>
+          <td class="gs-mono">{{ repository.branch or "-" }}</td>
+          <td class="gs-mono">{{ repository.latest_tag or "-" }}</td>
+          <td>
+            {%- if repository.dirty %}<span class="gs-pill gs-pill--warning">{{ _("yes") }}</span>
+            {%- else %}<span class="gs-pill gs-pill--info">{{ _("no") }}</span>{%- endif %}
+          </td>
+          {%- if can_administrate %}
+          <td class="gs-actions-cell">
+            <form method="post" action="/actions/git/tag" data-turbo="true">
+              <input type="hidden" name="repository" value="{{ repository.relative_path }}"/>
+              <button class="action_button" data-action-type="action" name="kind" value="draft" data-testid="git-tag-draft">{{ _("Tag draft") }} {{ repository.next_intermediate }}</button>
+              {%- if repository.next_major %}
+              <button class="action_button" data-action-type="action" name="kind" value="major" data-testid="git-tag-major">{{ _("Tag major") }} {{ repository.next_major }}</button>
+              {%- endif %}
+            </form>
+            <form method="post" action="/actions/git/push" data-turbo="true">
+              <input type="hidden" name="repository" value="{{ repository.relative_path }}"/>
+              <button class="action_button" data-action-type="action" data-testid="git-push">{{ _("Push") }}</button>
+            </form>
+          </td>
+          {%- endif %}
+        </tr>
+        {%- endfor %}
+      </tbody>
+    </table>
+
+    <h3 class="gs-h3">{{ _("Assets waiting for a commit") }}</h3>
+    <form method="post" action="/actions/git/commit_pending" data-turbo="true" class="gs-line">
+      <span data-testid="git-pending" class="gs-mono">{{ pending|length }} {{ _("file(s)") }}</span>
+      {%- if can_administrate %}<button class="action_button" data-action-type="action">{{ _("Commit now") }}</button>{%- endif %}
+    </form>
+
+    <p class="gs-line">
+      <a class="action_button" data-action-type="action" href="/actions/git/sync_dialog" data-turbo="true" data-testid="git-sync-link">{{ _("Synchronize") }}</a>
+    </p>
+  </div>
+{% endblock modal_form__content %}
+{% block modal_form__footer_submit %}{% endblock modal_form__footer_submit %}

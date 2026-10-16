@@ -123,8 +123,8 @@
     {%- endif %}
     {%- if config.is_running_on_server and config.is_activated_git() %}
     <hr class="sdoc-tree-menu__separator"/>
-    {{ menu_item("tree-git-action", _("Configuration management"), "", "/git", turbo=false) }}
-    {{ menu_item("tree-sync-action", _("Synchronize"), "", "/git/sync", turbo=false) }}
+    {{ menu_item("tree-git-action", _("Configuration management"), "", "/actions/git/overview") }}
+    {{ menu_item("tree-sync-action", _("Synchronize"), "", "/actions/git/sync_dialog") }}
     {%- endif %}
     <hr class="sdoc-tree-menu__separator"/>
     {{ menu_item("project-edit-title-action", _("Edit project title"), "", "/actions/project_index/edit_project_title_form", role="administrator") }}

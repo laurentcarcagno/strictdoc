@@ -10,8 +10,8 @@ html [data-viewtype="document"] .content {
 .pageview {
   display: inline-flex;
   margin-left: var(--hem-space-md, 12px);
-  border: 1px solid var(--hem-muted, #9aa7b2);
-  border-radius: 3px;
+  border: 1px solid var(--hem-sovereign, #12293a);
+  border-radius: 0;
   overflow: hidden;
   vertical-align: middle;
 }
@@ -25,7 +25,7 @@ html [data-viewtype="document"] .content {
   cursor: pointer;
   background: transparent;
   border: 0;
-  border-left: 1px solid var(--hem-muted, #9aa7b2);
+  border-left: 1px solid var(--hem-sovereign, #12293a);
 }
 
 .pageview__button:first-child {
@@ -37,14 +37,14 @@ html [data-viewtype="document"] .content {
 }
 
 .pageview__button[aria-pressed="true"] {
-  color: #fff;
-  background: var(--color-bg-ui, #12293a);
+  color: var(--hem-white, #fcfdfe);
+  background: var(--hem-sovereign, #12293a);
 }
 
 /* The sheets. */
 
 html.sdoc-page-view [data-viewtype="document"] .main {
-  background: #cfd6dc;
+  background: var(--hem-muted, #dbe7f0);
   align-items: flex-start;
 }
 
@@ -70,8 +70,8 @@ html.sdoc-page-view [data-viewtype="document"] .content sdoc-node {
 
 .sdoc-page-sheet {
   position: absolute;
-  background: #fff;
-  box-shadow: 0 1px 6px rgb(0 0 0 / 30%);
+  background: var(--hem-white, #fcfdfe);
+  border: 1px solid var(--hem-border, #c2ddf0);
 }
 
 .sdoc-page-sheet__number {
@@ -80,6 +80,6 @@ html.sdoc-page-view [data-viewtype="document"] .content sdoc-node {
   bottom: 4mm;
   left: 0;
   font-size: 11px;
-  color: #7a8793;
+  color: var(--hem-mute-ink, #73777d);
   text-align: center;
 }

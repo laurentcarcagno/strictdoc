@@ -15,7 +15,7 @@
     {%- for field in view.fields %}
     <div class="gs-field">
       <div class="gs-field__label">{{ field.label }}</div>
-      <div class="gs-field__value">{{ field.html }}</div>
+      <div class="gs-field__value"><sdoc-autogen>{{ field.html }}</sdoc-autogen></div>
     </div>
     {%- endfor %}
   </article>
@@ -41,10 +41,10 @@
   </div>
   {%- if row.kind == "conflict" %}
   <div class="gs-actions" data-requires-role="administrator">
-    <button type="button" class="gs-button" data-choice="server" data-testid="sync-keep-server">{{ _("Keep the server") }}</button>
-    <button type="button" class="gs-button" data-choice="local" data-testid="sync-keep-local">{{ _("Keep the local") }}</button>
-    <button type="button" class="gs-button" data-choice="both" data-testid="sync-keep-both">{{ _("Keep both") }}</button>
-    <button type="button" class="gs-button" data-choice="edit" data-testid="sync-edit">{{ _("Edit the result") }}</button>
+    <button type="button" class="action_button" data-action-type="action" data-choice="server" data-testid="sync-keep-server">{{ _("Keep the server") }}</button>
+    <button type="button" class="action_button" data-action-type="action" data-choice="local" data-testid="sync-keep-local">{{ _("Keep the local") }}</button>
+    <button type="button" class="action_button" data-action-type="action" data-choice="both" data-testid="sync-keep-both">{{ _("Keep both") }}</button>
+    <button type="button" class="action_button" data-action-type="action" data-choice="edit" data-testid="sync-edit">{{ _("Edit the result") }}</button>
   </div>
   <div class="gs-edit" hidden>
     <label>{{ _("Result (the text of the document, as written in the .sdoc file)") }}</label>

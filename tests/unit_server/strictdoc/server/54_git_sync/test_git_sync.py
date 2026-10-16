@@ -70,10 +70,22 @@ def test_001_the_menu_has_synchronize_and_the_page_opens(
 ) -> None:
     client, _, _, _ = _project(tmp_path)
     tree = client.get("/fragments/project_tree", headers=ADMIN).text
-    assert "tree-sync-action" in tree and "/git/sync" in tree
-    page = client.get("/git/sync", headers=READER)
-    assert page.status_code == 200
-    assert "sync-now" in page.text
+    assert "tree-sync-action" in tree and "/actions/git/sync_dialog" in tree
+    assert "tree-git-action" in tree and "/actions/git/overview" in tree
+    # The dialogs are Turbo streams for the modal of the page.
+    dialog = client.get("/actions/git/sync_dialog", headers=READER)
+    assert dialog.status_code == 200
+    assert dialog.headers["content-type"].startswith(
+        "text/vnd.turbo-stream.html"
+    )
+    assert 'target="modal"' in dialog.text and "sync-dialog" in dialog.text
+    # The reader reads the dialog; the button that synchronizes is for the
+    # administrator.
+    assert "form-submit-action" not in dialog.text
+    admin = client.get("/actions/git/sync_dialog", headers=ADMIN)
+    assert "form-submit-action" in admin.text
+    overview = client.get("/actions/git/overview", headers=READER)
+    assert overview.status_code == 200 and "git-repositories" in overview.text
 
 
 def test_002_only_an_administrator_synchronizes(tmp_path: Path) -> None:
@@ -83,7 +95,7 @@ def test_002_only_an_administrator_synchronizes(tmp_path: Path) -> None:
             ("POST", "/actions/git/sync"),
             ("POST", "/actions/git/sync/abort"),
             ("POST", "/actions/git/sync/resolve"),
-            ("GET", "/git/sync/conflicts"),
+            ("GET", "/actions/git/sync_conflicts"),
         ):
             assert (
                 client.request(method, path, headers=headers).status_code == 403
@@ -111,13 +123,11 @@ def test_004_a_conflict_opens_the_view_and_locks_the_project(
     _git(other, "push", "-q")
     _edit(root, "at most 32 MB", "at most 64 MB", "local")
 
-    result = client.post(
-        "/actions/git/sync", headers=ADMIN, follow_redirects=False
-    )
-    assert result.status_code == 303
+    result = client.post("/actions/git/sync", headers=ADMIN)
+    # The conflict view opens at once.
+    assert result.status_code == 200
     assert (
-        result.headers["location"]
-        == "/git/sync/conflicts?file=input/flight.sdoc"
+        'context="merge"' in result.text and "sync-row-conflict" in result.text
     )
     # The document on disk is the local one while the conflict waits.
     assert "64 MB" in (root / "input" / "flight.sdoc").read_text(
@@ -127,8 +137,11 @@ def test_004_a_conflict_opens_the_view_and_locks_the_project(
         encoding="utf8"
     )
 
-    view = client.get(result.headers["location"], headers=ADMIN)
+    view = client.get(
+        "/actions/git/sync_conflicts?file=input/flight.sdoc", headers=ADMIN
+    )
     assert view.status_code == 200
+    assert 'context="merge"' in view.text
     assert "sync-row-conflict" in view.text
     assert "16 MB" in view.text and "64 MB" in view.text
     assert "sync-keep-server" in view.text
@@ -141,7 +154,7 @@ def test_004_a_conflict_opens_the_view_and_locks_the_project(
     )
     assert locked.status_code == 423
 
-    status = client.get("/git/sync", headers=ADMIN)
+    status = client.get("/actions/git/sync_dialog", headers=ADMIN)
     assert "input/flight.sdoc" in status.text and "sync-abort" in status.text
 
 
@@ -152,10 +165,10 @@ def test_005_resolving_the_conflict_commits_the_merge_and_pushes(
     _edit(other, "at most 32 MB", "at most 16 MB", "server")
     _git(other, "push", "-q")
     _edit(root, "at most 32 MB", "at most 64 MB", "local")
-    location = client.post(
-        "/actions/git/sync", headers=ADMIN, follow_redirects=False
-    ).headers["location"]
-    view = client.get(location, headers=ADMIN).text
+    client.post("/actions/git/sync", headers=ADMIN)
+    view = client.get(
+        "/actions/git/sync_conflicts?file=input/flight.sdoc", headers=ADMIN
+    ).text
     data = json.loads(view.split('id="gs-data">')[1].split("</script>")[0])
     [region] = data.keys()
 
@@ -175,7 +188,9 @@ def test_005_resolving_the_conflict_commits_the_merge_and_pushes(
         headers=ADMIN,
     )
     assert done.status_code == 200, done.text
-    assert done.json()["next"] == "/git/sync"
+    assert done.json()["next"].startswith(
+        "/actions/git/sync_dialog?merged=1&pushed=1"
+    )
     merged = _git(origin, "show", "main:input/flight.sdoc")
     assert "16 MB" in merged and "64 MB" not in merged
     assert _git(root, "rev-list", "--merges", "--count", "HEAD") == "1"
@@ -193,11 +208,9 @@ def test_006_abandoning_goes_back_to_the_local_state(tmp_path: Path) -> None:
     _edit(other, "at most 32 MB", "at most 16 MB", "server")
     _git(other, "push", "-q")
     _edit(root, "at most 32 MB", "at most 64 MB", "local")
-    client.post("/actions/git/sync", headers=ADMIN, follow_redirects=False)
-    abandoned = client.post(
-        "/actions/git/sync/abort", headers=ADMIN, follow_redirects=False
-    )
-    assert abandoned.status_code == 303
+    client.post("/actions/git/sync", headers=ADMIN)
+    abandoned = client.post("/actions/git/sync/abort", headers=ADMIN)
+    assert abandoned.status_code == 200 and "sync-dialog" in abandoned.text
     assert "64 MB" in (root / "input" / "flight.sdoc").read_text(
         encoding="utf8"
     )

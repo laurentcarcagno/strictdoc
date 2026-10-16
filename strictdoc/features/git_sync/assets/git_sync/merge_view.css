@@ -1,112 +1,205 @@
 /*
- * The synchronization pages. The conflict view has two pages side by side,
- * like the page view of the document screen: the server on the left, the
- * local project on the right, each region of the merge as one row so that the
- * two sides stay aligned.
+ * The synchronization modals (see developer/design/DESIGN.md): the
+ * configuration management, the synchronization and the view of the
+ * conflicts. Sharp corners, no shadow, no gradient, 1px borders, tinted
+ * neutrals; the frame, the header and the footer are the ones of the modal.
+ * The conflict view puts two pages side by side, like the page view of the
+ * document screen: the server on the left, the local project on the right.
  */
 
-:root {
-  --gs-bg: #e3e8ed;
-  --gs-sheet: #fff;
-  --gs-ink: #12293a;
-  --gs-dim: #5c6f7d;
-  --gs-conflict: #c62828;
-  --gs-conflict-bg: #fdecea;
-  --gs-auto: #1565c0;
-  --gs-auto-bg: #e8f1fb;
-  --gs-done: #2e7d32;
-  --gs-done-bg: #e9f5ea;
+/* The sizes of the modals (480 / 640 / 880 px in the design; the conflict
+   view needs the width of two pages). */
+sdoc-modal[context="git"] {
+  width: 90vw;
+  max-width: 880px;
+  height: auto;
 }
 
-.gs-page {
-  margin: 0;
-  color: var(--gs-ink);
-  background: var(--gs-bg);
-  font-family: "Noto Sans", system-ui, sans-serif;
-  font-size: 14px;
-  line-height: 1.5;
+sdoc-modal[context="merge"] {
+  width: 96vw;
+  max-width: 1760px;
+  height: 92vh;
+  max-height: 92vh;
 }
 
-.gs-status {
-  max-width: 760px;
-  padding: 24px;
-  margin: 0 auto;
+.gs-dialog {
+  padding: 18px;
+  color: var(--hem-ink);
+  font-family: var(--hem-font-body);
+  font-size: 13px;
+  line-height: 1.45;
 }
 
-.gs-error {
+.gs-dialog--merge {
+  padding: 0;
+  background: var(--hem-mist);
+}
+
+.gs-mono {
+  font-family: var(--hem-font-mono);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.gs-title-file {
+  margin-left: 8px;
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+.gs-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.gs-h3 {
+  margin: 18px 0 8px;
+  color: var(--hem-ink);
+  font-family: var(--hem-font-heading);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.gs-line {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin: 8px 0;
+}
+
+.gs-list {
+  padding: 0;
+  margin: 8px 0 16px;
+  list-style: none;
+}
+
+.gs-list li {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--hem-border);
+}
+
+/* Messages: tinted by the signal, with a border of the signal (no stripe). */
+.gs-notice {
   padding: 8px 12px;
-  margin: 8px 24px;
-  color: var(--gs-conflict);
-  background: var(--gs-conflict-bg);
-  border-left: 4px solid var(--gs-conflict);
+  margin: 0 0 12px;
+  border: 1px solid var(--hem-border);
 }
 
-.gs-result {
-  padding: 8px 12px;
-  background: var(--gs-done-bg);
-  border-left: 4px solid var(--gs-done);
+.gs-dialog--merge .gs-notice {
+  margin: 8px 12px;
 }
 
-.gs-button {
-  padding: 4px 12px;
-  font: inherit;
-  color: var(--gs-ink);
-  cursor: pointer;
-  background: #fff;
-  border: 1px solid #9fb0bd;
-  border-radius: 3px;
+.gs-notice--success {
+  color: #1f8a4c;
+  background: #eaf6ee;
+  border-color: #1f8a4c;
 }
 
-.gs-button:hover:not(:disabled):not([aria-pressed="true"]) {
-  background: #eef3f7;
+.gs-notice--warning {
+  color: #c68a00;
+  background: #fbf3dc;
+  border-color: #c68a00;
 }
 
-.gs-button:disabled {
-  cursor: not-allowed;
-  opacity: 0.5;
+.gs-notice--danger {
+  color: #ba1a1a;
+  background: #fbe9e9;
+  border-color: #ba1a1a;
 }
 
-.gs-button--primary,
-.gs-button[aria-pressed="true"] {
-  color: #fff;
-  background: #12293a;
-  border-color: #12293a;
+/* Status pills: a square, the signal color. */
+.gs-pill {
+  display: inline-block;
+  padding: 2px 8px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  border: 1px solid currentcolor;
 }
 
-.gs-inline {
-  display: inline;
+.gs-pill--info {
+  color: var(--hem-sky);
+  background: var(--hem-hover);
 }
 
-/* The bar */
+.gs-pill--warning {
+  color: #c68a00;
+  background: #fbf3dc;
+}
 
-.gs-bar {
+.gs-pill--danger {
+  color: #ba1a1a;
+  background: #fbe9e9;
+}
+
+.gs-pill--success {
+  color: #1f8a4c;
+  background: #eaf6ee;
+}
+
+/* The table of the repositories: a deep blue header. */
+.gs-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.gs-table th {
+  padding: 9px 12px;
+  color: var(--hem-white);
+  font-family: var(--hem-font-heading);
+  font-size: 9.5px;
+  font-weight: 600;
+  text-align: left;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  background: var(--hem-sovereign);
+  border-right: 1px solid rgb(255 255 255 / 8%);
+}
+
+.gs-table td {
+  padding: 6px 12px;
+  font-size: 12px;
+  border: 1px solid var(--hem-border);
+}
+
+.gs-table tbody tr:hover {
+  background: var(--hem-hover);
+}
+
+.gs-actions-cell form {
+  display: inline-block;
+  margin-right: 4px;
+}
+
+/* The toolbar of the conflict view */
+
+.gs-toolbar {
   position: sticky;
   top: 0;
-  z-index: 20;
+  z-index: 3;
   display: flex;
   flex-wrap: wrap;
-  gap: 8px 16px;
+  gap: 8px 12px;
   align-items: center;
-  justify-content: space-between;
-  padding: 8px 16px;
-  background: #fff;
-  border-bottom: 1px solid #c5d0d8;
-}
-
-.gs-bar__actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  align-items: center;
-}
-
-.gs-bar__file {
-  margin-left: 8px;
-  color: var(--gs-dim);
+  padding: 8px 12px;
+  background: var(--hem-white);
+  border-bottom: 1px solid var(--hem-border);
 }
 
 .gs-counter {
-  font-weight: 600;
+  margin-right: auto;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 
 /* The two pages */
@@ -115,114 +208,108 @@
 .gs-row {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 16px;
-  max-width: 1760px;
-  padding: 0 16px;
-  margin: 0 auto;
+  gap: 12px;
+  padding: 0 12px;
 }
 
 .gs-heads {
   position: sticky;
   top: 49px;
-  z-index: 10;
+  z-index: 2;
   padding-top: 8px;
   padding-bottom: 4px;
-  background: var(--gs-bg);
+  background: var(--hem-mist);
 }
 
 .gs-head {
   padding: 4px 12px;
-  background: #fff;
-  border-top: 3px solid #12293a;
+  background: var(--hem-white);
+  border: 1px solid var(--hem-sovereign);
 }
 
-.gs-head span {
+.gs-head .gs-mono {
   margin-left: 8px;
-  color: var(--gs-dim);
-  font-family: monospace;
+  color: var(--hem-mute-ink);
 }
 
 .gs-sheets {
-  padding-bottom: 80px;
+  padding-bottom: 40px;
 }
 
 .gs-row {
   position: relative;
-  margin-bottom: 0;
 }
 
 .gs-sheet {
   min-height: 12px;
-  padding: 8px 28px;
-  background: var(--gs-sheet);
-  box-shadow: 0 1px 4px rgb(0 0 0 / 18%);
+  padding: 8px 24px;
+  background: var(--hem-white);
+  border: 1px solid var(--hem-border);
 }
 
 .gs-row--same .gs-sheet {
-  color: var(--gs-dim);
+  color: var(--hem-dim-ink);
 }
 
-/* The regions that one side changed alone and that were merged for you */
-
+/* What one side changed alone and was merged for you: a frame in Console Sky. */
 .gs-row--local,
 .gs-row--server {
-  outline: 2px solid var(--gs-auto);
-  outline-offset: 2px;
-  margin-top: 6px;
-  margin-bottom: 6px;
+  margin: 8px 0;
+  outline: 1px solid var(--hem-sky);
+  outline-offset: 3px;
 }
 
 .gs-row--local .gs-node--differs,
 .gs-row--server .gs-node--differs {
-  background: var(--gs-auto-bg);
+  background: var(--hem-hover);
 }
 
 .gs-tag {
   grid-column: 1 / -1;
-  padding: 0 8px;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--gs-auto);
+  padding: 0 4px;
+  color: var(--hem-sky);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
 }
 
-/* The conflicts */
-
+/* A conflict: a frame and a tint in Signal Danger, green when it is solved. */
 .gs-row--conflict {
   padding-bottom: 8px;
-  margin: 12px auto;
-  background: var(--gs-conflict-bg);
-  outline: 2px solid var(--gs-conflict);
-  outline-offset: 2px;
+  margin: 16px 12px;
+  background: #fbe9e9;
+  outline: 1px solid #ba1a1a;
+  outline-offset: 3px;
 }
 
 .gs-row--conflict.is-current {
-  outline-width: 4px;
+  outline-width: 2px;
 }
 
 .gs-row--conflict.is-solved {
-  background: var(--gs-done-bg);
-  outline-color: var(--gs-done);
+  background: #eaf6ee;
+  outline-color: #1f8a4c;
 }
 
 .gs-tag--conflict {
-  color: var(--gs-conflict);
+  color: #ba1a1a;
 }
 
 .is-solved .gs-tag--conflict {
-  color: var(--gs-done);
+  color: #1f8a4c;
 }
 
 .gs-row--conflict .gs-node--differs {
-  outline: 2px solid var(--gs-conflict);
+  outline: 2px solid #ba1a1a;
   outline-offset: 2px;
-  background: #fff;
 }
 
 .is-solved .gs-node--differs {
-  outline-color: var(--gs-done);
+  outline-color: #1f8a4c;
 }
 
-.gs-actions {
+.gs-row .gs-actions {
   display: flex;
   flex-wrap: wrap;
   grid-column: 1 / -1;
@@ -230,19 +317,51 @@
   justify-content: center;
 }
 
+/* The button that abandons: the Danger variant (the submit buttons are blue). */
+.gs-dialog .action_button[data-action-type="delete"],
+sdoc-modal-footer .action_button[data-action-type="delete"] {
+  background-color: var(--hem-white);
+}
+
+.gs-row .action_button[aria-pressed="true"] {
+  color: var(--hem-white);
+  background: var(--hem-sovereign);
+}
+
 .gs-edit {
   grid-column: 1 / -1;
+}
+
+.gs-edit label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--hem-dim-ink);
 }
 
 .gs-edit textarea {
   box-sizing: border-box;
   width: 100%;
-  padding: 8px;
-  font: 12px / 1.4 "Noto Sans Mono", monospace;
+  padding: 6px 10px;
+  color: var(--hem-ink);
+  font: 12px / 1.4 var(--hem-font-mono);
+  background: var(--hem-white);
+  border: 1px solid var(--hem-border);
+  border-radius: 0;
+}
+
+.gs-edit textarea:hover {
+  border-color: var(--hem-sovereign);
+}
+
+.gs-edit textarea:focus {
+  border: 2px solid var(--hem-sky);
+  outline: 0;
 }
 
 .gs-empty {
-  color: var(--gs-dim);
+  color: var(--hem-mute-ink);
   font-style: italic;
 }
 
@@ -260,8 +379,9 @@
 }
 
 .gs-node__type {
-  font: 10px monospace;
-  color: var(--gs-dim);
+  color: var(--hem-mute-ink);
+  font: 10px var(--hem-font-mono);
+  letter-spacing: 0.1em;
   text-transform: uppercase;
 }
 
@@ -270,22 +390,24 @@
 }
 
 .gs-node--section > .gs-node__head .gs-node__title {
-  font-size: 1.25em;
+  font-family: var(--hem-font-heading);
+  font-size: 15px;
+  letter-spacing: 0.02em;
 }
 
 .gs-node__uid {
-  font: 11px monospace;
-  color: var(--gs-dim);
+  color: var(--hem-mute-ink);
+  font: 11px var(--hem-font-mono);
 }
 
 .gs-field__label {
   margin-top: 4px;
-  font: 11px monospace;
-  color: var(--gs-dim);
+  color: var(--hem-mute-ink);
+  font: 11px var(--hem-font-mono);
 }
 
 .gs-text {
   margin: 0;
-  font: 12px / 1.4 "Noto Sans Mono", monospace;
+  font: 12px / 1.4 var(--hem-font-mono);
   white-space: pre-wrap;
 }

@@ -2603,3 +2603,6 @@ msgstr "édité à la main"
 
 msgid "The server does not answer."
 msgstr "Le serveur ne répond pas."
+
+msgid "The merge is committed."
+msgstr "La fusion est enregistrée."

@@ -3,6 +3,9 @@ import tempfile
 
 from tests.end2end.e2e_case import E2ECase
 from tests.end2end.end2end_test_setup import End2EndTestSetup
+from tests.end2end.helpers.components.tree_context_menu import (
+    TreeContextMenu,
+)
 from tests.end2end.server import SDocTestServer
 
 
@@ -48,11 +51,21 @@ class Test(E2ECase):
         edit(sandbox, "shall start.", "shall start with the OBCP ID.", "local")
 
         with SDocTestServer(input_path=sandbox) as test_server:
-            self.open(test_server.get_host_and_port() + "/git/sync")
-            self.click("[data-testid='sync-now']")
+            self.open(test_server.get_host_and_port())
+            menu = TreeContextMenu(self)
 
-            # Both changed R-1: the view of the conflicts, one conflict.
+            # The synchronization opens as a modal over the application.
+            menu.do_click_action(
+                "tree-sync-action", node_xpath=TreeContextMenu.ROOT
+            )
+            self.assert_element("[data-testid='sync-dialog']")
+            self.assert_element("sdoc-modal[context='git']")
+            self.click("[data-testid='form-submit-action']")
+
+            # Both changed R-1: the conflicts, in a modal of two pages.
             self.assert_element("[data-testid='sync-row-conflict']")
+            self.assert_element("sdoc-modal[context='merge']")
+            self.assert_element("[data-testid='tree-root-node']")
             self.assert_text("0 / 1")
             self.assert_element("[data-testid='sync-row-server']")
             self.assert_text("start at once", "[data-testid='sync-sheets']")
@@ -64,18 +77,18 @@ class Test(E2ECase):
                 is not None
             )
 
-            # The page of the synchronization lists the document that waits.
-            self.open(test_server.get_host_and_port() + "/git/sync")
-            self.assert_element("[data-testid='sync-conflicts']")
-
-            self.open(
-                test_server.get_host_and_port()
-                + "/git/sync/conflicts?file=spec.sdoc"
-            )
             self.click("[data-testid='sync-keep-server']")
             self.assert_text("1 / 1")
             self.click("[data-testid='sync-finish']")
-            self.assert_element("[data-testid='sync-now']")
+            self.assert_element("[data-testid='sync-result']")
+            self.assert_element("[data-testid='tree-root-node']")
+
+            # The configuration management is a modal too.
+            menu.do_click_action(
+                "tree-git-action", node_xpath=TreeContextMenu.ROOT
+            )
+            self.assert_element("[data-testid='git-repositories']")
+            self.assert_element("sdoc-modal[context='git']")
 
         merged = git(sandbox, "show", "HEAD:spec.sdoc")
         assert "start at once" in merged and "OBCP ID" not in merged

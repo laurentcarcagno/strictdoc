@@ -1,0 +1,39 @@
+{% extends "components/modal/form.jinja" %}
+{% set form = "gs-abandon-form" %}
+{% block modal__context %}merge{% endblock modal__context %}
+{% block modal_form__header %}{{ _("Conflicts") }} <span class="gs-mono gs-title-file">{{ file }}</span>{% endblock modal_form__header %}
+{% block modal_form__content %}
+  <div class="gs-dialog gs-dialog--merge" data-file="{{ file }}" data-conflicts="{{ conflict_count }}" data-testid="sync-conflict-dialog">
+    <div class="gs-toolbar">
+      <span class="gs-counter" data-testid="sync-counter"><span id="gs-resolved">0</span> / {{ conflict_count }} {{ _("conflicts solved") }}</span>
+      <button type="button" class="action_button" data-action-type="action" id="gs-prev" title="p" data-testid="sync-prev">{{ _("Previous conflict") }}</button>
+      <button type="button" class="action_button" data-action-type="action" id="gs-next" title="n" data-testid="sync-next">{{ _("Next conflict") }}</button>
+      {%- if files|length > 1 %}
+      <select id="gs-file" data-testid="sync-file">
+        {%- for path in files %}<option value="{{ path }}" {% if path == file %}selected{% endif %}>{{ path }}</option>{%- endfor %}
+      </select>
+      {%- endif %}
+    </div>
+    <p class="gs-notice gs-notice--danger" id="gs-error" hidden data-testid="sync-error"></p>
+    <div class="gs-heads">
+      <div class="gs-head"><span class="gs-label">{{ _("Server") }}</span> <span class="gs-mono">origin/{{ branch }}</span></div>
+      <div class="gs-head"><span class="gs-label">{{ _("Local") }}</span> <span class="gs-mono">{{ _("this project") }}</span></div>
+    </div>
+    <div class="gs-sheets" data-testid="sync-sheets">
+      {%- for row in rows %}
+      {%- include "features/git_sync/row.jinja.html" %}
+      {%- endfor %}
+    </div>
+    <script type="application/json" id="gs-data">{{ data_json|safe }}</script>
+    <form method="post" action="/actions/git/sync/abort" data-turbo="true" id="gs-abandon-form"></form>
+  </div>
+{% endblock modal_form__content %}
+{% block modal_form__footer_extra %}
+  <button type="submit" form="gs-abandon-form" class="action_button" data-action-type="delete" data-requires-role="administrator" data-testid="sync-abort">{{ _("Abandon the merge") }}</button>
+{% endblock modal_form__footer_extra %}
+{% block modal_form__footer_cancel %}
+  {%- with cancel_name=_("Close") %}{% include "components/button/cancel.jinja" %}{% endwith %}
+{% endblock modal_form__footer_cancel %}
+{% block modal_form__footer_submit %}
+  <button type="button" class="action_button" data-action-type="submit" id="gs-finish" disabled data-requires-role="administrator" data-testid="sync-finish">{{ _("Finish this document") }}</button>
+{% endblock modal_form__footer_submit %}

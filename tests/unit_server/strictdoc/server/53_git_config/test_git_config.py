@@ -292,3 +292,31 @@ def test_014_a_tag_without_remote_is_kept_and_says_it_is_not_pushed(
     assert page.status_code == 200
     assert "no remote" in page.text
     assert _git(tmp_path, "tag").split() == ["A1", "A2"]
+
+
+def test_015_the_modal_of_the_configuration_management(tmp_path: Path) -> None:
+    client = _client(tmp_path)
+    stream = {"Accept": "text/vnd.turbo-stream.html"}
+    overview = client.get("/actions/git/overview", headers=ADMIN)
+    assert overview.status_code == 200
+    assert 'target="modal"' in overview.text
+    assert (
+        "git-repositories" in overview.text and "git-tag-draft" in overview.text
+    )
+    # A form of the modal (Turbo asks for a stream) gets the modal again.
+    done = client.post(
+        "/actions/git/tag",
+        data={"repository": ".", "kind": "draft"},
+        headers={**ADMIN, **stream},
+    )
+    assert done.status_code == 200 and 'target="modal"' in done.text
+    assert _git(tmp_path, "tag").split() == ["A1"]
+    refused = client.post(
+        "/actions/git/tag",
+        data={"repository": ".", "kind": "major", "x": "1"},
+        headers={**ADMIN, **stream},
+    )
+    assert refused.status_code == 200 and "git-tag-draft" in refused.text
+    # A reader sees the modal without the actions.
+    reader = client.get("/actions/git/overview", headers=READER)
+    assert "git-tag-draft" not in reader.text

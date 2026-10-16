@@ -82,6 +82,35 @@ def create_git_routers(
         )
         return HTMLResponse(content=Markup(page), status_code=status)
 
+    def wants_stream(request: Request) -> bool:
+        """A form of a modal (Turbo) asks for a stream, a plain form a page."""
+        return "text/vnd.turbo-stream.html" in request.headers.get("accept", "")
+
+    def overview(request: Request, message: str = "") -> Response:
+        """The configuration management as a modal."""
+        committer = context.git_committer
+        assert committer is not None
+        principal = get_principal(request)
+        output = context.env().render_template_as_markup(
+            "features/git_config/stream_overview.jinja.html",
+            repositories=service().describe_repositories(),
+            pending=committer.pending_paths,
+            warnings=committer.warnings,
+            last_error=committer.last_error,
+            message=message,
+            can_administrate=principal.role in (None, ROLE_ADMINISTRATOR),
+        )
+        return HTMLResponse(
+            content=output,
+            headers={"Content-Type": "text/vnd.turbo-stream.html"},
+        )
+
+    def answer(request: Request, message: str = "") -> Response:
+        """After an action: the modal again, or the page that redirects."""
+        if wants_stream(request):
+            return overview(request, message)
+        return render(request, message) if message else redirect()
+
     def repository_path(relative_path: str) -> str:
         known = [
             state.relative_path for state in service().describe_repositories()
@@ -105,11 +134,15 @@ def create_git_routers(
     def git_page(request: Request) -> Response:
         return render(request)
 
+    @read_router.get("/actions/git/overview", response_class=Response)
+    def git_overview(request: Request) -> Response:
+        return overview(request)
+
     @write_router.post("/actions/git/commit_pending")
-    def commit_pending() -> Response:
+    def commit_pending(request: Request) -> Response:
         assert context.git_committer is not None
         context.git_committer.flush()
-        return redirect()
+        return answer(request)
 
     @write_router.post("/actions/git/tag")
     def create_tag(
@@ -132,11 +165,11 @@ def create_git_routers(
                 )
             service().create_tag(path, name, author)
         except GitServiceError as error:
+            if wants_stream(request):
+                return overview(request, str(error))
             return render(request, str(error), HTTP_BAD_REQUEST)
         note = push_new_tag(path, name)
-        if note:
-            return render(request, f"{name}: {note}")
-        return redirect()
+        return answer(request, f"{name}: {note}" if note else "")
 
     def push_new_tag(path: str, name: str) -> str:
         """
@@ -225,12 +258,16 @@ def create_git_routers(
         path = repository_path(repository)
         problem = ensure_remote_repository(service(), path, git_config())
         if problem:
+            if wants_stream(request):
+                return overview(request, problem)
             return render(request, problem, HTTP_BAD_REQUEST)
         try:
             service().push_with_submodules(path)
         except GitServiceError as error:
+            if wants_stream(request):
+                return overview(request, str(error))
             return render(request, str(error), HTTP_BAD_REQUEST)
-        return redirect()
+        return answer(request)
 
     @write_router.post("/actions/git/create_repository")
     def create_repository(

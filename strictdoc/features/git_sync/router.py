@@ -5,9 +5,10 @@ conflicts of a merge are solved. See sync_service.py for the logic.
 
 import json
 from typing import Any, Dict, Optional, Tuple
+from urllib.parse import quote
 
-from fastapi import APIRouter, Depends, Form, HTTPException
-from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
+from fastapi import APIRouter, Depends, Form, HTTPException, Request
+from fastapi.responses import HTMLResponse, JSONResponse
 from markupsafe import Markup
 from starlette.responses import Response
 
@@ -23,18 +24,18 @@ from strictdoc.features.git_sync.fragments import (
 )
 from strictdoc.features.git_sync.sync_service import (
     CONFLICTS,
-    ERROR,
     MERGED,
     PULLED,
     SyncResult,
     SyncService,
 )
+from strictdoc.features.roles.roles import ROLE_ADMINISTRATOR
+from strictdoc.features.roles.router import get_principal
 from strictdoc.helpers.exception import StrictDocException
 from strictdoc.server.project_context import ProjectContext
 
 HTTP_BAD_REQUEST = 400
 HTTP_PRECONDITION_FAILED = 412
-HTTP_SEE_OTHER = 303
 
 
 def create_git_sync_routers(
@@ -69,43 +70,63 @@ def create_git_sync_routers(
             return str(error)
         return ""
 
-    def page(
+    def stream(template: str, **values: Any) -> Response:
+        output = context.env().render_template_as_markup(
+            f"features/git_sync/{template}", **values
+        )
+        return HTMLResponse(
+            content=output,
+            headers={"Content-Type": "text/vnd.turbo-stream.html"},
+        )
+
+    def dialog(
+        request: Request,
         message: str = "",
         result: Optional[SyncResult] = None,
-        status: int = 200,
     ) -> Response:
+        """The synchronization as a modal."""
         service = sync_service()
         waiting = service.service.merge_in_progress(service.root)
-        output = context.env().render_template_as_markup(
-            "features/git_sync/status.jinja.html",
+        principal = get_principal(request)
+        return stream(
+            "stream_sync.jinja.html",
             message=message,
             result=result,
             waiting=waiting,
             conflicts=service.conflict_paths() if waiting else [],
             has_remote=service.service.has_remote(service.root),
+            can_sync=principal.role in (None, ROLE_ADMINISTRATOR),
         )
-        return HTMLResponse(content=output, status_code=status)
 
     def conflict_url(relative: str) -> str:
-        return f"/git/sync/conflicts?file={relative}"
+        return f"/actions/git/sync_conflicts?file={quote(relative)}"
 
-    @read_router.get("/git/sync", response_class=HTMLResponse)
-    def sync_page() -> Response:
-        return page()
+    @read_router.get("/actions/git/sync_dialog", response_class=Response)
+    def sync_dialog(
+        request: Request,
+        merged: bool = False,
+        pushed: bool = False,
+        note: str = "",
+    ) -> Response:
+        """The dialog; after the end of a merge it says how it ended."""
+        result = (
+            SyncResult(MERGED, message=note, pushed=pushed) if merged else None
+        )
+        return dialog(request, result=result)
 
-    @write_router.post("/actions/git/sync", response_class=HTMLResponse)
-    def sync() -> Response:
+    @write_router.post("/actions/git/sync", response_class=Response)
+    def sync(request: Request) -> Response:
         assert context.git_committer is not None
         context.git_committer.flush()
         service = sync_service()
         result = service.sync()
-        if result.status == CONFLICTS and result.conflicts:
-            return RedirectResponse(
-                conflict_url(result.conflicts[0]), status_code=HTTP_SEE_OTHER
-            )
         if result.status in (PULLED, MERGED):
-            rebuild()
-        return page(result=result)
+            problem = rebuild()
+            if problem:
+                result.message = (result.message + " " + problem).strip()
+        if result.status == CONFLICTS and result.conflicts:
+            return conflicts_view(request, result.conflicts[0])
+        return dialog(request, result=result)
 
     def field_renderer() -> Any:
         renderers: Dict[Optional[str], MarkupRenderer] = {}
@@ -128,22 +149,20 @@ def create_git_sync_routers(
 
         return render
 
-    @read_router.get("/git/sync/conflicts", response_class=HTMLResponse)
-    def conflicts_view(file: str = "") -> Response:
+    @read_router.get("/actions/git/sync_conflicts", response_class=Response)
+    def conflicts_view(request: Request, file: str = "") -> Response:
         service = sync_service()
         if not service.service.merge_in_progress(service.root):
-            return RedirectResponse("/git/sync", status_code=HTTP_SEE_OTHER)
+            return dialog(request)
         paths = service.conflict_paths()
         if file not in paths:
             if not paths:
-                return RedirectResponse("/git/sync", status_code=HTTP_SEE_OTHER)
-            return RedirectResponse(
-                conflict_url(paths[0]), status_code=HTTP_SEE_OTHER
-            )
+                return dialog(request)
+            file = paths[0]
         try:
             loaded = service.conflict_file(file)
         except StrictDocException as error:
-            return page(str(error), status=HTTP_BAD_REQUEST)
+            return dialog(request, str(error))
         rows = build_rows(
             loaded.regions,
             header_of(split_blocks(loaded.local_text)),
@@ -159,17 +178,15 @@ def create_git_sync_routers(
             for row_ in rows
             if row_.kind == "conflict"
         }
-        output = context.env().render_template_as_markup(
-            "features/git_sync/conflicts.jinja.html",
+        return stream(
+            "stream_conflicts.jinja.html",
             file=file,
             files=paths,
             rows=rows,
             conflict_count=count_conflicts(rows),
             branch=service.service.current_branch(service.root),
-            data_json=json.dumps(data),
-            title=config.project_title,
+            data_json=json.dumps(data).replace("</", "<\\/"),
         )
-        return HTMLResponse(content=output)
 
     @write_router.post("/actions/git/sync/resolve")
     def resolve(file: str = Form(""), texts: str = Form("{}")) -> Response:
@@ -190,24 +207,23 @@ def create_git_sync_routers(
         except (StrictDocException, GitServiceError, ValueError) as error:
             return JSONResponse({"error": str(error)}, status_code=422)
         problem = rebuild()
-        if result.status == ERROR or problem:
-            return JSONResponse(
-                {
-                    "ok": True,
-                    "next": "/git/sync",
-                    "warning": result.message or problem,
-                }
-            )
-        return JSONResponse({"ok": True, "next": "/git/sync"})
+        note = quote(result.message or problem)
+        return JSONResponse(
+            {
+                "ok": True,
+                "next": "/actions/git/sync_dialog?merged=1"
+                f"&pushed={int(result.pushed)}&note={note}",
+            }
+        )
 
-    @write_router.post("/actions/git/sync/abort")
-    def abort() -> Response:
+    @write_router.post("/actions/git/sync/abort", response_class=Response)
+    def abort(request: Request) -> Response:
         service = sync_service()
         try:
             service.abort()
         except GitServiceError as error:
-            return page(str(error), status=HTTP_BAD_REQUEST)
+            return dialog(request, str(error))
         rebuild()
-        return RedirectResponse("/git/sync", status_code=HTTP_SEE_OTHER)
+        return dialog(request)
 
     return read_router, write_router

@@ -1,0 +1,51 @@
+{% extends "components/modal/form.jinja" %}
+{% set form = "sdoc_modal_form" %}
+{% block modal__context %}git{% endblock modal__context %}
+{% block modal_form__header %}{{ _("Synchronization") }}{% endblock modal_form__header %}
+{% block modal_form__content %}
+  <div class="gs-dialog" data-testid="sync-dialog">
+    {%- if message %}<p class="gs-notice gs-notice--danger" data-testid="sync-message">{{ message }}</p>{%- endif %}
+    {%- if result %}
+    <p class="gs-notice gs-notice--{{ 'success' if result.status in ('up_to_date', 'pulled', 'merged') else 'warning' }}" data-testid="sync-result" data-status="{{ result.status }}">
+      {%- if result.status == "up_to_date" %}{{ _("Already up to date.") }}
+      {%- elif result.status == "pulled" %}{{ _("%(count)s commit(s) pulled.", count=result.pulled) }}
+      {%- elif result.status == "merged" and result.pulled %}{{ _("%(count)s commit(s) pulled and merged.", count=result.pulled) }}
+      {%- elif result.status == "merged" %}{{ _("The merge is committed.") }}
+      {%- elif result.status == "no_remote" %}{{ _("The repository has no remote (origin): nothing to synchronize with.") }}
+      {%- else %}{{ result.message }}{%- endif %}
+      {%- if result.pushed %} {{ _("Your commits are pushed.") }}{%- endif %}
+    </p>
+    {%- if result.message and result.status in ("up_to_date", "pulled", "merged") %}<p class="gs-notice gs-notice--warning">{{ result.message }}</p>{%- endif %}
+    {%- endif %}
+
+    {%- if waiting %}
+    <h3 class="gs-h3">{{ _("A merge is waiting for its conflicts to be solved") }}</h3>
+    <p>{{ _("The project cannot be changed until the merge is finished or abandoned.") }}</p>
+    <ul class="gs-list" data-testid="sync-conflicts">
+      {%- for path in conflicts %}
+      <li>
+        <span class="gs-pill gs-pill--danger">{{ _("Conflict") }}</span>
+        <a class="gs-mono" href="/actions/git/sync_conflicts?file={{ path|urlencode }}" data-turbo="true" data-testid="sync-open-conflict">{{ path }}</a>
+      </li>
+      {%- endfor %}
+    </ul>
+    <form method="post" action="/actions/git/sync/abort" data-turbo="true" id="gs-abandon-form" data-requires-role="administrator">
+      <button class="action_button" data-action-type="delete" data-testid="sync-abort">{{ _("Abandon the merge") }}</button>
+    </form>
+    {%- elif has_remote %}
+    <form id="{{ form }}" method="post" action="/actions/git/sync" data-turbo="true">
+      <p>{{ _("Pulls what the server has (merging it with your changes), then pushes your commits and tags.") }}</p>
+    </form>
+    {%- else %}
+    <p>{{ _("The repository has no remote (origin): there is nothing to synchronize with.") }}</p>
+    {%- endif %}
+  </div>
+{% endblock modal_form__content %}
+{% block modal_form__footer_cancel %}
+  {%- with cancel_name=_("Close") %}{% include "components/button/cancel.jinja" %}{% endwith %}
+{% endblock modal_form__footer_cancel %}
+{% block modal_form__footer_submit %}
+  {%- if not waiting and has_remote and can_sync %}
+  {%- with submit_name=_("Synchronize now") %}{% include "components/button/submit.jinja" %}{% endwith %}
+  {%- endif %}
+{% endblock modal_form__footer_submit %}
