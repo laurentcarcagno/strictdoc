@@ -5,7 +5,8 @@ Branch: `feature/plans`, based on `feature/isis-integration`. Written 2026-10-10
 Dedicated plans (same folder): [roles and identity](plan_roles_and_identity.md), [comments](plan_comments.md),
 [SVG images](plan_svg_images.md), [document hierarchy and input documents](plan_document_hierarchy_and_inputs.md),
 [multi-project](plan_multi_project.md), [LLM assistant](plan_llm_assistant.md),
-[configuration management with Git and GitLab](plan_git_configuration.md). The Word import and export plan
+[configuration management with Git and GitLab](plan_git_configuration.md),
+[knowledge base for the assistant](plan_kb_integration.md). The Word import and export plan
 (`docx_import_export_plan.md`) is on branch `feature/docx-import-export`; the web dialogs plan is `docx_gui_plan.md`.
 
 ## 1. Where we are
