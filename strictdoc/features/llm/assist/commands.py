@@ -33,6 +33,8 @@ KIND_DRIFT = "drift"  # findings only
 KIND_JOB = "job"  # a long job on a whole document: write, review, trace
 KIND_CONSISTENCY = "consistency"  # findings with no text of their own
 KIND_GAPS = "gaps"  # findings found without a model
+KIND_KB = "kb"  # an answer taken from the knowledge base, no model
+KIND_CITE = "cite"  # replace_text with a requirement of the knowledge base
 
 
 @dataclass(frozen=True)
@@ -221,6 +223,22 @@ COMMANDS: Dict[str, Command] = {
             ROLE_READER,
             KIND_ANSWER,
             "ask",
+        ),
+        Command(
+            "kb",
+            (SCOPE_FIELD,),
+            "/kb <question>",
+            "Searches the knowledge base of the mission (no model); the answer is exact citations.",
+            ROLE_REVIEWER,
+            KIND_KB,
+        ),
+        Command(
+            "cite",
+            (SCOPE_FIELD,),
+            "/cite <ID>",
+            "Inserts a requirement of the knowledge base word for word, with its source.",
+            ROLE_AUTHOR,
+            KIND_CITE,
         ),
         Command(
             "help",

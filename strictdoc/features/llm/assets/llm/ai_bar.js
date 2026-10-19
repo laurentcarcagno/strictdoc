@@ -575,6 +575,9 @@
             `${confirmation.provider} (${confirmation.model}), outside the network.`
         )
       );
+      if ((confirmation.kb_sources ?? []).length > 0) {
+        box.append(this._sources(confirmation.kb_sources, 'Included from the base'));
+      }
       const details = element('details');
       details.append(
         element('summary', '', 'What is sent'),
@@ -617,6 +620,11 @@
       }
       for (const warning of result.warnings ?? []) {
         nodes.push(element('p', 'ai-bar__warning', warning));
+      }
+      if (result.meta?.kb && result.meta.kb.sources.length > 0) {
+        nodes.push(
+          this._sources(result.meta.kb.sources, `Base: ${result.meta.kb.mission}`)
+        );
       }
       for (const finding of result.findings ?? []) {
         nodes.push(this._findingCard(finding));
@@ -669,6 +677,16 @@
       }
       nodes.push(buttons);
       this._show(...nodes);
+    }
+
+    _sources(sources, title) {
+      const box = element('div', 'ai-bar__sources');
+      box.dataset.testid = 'ai-bar-sources';
+      box.append(element('p', 'ai-bar__card-title', title));
+      const list = element('ul');
+      for (const source of sources) list.append(element('li', '', source));
+      box.append(list);
+      return box;
     }
 
     _findingCard(finding) {

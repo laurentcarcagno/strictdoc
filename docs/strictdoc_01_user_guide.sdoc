@@ -4919,6 +4919,12 @@ save or discard your changes first, then reloads the page.
    * - ``/ask <question> [@...]``
      - answers about the text and the mentions
      - reader
+   * - ``/kb <question>``
+     - searches the knowledge base of the mission, with no model; the answer is exact citations
+     - reviewer
+   * - ``/cite <ID>``
+     - inserts a requirement of the knowledge base word for word, with its source (``kb://`` link)
+     - author
    * - ``/help``
      - lists the commands
      - reader
@@ -5011,6 +5017,33 @@ sent and waits for your click, and a classified document never goes to one. When
 several providers a list appears in the bar. The JSON that the browser and the server
 exchange (a request, a result with typed operations ``replace_text``, ``insert_node``,
 ``add_comment``) is described in ``strictdoc/features/llm/assist/envelope.py``.
+
+**Knowledge base.** A project can link the assistant to a knowledge base of its mission (interface
+control documents, system specifications, requirements of the customer) with the option ``kb`` of
+``llm``::
+
+    llm=LLMConfig(
+        ...,
+        kb=KBConfig(
+            url="http://kb.internal",
+            token_url="https://keycloak.example/realms/main/protocol/openid-connect/token",
+            mission="isis",
+            commands=["ask", "req", "verify"],   # the default
+        ),
+    )
+
+The server reads the base with the Keycloak service account ``strictdoc-kb`` (its secret is in
+the variable ``KB_CLIENT_SECRET``) and tells the base which person it acts for: the base answers
+only for the missions that the person and the account share, and both names are in its audit log.
+For the commands of ``commands``, a model that runs on this network chooses which tools of the base
+to call (search, read a requirement, read a section, an interface...), at most ``max_steps`` rounds;
+what the tools return goes into the prompt as data between ``BEGIN KB-DATA`` and ``END KB-DATA``
+lines, cut to ``max_tool_chars``, and the answer shows its sources under "Base: <mission>". A model
+that does not support tools gets a plain search with the question. A cloud provider never runs the
+loop: it receives the result of one search, listed in the confirmation, only if the mission names
+the model in ``allowed_models`` and its classification is not blocked. Only tools that read can be
+named in ``tools``. Every call to the base is in the audit log of the assistant (tool, mission, a
+hash of the arguments, size, and the ``request_id`` of the base). ``/kb`` and ``/cite`` need no model.
 <<<
 
 [[/SECTION]]

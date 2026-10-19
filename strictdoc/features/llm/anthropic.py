@@ -12,7 +12,13 @@ from typing import Any, Dict, Optional
 from strictdoc.features.llm.config import Anthropic
 from strictdoc.features.llm.http import post_json
 from strictdoc.features.llm.openai_compatible import _integer
-from strictdoc.features.llm.types import LLMError, LLMRequest, LLMResponse
+from strictdoc.features.llm.types import (
+    LLMError,
+    LLMRequest,
+    LLMResponse,
+    Message,
+    ToolCall,
+)
 
 API_VERSION = "2023-06-01"
 TOOL_NAME = "submit_proposals"
@@ -46,9 +52,23 @@ class AnthropicProvider:
             "max_tokens": request.max_tokens,
             "temperature": request.temperature,
             "system": request.system,
-            "messages": [{"role": "user", "content": request.user}],
+            "messages": [
+                {"role": "user", "content": request.user},
+                *_messages(request.messages),
+            ],
         }
-        if request.schema is not None:
+        if request.tools:
+            body["tools"] = [
+                {
+                    "name": tool_["name"],
+                    "description": tool_.get("description", ""),
+                    "input_schema": tool_.get(
+                        "input_schema", {"type": "object"}
+                    ),
+                }
+                for tool_ in request.tools
+            ]
+        elif request.schema is not None:
             body["tools"] = [
                 {
                     "name": TOOL_NAME,
@@ -65,9 +85,9 @@ class AnthropicProvider:
             provider=self.name,
             secret=self._key,
         )
-        return self._parse(raw)
+        return self._parse(raw, with_tools=bool(request.tools))
 
-    def _parse(self, raw: bytes) -> LLMResponse:
+    def _parse(self, raw: bytes, with_tools: bool = False) -> LLMResponse:
         try:
             data = json.loads(raw)
             blocks = data["content"]
@@ -78,8 +98,21 @@ class AnthropicProvider:
                 f"Provider '{self.name}' answered something that is not a message."
             ) from None
         text = ""
+        tool_calls = []
         for block_ in blocks:
             if not isinstance(block_, dict):
+                continue
+            if with_tools and block_.get("type") == "tool_use":
+                arguments = block_.get("input")
+                tool_calls.append(
+                    ToolCall(
+                        id=str(block_.get("id", "")),
+                        name=str(block_.get("name", "")),
+                        arguments=arguments
+                        if isinstance(arguments, dict)
+                        else {},
+                    )
+                )
                 continue
             if (
                 block_.get("type") == "tool_use"
@@ -89,13 +122,45 @@ class AnthropicProvider:
                 break
             if block_.get("type") == "text" and not text:
                 text = str(block_.get("text", ""))
-        if len(text.strip()) == 0:
+        if len(text.strip()) == 0 and not tool_calls:
             raise LLMError(f"Provider '{self.name}' answered no text.")
         usage = data.get("usage") if isinstance(data, dict) else None
         usage = usage if isinstance(usage, dict) else {}
         return LLMResponse(
             text=text,
+            tool_calls=tuple(tool_calls),
             model=str(data.get("model", self.model)),
             input_tokens=_integer(usage.get("input_tokens")),
             output_tokens=_integer(usage.get("output_tokens")),
         )
+
+
+def _messages(messages: "tuple[Message, ...]") -> "list[Dict[str, Any]]":
+    """The turns of a conversation with tools; results go in one user turn."""
+    turns: list[Dict[str, Any]] = []
+    for message_ in messages:
+        if message_.role == "tool":
+            block = {
+                "type": "tool_result",
+                "tool_use_id": message_.tool_call_id,
+                "content": message_.content,
+            }
+            if turns and turns[-1]["role"] == "user":
+                turns[-1]["content"].append(block)
+            else:
+                turns.append({"role": "user", "content": [block]})
+            continue
+        content: list[Dict[str, Any]] = []
+        if message_.content:
+            content.append({"type": "text", "text": message_.content})
+        for call_ in message_.tool_calls:
+            content.append(
+                {
+                    "type": "tool_use",
+                    "id": call_.id,
+                    "name": call_.name,
+                    "input": call_.arguments,
+                }
+            )
+        turns.append({"role": "assistant", "content": content})
+    return turns

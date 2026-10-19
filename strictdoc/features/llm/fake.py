@@ -8,7 +8,8 @@ from strictdoc.features.llm.types import (
     LLMResponse,
 )
 
-Answer = Union[str, Exception, Callable[[LLMRequest], str]]
+# An LLMResponse is returned as it is (a turn with tool calls, for example).
+Answer = Union[str, Exception, LLMResponse, Callable[[LLMRequest], str]]
 
 
 class FakeProvider:
@@ -35,6 +36,8 @@ class FakeProvider:
         )
         if isinstance(answer, Exception):
             raise answer
+        if isinstance(answer, LLMResponse):
+            return answer
         text = answer(request) if callable(answer) else answer
         return LLMResponse(
             text=text,

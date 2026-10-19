@@ -8,8 +8,9 @@ provider comes only from this configuration, never from a request.
 
 import urllib.parse
 from dataclasses import dataclass, field
-from typing import Dict, List, Union
+from typing import Dict, List, Optional, Union
 
+from strictdoc.features.kb.config import KBConfig
 from strictdoc.helpers.exception import StrictDocException
 
 
@@ -72,6 +73,8 @@ class LLMConfig:
     # The field of the requirement that holds the verification method (for
     # REQ_02: VERIFIED_BY). Empty: the method is not stored.
     verification_field: str = ""
+    # The knowledge base that the commands read (features/kb); None: none.
+    kb: Optional[KBConfig] = None
 
     def validate(self) -> None:
         if len(self.providers) == 0:
@@ -110,6 +113,8 @@ class LLMConfig:
                 f"config: llm: the default provider '{self.default}' is a "
                 "cloud provider but allow_cloud is false."
             )
+        if self.kb is not None:
+            self.kb.validate()
         if self.cloud_token_budget_per_month < 0:
             raise StrictDocException(
                 "config: llm: cloud_token_budget_per_month cannot be negative."

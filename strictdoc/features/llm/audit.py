@@ -67,12 +67,52 @@ class LLMAudit:
             entry["detail"] = call.detail[:300]
         if self.store_prompts:
             entry["prompt"] = call.prompt
+        self._write(entry)
+
+    def record_tool(
+        self,
+        *,
+        user: str,
+        role: str,
+        project: str,
+        mission: str,
+        tool: str,
+        arguments: Dict[str, Any],
+        ok: bool,
+        chars: int,
+        request_id: str,
+        note: str = "",
+        now: Optional[datetime] = None,
+    ) -> None:
+        """One call to the knowledge base. `request_id` is the one of its audit log."""
+        moment = now or datetime.now(timezone.utc)
+        text = json.dumps(arguments, sort_keys=True, ensure_ascii=False)
+        entry: Dict[str, Any] = {
+            "time": moment.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "kind": "kb_tool",
+            "user": user,
+            "role": role,
+            "project": project,
+            "mission": mission,
+            "tool": tool,
+            "arguments_sha256": hashlib.sha256(text.encode()).hexdigest(),
+            "result_chars": chars,
+            "request_id": request_id,
+            "is_local": True,
+            "status": "ok" if ok else "error",
+        }
+        if note:
+            entry["detail"] = note[:300]
+        if self.store_prompts:
+            entry["arguments"] = arguments
+        self._write(entry)
+
+    def _write(self, entry: Dict[str, Any]) -> None:
         line = json.dumps(entry, ensure_ascii=False, sort_keys=True)
         with self._lock:
             os.makedirs(
                 os.path.dirname(os.path.abspath(self.path)), exist_ok=True
             )
-            # Created readable by the owner only: it may hold prompts.
             descriptor = os.open(
                 self.path, os.O_WRONLY | os.O_CREAT | os.O_APPEND, 0o600
             )

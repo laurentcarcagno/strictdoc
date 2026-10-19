@@ -254,6 +254,18 @@ sdoc-ai-bar {
   margin-top: 8px;
 }
 
+.ai-bar__sources {
+  margin: 8px 0;
+  padding: 6px 10px;
+  border-left: 3px solid var(--hem-line, #c5ced8);
+  font-size: 12px;
+}
+
+.ai-bar__sources ul {
+  margin: 2px 0 0;
+  padding-left: 18px;
+}
+
 .ai-bar__meta {
   margin-left: auto;
   color: var(--hem-mute-ink, #5b6b7b);
