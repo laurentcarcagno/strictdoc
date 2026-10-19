@@ -133,7 +133,7 @@ def test_002_both_the_loop_and_the_tools_are_in_the_audit(tmp_path, setup):
         and len(tools[0]["arguments_sha256"]) == 64
     )
     assert "arguments" not in tools[0]
-    assert any(e.get("template") == "kb_gather@5" for e in entries)
+    assert any(e.get("template") == "kb_gather@6" for e in entries)
 
 
 def test_003_a_command_that_is_not_listed_does_not_read_the_base(
