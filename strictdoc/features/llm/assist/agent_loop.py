@@ -65,12 +65,14 @@ class Gathered:
 
 
 def citation_line(citation: Dict[str, Any]) -> str:
-    """The source of a citation of the server: doc_ref, edition, section."""
+    """The source of a citation of the server: doc_ref, edition, section and, when known, the page of the source PDF."""
     line = str(citation.get("doc_ref") or "?")
     if citation.get("edition"):
         line += f" ed. {citation['edition']}"
     if citation.get("section"):
         line += f" §{citation['section']}"
+    if citation.get("page"):
+        line += f", p. {citation['page']}"
     return line
 
 

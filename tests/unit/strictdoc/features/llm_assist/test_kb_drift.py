@@ -65,3 +65,15 @@ def test_005_the_four_ways_a_quote_drifts():
     ]
     assert rules(_now(truncated=True)) == [RULE_UNCHECKED]
     assert rules(None) == [RULE_UNCHECKED]
+
+
+def test_006_the_page_of_the_source_is_in_the_citation_and_the_quote_is_still_found():
+    from strictdoc.features.llm.assist.agent_loop import citation_line
+
+    line = citation_line(
+        {"doc_ref": "SVC18", "edition": "1", "section": "1.1", "page": 4}
+    )
+    assert line == "SVC18 ed. 1 §1.1, p. 4"
+    footer = f"> — PUS18-SRV-0010, {line} (kb://isis/SVC18/1/1.1)"
+    (citation,) = find_citations(f"> {TEXT}\n{footer}")
+    assert citation.req_id == "PUS18-SRV-0010" and citation.quote == TEXT
