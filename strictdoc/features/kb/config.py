@@ -45,7 +45,10 @@ DEFAULT_TOOLS: Tuple[str, ...] = (
 DEFAULT_COMMANDS: Tuple[str, ...] = ("ask", "req", "verify")
 
 _LOOPBACK = ("127.0.0.1", "localhost", "::1")
+# The names that the relays of deploy.sh give on the internal network: the
+# base (http, the relay leads to the server) and the token endpoint of Keycloak.
 INTERNAL_HOST = "kb.internal"
+INTERNAL_TOKEN_HOST = "keycloak-admin"
 
 
 @dataclass
@@ -69,24 +72,22 @@ class KBConfig:
     max_gathered_chars: int = 9000
 
     def validate(self) -> None:
-        for name_, address in (
-            ("url", self.url),
-            ("token_url", self.token_url),
+        for name_, address, internal_host in (
+            ("url", self.url, INTERNAL_HOST),
+            ("token_url", self.token_url, INTERNAL_TOKEN_HOST),
         ):
             parsed = urllib.parse.urlparse(address)
             if not parsed.hostname:
                 raise StrictDocException(
                     f"config: llm: kb: {name_} must be an address."
                 )
-            secure = parsed.scheme == "https"
-            internal = parsed.scheme == "http" and (
-                parsed.hostname in _LOOPBACK or parsed.hostname == INTERNAL_HOST
+            plain_allowed = parsed.scheme == "http" and (
+                parsed.hostname in _LOOPBACK or parsed.hostname == internal_host
             )
-            if not (secure or (internal and name_ == "url")):
+            if parsed.scheme != "https" and not plain_allowed:
                 raise StrictDocException(
-                    f"config: llm: kb: {name_} must be https"
-                    + (f" or http://{INTERNAL_HOST}" if name_ == "url" else "")
-                    + "."
+                    f"config: llm: kb: {name_} must be https or "
+                    f"http://{internal_host}."
                 )
         if not self.mission.strip():
             raise StrictDocException("config: llm: kb: mission is empty.")

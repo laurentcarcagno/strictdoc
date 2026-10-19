@@ -24,9 +24,14 @@ def test_003_any_other_address_is_refused(url):
         make_kb_config(url=url).validate()
 
 
-def test_004_the_token_endpoint_is_https():
+def test_004_the_token_endpoint_is_https_or_the_internal_relay():
+    make_kb_config(
+        token_url="http://keycloak-admin:8080/realms/infra/protocol/openid-connect/token"
+    ).validate()
     with pytest.raises(StrictDocException):
         make_kb_config(token_url="http://kb.internal/token").validate()
+    with pytest.raises(StrictDocException):
+        make_kb_config(token_url="http://other.example/token").validate()
 
 
 def test_005_only_tools_that_read_are_allowed():
