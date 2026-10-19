@@ -42,6 +42,7 @@ DEFAULT_TOOLS: Tuple[str, ...] = (
     "get_section",
     "get_interface",
     "glossary",
+    "wiki_search",
     "find_references",
 )
 
