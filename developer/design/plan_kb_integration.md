@@ -125,3 +125,25 @@ is returned as data). First mission: ISIS.
 - Tool calling depends on the model: measure `gpt-oss`, `qwen3-coder` and `devstral` before fixing the default; retrieval stays the safety net.
 - Memory of the host: PostgreSQL and the MCP server are small; compiling the wiki runs on demand.
 - A tool result is untrusted text: neutralised, bounded, never an instruction, read-only tools only.
+
+## 7. Status and differences from the design
+
+Phases 1 to 3b are done and deployed (`deploy.sh --kb`, `check_kb.sh` passes with `gpt-oss:20b`, `devstral-small-2` and `qwen2.5:3b`, which all call tools).
+What changed while building:
+
+- The loop is a step before the command, not the command itself. A model with the tools collects the context (`assist/agent_loop.py`, prompt
+  `kb_gather`), then the usual call with the JSON schema of the command writes the answer. So the parsing, the repair retry and the typed operations
+  of every command are unchanged, and no provider has to combine tools and a schema. The commands that look in the base are the `commands` of `KBConfig`
+  (default `ask`, `req`, `verify`).
+- The option is `llm=LLMConfig(kb=KBConfig(...))`, not a new option of `ProjectConfig`: no shared component changed except `llm/config.py`, `types.py`,
+  the three providers, `audit.py` and the bar.
+- The rate limit counts a command once; the rounds are bounded by `max_steps` and a total time. The cloud budget is not touched by the loop because a
+  cloud provider never runs it: it gets one plain search (no model), the user confirms what is sent, and the confirmation lists the citations. The mission must
+  name the model in `allowed_models` and its classification must not be blocked.
+- The token endpoint is reached through the relay `strictdoc-kc` (`http://keycloak-admin:8080`), the base through `kb-relay` (`http://kb.internal:8080`);
+  both addresses may be plain http only with these names.
+- The bar shows the sources under "Base: <mission>"; `/cite` replaces the selection or adds a quoted block (`> text` and `> — ID, document ed. section (kb:// link)`)
+  at the end of the field. A requirement that the server cut is not cited.
+- The proxy of the login waited 30 s for the app by default; a loop takes 10 to 40 s, so `--upstream-timeout=300s`.
+- Not done: the check of `kb://` links in a text (`check-kb`, drift), the `screens/assistant_kb` end-to-end test (`check_kb.sh` covers the deployed path), the French
+  catalogue (the bar is in English), `/kb` in the document bar.
