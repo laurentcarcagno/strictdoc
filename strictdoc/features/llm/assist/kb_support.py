@@ -11,6 +11,9 @@ person and the service account of StrictDoc share.
 import time
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
+from strictdoc.backend.sdoc.models.document import SDocDocument
+from strictdoc.backend.sdoc.models.node import SDocNode
+from strictdoc.core.document_iterator import SDocDocumentIterator
 from strictdoc.features.kb.client import KBClient, KBError, KBResult
 from strictdoc.features.kb.config import KBConfig
 from strictdoc.features.llm.assist.agent_loop import (
@@ -27,8 +30,15 @@ from strictdoc.features.llm.assist.envelope import (
     Action,
     AssistRequest,
     AssistResult,
+    Finding,
 )
 from strictdoc.features.llm.assist.errors import AssistError
+from strictdoc.features.llm.assist.kb_drift import (
+    RULE_UNCHECKED,
+    Citation,
+    check,
+    find_citations,
+)
 from strictdoc.features.llm.assist.runner import Calls
 from strictdoc.features.roles.principal import Principal
 
@@ -223,6 +233,114 @@ class KBSupport:
         gathered.sources.append(citation_line(citation))
         result.meta = self.meta(gathered)
         return result
+
+    def check_command(
+        self, principal: Principal, document: SDocDocument
+    ) -> AssistResult:
+        """/kbcheck: the quotes of the base in a document, compared with it."""
+        config = self.config
+        if config is None:
+            raise AssistError(400, "This project has no knowledge base.")
+        if "get_requirement" not in config.tools:
+            raise AssistError(403, "This project does not allow /kbcheck.")
+        found: List[Any] = []
+        for node_, _ in SDocDocumentIterator(
+            document=document, node_filter=None
+        ).all_content(print_fragments=False):
+            if not isinstance(node_, SDocNode):
+                continue
+            for _field, _name, value_ in node_.enumerate_all_fields():
+                for citation_ in find_citations(value_ or ""):
+                    found.append((node_.reserved_uid or "", citation_))
+        if not found:
+            return AssistResult(
+                command="kbcheck",
+                message="This document quotes nothing from the base "
+                "(/cite writes such a quote).",
+            )
+        gathered = Gathered(retrieval=True)
+        current: Dict[str, Optional[KBResult]] = {}
+        try:
+            if self.mission(principal) is None:
+                raise AssistError(
+                    403,
+                    f"You have no access to the mission {config.mission} of "
+                    "the knowledge base.",
+                )
+            for _uid, citation_ in found:
+                if (
+                    citation_.req_id in current
+                    or citation_.mission != config.mission
+                ):
+                    continue
+                arguments = {
+                    "req_id": citation_.req_id,
+                    "mission": config.mission,
+                }
+                result_ = self.client().call(
+                    "get_requirement",
+                    arguments,
+                    user=principal.user,
+                    groups=principal.groups,
+                )
+                current[citation_.req_id] = result_
+                gathered.records.append(
+                    ToolRecord(
+                        tool="get_requirement",
+                        arguments=arguments,
+                        ok=result_.ok,
+                        request_id=result_.request_id,
+                        note=result_.message,
+                    )
+                )
+        except KBError as exception_:
+            raise AssistError(502, str(exception_)) from exception_
+        finally:
+            self.audit(principal, gathered)
+        findings: List[Finding] = []
+        for uid_, citation_ in found:
+            for severity_, rule_, message_ in self._compare(
+                citation_, current, config.mission
+            ):
+                findings.append(
+                    Finding(
+                        severity=severity_,
+                        rule=rule_,
+                        quote=_plain(citation_.quote)[:120],
+                        message=f"{uid_}: {message_}" if uid_ else message_,
+                        source="check",
+                    )
+                )
+        problems = [f_ for f_ in findings if f_.rule != RULE_UNCHECKED]
+        message = (
+            f"{len(found)} quote(s) checked, {len(problems)} "
+            f"problem{'s' if len(problems) != 1 else ''}."
+        )
+        return AssistResult(
+            command="kbcheck",
+            message=message,
+            findings=findings,
+            meta=self.meta(gathered),
+        )
+
+    @staticmethod
+    def _compare(
+        citation: Citation,
+        current: Dict[str, Optional[KBResult]],
+        mission: str,
+    ) -> List[tuple[str, str, str]]:
+        if citation.mission != mission:
+            return [
+                (
+                    "info",
+                    RULE_UNCHECKED,
+                    (
+                        f"{citation.req_id} is from the mission "
+                        f"{citation.mission}, not {mission}: not compared."
+                    ),
+                )
+            ]
+        return check(citation, current.get(citation.req_id))
 
     # -- the context of a command -----------------------------------------------
 

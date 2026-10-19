@@ -4925,6 +4925,9 @@ save or discard your changes first, then reloads the page.
    * - ``/cite <ID>``
      - inserts a requirement of the knowledge base word for word, with its source (``kb://`` link)
      - author
+   * - ``/kbcheck``
+     - (document bar) compares the quotes written by ``/cite`` with the base: requirement gone, newer edition, text changed; no model
+     - reviewer
    * - ``/help``
      - lists the commands
      - reader
@@ -5043,7 +5046,7 @@ that does not support tools gets a plain search with the question. A cloud provi
 loop: it receives the result of one search, listed in the confirmation, only if the mission names
 the model in ``allowed_models`` and its classification is not blocked. Only tools that read can be
 named in ``tools``. Every call to the base is in the audit log of the assistant (tool, mission, a
-hash of the arguments, size, and the ``request_id`` of the base). ``/kb`` and ``/cite`` need no model.
+hash of the arguments, size, and the ``request_id`` of the base). ``/kb``, ``/cite`` and ``/kbcheck`` need no model; ``/kb`` also works in the document bar.
 <<<
 
 [[/SECTION]]

@@ -341,3 +341,98 @@ def test_015_the_catalogue_lists_kb_and_cite(tmp_path, setup):
     client = make_client(tmp_path, _llm())
     body = _ask(client, "/help", headers=READER).json()
     assert "/kb" in body["message"] and "/cite" in body["message"]
+
+
+# -- /kbcheck: the quotes of the base in a document ---------------------------------
+
+
+def _doc(client, command, headers=REVIEWER):
+    return client.post(
+        "/actions/llm/assist",
+        json={
+            "v": 1,
+            "scope": "document",
+            "input": command,
+            "target": {"document_mid": FLIGHT_DOC},
+        },
+        headers=headers,
+    )
+
+
+def _quote(req_id, text, edition="9.0"):
+    return (
+        f"> {text}\n"
+        f"> — {req_id}, ISIS-SYS-IF-249-CNES ed. {edition} §3.2 "
+        f"(kb://isis/ISIS-SYS-IF-249-CNES/{edition}/3.2)"
+    )
+
+
+def _flight_with(monkeypatch, comment):
+    from tests.support import llm_fixture
+
+    monkeypatch.setattr(
+        llm_fixture,
+        "FLIGHT",
+        llm_fixture.FLIGHT.replace(
+            "The software shall use at most 32 MB.\n<<<",
+            "The software shall use at most 32 MB.\n<<<\nCOMMENT: >>>\n"
+            + comment
+            + "\n<<<",
+            1,
+        ),
+    )
+
+
+def test_016_kbcheck_compares_each_quote_with_the_base(
+    tmp_path, setup, monkeypatch
+):
+    comment = "\n\n".join(
+        [
+            _quote("ISIS-IF-249-0100", REQ_TEXT),
+            _quote("ISIS-IF-249-0200", "An older wording.", edition="8.0"),
+            _quote("NOPE-1", "Gone."),
+        ]
+    )
+    _flight_with(monkeypatch, comment)
+    provider, kb = setup()
+    client = make_client(tmp_path, _llm())
+    body = _doc(client, "/kbcheck").json()
+    assert body["status"] == "ok", body
+    assert body["message"] == "3 quote(s) checked, 3 problems."
+    rules = sorted(
+        (f["rule"], f["message"].split(":")[0]) for f in body["findings"]
+    )
+    assert rules == [
+        ("R-KB-CHANGED", "FSW-1"),
+        ("R-KB-EDITION", "FSW-1"),
+        ("R-KB-GONE", "FSW-1"),
+    ]
+    assert provider.requests == []
+    assert [c["tool"] for c in kb.calls] == ["get_requirement"] * 3
+    assert {c["user"] for c in kb.calls} == {"rita"}
+    audited = [e for e in _audit(tmp_path) if e.get("kind") == "kb_tool"]
+    assert len(audited) == 3
+
+
+def test_017_kbcheck_reports_a_document_without_quotes(tmp_path, setup):
+    setup()
+    client = make_client(tmp_path, _llm())
+    body = _doc(client, "/kbcheck").json()
+    assert body["status"] == "ok" and not body["findings"]
+    assert "quotes nothing" in body["message"]
+
+
+def test_018_kbcheck_needs_the_mission_and_the_role(tmp_path, setup):
+    setup(kb=FakeKBClient(missions=[]))
+    client = make_client(tmp_path, _llm())
+    assert _doc(client, "/kbcheck", headers=READER).status_code == 403
+    # A reviewer outside the group is refused only when a quote has to be read.
+    plain = _doc(client, "/kb heartbeat")
+    assert plain.status_code == 403
+
+
+def test_019_kb_also_works_from_the_document_bar(tmp_path, setup):
+    setup()
+    client = make_client(tmp_path, _llm())
+    body = _doc(client, "/kb heartbeat").json()
+    assert body["status"] == "ok" and "ISIS-IF-249-0100" in body["message"]

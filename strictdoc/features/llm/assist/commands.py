@@ -35,6 +35,7 @@ KIND_CONSISTENCY = "consistency"  # findings with no text of their own
 KIND_GAPS = "gaps"  # findings found without a model
 KIND_KB = "kb"  # an answer taken from the knowledge base, no model
 KIND_CITE = "cite"  # replace_text with a requirement of the knowledge base
+KIND_KBCHECK = "kbcheck"  # findings: citations that no longer match the base
 
 
 @dataclass(frozen=True)
@@ -226,7 +227,7 @@ COMMANDS: Dict[str, Command] = {
         ),
         Command(
             "kb",
-            (SCOPE_FIELD,),
+            (SCOPE_FIELD, SCOPE_DOCUMENT),
             "/kb <question>",
             "Searches the knowledge base of the mission (no model); the answer is exact citations.",
             ROLE_REVIEWER,
@@ -239,6 +240,14 @@ COMMANDS: Dict[str, Command] = {
             "Inserts a requirement of the knowledge base word for word, with its source.",
             ROLE_AUTHOR,
             KIND_CITE,
+        ),
+        Command(
+            "kbcheck",
+            (SCOPE_DOCUMENT,),
+            "/kbcheck",
+            "Checks the quotes of the knowledge base in the document against the base (no model).",
+            ROLE_REVIEWER,
+            KIND_KBCHECK,
         ),
         Command(
             "help",

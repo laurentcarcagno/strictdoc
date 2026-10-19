@@ -145,5 +145,9 @@ What changed while building:
 - The bar shows the sources under "Base: <mission>"; `/cite` replaces the selection or adds a quoted block (`> text` and `> — ID, document ed. section (kb:// link)`)
   at the end of the field. A requirement that the server cut is not cited.
 - The proxy of the login waited 30 s for the app by default; a loop takes 10 to 40 s, so `--upstream-timeout=300s`.
-- Not done: the check of `kb://` links in a text (`check-kb`, drift), the `screens/assistant_kb` end-to-end test (`check_kb.sh` covers the deployed path), the French
-  catalogue (the bar is in English), `/kb` in the document bar.
+- The drift check is the document command `/kbcheck` (no model, role reviewer; `assist/kb_drift.py`), not a separate script. It reads the quotes that
+  `/cite` writes (`> text` and the footer with the `kb://` link) in every field of the document, asks `get_requirement` once per requirement for the
+  person who runs it, and reports `R-KB-GONE`, `R-KB-EDITION` (the requirement is now in another edition of the document) and `R-KB-CHANGED` (the
+  text is not the one of the base: the base changed or the quote was edited). A bare `kb://` link without a quote is not checked. `/kb` also works in
+  the document bar.
+- Not done: the `screens/assistant_kb` end-to-end test (`check_kb.sh` covers the deployed path), the French catalogue (the bar is in English).

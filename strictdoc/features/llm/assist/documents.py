@@ -30,6 +30,8 @@ from strictdoc.features.llm.assist.commands import (
     KIND_CONSISTENCY,
     KIND_GAPS,
     KIND_JOB,
+    KIND_KB,
+    KIND_KBCHECK,
     KIND_LOCAL,
     Command,
     CommandError,
@@ -174,6 +176,10 @@ class DocumentCommands:
             raise AssistError(403, f"Your role does not allow /{command.name}.")
         if command.kind == KIND_LOCAL:
             return help_result(command)
+        if command.kind == KIND_KB:
+            return service.kb.search_command(principal, parsed.arguments)
+        if command.kind == KIND_KBCHECK:
+            return service.kb.check_command(principal, document)
         arguments = parsed.arguments
         if command.name in ("write", "ask") and not arguments:
             raise AssistError(400, f"Say what you want after /{command.name}.")
