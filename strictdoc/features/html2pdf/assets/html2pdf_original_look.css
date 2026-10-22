@@ -1,33 +1,9 @@
 /*
   The PDF keeps the original look of StrictDoc: the page of the PDF (the main
-  area of the html2pdf screen) gets back the original palette, the Noto fonts
+  area of the html2pdf screen) gets back the original palette
   and the original styles of headings, field labels and UIDs. The frame of the
   screen around it (sidebar, header) keeps the Hemeria design.
 */
-
-@font-face {
-  font-family: 'Noto Sans';
-  font-style: normal;
-  font-weight: 100 900;
-  font-display: swap;
-  src: url('./fonts/NotoSans-VariableFont_wdth,wght.ttf') format('truetype-variations');
-}
-
-@font-face {
-  font-family: 'Noto Sans';
-  font-style: italic;
-  font-weight: 100 900;
-  font-display: swap;
-  src: url('./fonts/NotoSans-Italic-VariableFont_wdth,wght.ttf') format('truetype-variations');
-}
-
-@font-face {
-  font-family: 'Noto Sans Mono';
-  font-style: normal;
-  font-weight: 100 900;
-  font-display: swap;
-  src: url('./fonts/NotoSansMono-VariableFont_wdth,wght.ttf') format('truetype-variations');
-}
 
 [data-viewtype="html2pdf"] .layout_main {
   /* The original palette of StrictDoc. */
@@ -51,8 +27,8 @@
   --color-placeholder: rgba(0, 0, 0, .25);
 
   /* The original fonts and sizes. */
-  --base-font-family: 'Noto Sans', sans-serif;
-  --code-font-family: 'Noto Sans Mono', consolas, monaco, monospace;
+  --base-font-family: 'IBM Plex Sans', system-ui, sans-serif;
+  --code-font-family: 'IBM Plex Mono', consolas, monaco, monospace;
   --base-font-size: 16px;
   --document-font-size: 16px;
   --base-line-height: 1.6;
