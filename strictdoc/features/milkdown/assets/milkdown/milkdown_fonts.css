@@ -1,0 +1,9 @@
+/*
+  The fonts of the Markdown editor: milkdown.css (a vendored build) names Noto Serif and Noto Sans, which StrictDoc does not
+  bundle. The editor uses the fonts of the rest of the application (IBM Plex, declared in base.css).
+*/
+.milkdown {
+  --crepe-font-title: var(--hem-font-body, 'IBM Plex Sans', system-ui, sans-serif);
+  --crepe-font-default: var(--hem-font-body, 'IBM Plex Sans', system-ui, sans-serif);
+  --crepe-font-code: var(--hem-font-mono, 'IBM Plex Mono', ui-monospace, monospace);
+}

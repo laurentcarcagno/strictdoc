@@ -9,6 +9,7 @@
   {%- endif %}
   {%- if view_object.needs_markdown_editor() %}
   <link rel="stylesheet" href="{{ view_object.render_static_url('milkdown/milkdown.css') }}"/>
+  <link rel="stylesheet" href="{{ view_object.render_static_url('milkdown/milkdown_fonts.css') }}"/>
   {%- endif %}
 {% endblock head_css %}
 
