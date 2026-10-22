@@ -33,6 +33,23 @@ class Test(E2ECase):
             assert len(lefts) >= 2, lefts
             assert len(set(lefts)) == 1, lefts
 
+            # The sheets are real A4 pages (210 x 297 mm), and a paragraph
+            # is cut between two lines to fill them: the rest of it is
+            # drawn on the next sheet.
+            sizes = self.execute_script(
+                "const mm = (() => { const p = document.createElement('div');"
+                "p.style.cssText = 'position:absolute;width:100mm;height:100mm';"
+                "document.body.append(p); const r = p.getBoundingClientRect();"
+                "p.remove(); return r.width / 100; })();"
+                "return [...document.querySelectorAll('.sdoc-page-sheet')]"
+                ".map(e => [e.offsetWidth / mm, e.offsetHeight / mm])"
+            )
+            assert all(
+                abs(w - 210) < 1 and abs(h - 297) < 1 for w, h in sizes
+            ), sizes
+            self.assert_element(".sdoc-page-clone", by="css selector")
+            self.assert_element_not_present(".sdoc-page-sheets .sdoc-page-clone")
+
             # Two pages: two columns of sheets.
             self.click(button("two"))
             self.assert_element(f"{SHEETS}:not([style*='left: 0px'])")

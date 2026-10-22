@@ -57,9 +57,22 @@ html.sdoc-page-view [data-viewtype="document"] .content {
   transform-origin: 0 0;
 }
 
-/* The sheet is the page: the nodes do not paint their own background. */
+/*
+ * The sheet is the page: the nodes are not cards. They have no background, no
+ * frame and no inner margin of their own, so that the text runs from one
+ * margin of the sheet to the other and a node cut between two sheets does
+ * not leave half a frame.
+ */
 html.sdoc-page-view [data-viewtype="document"] .content sdoc-node {
+  padding-inline: 0;
   background: transparent;
+  box-shadow: none;
+  outline: none;
+}
+
+html.sdoc-page-view [data-viewtype="document"] .content sdoc-node-content {
+  background: transparent;
+  border: 0;
 }
 
 .sdoc-page-sheets {
@@ -82,4 +95,9 @@ html.sdoc-page-view [data-viewtype="document"] .content sdoc-node {
   font-size: 11px;
   color: var(--hem-mute-ink, #73777d);
   text-align: center;
+}
+
+/* The label of the node type is at the right margin of the text. */
+html.sdoc-page-view [data-viewtype="document"] .content sdoc-node[show-node-type-name]::before {
+  right: 0;
 }

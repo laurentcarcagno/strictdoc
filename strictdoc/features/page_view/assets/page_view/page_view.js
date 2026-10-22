@@ -1,12 +1,17 @@
 // The page view of the document screen: "Normal" (a wide column), "1 page"
 // and "2 pages" (A4 sheets, one or two side by side).
 //
-// The nodes stay where they are in the page. Each one is moved on its sheet
+// The elements stay where they are in the page. Each one is moved on its sheet
 // with a transform, so that editing, the menus and the streams of the
-// server work as in the normal view. A node that would cross the bottom of a
-// sheet starts the next one; a node taller than a sheet makes its sheet
-// taller. The sheets are drawn behind the nodes, and the whole is scaled down
-// when it does not fit the window.
+// server work as in the normal view. The flow is cut like the lines of a
+// document: a node that does not fit in what is left of a sheet is cut into its
+// parts (the title, the label of a field, the paragraphs, the rows of a table),
+// and only a part that does not fit starts the next sheet. A paragraph is cut
+// between two lines (the rest of it is a copy that is only drawn, clipped, on
+// the next sheet; two lines at least stay on each sheet). A title or a label
+// is not left alone at the bottom of a sheet, and a part taller than a sheet
+// makes its sheet taller. The sheets are drawn behind the elements, and the
+// whole is scaled down when it does not fit the window.
 (() => {
   const KEY = 'sdoc-page-view';
   const MODES = ['normal', 'one', 'two'];
@@ -23,6 +28,7 @@
 
   let scheduled = false;
   let resizeObserver = null;
+  const sizes = new WeakMap();
 
   function pixelsPerMm() {
     const probe = document.createElement('div');
@@ -37,36 +43,82 @@
     return document.querySelector('[data-viewtype="document"] .main .content');
   }
 
-  // The blocks to put on the sheets: what each node frame holds, in order.
-  function blocksOf(content) {
-    const blocks = [];
-    const visit = (parent) => {
-      for (const child of parent.children) {
-        if (child.classList.contains('sdoc-page-sheets')) continue;
-        const isFrame = child.localName === 'turbo-frame';
-        if (isFrame && child.id.startsWith('article-')) {
-          blocks.push(...child.children);
-        } else if (isFrame && child.querySelector(':scope > turbo-frame')) {
-          visit(child);
-        } else {
-          blocks.push(child);
+  const KEEP_WITH_NEXT = 'h1,h2,h3,h4,h5,h6,sdoc-node-title,sdoc-node-field-label';
+  const MAX_DEPTH = 14;
+
+  // The children of an element that can go on different sheets: they are
+  // blocks, stacked one under the other. Anything else (text with inline
+  // elements, fields side by side) is one part.
+  function partsOf(element, style) {
+    if (['svg', 'img', 'pre', 'textarea', 'sdoc-markdown-editor'].includes(element.localName)) return null;
+    if (style.display.startsWith('inline') && style.display !== 'inline-flex') return null;
+    for (const node of element.childNodes) {
+      if (node.nodeType === Node.TEXT_NODE && node.textContent.trim() !== '') return null;
+    }
+    const parts = [];
+    let end = -Infinity;
+    for (const child of element.children) {
+      const childStyle = getComputedStyle(child);
+      if (childStyle.position === 'absolute' || childStyle.position === 'fixed') continue;
+      if (childStyle.display === 'none' || child.localName === 'sdoc-field-service') continue;
+      if (childStyle.display === 'contents') {
+        // A frame: its children are parts of the parent.
+        const inner = partsOf(child, childStyle);
+        if (!inner) return null;
+        for (const part of inner) {
+          const rect = part.getBoundingClientRect();
+          if (rect.top < end - 1) return null;
+          end = Math.max(end, rect.bottom);
+          parts.push(part);
         }
+        continue;
       }
-    };
-    visit(content);
-    return blocks.filter((block) => block.offsetHeight > 0);
+      if (childStyle.display.startsWith('inline') && childStyle.display !== 'inline-flex') return null;
+      const rect = child.getBoundingClientRect();
+      if (rect.height === 0) continue;
+      if (rect.top < end - 1) return null;
+      end = Math.max(end, rect.bottom);
+      parts.push(child);
+    }
+    return parts.length > 0 ? parts : null;
   }
 
-  function isHeading(block) {
-    return block.getAttribute('show-node-type-name') === 'SECTION' || block.getAttribute('node-role') === 'root';
+  function clearMoves(content) {
+    content.querySelectorAll('.sdoc-page-clone').forEach((clone) => clone.remove());
+    content.querySelectorAll('[data-page-moved]').forEach((block) => {
+      block.style.transform = '';
+      block.style.clipPath = '';
+      block.removeAttribute('data-page-moved');
+    });
+  }
+
+  // Paragraph-like: inline content only, lines of one height, no frame of its own.
+  const NOT_TEXT = 'img,svg,pre,table,textarea,input,iframe,video,canvas,sdoc-markdown-editor';
+  function linesOf(element, style, height) {
+    const lineHeight = parseFloat(style.lineHeight);
+    if (!(lineHeight > 0) || style.display !== 'block') return 0;
+    const frame = ['paddingTop', 'paddingBottom', 'borderTopWidth', 'borderBottomWidth'];
+    if (frame.some((side) => parseFloat(style[side]) !== 0)) return 0;
+    if (element.querySelector(NOT_TEXT)) return 0;
+    const count = Math.round(height / lineHeight);
+    return Math.abs(count * lineHeight - height) <= 2 ? count : 0;
+  }
+
+  // A copy of a paragraph, to draw its last lines on another sheet.
+  function copyOf(element) {
+    const clone = element.cloneNode(true);
+    clone.removeAttribute('id');
+    clone.querySelectorAll('[id]').forEach((inner) => inner.removeAttribute('id'));
+    clone.classList.add('sdoc-page-clone');
+    clone.setAttribute('aria-hidden', 'true');
+    clone.style.cssText += ';position:absolute;pointer-events:none;width:' + element.getBoundingClientRect().width + 'px';
+    element.after(clone);
+    return clone;
   }
 
   function reset(content) {
     content.querySelectorAll('.sdoc-page-sheets').forEach((sheets) => sheets.remove());
-    content.querySelectorAll('[data-page-moved]').forEach((block) => {
-      block.style.transform = '';
-      block.removeAttribute('data-page-moved');
-    });
+    clearMoves(content);
     content.style.cssText = '';
     resizeObserver?.disconnect();
   }
@@ -92,32 +144,104 @@
     const usable = height - 2 * margin;
 
     // The flow is one column of the width of the text of a sheet.
+    clearMoves(content);
+    content.style.cssText = '';
     content.style.width = `${width}px`;
     content.style.paddingInline = `${margin}px`;
     content.style.boxSizing = 'border-box';
     content.style.transform = 'none';
 
-    const blocks = blocksOf(content);
+    const origin = content.getBoundingClientRect().top;
     const pages = [];
+    const moved = [];
     let page = null;
-    for (const block of blocks) {
-      const top = block.offsetTop;
-      const bottom = top + block.offsetHeight;
-      if (!page || (bottom - page.start > usable && page.blocks.length > 0)) {
-        // A heading is not left alone at the bottom of a sheet.
-        let carried = null;
-        if (page && page.blocks.length > 1 && isHeading(page.blocks[page.blocks.length - 1].block)) {
-          carried = page.blocks.pop();
-          page.bottom = Math.max(...page.blocks.map((entry) => entry.bottom));
-        }
-        page = { start: carried ? carried.top : top, bottom, blocks: [] };
-        pages.push(page);
-        if (carried) page.blocks.push(carried);
+
+    const startPage = (start) => {
+      page = { start, bottom: start, units: [], index: pages.length };
+      pages.push(page);
+    };
+    const add = (unit) => {
+      if (unit.natural === undefined) unit.natural = unit.top;
+      unit.page = page;
+      page.units.push(unit);
+      page.bottom = Math.max(page.bottom, unit.bottom);
+      for (let up = unit.parent; up && !up.first; up = up.parent) up.first = unit;
+    };
+    // A new sheet; a title or a label at the bottom of the old one comes along.
+    const breakPage = (start) => {
+      const carried = [];
+      while (page.units.length > 1 && page.units[page.units.length - 1].element.matches(KEEP_WITH_NEXT)) {
+        carried.unshift(page.units.pop());
       }
-      page.blocks.push({ block, top, bottom });
-      page.bottom = Math.max(page.bottom, bottom);
-    }
-    if (pages.length === 0) pages.push({ start: 0, bottom: 0, blocks: [] });
+      page.bottom = Math.max(page.start, ...page.units.map((unit) => unit.bottom));
+      startPage(carried.length > 0 ? carried[0].top : start);
+      carried.forEach(add);
+    };
+
+    const place = (element, parent, depth) => {
+      const style = getComputedStyle(element);
+      if (style.display === 'none') return;
+      if (style.position === 'absolute' || style.position === 'fixed') return;
+      if (style.display === 'contents') {
+        for (const child of [...element.children]) place(child, parent, depth);
+        return;
+      }
+      if (element.classList.contains('sdoc-page-sheets')) return;
+      const rect = element.getBoundingClientRect();
+      if (rect.height === 0) return;
+      const top = rect.top - origin;
+      const bottom = rect.bottom - origin;
+      if (!page) startPage(top);
+      if (bottom - page.start <= usable) {
+        add({ element, top, bottom, parent });
+        return;
+      }
+      const parts = depth < MAX_DEPTH ? partsOf(element, style) : null;
+      if (parts) {
+        const unit = { element, top, bottom, parent, first: null };
+        moved.push(unit);
+        parts.forEach((part) => place(part, unit, depth + 1));
+        return;
+      }
+      const count = linesOf(element, style, bottom - top);
+      if (count >= 4 && lines(element, style, top, count, parent)) return;
+      if (page.units.length > 0) breakPage(top);
+      add({ element, top, bottom, parent });
+    };
+
+    // A paragraph of `count` lines over as many sheets as it takes.
+    const lines = (element, style, top, count, parent) => {
+      const lineHeight = parseFloat(style.lineHeight);
+      let from = 0;
+      while (from < count) {
+        const start = top + from * lineHeight;
+        const room = Math.floor((usable - (start - page.start)) / lineHeight);
+        const rest = count - from;
+        let to;
+        if (rest <= room) to = count;
+        else if (room >= 2 && rest - room >= 2) to = from + room;
+        else if (room >= 3) to = from + room - 1;
+        else if (page.units.length === 0) to = from + Math.max(1, Math.min(room, rest));
+        else {
+          breakPage(start);
+          continue;
+        }
+        const piece = from === 0 ? element : copyOf(element);
+        const natural = piece.getBoundingClientRect().top - origin + from * lineHeight;
+        const unit = { element: piece, top: start, bottom: top + to * lineHeight, natural, parent };
+        unit.clip = [from * lineHeight, (count - to) * lineHeight];
+        add(unit);
+        from = to;
+        if (from < count) breakPage(top + from * lineHeight);
+      }
+      return true;
+    };
+    for (const child of [...content.children]) place(child, null, 0);
+    if (pages.length === 0) startPage(0);
+    pages.forEach((each) => {
+      moved.push(...each.units);
+    });
+    const blocks = moved.map((unit) => unit.element);
 
     // A sheet is at least A4, and taller for a node that does not fit.
     for (const each of pages) {
@@ -154,13 +278,25 @@
       number.textContent = `${index + 1} / ${pages.length}`;
       sheet.append(number);
       sheets.append(sheet);
-      for (const { block, top } of each.blocks) {
-        const dx = left;
-        const dy = rowTops[row] + margin + (top - each.start) - top;
-        block.style.transform = `translate(${dx}px, ${dy}px)`;
-        block.dataset.pageMoved = '';
-      }
     });
+    // A part goes where its first leaf goes; what is inside it moves with it.
+    const where = (unit) => {
+      const leaf = unit.first || unit;
+      const column = leaf.page.index % columns;
+      const row = Math.floor(leaf.page.index / columns);
+      return {
+        dx: column * (width + gap),
+        dy: rowTops[row] + margin + (leaf.top - leaf.page.start) - leaf.natural,
+      };
+    };
+    for (const unit of moved) {
+      if (unit.first === null) continue;
+      const own = where(unit);
+      const base = unit.parent ? where(unit.parent) : { dx: 0, dy: 0 };
+      unit.element.style.transform = `translate(${own.dx - base.dx}px, ${own.dy - base.dy}px)`;
+      unit.element.dataset.pageMoved = '';
+      if (unit.clip) unit.element.style.clipPath = `inset(${unit.clip[0]}px 0 ${unit.clip[1]}px 0)`;
+    }
     content.prepend(sheets);
     content.style.height = `${totalHeight}px`;
 
@@ -175,7 +311,16 @@
     content.style.marginBottom = `${-(totalHeight * (1 - scale))}px`;
 
     resizeObserver?.disconnect();
-    resizeObserver = new ResizeObserver(schedule);
+    // Only a change of size, not the first notification of each element.
+    resizeObserver = new ResizeObserver((entries) => {
+      const changed = entries.some((entry) => {
+        const size = `${entry.contentRect.width}x${entry.contentRect.height}`;
+        const known = sizes.get(entry.target);
+        sizes.set(entry.target, size);
+        return known !== undefined && known !== size;
+      });
+      if (changed) schedule();
+    });
     blocks.forEach((block) => resizeObserver.observe(block));
     resizeObserver.observe(main);
   }
@@ -216,7 +361,7 @@
     new MutationObserver((mutations) => {
       const outside = mutations.some((mutation) =>
         [...mutation.addedNodes, ...mutation.removedNodes].some(
-          (node) => !(node.classList && node.classList.contains('sdoc-page-sheets')),
+          (node) => !(node.classList && (node.classList.contains('sdoc-page-sheets') || node.classList.contains('sdoc-page-clone'))),
         ),
       );
       if (outside) schedule();
