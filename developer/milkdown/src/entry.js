@@ -9,13 +9,13 @@
 // The hidden textarea is what the form submits. It only changes when the user
 // changes the text, so a field that was not edited is sent back as it was.
 import { Crepe } from '@milkdown/crepe';
-import { editorViewCtx, schemaCtx, serializerCtx } from '@milkdown/kit/core';
+import { editorStateOptionsCtx, editorViewCtx, schemaCtx, serializerCtx } from '@milkdown/kit/core';
 import { replaceAll } from '@milkdown/kit/utils';
 import '@milkdown/crepe/theme/common/style.css';
 import '@milkdown/crepe/theme/frame.css';
 import { sdocMarkers } from './sdoc_markers.js';
 import { sdocTables } from './tables.js';
-import { tableBar } from './table_bar.js';
+import { buildTableToggle, tableBar } from './table_bar.js';
 import './sdoc_editor.css';
 
 const IMAGE_ERROR_CLASS = 'sdoc-markdown-editor__error';
@@ -72,7 +72,19 @@ class SdocMarkdownEditor extends HTMLElement {
           blockOnUpload: (file) => this._upload(file),
         },
         [Crepe.Feature.Placeholder]: { text: 'Write here...' },
+        [Crepe.Feature.TopBar]: { buildTopBar: buildTableToggle },
       },
+    });
+    // The alignment of a body cell is its own: the plugin of the GFM preset
+    // that copies the alignment of the header cell is left out.
+    crepe.editor.config((ctx) => {
+      ctx.update(editorStateOptionsCtx, (previous) => (options) => {
+        const state = previous(options);
+        return {
+          ...state,
+          plugins: state.plugins.filter((plugin) => !plugin.key.includes('MILKDOWN_KEEP_TABLE_ALIGN')),
+        };
+      });
     });
     // The tables are read before the markers, which look into their cells.
     crepe.editor.use(sdocTables);

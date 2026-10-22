@@ -2,6 +2,7 @@
 // table and to work on it as in a word processor. The buttons that need the
 // cursor in a table are disabled outside of one.
 import { $prose } from '@milkdown/kit/utils';
+import { editorViewCtx } from '@milkdown/kit/core';
 import { Plugin, PluginKey } from '@milkdown/kit/prose/state';
 import {
   addColumnAfter,
@@ -34,7 +35,7 @@ const MAX_COLUMNS = 8;
 const COLORS = [
   '#fff2cc', '#fce4d6', '#e2efd9', '#deeaf6', '#ededed', '#e4dff0',
   '#ffd966', '#f4b183', '#a9d18e', '#9dc3e6', '#bfbfbf', '#b4a7d6',
-  '#f4cccc', '#c9daf8', '#d0e0e3', '#12293a', '#c0392b', '#ffffff',
+  '#f4cccc', '#c9daf8', '#d0e0e3', '#ffe599', '#e6b8af', '#ffffff',
 ];
 
 const ICONS = {
@@ -268,7 +269,9 @@ class TableBar {
     this.view = view;
     const inTable = isInTable(view.state);
     const editable = view.editable;
-    this.bar.style.display = editable ? '' : 'none';
+    // The bar is shown when the toggle of the toolbar is on, and while the
+    // cursor is in a table.
+    this.bar.style.display = editable && (KEY.getState(view.state)?.pinned || inTable) ? '' : 'none';
     for (const { element, command, pressed, needsTable } of this.buttons) {
       let enabled = editable && (!needsTable || inTable);
       if (enabled && command) {
@@ -293,6 +296,24 @@ class TableBar {
 export const tableBar = $prose(() =>
   new Plugin({
     key: KEY,
+    state: {
+      init: () => ({ pinned: false }),
+      apply: (tr, value) => tr.getMeta(KEY) ?? value,
+    },
     view: (view) => new TableBar(view),
   })
 );
+
+// The button of the toolbar (Crepe top bar) that shows or hides the table bar.
+export function buildTableToggle(builder) {
+  builder.addGroup('sdoc-table', 'Table').addItem('sdoc-table-bar', {
+    icon: icon('table').replace('<svg ', '<svg class="sdoc-table-icon" '),
+    active: (ctx) => KEY.getState(ctx.get(editorViewCtx).state)?.pinned ?? false,
+    onRun: (ctx) => {
+      const view = ctx.get(editorViewCtx);
+      const pinned = !KEY.getState(view.state)?.pinned;
+      // The transaction also makes the toolbar draw the button again.
+      view.dispatch(view.state.tr.setMeta(KEY, { pinned }));
+    },
+  });
+}

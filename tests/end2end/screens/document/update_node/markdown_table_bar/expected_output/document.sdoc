@@ -10,7 +10,7 @@ The system shall start.
 
 <table>
 <thead>
-<tr><th>a</th><th></th><th>b</th></tr>
+<tr><th style="text-align:right">a</th><th></th><th>b</th></tr>
 </thead>
 <tbody>
 <tr><td colspan="3" style="background-color:#ffd966">1<br />2</td></tr>

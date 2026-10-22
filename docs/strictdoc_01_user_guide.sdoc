@@ -6456,7 +6456,8 @@ for a node that exists; if ``ENABLE_MID`` is off, save a new node first.
 The inline links and anchors of StrictDoc (the ``LINK`` and ``ANCHOR`` markers)
 stay as they are and appear as small labels in the editor.
 
-A second bar under the toolbar works on tables. It inserts a table (the size is
+A second bar under the toolbar works on tables. It is shown with the table button
+of the toolbar, and while the cursor is in a table cell. It inserts a table (the size is
 chosen on a grid), adds and deletes rows and columns, makes the first rows header
 rows, merges and splits cells, selects a cell, a row, a column or the table,
 and fills the selected cells with a colour. A simple table (one header row, no

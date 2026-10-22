@@ -378,6 +378,8 @@ function cellParagraphs(cell) {
   return out;
 }
 
+const side = (value) => value || 'left';
+
 // A table is a pipe table when nothing of it needs HTML.
 function isPipeTable(table) {
   let headers = 0;
@@ -397,7 +399,7 @@ function isPipeTable(table) {
       );
       if (colspan !== 1 || rowspan !== 1 || cell.attrs.background) simple = false;
       if (paragraphs.length !== 1 || breaks) simple = false;
-      if (cell.attrs.alignment !== head.maybeChild(column)?.attrs.alignment) simple = false;
+      if (side(cell.attrs.alignment) !== side(head.maybeChild(column)?.attrs.alignment)) simple = false;
     });
   });
   return simple;

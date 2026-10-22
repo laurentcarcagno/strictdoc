@@ -42,18 +42,34 @@ class Test(E2ECase):
             form_edit_requirement.assert_on_form()
             self.wait_for_element(EDITOR)
 
+            # The bar is hidden until the toggle of the toolbar is used.
+            toggle = (
+                "(//div[contains(@class,'milkdown-top-bar')]"
+                "//*[contains(@class,'top-bar-item')])[last()]"
+            )
+            self.assert_element_not_visible("[data-testid='table-bar']")
+            self.click_xpath(toggle)
+            self.assert_element_visible("[data-testid='table-bar']")
             # Outside of a table only "insert a table" is on.
-            self.assert_element("[data-testid='table-bar']")
             self.assert_true(self.is_element_enabled(bar("insert")))
             self.assert_false(self.is_element_enabled(bar("merge")))
+            self.click_xpath(toggle)
+            self.assert_element_not_visible("[data-testid='table-bar']")
 
-            # In a table: a column, then the cells of a row merged.
+            # A click in a table cell shows it: a column, then the cells of a
+            # row merged and filled.
             self.click("sdoc-markdown-editor td")
+            self.assert_element_visible("[data-testid='table-bar']")
             self.click(bar("column-right"))
             self.click(bar("select-row"))
             self.click(bar("merge"))
             self.click(bar("fill"))
             self.click(bar("color-ffd966"))
+
+            # The alignment is the one of the cell.
+            self.click("sdoc-markdown-editor th")
+            self.click(bar("align-right"))
+            self.assert_element("sdoc-markdown-editor th[style*='right']")
 
             # A new table goes after the table of the cursor.
             self.click(bar("insert"))

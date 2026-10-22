@@ -187,3 +187,16 @@ sdoc-markdown-editor {
   background: transparent;
   border: 0;
 }
+
+/* The cursor is above the filled cells (the cells are positioned). */
+.sdoc-markdown-editor__host .ProseMirror .prosemirror-virtual-cursor {
+  z-index: 3;
+}
+
+/* The Crepe toolbar fills its icons; this one is drawn with lines. */
+.milkdown-top-bar .sdoc-table-icon,
+.milkdown-top-bar .sdoc-table-icon * {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.2;
+}
