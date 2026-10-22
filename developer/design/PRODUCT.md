@@ -31,7 +31,7 @@ the audit log records every change.
 ## Brand personality
 
 The company design system applies as it is in THOR (see `DESIGN.md`). The
-tricolor stripe, Orbitron headings, monospace identifiers, reticle frames and
+tricolor stripe, IBM Plex Sans headings, monospace identifiers, reticle frames and
 status pills are what Hemeria looks like. Within that voice the tool stays
 modern, usable and predictable. Confidence without bluster.
 
@@ -48,7 +48,7 @@ modern, usable and predictable. Confidence without bluster.
 
 ## Design principles
 
-1. Hemeria is the voice. The tricolor stripe, Orbitron eyebrows, monospace
+1. Hemeria is the voice. The tricolor stripe, IBM Plex Sans eyebrows, monospace
    identifiers and reticle frames are the company identity. New screens
    extend it; no screen looks off-brand because that was easier.
 2. Density that stays scannable. Engineers read long specifications and

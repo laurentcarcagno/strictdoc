@@ -705,7 +705,7 @@ html[data-nav="collapsed"] .nav {
   width: var(--nav-width-collapsed);
 }
 
-/* Brand lockup: Orbitron, the dot is the only red outside the stripe. */
+/* Brand lockup: the dot is the only red outside the stripe. */
 
 .nav__brand {
   display: flex;
@@ -725,7 +725,7 @@ html[data-nav="collapsed"] .nav {
   white-space: nowrap;
 }
 
-/* Orbitron has no middle dot: a square in tricolor red takes its place. */
+/* A square in tricolor red takes the place of the middle dot. */
 .nav__lockup_dot {
   display: inline-block;
   width: 4px;

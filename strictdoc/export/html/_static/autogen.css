@@ -549,16 +549,16 @@ sdoc-autogen pre.code {
     white-space/overflow-wrap below.
 
       We solve the equation:
-      availableWidth = font-size × (80 × 0.5)  in terms of `font-size`.
+      availableWidth = font-size × (80 × 0.6)  in terms of `font-size`.
 
     • 100cqi is the width of the nearest ancestor query container
       (sdoc-field-content, see element.css).
       We subtract this block's own inline padding and border to get the actual
       space available for text.
 
-    • 0.5 is the advance-width-to-em ratio of the bundled Ubuntu Mono font.
+    • 0.6 is the advance-width-to-em ratio of the bundled IBM Plex Mono font.
       This ratio is font-specific. If --code-font-family resolves to another
-      monospace font, its character width may differ from 0.5em; accepted as
+      monospace font, its character width may differ from 0.6em; accepted as
       an approximation.
 
     • The clamp() function ensures that the font size never goes
@@ -567,7 +567,7 @@ sdoc-autogen pre.code {
   font-size: var(--code-font-size); /* fallback without container queries */
   font-size: clamp(
     var(--code-font-size-min, 10px),
-    calc((100cqi - 3 * var(--code-font-size) - 2px) / (80 * 0.5)),
+    calc((100cqi - 3 * var(--code-font-size) - 2px) / (80 * 0.6)),
     var(--code-font-size)
   );
 

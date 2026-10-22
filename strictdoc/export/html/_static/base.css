@@ -29,9 +29,9 @@
   --hem-danger-bg: #FBE9E9;
 
   /* Type. */
-  --hem-font-heading: 'Orbitron', 'Eurostile', 'Bank Gothic', sans-serif;
-  --hem-font-body: 'Ubuntu', system-ui, -apple-system, sans-serif;
-  --hem-font-mono: 'Ubuntu Mono', ui-monospace, monospace;
+  --hem-font-heading: 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
+  --hem-font-body: 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
+  --hem-font-mono: 'IBM Plex Mono', ui-monospace, monospace;
   --hem-size-display: 32px;
   --hem-size-h1: 26px;
   --hem-size-h2: 18px;
@@ -143,83 +143,91 @@ body {
 }
 
 @font-face {
-  font-family: 'Orbitron';
-  font-style: normal;
-  font-weight: 400 900;
-  font-display: swap;
-  src: url('./fonts/Orbitron-VariableFont_wght.ttf') format('truetype-variations');
-}
-
-@font-face {
-  font-family: 'Ubuntu';
+  font-family: 'IBM Plex Sans';
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url('./fonts/Ubuntu-Regular.ttf') format('truetype');
+  src: url('./fonts/IBMPlexSans-Regular.woff2') format('woff2');
 }
 
 @font-face {
-  font-family: 'Ubuntu';
+  font-family: 'IBM Plex Sans';
   font-style: italic;
   font-weight: 400;
   font-display: swap;
-  src: url('./fonts/Ubuntu-Italic.ttf') format('truetype');
+  src: url('./fonts/IBMPlexSans-Italic.woff2') format('woff2');
 }
 
 @font-face {
-  font-family: 'Ubuntu';
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('./fonts/IBMPlexSans-Medium.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: italic;
+  font-weight: 500;
+  font-display: swap;
+  src: url('./fonts/IBMPlexSans-MediumItalic.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('./fonts/IBMPlexSans-SemiBold.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 700 900;
+  font-display: swap;
+  src: url('./fonts/IBMPlexSans-Bold.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: italic;
+  font-weight: 600 900;
+  font-display: swap;
+  src: url('./fonts/IBMPlexSans-BoldItalic.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./fonts/IBMPlexMono-Regular.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: italic;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url('./fonts/IBMPlexMono-Italic.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'IBM Plex Mono';
   font-style: normal;
   font-weight: 500 600;
   font-display: swap;
-  src: url('./fonts/Ubuntu-Medium.ttf') format('truetype');
+  src: url('./fonts/IBMPlexMono-Medium.woff2') format('woff2');
 }
 
 @font-face {
-  font-family: 'Ubuntu';
-  font-style: italic;
-  font-weight: 500 600;
-  font-display: swap;
-  src: url('./fonts/Ubuntu-MediumItalic.ttf') format('truetype');
-}
-
-@font-face {
-  font-family: 'Ubuntu';
+  font-family: 'IBM Plex Mono';
   font-style: normal;
   font-weight: 700 900;
   font-display: swap;
-  src: url('./fonts/Ubuntu-Bold.ttf') format('truetype');
-}
-
-@font-face {
-  font-family: 'Ubuntu';
-  font-style: italic;
-  font-weight: 700 900;
-  font-display: swap;
-  src: url('./fonts/Ubuntu-BoldItalic.ttf') format('truetype');
-}
-
-@font-face {
-  font-family: 'Ubuntu Mono';
-  font-style: normal;
-  font-weight: 400 600;
-  font-display: swap;
-  src: url('./fonts/UbuntuMono-Regular.ttf') format('truetype');
-}
-
-@font-face {
-  font-family: 'Ubuntu Mono';
-  font-style: italic;
-  font-weight: 400 600;
-  font-display: swap;
-  src: url('./fonts/UbuntuMono-Italic.ttf') format('truetype');
-}
-
-@font-face {
-  font-family: 'Ubuntu Mono';
-  font-style: normal;
-  font-weight: 700 900;
-  font-display: swap;
-  src: url('./fonts/UbuntuMono-Bold.ttf') format('truetype');
+  src: url('./fonts/IBMPlexMono-Bold.woff2') format('woff2');
 }
 
 * { box-sizing: border-box; }
