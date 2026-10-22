@@ -2,7 +2,7 @@
 
 Part of the [master plan](master_plan.md). Branch prefix `feature/kb-`. Depends on plan 6 ([assistant](plan_llm_assistant.md)), plan 1 (roles, audit)
 and plan 3 ([Git configuration](plan_git_configuration.md)). The knowledge base itself (Git repositories `kb-<mission>`, PostgreSQL index, MCP server,
-compiled wiki, CI) is specified in `plan-docdatabase.md` at the root of the ISIS workspace; this plan covers what StrictDoc and its deployment must do to use it.
+CI) is specified in `plan-docdatabase.md` at the root of the ISIS workspace; this plan covers what StrictDoc and its deployment must do to use it.
 
 Decisions: (D1) the assistant uses the base through a **tool loop**: the model chooses the MCP tools; (D2) StrictDoc authenticates with a Keycloak **service
 account** and passes the user on whose behalf it calls; (D3) the server, the indexer and the images live in a new repository `kb-platform`; (D4) every component
@@ -48,7 +48,6 @@ model as data.
 | `kb-mcp` | `localhost/kb-platform` | read-only MCP server over HTTP; Caddy site `kb.karka.lan` |
 | `kb-indexer` | `localhost/kb-platform` | rebuilds the index from Git (CI or `podman run --rm`) |
 | `kb-tools` | `localhost/kb-tools` | image of the CI jobs (validators, lint, Docling, Pandoc, CA) |
-| `kb-wiki-agent` | `localhost/kb-tools` | converts, compiles and lints the wiki with a local model; opens merge requests only |
 | `kb-relay` | `localhost/infra-strictdoc` | alias `kb.internal` on the internal network of StrictDoc, towards `kb-mcp` |
 
 Secrets: OpenBao `secret/kb/postgres` (database passwords) and `secret/strictdoc/kb` (secret of the Keycloak client `strictdoc-kb`), turned into Podman
@@ -109,7 +108,7 @@ is returned as data). First mission: ISIS.
 1. `kb-platform`: migrations, indexer, Postgres container (phases 1 and 2 of `plan-docdatabase.md`).
 2. `kb-mcp`, authentication, audit, relay, `deploy.sh --kb` (phase 3).
 3. MCP client and tool loop in StrictDoc, `/kb`, `/cite`, policy and audit (phase 3b); deploy the fork.
-4. Compiled wiki and lint in `kb-wiki-agent`, the `wiki_search` tool (phase 4).
+4. (The compiled wiki was dropped in October 2026: it is not part of the base.)
 
 ## 5. Verification
 
@@ -123,7 +122,7 @@ is returned as data). First mission: ISIS.
 ## 6. Risks
 
 - Tool calling depends on the model: measure `gpt-oss`, `qwen3-coder` and `devstral` before fixing the default; retrieval stays the safety net.
-- Memory of the host: PostgreSQL and the MCP server are small; compiling the wiki runs on demand.
+- Memory of the host: PostgreSQL and the MCP server are small.
 - A tool result is untrusted text: neutralised, bounded, never an instruction, read-only tools only.
 
 ## 7. Status and differences from the design

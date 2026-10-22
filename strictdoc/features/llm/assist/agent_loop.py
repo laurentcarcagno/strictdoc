@@ -131,7 +131,7 @@ def _add(
     gathered.items.append(item)
     for citation_ in result.citations:
         if not citation_.get("doc_ref"):
-            continue  # a page of the wiki, not a document: nothing to cite
+            continue  # not a document: nothing to cite
         line = citation_line(citation_)
         if line not in gathered.sources:
             gathered.sources.append(line)

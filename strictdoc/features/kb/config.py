@@ -26,9 +26,6 @@ READ_ONLY_TOOLS: Tuple[str, ...] = (
     "get_interface",
     "diff_versions",
     "coverage",
-    "glossary",
-    "wiki_page",
-    "wiki_search",
     "find_references",
 )
 
@@ -41,8 +38,6 @@ DEFAULT_TOOLS: Tuple[str, ...] = (
     "trace",
     "get_section",
     "get_interface",
-    "glossary",
-    "wiki_search",
     "find_references",
 )
 
