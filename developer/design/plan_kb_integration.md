@@ -108,7 +108,6 @@ is returned as data). First mission: ISIS.
 1. `kb-platform`: migrations, indexer, Postgres container (phases 1 and 2 of `plan-docdatabase.md`).
 2. `kb-mcp`, authentication, audit, relay, `deploy.sh --kb` (phase 3).
 3. MCP client and tool loop in StrictDoc, `/kb`, `/cite`, policy and audit (phase 3b); deploy the fork.
-4. (The compiled wiki was dropped in October 2026: it is not part of the base.)
 
 ## 5. Verification
 
