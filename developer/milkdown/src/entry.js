@@ -14,6 +14,8 @@ import { replaceAll } from '@milkdown/kit/utils';
 import '@milkdown/crepe/theme/common/style.css';
 import '@milkdown/crepe/theme/frame.css';
 import { sdocMarkers } from './sdoc_markers.js';
+import { sdocTables } from './tables.js';
+import { tableBar } from './table_bar.js';
 import './sdoc_editor.css';
 
 const IMAGE_ERROR_CLASS = 'sdoc-markdown-editor__error';
@@ -58,6 +60,8 @@ class SdocMarkdownEditor extends HTMLElement {
       defaultValue: original,
       features: {
         [Crepe.Feature.TopBar]: true,
+        // Replaced by sdoc tables and the table bar (merged cells, header rows).
+        [Crepe.Feature.Table]: false,
         [Crepe.Feature.Latex]: false,
         [Crepe.Feature.AI]: false,
       },
@@ -70,7 +74,10 @@ class SdocMarkdownEditor extends HTMLElement {
         [Crepe.Feature.Placeholder]: { text: 'Write here...' },
       },
     });
+    // The tables are read before the markers, which look into their cells.
+    crepe.editor.use(sdocTables);
     crepe.editor.use(sdocMarkers);
+    crepe.editor.use(tableBar);
     this._crepe = crepe;
     await crepe.create();
     if (generation !== this._generation) {

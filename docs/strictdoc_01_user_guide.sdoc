@@ -6456,6 +6456,17 @@ for a node that exists; if ``ENABLE_MID`` is off, save a new node first.
 The inline links and anchors of StrictDoc (the ``LINK`` and ``ANCHOR`` markers)
 stay as they are and appear as small labels in the editor.
 
+A second bar under the toolbar works on tables. It inserts a table (the size is
+chosen on a grid), adds and deletes rows and columns, makes the first rows header
+rows, merges and splits cells, selects a cell, a row, a column or the table,
+and fills the selected cells with a colour. A simple table (one header row, no
+merged cell, no colour) is written as a Markdown pipe table. Any other table is
+written as an HTML ``<table>``, because Markdown cannot express a merged cell or
+a colour; the HTML is rendered as it is. An HTML table is opened as a table in the
+editor only if all its tags and attributes are known to it (``thead``,
+``tbody``, ``th``, ``td``, ``colspan``, ``rowspan``, a background colour and a
+text alignment). Any other HTML table stays as written.
+
 The field is written again by the editor only if its text was changed. When it
 is, the text is normalised: for example a table is re-aligned, a hard break
 becomes a backslash at the end of the line, and an empty paragraph becomes

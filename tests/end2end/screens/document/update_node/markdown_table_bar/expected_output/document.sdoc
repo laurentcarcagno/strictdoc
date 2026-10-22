@@ -1,0 +1,23 @@
+[DOCUMENT]
+TITLE: Document 1
+OPTIONS:
+  MARKUP: Markdown
+
+[REQUIREMENT]
+UID: REQ-1
+STATEMENT: >>>
+The system shall start.
+
+<table>
+<thead>
+<tr><th>a</th><th></th><th>b</th></tr>
+</thead>
+<tbody>
+<tr><td colspan="3" style="background-color:#ffd966">1<br />2</td></tr>
+</tbody>
+</table>
+
+|   |   |
+| - | - |
+|   |   |
+<<<
