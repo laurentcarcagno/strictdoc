@@ -8,6 +8,7 @@ It supports paragraphs, headings (a bold paragraph), bullet and numbered lists
 ignored, except <br>, which is a line break.
 """
 
+import html
 import os
 import re
 from dataclasses import dataclass
@@ -31,6 +32,8 @@ _HTML_PARAGRAPH = re.compile(
     r"<p(?:\s[^>]*)?>(.*)</p>", re.IGNORECASE | re.DOTALL
 )
 _EMPHASIS_HTML = re.compile(r"<(/?)(strong|b|em|i)>", re.IGNORECASE)
+_IMAGE_HTML = re.compile(r"<img\s[^>]*>", re.IGNORECASE)
+_HTML_ATTRIBUTE = re.compile(r'([\w-]+)="([^"]*)"')
 
 
 @dataclass
@@ -160,6 +163,16 @@ def _inline_runs(
         else:
             runs.append(run)
 
+    def add_image(source: str, alt: str) -> None:
+        name = os.path.basename(source) or alt
+        placeholder = f"[image: {name}]"
+        image = _load(source, base_dir, alt)
+        if image is None:
+            add(placeholder)
+        else:
+            # Not merged with the text around it.
+            runs.append(ExportRun(placeholder, image=image))
+
     for child_ in children:
         kind = child_.type
         if kind == "strong_open":
@@ -189,6 +202,13 @@ def _inline_runs(
                     bold_depth += step
                 else:
                     italic_depth += step
+            elif _IMAGE_HTML.fullmatch(tag) is not None:
+                # An image that the Markdown editor aligns is an HTML image.
+                attributes = {
+                    name_: html.unescape(value_)
+                    for name_, value_ in _HTML_ATTRIBUTE.findall(tag)
+                }
+                add_image(attributes.get("src", ""), attributes.get("alt", ""))
         elif kind == "link_open":
             links.append(str(child_.attrGet("href") or ""))
             link_text_start.append(len(runs))
@@ -203,15 +223,7 @@ def _inline_runs(
             ):
                 add(f" ({address})")
         elif kind == "image":
-            source = str(child_.attrGet("src") or "")
-            name = os.path.basename(source) or child_.content
-            placeholder = f"[image: {name}]"
-            image = _load(source, base_dir, child_.content)
-            if image is None:
-                add(placeholder)
-            else:
-                # Not merged with the text around it.
-                runs.append(ExportRun(placeholder, image=image))
+            add_image(str(child_.attrGet("src") or ""), child_.content)
     return runs
 
 

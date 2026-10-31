@@ -271,3 +271,15 @@ def test_010_an_aligned_html_paragraph_exports_its_text_and_formats():
         ("italic", False, True),
         (".\nNext", False, False),
     ]
+
+
+def test_011_an_aligned_html_image_exports_like_a_markdown_image():
+    html = (
+        '<p style="text-align: right">'
+        '<img src="_assets/missing.png" alt="1.00" /></p>'
+    )
+
+    blocks = markdown_to_blocks(html)
+
+    assert len(blocks) == 1
+    assert [run.text for run in blocks[0].runs] == ["[image: missing.png]"]
