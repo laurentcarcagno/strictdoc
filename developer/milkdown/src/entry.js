@@ -18,6 +18,8 @@ import { sdocMarkers } from './sdoc_markers.js';
 import { sdocTables } from './tables.js';
 import { buildTableToggle, tableBar } from './table_bar.js';
 import { createDiagramSupport } from './diagram_node.js';
+import { buildAlignButtons, sdocParagraphAlign } from './paragraph_align.js';
+import { installToolbarTooltips } from './toolbar_tooltips.js';
 import './sdoc_editor.css';
 
 const IMAGE_ERROR_CLASS = 'sdoc-markdown-editor__error';
@@ -80,6 +82,8 @@ class SdocMarkdownEditor extends HTMLElement {
         [Crepe.Feature.Placeholder]: { text: 'Write here...' },
         [Crepe.Feature.TopBar]: {
           buildTopBar: (builder) => {
+            this._topBarBuilder = builder;
+            buildAlignButtons(builder);
             buildTableToggle(builder);
             diagrams.buildButton(builder);
           },
@@ -100,6 +104,7 @@ class SdocMarkdownEditor extends HTMLElement {
     // The tables are read before the markers, which look into their cells.
     crepe.editor.use(sdocImageCaption);
     crepe.editor.use(sdocTables);
+    crepe.editor.use(sdocParagraphAlign);
     crepe.editor.use(sdocMarkers);
     crepe.editor.use(tableBar);
     crepe.editor.use(diagrams.plugin);
@@ -109,6 +114,7 @@ class SdocMarkdownEditor extends HTMLElement {
       this._stop();
       return;
     }
+    this._removeTooltips = installToolbarTooltips(host, () => this._topBarBuilder?.build() ?? []);
 
     // What the editor writes for the text as loaded. Only a difference from
     // it counts as an edit, so opening a field and saving it changes nothing.
@@ -132,6 +138,8 @@ class SdocMarkdownEditor extends HTMLElement {
     const crepe = this._crepe;
     this._crepe = null;
     delete this.dataset.ready;
+    this._removeTooltips?.();
+    this._removeTooltips = null;
     this._form?.removeEventListener('submit', this._onSubmit, true);
     this._form = null;
     if (crepe) {

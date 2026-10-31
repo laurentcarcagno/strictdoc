@@ -44,8 +44,9 @@ class Test(E2ECase):
 
             # The bar is hidden until the toggle of the toolbar is used.
             toggle = (
-                "(//div[contains(@class,'milkdown-top-bar')]"
-                "//*[contains(@class,'top-bar-item')])[last()]"
+                "//div[contains(@class,'milkdown-top-bar')]"
+                "//*[contains(@class,'top-bar-item')]"
+                "[.//*[contains(@class,'sdoc-table-icon')]]"
             )
             self.assert_element_not_visible("[data-testid='table-bar']")
             self.click_xpath(toggle)

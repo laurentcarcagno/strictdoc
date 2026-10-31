@@ -27,6 +27,8 @@ Commit `milkdown.js`, `milkdown.css` and `milkdown.js.LEGAL.txt` together with a
 | `src/diagram_node.js`, `src/diagram_loader.js` | the toolbar button, the double click and the resize handles of a diagram; the loader fetches `diagram.js` on first use |
 | `src/diagram_size.js` | reads and writes the display size (`width`, `height`) of a diagram SVG |
 | `src/image_caption.js` | gives an image without title an empty caption, so that Crepe keeps the image block when a field is opened again |
+| `src/paragraph_align.js` | the alignment of a paragraph (left, centre, right, justified): a paragraph attribute, the four toolbar buttons, and the HTML paragraph it is written as |
+| `src/toolbar_tooltips.js` | the tooltips of the toolbar buttons (top bar and table bar), and their accessible names |
 | `src/languages.js` | code block languages (replaces the 100+ grammars of `@codemirror/language-data`, about 1 MB) |
 | `src/katex_stub.js`, `src/empty.css` | formulas are switched off, so KaTeX (about 1.7 MB with its fonts) is left out |
 | `src/sdoc_editor.css` | StrictDoc rules on top of the Crepe theme |
@@ -83,6 +85,7 @@ text with headings, lists, a quote, a code block, a table, a link and a `[LINK: 
   `code`, `a`, `br`, `img`; any other HTML table stays raw HTML and is not touched;
 - two cells that are merged join their paragraphs with a line break;
 - an empty paragraph is written as `<br />`;
+- a paragraph that is centred, right aligned or justified is written as an HTML paragraph, `<p style="text-align: center">...</p>`, with its content as inline HTML (`strong`, `em`, `del`, `code`, `a`, `br`, `img`). It is read back as an aligned paragraph only if its tags and attributes are `p`, `style` (`text-align`), `align` and those inline tags; any other `<p>` stays raw HTML. A left paragraph stays a Markdown paragraph;
 - the alt text of an image inserted by the editor is its display ratio, for example `![1.00](./_assets/.../pic.png)`.
 
 Unchanged: bullets (`*` and `-`), numbered lists, `*emphasis*` and `_emphasis_`, headings, code fences and block quotes.
@@ -91,6 +94,8 @@ The server removes trailing spaces on every line when it saves a multiline field
 break written with two trailing spaces does not survive a save through the web form.
 
 ## Not supported
+
+- The alignment of a heading, a list item or a table cell by the paragraph buttons (a cell has its own alignment in the table bar). The Word export keeps the text and the bold and italic of an aligned paragraph, not its alignment.
 
 - A header column, and the width of a column (the column resizing is not kept).
 - A cell holds inline content only (no list or code block in a cell).

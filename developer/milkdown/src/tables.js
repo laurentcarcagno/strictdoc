@@ -137,7 +137,7 @@ const headerNode = $node('table_header', () => ({
 
 // ---- Reading: the tables of the Markdown -----------------------------------
 
-class NotATable extends Error {}
+export class NotATable extends Error {}
 
 function fromPipeTable(node) {
   const align = node.align ?? [];
@@ -176,7 +176,7 @@ function span(cell, name) {
 }
 
 // The inline content of a cell as mdast; anything unknown refuses the table.
-function phrasing(parent) {
+export function phrasing(parent) {
   const out = [];
   for (const child of parent.childNodes) {
     if (child.nodeType === Node.TEXT_NODE) {
@@ -223,7 +223,7 @@ function phrasing(parent) {
   return out;
 }
 
-function trimEdges(children) {
+export function trimEdges(children) {
   const first = children[0];
   if (first?.type === 'text') first.value = first.value.replace(/^ /, '');
   const last = children[children.length - 1];
@@ -454,7 +454,7 @@ function markTag(mark) {
   return MARK_TAGS[mark.type.name] ?? ['', ''];
 }
 
-function inlineHtml(paragraph) {
+export function inlineHtml(paragraph) {
   let out = '';
   let open = [];
   paragraph.forEach((node) => {

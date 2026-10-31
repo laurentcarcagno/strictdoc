@@ -308,6 +308,7 @@ export const tableBar = $prose(() =>
 export function buildTableToggle(builder) {
   builder.addGroup('sdoc-table', 'Table').addItem('sdoc-table-bar', {
     icon: icon('table').replace('<svg ', '<svg class="sdoc-table-icon" '),
+    label: 'Table tools',
     active: (ctx) => KEY.getState(ctx.get(editorViewCtx).state)?.pinned ?? false,
     onRun: (ctx) => {
       const view = ctx.get(editorViewCtx);

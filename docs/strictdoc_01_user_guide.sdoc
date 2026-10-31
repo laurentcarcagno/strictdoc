@@ -6489,6 +6489,18 @@ Handles on a selected diagram change its width and its height. The corner keeps 
 proportions unless Shift is held. The size is stored in the SVG file, so the
 document view and the exports show it.
 
+Four buttons of the toolbar align the paragraphs of the selection to the left, to
+the centre, to the right, or justify them. A paragraph that is not aligned to the
+left is written as an HTML paragraph (``<p style="text-align: center">``) with
+its content as inline HTML (bold, italic, code, links and line breaks). The
+editor reads such a paragraph back as an aligned paragraph only if all its tags
+and attributes are known to it. The buttons do not apply to a table cell, which
+has its own alignment in the table bar. The Word export keeps the text and the
+bold and italic of an aligned paragraph, not its alignment.
+
+Every button of the toolbars shows a tooltip with its name when the pointer rests
+on it, or when it has the keyboard focus.
+
 The field is written again by the editor only if its text was changed. When it
 is, the text is normalised: for example a table is re-aligned, a hard break
 becomes a backslash at the end of the line, and an empty paragraph becomes

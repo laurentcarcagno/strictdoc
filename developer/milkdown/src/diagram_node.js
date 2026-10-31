@@ -126,6 +126,7 @@ export function createDiagramSupport(options) {
   function buildButton(builder) {
     builder.addGroup('sdoc-diagram', 'Diagram').addItem('sdoc-diagram-insert', {
       icon: DIAGRAM_ICON,
+      label: 'Diagram',
       active: () => false,
       onRun: (ctx) => {
         insertDiagram(ctx);
