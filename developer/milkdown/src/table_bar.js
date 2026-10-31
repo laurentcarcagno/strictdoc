@@ -103,9 +103,9 @@ class TableBar {
     ]);
     this.addGroup('Fill', [this.menu('fill', 'fill', 'Fill colour of the selected cells', () => this.palette(), true)]);
     this.addGroup('Align', [
-      this.button('align-left', 'alignLeft', 'Align left', alignCells('left')),
-      this.button('align-center', 'alignCenter', 'Align centre', alignCells('center')),
-      this.button('align-right', 'alignRight', 'Align right', alignCells('right')),
+      this.button('align-left', 'alignLeft', 'Align the text of the cells left', alignCells('left')),
+      this.button('align-center', 'alignCenter', 'Align the text of the cells centre', alignCells('center')),
+      this.button('align-right', 'alignRight', 'Align the text of the cells right', alignCells('right')),
     ]);
 
     const root = view.dom.parentElement;

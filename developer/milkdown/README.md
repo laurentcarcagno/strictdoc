@@ -27,7 +27,7 @@ Commit `milkdown.js`, `milkdown.css` and `milkdown.js.LEGAL.txt` together with a
 | `src/diagram_node.js`, `src/diagram_loader.js` | the toolbar button, the double click and the resize handles of a diagram; the loader fetches `diagram.js` on first use |
 | `src/diagram_size.js` | reads and writes the display size (`width`, `height`) of a diagram SVG |
 | `src/image_caption.js` | gives an image without title an empty caption, so that Crepe keeps the image block when a field is opened again |
-| `src/paragraph_align.js` | the alignment of a paragraph (left, centre, right, justified): a paragraph attribute, the four toolbar buttons, and the HTML paragraph it is written as |
+| `src/alignment.js` | the alignment of paragraphs (left, centre, right, justified), images and diagrams (left, centre, right): an attribute of the node, the four toolbar buttons, and the HTML they are written as. The alignment of a table is in `src/tables.js` |
 | `src/toolbar_tooltips.js` | the tooltips of the toolbar buttons (top bar and table bar), and their accessible names |
 | `src/languages.js` | code block languages (replaces the 100+ grammars of `@codemirror/language-data`, about 1 MB) |
 | `src/katex_stub.js`, `src/empty.css` | formulas are switched off, so KaTeX (about 1.7 MB with its fonts) is left out |
@@ -86,6 +86,8 @@ text with headings, lists, a quote, a code block, a table, a link and a `[LINK: 
 - two cells that are merged join their paragraphs with a line break;
 - an empty paragraph is written as `<br />`;
 - a paragraph that is centred, right aligned or justified is written as an HTML paragraph, `<p style="text-align: center">...</p>`, with its content as inline HTML (`strong`, `em`, `del`, `code`, `a`, `br`, `img`). It is read back as an aligned paragraph only if its tags and attributes are `p`, `style` (`text-align`), `align` and those inline tags; any other `<p>` stays raw HTML. A left paragraph stays a Markdown paragraph;
+- an image or a diagram that is centred or on the right is written as an HTML paragraph that holds an `<img>`, `<p style="text-align: right"><img src="./pic.png" alt="1.00" /></p>`, and read back as an image block. A left image stays a Markdown image. The editor shows an image on the left unless it is aligned (the image block of Crepe centres it, the document does not);
+- a table that is aligned is an HTML `<table>` with `style="width: fit-content; margin-left: auto"` (right), `margin-right: auto` (left) or both margins (centre). An aligned table has the width of its content, because the document shows a table as a block that is as wide as its container. The button that is already on puts the table back to the full width (a pipe table);
 - the alt text of an image inserted by the editor is its display ratio, for example `![1.00](./_assets/.../pic.png)`.
 
 Unchanged: bullets (`*` and `-`), numbered lists, `*emphasis*` and `_emphasis_`, headings, code fences and block quotes.
@@ -95,7 +97,7 @@ break written with two trailing spaces does not survive a save through the web f
 
 ## Not supported
 
-- The alignment of a heading, a list item or a table cell by the paragraph buttons (a cell has its own alignment in the table bar). The Word export keeps the text and the bold and italic of an aligned paragraph, not its alignment.
+- The alignment of a heading or a list item, and the justification of an image or a table. The paragraph buttons do not act on a table cell: a cell has its own alignment in the table bar, and the buttons act on the table. The Word export keeps the text, the bold and italic and the picture of an aligned paragraph or image, not their alignment; an aligned table is written as text there, like any HTML table.
 
 - A header column, and the width of a column (the column resizing is not kept).
 - A cell holds inline content only (no list or code block in a cell).

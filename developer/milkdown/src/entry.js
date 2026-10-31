@@ -18,7 +18,7 @@ import { sdocMarkers } from './sdoc_markers.js';
 import { sdocTables } from './tables.js';
 import { buildTableToggle, tableBar } from './table_bar.js';
 import { createDiagramSupport } from './diagram_node.js';
-import { buildAlignButtons, sdocParagraphAlign } from './paragraph_align.js';
+import { buildAlignButtons, sdocAlignment } from './alignment.js';
 import { installToolbarTooltips } from './toolbar_tooltips.js';
 import './sdoc_editor.css';
 
@@ -104,7 +104,7 @@ class SdocMarkdownEditor extends HTMLElement {
     // The tables are read before the markers, which look into their cells.
     crepe.editor.use(sdocImageCaption);
     crepe.editor.use(sdocTables);
-    crepe.editor.use(sdocParagraphAlign);
+    crepe.editor.use(sdocAlignment);
     crepe.editor.use(sdocMarkers);
     crepe.editor.use(tableBar);
     crepe.editor.use(diagrams.plugin);

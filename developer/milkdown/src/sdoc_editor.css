@@ -265,3 +265,39 @@ sdoc-markdown-editor {
 .sdoc-tooltip[hidden] {
   display: none;
 }
+
+/* Alignment of images and tables (alignment.js, tables.js). An image is on the
+   left unless it is aligned: the document shows it there, and the image block
+   of Crepe centres it. */
+.sdoc-markdown-editor__host .milkdown-image-block > .image-wrapper {
+  margin: 0;
+}
+
+.sdoc-markdown-editor__host .milkdown-image-block[data-align="center"] > .image-wrapper {
+  margin: 0 auto;
+}
+
+.sdoc-markdown-editor__host .milkdown-image-block[data-align="right"] > .image-wrapper {
+  margin: 0 0 0 auto;
+}
+
+/* An aligned table has the width of its content. */
+.sdoc-markdown-editor__host .ProseMirror table[data-align] {
+  width: auto;
+  table-layout: auto;
+}
+
+.sdoc-markdown-editor__host .ProseMirror table[data-align="left"] {
+  margin-right: auto;
+  margin-left: 0;
+}
+
+.sdoc-markdown-editor__host .ProseMirror table[data-align="center"] {
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.sdoc-markdown-editor__host .ProseMirror table[data-align="right"] {
+  margin-right: 0;
+  margin-left: auto;
+}

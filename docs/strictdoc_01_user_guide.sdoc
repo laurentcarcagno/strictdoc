@@ -6494,9 +6494,16 @@ the centre, to the right, or justify them. A paragraph that is not aligned to th
 left is written as an HTML paragraph (``<p style="text-align: center">``) with
 its content as inline HTML (bold, italic, code, links and line breaks). The
 editor reads such a paragraph back as an aligned paragraph only if all its tags
-and attributes are known to it. The buttons do not apply to a table cell, which
-has its own alignment in the table bar. The Word export keeps the text and the
-bold and italic of an aligned paragraph, not its alignment.
+and attributes are known to it.
+
+The same buttons align an image or a diagram when it is selected (left, centre or
+right; an image that is not aligned is on the left), and a table when the cursor
+is in it. An aligned image is written as an HTML paragraph that holds the image.
+An aligned table is written as an HTML table, and it has the width of its content:
+the button that is already on puts the table back to the full width. Inside a table
+the alignment of the text of the cells is the one of the table bar. The Word export
+keeps the text and the pictures of an aligned paragraph or image, not their
+alignment.
 
 Every button of the toolbars shows a tooltip with its name when the pointer rests
 on it, or when it has the keyboard focus.

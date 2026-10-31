@@ -65,14 +65,28 @@ function parseCell(header) {
 // The rows and the cells are written by the table.
 const writtenByTable = { match: () => false, runner: () => {} };
 
+const TABLE_ALIGNMENTS = ['left', 'center', 'right'];
+
 const tableNode = $node('table', () => ({
   ...original.table,
   content: 'table_header_row* table_row+',
   disableDropCursor: true,
+  // The alignment of the whole table (the cells have their own).
+  attrs: { align: { default: null } },
+  parseDOM: [
+    {
+      tag: 'table',
+      getAttrs: (dom) => {
+        const align = dom.getAttribute('data-align');
+        return { align: TABLE_ALIGNMENTS.includes(align) ? align : null };
+      },
+    },
+  ],
+  toDOM: (node) => ['table', node.attrs.align ? { 'data-align': node.attrs.align } : {}, ['tbody', 0]],
   parseMarkdown: {
     match: (node) => node.type === 'sdocTable',
     runner: (state, node, type) => {
-      state.openNode(type);
+      state.openNode(type, { align: node.align ?? null });
       state.next(node.children);
       state.closeNode();
     },
@@ -267,13 +281,57 @@ function readCell(cell, header) {
   return out;
 }
 
+// The alignment of a table is its margins: auto on the left side puts it on the
+// right, auto on both centres it. The width is the one of the content (the
+// document shows a table as a block, which is as wide as its container unless
+// it is told otherwise), or the alignment would not show.
+function tableStyle(align) {
+  return {
+    left: 'width: fit-content; margin-right: auto',
+    center: 'width: fit-content; margin-left: auto; margin-right: auto',
+    right: 'width: fit-content; margin-left: auto',
+  }[align];
+}
+
+function readTableAlign(table) {
+  if ([...table.attributes].some((attribute) => !['style', 'align'].includes(attribute.name))) {
+    throw new NotATable('attribute');
+  }
+  let align = null;
+  const attribute = table.getAttribute('align');
+  if (attribute !== null) {
+    if (!TABLE_ALIGNMENTS.includes(attribute)) throw new NotATable('align');
+    align = attribute;
+  }
+  const auto = { left: false, right: false };
+  for (const declaration of (table.getAttribute('style') ?? '').split(';')) {
+    if (declaration.trim() === '') continue;
+    const at = declaration.indexOf(':');
+    const property = declaration.slice(0, at).trim().toLowerCase();
+    const value = declaration.slice(at + 1).trim().toLowerCase();
+    if (at < 0) throw new NotATable('style');
+    if (property === 'width' && (value === 'auto' || value === 'fit-content')) continue;
+    if (property === 'margin-left' || property === 'margin-right') {
+      if (!['auto', '0', '0px'].includes(value)) throw new NotATable('margin');
+      auto[property === 'margin-left' ? 'left' : 'right'] = value === 'auto';
+      continue;
+    }
+    throw new NotATable('style');
+  }
+  if (auto.left && auto.right) align = 'center';
+  else if (auto.left) align = 'right';
+  else if (auto.right) align = 'left';
+  return align;
+}
+
 // Header rows are the first rows, and every row has the same width.
 function fromHtmlTable(html) {
   const body = new DOMParser().parseFromString(html, 'text/html').body;
   const tables = [...body.children];
-  if (tables.length !== 1 || tables[0].localName !== 'table' || tables[0].attributes.length > 0) {
+  if (tables.length !== 1 || tables[0].localName !== 'table') {
     throw new NotATable('table');
   }
+  const tableAlign = readTableAlign(tables[0]);
   if (body.textContent.replace(/\s+/g, '') !== tables[0].textContent.replace(/\s+/g, '')) {
     throw new NotATable('text around');
   }
@@ -304,7 +362,7 @@ function fromHtmlTable(html) {
     header: r < headers,
     children: row.cells.map((cell) => readCell(cell, r < headers)),
   }));
-  return { type: 'sdocTable', children: padRows(model) };
+  return { type: 'sdocTable', align: tableAlign, children: padRows(model) };
 }
 
 // Every row as wide as the table, counting the cells that come from the rows above.
@@ -382,6 +440,7 @@ const side = (value) => value || 'left';
 
 // A table is a pipe table when nothing of it needs HTML.
 function isPipeTable(table) {
+  if (table.attrs.align) return false;
   let headers = 0;
   table.forEach((row) => {
     if (row.type.name === 'table_header_row') headers += 1;
@@ -435,7 +494,7 @@ function escapeHtml(text) {
   return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
-function escapeAttribute(text) {
+export function escapeAttribute(text) {
   return escapeHtml(text).replace(/"/g, '&quot;');
 }
 
@@ -501,7 +560,7 @@ function cellHtml(cell, tag) {
 }
 
 function writeHtmlTable(state, table) {
-  const lines = ['<table>'];
+  const lines = [table.attrs.align ? `<table style="${tableStyle(table.attrs.align)}">` : '<table>'];
   let section = '';
   const enter = (name) => {
     if (section === name) return;
