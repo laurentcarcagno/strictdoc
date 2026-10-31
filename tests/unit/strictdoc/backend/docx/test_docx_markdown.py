@@ -253,3 +253,21 @@ def test_009_update_does_not_flag_tables_images_or_breaks_as_changes(tmp_path):
     )
     assert report.changed == {}
     assert report.unchanged == 1
+
+
+def test_010_an_aligned_html_paragraph_exports_its_text_and_formats():
+    html = (
+        '<p style="text-align: center">'
+        "Some <strong>bold</strong> and <em>italic</em>.<br />Next</p>"
+    )
+
+    blocks = markdown_to_blocks(html)
+
+    assert len(blocks) == 1
+    assert [(run.text, run.bold, run.italic) for run in blocks[0].runs] == [
+        ("Some ", False, False),
+        ("bold", True, False),
+        (" and ", False, False),
+        ("italic", False, True),
+        (".\nNext", False, False),
+    ]

@@ -26,6 +26,11 @@ from strictdoc.backend.docx.export.rst_to_paragraphs import (
 
 _PARSER = MarkdownIt("default", {"html": True})
 _LINE_BREAK_HTML = re.compile(r"<br\s*/?>", re.IGNORECASE)
+# A paragraph that the Markdown editor aligns is an HTML paragraph.
+_HTML_PARAGRAPH = re.compile(
+    r"<p(?:\s[^>]*)?>(.*)</p>", re.IGNORECASE | re.DOTALL
+)
+_EMPHASIS_HTML = re.compile(r"<(/?)(strong|b|em|i)>", re.IGNORECASE)
 
 
 @dataclass
@@ -84,7 +89,20 @@ def markdown_to_blocks(markdown: str, base_dir: str = "") -> List[ExportBlock]:
             blocks.append(table)
         elif kind == "html_block":
             text = token.content.strip()
-            if len(text) > 0 and _LINE_BREAK_HTML.fullmatch(text) is None:
+            html_paragraph = _HTML_PARAGRAPH.fullmatch(text)
+            if html_paragraph is not None:
+                # The text of the paragraph, without its tags. This export
+                # has no alignment.
+                inline_tokens = _PARSER.parseInline(html_paragraph.group(1))
+                blocks.append(
+                    ExportParagraph(
+                        _inline_runs(
+                            inline_tokens[0].children or [],
+                            base_dir=base_dir,
+                        )
+                    )
+                )
+            elif len(text) > 0 and _LINE_BREAK_HTML.fullmatch(text) is None:
                 blocks.append(ExportParagraph([ExportRun(text)]))
         index += 1
     return blocks
@@ -161,8 +179,16 @@ def _inline_runs(
         elif kind == "hardbreak":
             add("\n")
         elif kind == "html_inline":
-            if _LINE_BREAK_HTML.fullmatch(child_.content.strip()) is not None:
+            tag = child_.content.strip()
+            emphasis = _EMPHASIS_HTML.fullmatch(tag)
+            if _LINE_BREAK_HTML.fullmatch(tag) is not None:
                 add("\n")
+            elif emphasis is not None:
+                step = -1 if emphasis.group(1) == "/" else 1
+                if emphasis.group(2).lower() in ("strong", "b"):
+                    bold_depth += step
+                else:
+                    italic_depth += step
         elif kind == "link_open":
             links.append(str(child_.attrGet("href") or ""))
             link_text_start.append(len(runs))
