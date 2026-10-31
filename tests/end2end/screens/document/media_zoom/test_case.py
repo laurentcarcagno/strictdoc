@@ -46,6 +46,10 @@ class Test(E2ECase):
             assert small_image.get_attribute("data-js-zoomable") is not None
             assert large_image.get_attribute("data-js-zoomable") is not None
 
+            # An SVG file shown by an image has no zoom.
+            svg_image = self.find_element('sdoc-autogen img[src*="picture"]')
+            assert svg_image.get_attribute("data-js-zoomable") is None
+
             mermaid = self.find_element("pre.mermaid svg")
             plantuml = self.find_element("pre.plantuml svg")
 

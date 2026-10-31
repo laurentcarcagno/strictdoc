@@ -31,3 +31,8 @@ STATEMENT: >>>
     @enduml
     </pre>
 <<<
+
+[TEXT]
+STATEMENT: >>>
+.. image:: _assets/picture.svg
+<<<

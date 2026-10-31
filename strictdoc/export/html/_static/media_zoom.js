@@ -56,6 +56,10 @@
     // marks every element of that control by contract (copy_to_clipboard.js),
     // so this excludes the whole family regardless of where it's nested.
     if (el.closest('[data-copy-clipboard-target]')) return;
+    // An SVG file shown by an <img> (a diagram drawn in the Markdown editor,
+    // a logo) has no zoom: the cursor and the overlay are for raster images
+    // and for the inline SVG of Mermaid and PlantUML.
+    if (el.tagName === 'IMG' && /\.svg([?#]|$)/i.test(el.getAttribute('src') ?? '')) return;
     if (el.tagName === 'IMG' && !el.complete) {
       el.addEventListener('load', () => markZoomable(el), { once: true });
       return;
