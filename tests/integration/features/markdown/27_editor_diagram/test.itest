@@ -1,0 +1,16 @@
+# A diagram drawn in the Markdown editor is an SVG image that holds its model
+# in a <desc> element. The HTML export copies the file and the Word export
+# embeds the picture.
+
+RUN: %strictdoc export %S/input --formats=html --output-dir %T/out | filecheck %s --dump-input=fail
+CHECK: Export completed.
+
+RUN: %check_exists --file %T/out/html/input/_assets/REQ-1/diagram_editor.svg
+RUN: %cat %T/out/html/input/input.html | filecheck %s --dump-input=fail --check-prefix CHECK-HTML
+CHECK-HTML: <img src="./_assets/REQ-1/diagram_editor.svg" alt="1.00">
+
+RUN: %cat %T/out/html/input/_assets/REQ-1/diagram_editor.svg | filecheck %s --dump-input=fail --check-prefix CHECK-SVG
+CHECK-SVG: <desc id="sdoc-diagram">sdoc-diagram:v1:
+
+RUN: %strictdoc export %S/input --formats=docx --output-dir %T/out
+RUN: %check_exists --file %T/out/docx/input.docx

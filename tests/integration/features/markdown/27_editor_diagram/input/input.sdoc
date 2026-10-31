@@ -1,0 +1,12 @@
+[DOCUMENT]
+TITLE: Document with a diagram
+OPTIONS:
+  MARKUP: Markdown
+
+[REQUIREMENT]
+UID: REQ-1
+STATEMENT: >>>
+The system shall follow this state machine.
+
+![1.00](./_assets/REQ-1/diagram_editor.svg)
+<<<

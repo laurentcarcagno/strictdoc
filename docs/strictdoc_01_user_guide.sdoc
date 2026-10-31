@@ -6468,6 +6468,27 @@ editor only if all its tags and attributes are known to it (``thead``,
 ``tbody``, ``th``, ``td``, ``colspan``, ``rowspan``, a background colour and a
 text alignment). Any other HTML table stays as written.
 
+The diagram button of the toolbar opens a diagram editor over the page. The editor
+draws shapes (rectangle, rounded rectangle, ellipse, diamond, triangle, cylinder,
+note and text box) and connectors with arrowheads, and gives each of them a text
+label. A bar changes the fill, the line, the text, the alignment and the order of
+the selected shapes. The toolbar of the diagram editor also aligns the selected
+shapes (left, centre, right, top, middle, bottom) and distributes three or more of
+them horizontally or vertically. Save stores the diagram as an SVG file in the
+``_assets`` folder of the node and inserts it as an image.
+
+The SVG file holds the model of the diagram, so a double click on the image opens
+the diagram again, and Save overwrites the file. The diagram button of the toolbar
+does the same when a diagram is selected. The file is written when Save is used in
+the diagram editor, not when the form of the node is saved. An SVG image that the
+diagram editor did not draw has no model and stays a plain image. The labels are
+plain text without wrapping. The diagram editor loads the first time the button is
+used.
+
+Handles on a selected diagram change its width and its height. The corner keeps the
+proportions unless Shift is held. The size is stored in the SVG file, so the
+document view and the exports show it.
+
 The field is written again by the editor only if its text was changed. When it
 is, the text is normalised: for example a table is re-aligned, a hard break
 becomes a backslash at the end of the line, and an empty paragraph becomes

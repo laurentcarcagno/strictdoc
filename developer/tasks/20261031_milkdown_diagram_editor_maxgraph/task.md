@@ -13,11 +13,14 @@ The Markdown editor of the web interface lets a user draw a diagram and keep it 
   - a text label on every shape and every connector, edited in place with a double click;
   - move and resize of shapes, with a grid the shapes snap to;
   - fill colour, line colour, line width, font size, bold, italic and text alignment;
+  - align (left, centre, right, top, middle, bottom) and distribute (horizontally, vertically) the selected shapes;
   - bring to front, send to back, copy, paste, duplicate and delete;
   - undo, redo, zoom in, zoom out and fit to window;
   - keyboard shortcuts for delete, copy, paste, undo and redo.
-- Save stores the diagram as an SVG file in the assets folder of the node, like an uploaded image, and puts an image block in the text: `![1.00](./_assets/<node>/diagram_<n>.svg)`.
+- Save stores the diagram as an SVG file in the assets folder of the node, like an uploaded image, and puts an image block in the text: `![1.00](./_assets/<node>/diagram_<id>.svg)`.
 - A double click on a diagram in the editor reopens the diagram editor. Save overwrites the same SVG file. The text of the field does not change.
+- The toolbar button also opens the diagram that is selected in the editor. It draws a new diagram when no diagram is selected.
+- Handles on the selected diagram change its width and its height on their own. The corner keeps the proportions unless Shift is held. The size shows in the editor, the document view and every export.
 - Cancel changes nothing. An empty diagram is not inserted.
 - An SVG image that has no stored diagram (for example an uploaded logo) is not editable. A double click on it does nothing.
 
@@ -77,7 +80,9 @@ New files in `developer/milkdown/src/`:
 | `diagram_styles.js` | the shape and connector styles, the default style of a vertex and an edge. |
 | `diagram_svg.js` | `exportSvg(graph)` and `importSvg(text)`: the SVG with the model in `<desc>`, and the way back. |
 | `diagram_loader.js` | loads `diagram.js` and `diagram.css` once, from the folder of `milkdown.js`. |
-| `diagram_node.js` | Milkdown plugin: the toolbar button, the double click, the insert and the update of the image block. |
+| `diagram_size.js` | reads and writes the `width` and `height` of the SVG, and keeps the user's scale when a diagram is drawn again. |
+| `diagram_node.js` | Milkdown plugin: the toolbar button, the double click, the resize handles, the insert and the update of the image block. |
+| `image_caption.js` | gives an image without title an empty caption, so that the image block survives when the field is opened again. |
 | `diagram.css` | rules of the modal and its bars. |
 
 Changed files:
@@ -100,7 +105,7 @@ Changed files:
 
 1. The user clicks the diagram button of the toolbar (Crepe top bar group, next to the table button).
 2. `diagram_node.js` calls the loader, then `open({ svg: null, upload })`.
-3. On Save, the editor builds the SVG and a file name `diagram_<n>.svg`. `n` is the next number not used by an image block of the field.
+3. On Save, the editor builds the SVG and a file name `diagram_<id>.svg`. `id` is the current time in base 36. The fields of a node share one asset folder, so a counter per field could overwrite the diagram of another field.
 4. The Markdown editor sends the file with `_upload`. The upload endpoint sanitizes it and returns the path.
 5. The plugin inserts an `image-block` node with that path after the selection.
 
@@ -111,17 +116,28 @@ Changed files:
 3. On Save, the editor sends the SVG under the same file name. The endpoint overwrites the file.
 4. The plugin reloads the `img` elements of that path. It fetches the file with `cache: 'reload'`, then assigns the source again. The Markdown does not change.
 
+### Resize
+
+- The display size of a diagram is the `width` and `height` of its `<svg>` element. The `viewBox` stays.
+- A size that differs from the `viewBox` scales the drawing. `preserveAspectRatio="none"` lets the two axes scale on their own, and the attribute is removed when the proportions are the original ones.
+- The editor draws three handles over the selected diagram (right edge, bottom edge, corner) in an element fixed to the page. The preview changes the `img` while the pointer moves. The pointer release writes the SVG and sends it under the same file name.
+- The HTML export, the document view, the PDF export and the Word export read the SVG, so they show the size without a change on the server.
+- The image block of Crepe stores a display ratio in the alt text. The HTML export ignores it, so it cannot carry a size. The handle of Crepe is hidden for diagrams.
+- A diagram drawn again keeps the scale of the previous drawing: the new width is the new `viewBox` width times the previous scale.
+
 ### Diagram editor
 
 - The modal covers the page, traps focus, and closes on Esc after a confirmation when the diagram changed.
 - The graph uses `Graph` with: `setConnectable(true)`, `setCellsResizable(true)`, `setGridEnabled(true)`, `setHtmlLabels(false)`, `RubberBandHandler`, `KeyHandler`, `UndoManager`.
 - The connect handle on hover comes from `ConnectionHandler.connectImage`, an inline SVG data URL. Dragging from the handle to a shape or to empty space creates an edge.
+- Align uses `graph.alignCells` on the selected shapes. Distribute orders the selected shapes by position, keeps the first and the last edge, and makes the gaps equal. Align needs two shapes, distribute needs three.
 - The shape palette adds a vertex at the centre of the visible area, offset by 20 px for each insert, and selects it.
 - A property bar reflects the selection (fill, line, width, font, alignment, arrowheads, line type) and applies changes with `graph.setCellStyles` in one undoable step.
 - Styles use maxGraph style keys and live in `diagram_styles.js`, so the palette and the property bar share them.
 
 ### Tests
 
+- Browser: `developer/milkdown/playwright/check_diagrams.py` runs the editor in Chromium (Playwright in Docker) and covers align, distribute, resize, reopen and a reloaded form.
 - Unit: `tests/unit/strictdoc/features/svg/test_svg_sanitizer.py` gets a case with a `<desc>` payload and with the element mix of the maxGraph export (`g`, `rect`, `ellipse`, `path`, `text`, `tspan`). The sanitizer returns the bytes unchanged.
 - Integration: a Markdown document that references a diagram SVG exports to HTML and to Word without error, and the Word file contains the picture. The test reuses the existing SVG corpus conventions (`tests/integration/features/docx`).
 - End-to-end (`tests/end2end/screens/document/update_node/markdown_diagram_editor/`): open the form of a node, click the diagram button, add two shapes and a connector, set labels, save, submit the form, assert that the SVG file exists in the sandbox and the node shows it. Open the form again, double click the diagram, move a shape, save, assert that the file changed.

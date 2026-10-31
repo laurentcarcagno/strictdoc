@@ -200,3 +200,50 @@ sdoc-markdown-editor {
   stroke: currentColor;
   stroke-width: 1.2;
 }
+
+/* Diagrams: the size is written in the SVG file, by the handles below, so the
+   height handle of the image block (it only sets a display ratio) is off. */
+.sdoc-markdown-editor__host .milkdown-image-block:has(img[src*="diagram_"]) .image-resize-handle {
+  display: none;
+}
+
+.sdoc-diagram-resize {
+  position: fixed;
+  z-index: 900;
+  box-sizing: border-box;
+  pointer-events: none;
+  border: 1px solid var(--hem-sovereign, #12293a);
+}
+
+.sdoc-diagram-resize[hidden] {
+  display: none;
+}
+
+.sdoc-diagram-resize__handle {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  box-sizing: border-box;
+  pointer-events: auto;
+  touch-action: none;
+  background: var(--hem-white, #fcfdfe);
+  border: 1px solid var(--hem-sovereign, #12293a);
+}
+
+.sdoc-diagram-resize__handle--e {
+  top: calc(50% - 5px);
+  right: -6px;
+  cursor: ew-resize;
+}
+
+.sdoc-diagram-resize__handle--s {
+  bottom: -6px;
+  left: calc(50% - 5px);
+  cursor: ns-resize;
+}
+
+.sdoc-diagram-resize__handle--se {
+  right: -6px;
+  bottom: -6px;
+  cursor: nwse-resize;
+}

@@ -24,11 +24,51 @@ Commit `milkdown.js`, `milkdown.css` and `milkdown.js.LEGAL.txt` together with a
 | `src/sdoc_markers.js` | keeps `[LINK: UID]` and `[ANCHOR: ...]` intact (otherwise they are written as `\[LINK: UID\]` and stop being links) |
 | `src/tables.js` | the table nodes (header rows, merged cells, cell colours), read from and written to a pipe table or an HTML `<table>` |
 | `src/table_commands.js`, `src/table_bar.js` | the commands and the bar under the top bar: insert, rows, columns, header rows, merge and split, selection, fill, alignment (they replace the table block of Crepe, which is off) |
+| `src/diagram_node.js`, `src/diagram_loader.js` | the toolbar button, the double click and the resize handles of a diagram; the loader fetches `diagram.js` on first use |
+| `src/diagram_size.js` | reads and writes the display size (`width`, `height`) of a diagram SVG |
+| `src/image_caption.js` | gives an image without title an empty caption, so that Crepe keeps the image block when a field is opened again |
 | `src/languages.js` | code block languages (replaces the 100+ grammars of `@codemirror/language-data`, about 1 MB) |
 | `src/katex_stub.js`, `src/empty.css` | formulas are switched off, so KaTeX (about 1.7 MB with its fonts) is left out |
 | `src/sdoc_editor.css` | StrictDoc rules on top of the Crepe theme |
 
-Size: about 1.5 MB of JavaScript and 53 KB of CSS.
+Size: about 1.5 MB of JavaScript and 55 KB of CSS.
+
+## Diagram editor
+
+A second bundle, `diagram.js` with `diagram.css` (about 430 KB, maxGraph), holds the diagram editor. `milkdown.js` loads it
+the first time the user clicks the diagram button of the toolbar, from the folder of `milkdown.js`.
+
+| File | Role |
+|---|---|
+| `src/diagram_entry.js` | entry of `diagram.js`: sets `window.sdocDiagram` (`open`, `isDiagram`) |
+| `src/diagram_editor.js` | the modal: graph, palette, property bar, keyboard |
+| `src/diagram_styles.js` | the shapes of the palette and the default styles |
+| `src/diagram_svg.js` | the SVG of a diagram: export, and reading the model back |
+| `src/diagram.css` | rules of the modal |
+
+A diagram is an image block that points to `diagram_<id>.svg` in the assets folder of the node. The SVG holds the model of
+the diagram in `<desc id="sdoc-diagram">` as `sdoc-diagram:v1:` and the base64 of the maxGraph XML. The server keeps the text
+of `<desc>` when it sanitizes the upload. A double click on the image of such a file opens it again, and Save overwrites the
+file. The button of the toolbar opens the selected diagram, or draws a new one when no diagram is selected. An SVG without
+that element (an uploaded logo) is a plain image.
+
+The handles on the selected diagram (right edge, bottom edge, corner) change its display size. The size is the `width` and
+`height` of the `<svg>` element: the viewBox stays, and `preserveAspectRatio="none"` lets the two axes scale on their own.
+The corner keeps the proportions unless Shift is held. A diagram that is drawn again keeps the scale it had. Every renderer
+of the SVG shows the size, so the server needs no change. The display ratio of the image block of Crepe is not used for a
+diagram, and its handle is hidden.
+
+`diagram.js.LEGAL.txt` is written by `build.mjs` and holds the license of maxGraph (Apache-2.0).
+
+`playwright/` holds a browser check of the diagram editor, see `playwright/README.md`.
+
+Limits of the diagram editor:
+
+- Labels are plain text, without wrapping: a long label is split with line breaks. The server removes `foreignObject`, which
+  HTML labels need.
+- No groups, layers, swimlanes or images inside a diagram.
+- The SVG is written when the user clicks Save in the modal, not when the form of the node is saved. Cancelling the form
+  leaves the file in the assets folder, like an uploaded image.
 
 ## What the editor does to the text
 

@@ -1,0 +1,160 @@
+/* The diagram editor: a modal over the page. */
+html.sdoc-diagram-open {
+  overflow: hidden;
+}
+
+.sdoc-diagram {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  padding: 24px;
+  background: rgb(18 41 58 / 55%);
+  font-family: "IBM Plex Sans", sans-serif;
+  font-size: 14px;
+}
+
+.sdoc-diagram__panel {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 1400px;
+  overflow: hidden;
+  color: var(--hem-sovereign, #12293a);
+  background: var(--hem-white, #fcfdfe);
+  border: 1px solid var(--hem-sovereign, #12293a);
+}
+
+.sdoc-diagram__header {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--hem-border, #c2ddf0);
+}
+
+.sdoc-diagram__title {
+  font-weight: 600;
+}
+
+.sdoc-diagram__hint {
+  flex: 1;
+  color: #55687a;
+  font-size: 12px;
+}
+
+.sdoc-diagram__text-button {
+  padding: 4px 14px;
+  color: var(--hem-sovereign, #12293a);
+  cursor: pointer;
+  background: transparent;
+  border: 1px solid var(--hem-sovereign, #12293a);
+  border-radius: 0;
+  font: inherit;
+}
+
+.sdoc-diagram__text-button--primary {
+  color: var(--hem-white, #fcfdfe);
+  background: var(--hem-sovereign, #12293a);
+}
+
+.sdoc-diagram__text-button:disabled {
+  cursor: default;
+  opacity: 0.4;
+}
+
+.sdoc-diagram__bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  align-items: center;
+  padding: 4px 12px;
+  border-bottom: 1px solid var(--hem-border, #c2ddf0);
+}
+
+.sdoc-diagram__group {
+  display: flex;
+  gap: 2px;
+  align-items: center;
+  padding-right: 12px;
+  border-right: 1px solid var(--hem-border, #c2ddf0);
+}
+
+.sdoc-diagram__group:last-of-type {
+  padding-right: 0;
+  border-right: 0;
+}
+
+.sdoc-diagram__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  color: var(--hem-sovereign, #12293a);
+  cursor: pointer;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 0;
+  font: inherit;
+}
+
+.sdoc-diagram__button:hover:not(:disabled) {
+  background: var(--color-bg-accent, #e6eef5);
+  border-color: var(--hem-sovereign, #12293a);
+}
+
+.sdoc-diagram__button[aria-pressed="true"] {
+  color: var(--hem-white, #fcfdfe);
+  background: var(--hem-sovereign, #12293a);
+}
+
+.sdoc-diagram__button:disabled {
+  cursor: default;
+  opacity: 0.35;
+}
+
+.sdoc-diagram__glyph {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.sdoc-diagram__select {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+  font-size: 12px;
+}
+
+.sdoc-diagram__select select {
+  height: 26px;
+  font: inherit;
+}
+
+.sdoc-diagram__color {
+  width: 28px;
+  height: 26px;
+  padding: 0;
+  cursor: pointer;
+  border: 1px solid var(--hem-border, #c2ddf0);
+  background: none;
+}
+
+.sdoc-diagram__color:disabled {
+  cursor: default;
+  opacity: 0.35;
+}
+
+.sdoc-diagram__canvas {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  outline: none;
+  background-color: #fff;
+  background-image: radial-gradient(#c2ddf0 1px, transparent 1px);
+  background-size: 10px 10px;
+}

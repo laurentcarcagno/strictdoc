@@ -13,9 +13,11 @@ import { editorStateOptionsCtx, editorViewCtx, schemaCtx, serializerCtx } from '
 import { replaceAll } from '@milkdown/kit/utils';
 import '@milkdown/crepe/theme/common/style.css';
 import '@milkdown/crepe/theme/frame.css';
+import { sdocImageCaption } from './image_caption.js';
 import { sdocMarkers } from './sdoc_markers.js';
 import { sdocTables } from './tables.js';
 import { buildTableToggle, tableBar } from './table_bar.js';
+import { createDiagramSupport } from './diagram_node.js';
 import './sdoc_editor.css';
 
 const IMAGE_ERROR_CLASS = 'sdoc-markdown-editor__error';
@@ -55,6 +57,10 @@ class SdocMarkdownEditor extends HTMLElement {
     host.className = 'sdoc-markdown-editor__host';
     this.replaceChildren(host);
 
+    const diagrams = createDiagramSupport({
+      upload: (file) => this._upload(file),
+      showError: (message) => this._showError(message),
+    });
     const crepe = new Crepe({
       root: host,
       defaultValue: original,
@@ -72,7 +78,12 @@ class SdocMarkdownEditor extends HTMLElement {
           blockOnUpload: (file) => this._upload(file),
         },
         [Crepe.Feature.Placeholder]: { text: 'Write here...' },
-        [Crepe.Feature.TopBar]: { buildTopBar: buildTableToggle },
+        [Crepe.Feature.TopBar]: {
+          buildTopBar: (builder) => {
+            buildTableToggle(builder);
+            diagrams.buildButton(builder);
+          },
+        },
       },
     });
     // The alignment of a body cell is its own: the plugin of the GFM preset
@@ -87,9 +98,11 @@ class SdocMarkdownEditor extends HTMLElement {
       });
     });
     // The tables are read before the markers, which look into their cells.
+    crepe.editor.use(sdocImageCaption);
     crepe.editor.use(sdocTables);
     crepe.editor.use(sdocMarkers);
     crepe.editor.use(tableBar);
+    crepe.editor.use(diagrams.plugin);
     this._crepe = crepe;
     await crepe.create();
     if (generation !== this._generation) {

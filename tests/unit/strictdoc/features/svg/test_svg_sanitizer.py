@@ -1,3 +1,4 @@
+import base64
 import os
 from pathlib import Path
 from typing import List
@@ -174,3 +175,31 @@ def test_015_a_processing_instruction_never_survives():
         b'<svg xmlns="http://www.w3.org/2000/svg"><rect width="1" height="1"/></svg>'
     )
     assert b"xml-stylesheet" not in sanitize_svg(data)
+
+
+def test_016_the_model_of_a_diagram_of_the_editor_is_kept():
+    original = (CORPUS / "normal" / "editor_diagram.svg").read_bytes()
+    cleaned = sanitize_svg(original)
+
+    descriptions = [
+        element
+        for element in ET.fromstring(cleaned).iter()
+        if element.tag.rsplit("}", 1)[-1] == "desc"
+    ]
+    assert len(descriptions) == 1
+    assert descriptions[0].get("id") == "sdoc-diagram"
+    payload = descriptions[0].text or ""
+    assert payload.startswith("sdoc-diagram:v1:")
+    model = base64.b64decode(payload.removeprefix("sdoc-diagram:v1:"))
+    assert b"<GraphDataModel>" in model
+
+
+def test_017_the_model_of_a_diagram_stays_when_other_markup_is_removed():
+    original = (CORPUS / "normal" / "editor_diagram.svg").read_bytes()
+    dirty = original.replace(b"</svg>", b"<script>alert(1)</script></svg>")
+
+    cleaned = sanitize_svg(dirty)
+
+    assert b"script" not in cleaned.lower()
+    assert b"sdoc-diagram:v1:" in cleaned
+    assert b"foreignObject" not in original

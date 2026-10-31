@@ -1,0 +1,10 @@
+[DOCUMENT]
+TITLE: Diagram sample
+OPTIONS:
+  MARKUP: Markdown
+
+[REQUIREMENT]
+UID: REQ-1
+STATEMENT: >>>
+The system shall follow the diagram below.
+<<<
