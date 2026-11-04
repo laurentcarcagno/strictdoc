@@ -96,6 +96,10 @@ frame of the project no longer scroll sideways.
 
 8\) The Document screen no longer offers or accepts Clone for sections and
 other composite nodes. Users can still clone regular document nodes.
+
+9\) Fixed: the ReqIF export now accepts grammars in which two node types
+have a ``SingleChoice`` or ``MultipleChoice`` field with the same title and
+different options. Before, the export failed with an assertion error.
 <<<
 
 [[/SECTION]]
