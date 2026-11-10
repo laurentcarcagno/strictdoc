@@ -372,6 +372,28 @@ def test_end2end(
     focus_argument = f"-k {focus}" if focus is not None else ""
     exit_first_argument = "--exitfirst" if exit_first else ""
     headless_argument = "--headless2" if headless and not headed else "--gui"
+    # SeleniumBase downloads the chromedriver of Chrome for Testing into its
+    # drivers folder, and Chrome for Testing exists for amd64 only. Where
+    # Chrome is the Chromium of the system (the arm64 test container,
+    # developer/docker_tests/entrypoint.sh), the driver of the system takes
+    # that place: SeleniumBase finds a driver of the browser's version and
+    # downloads none.
+    system_chromedriver = os.environ.get("STRICTDOC_SELENIUM_CHROMEDRIVER")
+    if system_chromedriver is not None:
+        result = run_invoke_with_uv(
+            context,
+            UvEnvironment.CHECK,
+            """
+                python -c "import os, seleniumbase;
+                print(os.path.dirname(seleniumbase.__file__))"
+            """,
+        )
+        seleniumbase_dir = result.stdout.strip().splitlines()[-1]
+        driver_path = os.path.join(seleniumbase_dir, "drivers", "chromedriver")
+        if os.path.lexists(driver_path):
+            os.remove(driver_path)
+        os.symlink(system_chromedriver, driver_path)
+
     test_command = f"""
             {coverage_command_or_none}
             pytest

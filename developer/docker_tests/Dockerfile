@@ -19,12 +19,23 @@ ENV SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt \
 # git: integration tests make repositories. libtidy: the HTML validator of
 # the integration tests. gcc, g++: the gcov coverage tests. Chrome:
 # end-to-end and HTML2PDF tests.
+# BuildKit sets TARGETARCH to the architecture of the image it builds (the
+# one of the Docker engine unless --platform says otherwise). Google ships
+# Chrome for Linux on amd64 only; on another architecture the image takes
+# Chromium and its driver from Debian, and google-chrome points to it.
+ARG TARGETARCH
 RUN apt-get update \
     && apt-get install -y --no-install-recommends curl g++ gcc git libtidy5deb1 \
-    && curl -fsSL -o /tmp/chrome.deb \
-       https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb \
-    && apt-get install -y --no-install-recommends /tmp/chrome.deb \
-    && rm -rf /tmp/chrome.deb /var/lib/apt/lists/*
+    && if [ "$TARGETARCH" = "amd64" ]; then \
+         curl -fsSL -o /tmp/chrome.deb \
+           https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb \
+         && apt-get install -y --no-install-recommends /tmp/chrome.deb \
+         && rm -f /tmp/chrome.deb; \
+       else \
+         apt-get install -y --no-install-recommends chromium chromium-driver \
+         && ln -s /usr/bin/chromium /usr/bin/google-chrome; \
+       fi \
+    && rm -rf /var/lib/apt/lists/*
 
 # The tools of requirements.bootstrap.txt; uv installs the rest.
 RUN pip install --no-cache-dir invoke toml uv
