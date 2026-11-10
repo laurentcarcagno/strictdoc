@@ -15,7 +15,7 @@
   {%- for row in rows %}
   <tr class="{{ row.comment.status }}" data-testid="comments-row">
     <td>{{ row.document }}</td>
-    <td><a href="/UID/{{ row.node_ref }}">{{ row.node_label }}</a></td>
+    <td><a href="/item/{{ row.node_ref }}">{{ row.node_label }}</a></td>
     <td>{{ row.comment.author_label }}</td>
     <td>{{ row.comment.date }}</td>
     <td>{{ row.comment.status }}</td>

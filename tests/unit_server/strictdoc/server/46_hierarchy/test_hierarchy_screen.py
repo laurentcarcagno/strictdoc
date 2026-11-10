@@ -49,9 +49,9 @@ def test_002_counts_per_level(tmp_path):
 def test_003_orphans_and_unanswered_nodes_are_listed_with_links(tmp_path):
     client, _ = setup(tmp_path)
     page = client.get("/hierarchy", headers=READER).text
-    assert re.search(r'href="/UID/SYS-2">SYS-2</a>', page)
-    assert re.search(r'href="/UID/SW-2">SW-2</a>', page)
-    assert re.search(r'href="/UID/DA-2">DA-2</a>', page)
+    assert re.search(r'href="/item/SYS-2">SYS-2</a>', page)
+    assert re.search(r'href="/item/SW-2">SW-2</a>', page)
+    assert re.search(r'href="/item/DA-2">DA-2</a>', page)
     orphans = re.search(
         r'data-testid="hierarchy-orphans">(.*?)</ul>', page, re.S
     ).group(1)

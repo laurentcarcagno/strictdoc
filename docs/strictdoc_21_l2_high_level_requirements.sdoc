@@ -1037,6 +1037,25 @@ RELATIONS:
 - TYPE: Parent
   VALUE: SDOC-SSS-80
 
+[REQUIREMENT]
+MID: ca1b47d75302400aa97519c744abad60
+UID: SDOC-SRS-213
+STATUS: Active
+TITLE: Page of an item
+STATEMENT: >>>
+StrictDoc's web server shall show one page per item, with its content, its
+links grouped by relation role, its comments and its history in Git, and a
+link back to the item in its document. A tab that the project cannot fill
+shall be disabled and say why.
+<<<
+RATIONALE: >>>
+A reader who follows a UID wants the item, its context and its past without
+scrolling through the whole document.
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: SDOC-SSS-91
+
 [[/SECTION]]
 
 [[SECTION]]

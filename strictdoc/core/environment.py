@@ -18,6 +18,7 @@ HTML_TEMPLATE_DIRS = [
     os.path.join("strictdoc", "features", "git_sync", "templates"),
     os.path.join("strictdoc", "features", "hierarchy", "templates"),
     os.path.join("strictdoc", "features", "html2pdf", "templates"),
+    os.path.join("strictdoc", "features", "item_page", "templates"),
     os.path.join("strictdoc", "features", "llm", "templates"),
     os.path.join("strictdoc", "features", "nestor", "templates"),
     os.path.join("strictdoc", "features", "page_view", "templates"),

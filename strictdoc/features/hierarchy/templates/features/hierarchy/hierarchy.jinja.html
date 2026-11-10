@@ -27,14 +27,14 @@
   {%- if level.orphans %}
 <details><summary>{{ _("Orphans") }}: {{ level.level.title }} ({{ level.orphans|length }})</summary>
   <ul data-testid="hierarchy-orphans">
-    {%- for node in level.orphans %}<li><a href="/UID/{{ node.reserved_uid }}">{{ node.reserved_uid }}</a> {{ node.reserved_title or "" }}</li>{% endfor %}
+    {%- for node in level.orphans %}<li><a href="/item/{{ node.reserved_uid }}">{{ node.reserved_uid }}</a> {{ node.reserved_title or "" }}</li>{% endfor %}
   </ul>
 </details>
   {%- endif %}
   {%- if level.unanswered %}
 <details><summary>{{ _("Not answered") }}: {{ level.level.title }} ({{ level.unanswered|length }})</summary>
   <ul data-testid="hierarchy-unanswered">
-    {%- for node in level.unanswered %}<li><a href="/UID/{{ node.reserved_uid }}">{{ node.reserved_uid }}</a> {{ node.reserved_title or "" }}</li>{% endfor %}
+    {%- for node in level.unanswered %}<li><a href="/item/{{ node.reserved_uid }}">{{ node.reserved_uid }}</a> {{ node.reserved_title or "" }}</li>{% endfor %}
   </ul>
 </details>
   {%- endif %}

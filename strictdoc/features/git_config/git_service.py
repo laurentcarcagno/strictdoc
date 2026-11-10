@@ -57,6 +57,15 @@ class RepositoryState:
     dirty: bool
 
 
+@dataclass(frozen=True)
+class LineRevision:
+    commit: str
+    author: str
+    date: str
+    subject: str
+    patch: str
+
+
 SCP_URL_PATTERN = re.compile(
     r"^[A-Za-z0-9_.-]+@[A-Za-z0-9_.-]+:[A-Za-z0-9_./-]+$"
 )
@@ -224,6 +233,46 @@ class GitService:
             return str(repo.git.diff("HEAD", "-U0", "--", relative))
         except GitCommandError:
             return ""
+
+    def history_of_lines(
+        self, path: str, first_line: int, last_line: int, limit: int = 20
+    ) -> List[LineRevision]:
+        """
+        The commits that changed the lines of a file, the newest first, each
+        with the patch of these lines (``git log -L``).
+        """
+        root = self.repository_root(path)
+        relative = os.path.relpath(os.path.realpath(path), root)
+        repo = self._repo(root)
+        posix_relative = relative.replace(os.sep, "/")
+        try:
+            output = str(
+                repo.git.log(
+                    f"-L{first_line},{last_line}:{posix_relative}",
+                    f"--max-count={limit}",
+                    "--format=%x1e%h%x1f%an%x1f%aI%x1f%s",
+                )
+            )
+        except GitCommandError:
+            return []
+        revisions: List[LineRevision] = []
+        for record_ in output.split("\x1e"):
+            if len(record_.strip()) == 0:
+                continue
+            header, _, patch = record_.partition("\n")
+            fields = header.split("\x1f")
+            if len(fields) != 4:
+                continue
+            revisions.append(
+                LineRevision(
+                    commit=fields[0],
+                    author=fields[1],
+                    date=fields[2],
+                    subject=fields[3],
+                    patch=patch.strip("\n"),
+                )
+            )
+        return revisions
 
     # ---- Tags
 

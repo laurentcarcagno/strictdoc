@@ -11,7 +11,7 @@
   {%- if created %}
   <p data-testid="llm-created">{{ _("Created, with the status Draft and a comment that says a model wrote them:") }}</p>
   <ul>
-    {%- for uid in created %}<li><a href="/UID/{{ uid }}">{{ uid }}</a></li>{% endfor %}
+    {%- for uid in created %}<li><a href="/item/{{ uid }}">{{ uid }}</a></li>{% endfor %}
   </ul>
   {%- endif %}
   <p><a href="/llm/drafts">{{ _("Drafts that nobody has made Active yet") }}</a></p>

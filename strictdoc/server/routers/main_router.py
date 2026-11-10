@@ -141,12 +141,12 @@ from strictdoc.export.html.renderers.markup_renderer import MarkupRenderer
 from strictdoc.features.comments.router import create_comments_routers
 from strictdoc.features.folders.router import create_folders_routers
 from strictdoc.features.git_config.router import create_git_routers
-from strictdoc.features.git_sync.guard import create_merge_guard
-from strictdoc.features.git_sync.router import create_git_sync_routers
 from strictdoc.features.git_config.setup import (
     collect_node_assets,
     remove_node_assets,
 )
+from strictdoc.features.git_sync.guard import create_merge_guard
+from strictdoc.features.git_sync.router import create_git_sync_routers
 from strictdoc.features.hierarchy.guard import create_input_guard
 from strictdoc.features.hierarchy.router import (
     create_baseline_sync,
@@ -160,6 +160,7 @@ from strictdoc.features.html2pdf.pdf_print_driver import (
     PDFPrintDriverException,
 )
 from strictdoc.features.i18n.i18n import gettext
+from strictdoc.features.item_page.router import create_item_page_router
 from strictdoc.features.llm.router import create_llm_routers
 from strictdoc.features.nestor.view_object import (
     NestorViewObject,
@@ -5247,6 +5248,7 @@ def create_main_router(
     write_router.include_router(comments_write_router)
 
     read_router.include_router(create_sidebar_router(context=context))
+    read_router.include_router(create_item_page_router(context=context))
 
     folders_read_router, folders_write_router = create_folders_routers(
         context=context

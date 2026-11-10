@@ -42,6 +42,7 @@ ROUTE_ROLES: Dict[RouteKey, str] = {
         "GET /autocomplete/uid",
         "GET /autocomplete/field",
         "GET /UID/{uid_or_mid}",
+        "GET /item/{uid_or_mid}",
         "GET /fragments/document/{document_mid}/chunk",
         "GET /reqif/export_document/{document_mid}",
         "GET /reqif/export_tree",

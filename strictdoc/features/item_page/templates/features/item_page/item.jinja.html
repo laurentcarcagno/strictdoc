@@ -1,0 +1,104 @@
+{#
+  The page of one item: content, links by relation role, comments, history.
+  The content of the screen; _shared/app_screen.jinja.html frames it.
+#}
+<style>
+  .item_page__tabs { display: flex; gap: 16px; border-bottom: 1px solid #ccc; margin: 16px 0; }
+  .item_page__tab { padding: 8px 0; text-decoration: none; color: inherit; }
+  .item_page__tab[aria-current="page"] { font-weight: bold; border-bottom: 2px solid currentColor; }
+  .item_page__tab[aria-disabled="true"] { opacity: 0.5; cursor: not-allowed; }
+  .item_page__fields dt { font-weight: bold; margin-top: 12px; }
+  .item_page__fields dd { margin: 4px 0 0 0; }
+  .item_page__patch { white-space: pre-wrap; font-family: monospace; font-size: 12px; }
+</style>
+
+<p>
+  <a href="{{ document_link }}" data-testid="item-back-to-document">&larr; {{ _("Back to the document") }}: {{ document_title }}</a>
+</p>
+<h1 data-testid="item-title">
+  {{ uid }}{% if node.reserved_title %} &mdash; {{ node.reserved_title }}{% endif %}
+</h1>
+
+<nav class="item_page__tabs" data-testid="item-tabs">
+  {%- for tab_name, tab_label in (("content", _("Content")), ("links", _("Links")), ("comments", _("Comments")), ("history", _("History"))) %}
+    {%- if tab_name == "comments" and comments_reason != "" %}
+  <span class="item_page__tab" aria-disabled="true" title="{{ comments_reason }}" data-testid="item-tab-comments">{{ tab_label }}</span>
+    {%- else %}
+  <a class="item_page__tab" href="/item/{{ uid }}?tab={{ tab_name }}"
+     {% if tab == tab_name %}aria-current="page"{% endif %}
+     data-testid="item-tab-{{ tab_name }}">{{ tab_label }}
+     {%- if tab_name == "comments" and comments_reason == "" %} ({{ comments|length }}){% endif -%}
+  </a>
+    {%- endif %}
+  {%- endfor %}
+</nav>
+
+{%- if tab == "content" %}
+<dl class="item_page__fields" data-testid="item-content">
+  {%- for row in content %}
+  <dt>{{ row.title }}</dt>
+  <dd>{{ row.html }}</dd>
+  {%- endfor %}
+</dl>
+{%- elif tab == "links" %}
+<div data-testid="item-links">
+  {%- if groups|length == 0 %}
+  <p>{{ _("This item has no link.") }}</p>
+  {%- else %}
+  <p>
+    {{ _("Show:") }}
+    {% if selected_role == "" %}<strong>{{ _("all") }}</strong>{% else %}<a href="/item/{{ uid }}?tab=links">{{ _("all") }}</a>{% endif %}
+    {%- for group in groups %}
+    | {% if selected_role == group.key %}<strong>{{ group.role }}</strong>{% else %}<a href="/item/{{ uid }}?tab=links&amp;role={{ group.key|urlencode }}">{{ group.role }}</a>{% endif %}
+    {%- endfor %}
+  </p>
+  {%- for group in selected_groups %}
+  <h2 data-testid="item-link-group">
+    {% if group.direction == "parent" %}{{ _("Parents") }}{% else %}{{ _("Children") }}{% endif %}: {{ group.role }}
+  </h2>
+  <ul>
+    {%- for related in group.nodes %}
+    <li data-testid="item-link">
+      <a href="/item/{{ related.reserved_uid or related.reserved_mid.get_string_value() }}">{{ related.reserved_uid or related.reserved_mid.get_string_value() }}</a>
+      {{ related.reserved_title or "" }}
+    </li>
+    {%- endfor %}
+  </ul>
+  {%- endfor %}
+  {%- endif %}
+</div>
+{%- elif tab == "comments" %}
+<div data-testid="item-comments">
+  {%- if comments_reason != "" %}
+  <p>{{ comments_reason }}</p>
+  {%- elif comments|length == 0 %}
+  <p>{{ _("This item has no comment.") }}</p>
+  {%- else %}
+  {%- for comment in comments %}
+  <article class="{{ comment.status }}" data-testid="item-comment">
+    <p><strong>{{ comment.author_label }}</strong> &middot; {{ comment.date }} &middot; {{ comment.status }}</p>
+    <p>{{ comment.body }}</p>
+  </article>
+  {%- endfor %}
+  {%- endif %}
+  <p><a href="{{ document_link }}">{{ _("Write a comment in the document") }}</a></p>
+</div>
+{%- elif tab == "history" %}
+<div data-testid="item-history">
+  {%- if history.reason != "" %}
+  <p>{{ history.reason }}</p>
+  {%- elif history.revisions|length == 0 %}
+  <p>{{ _("No commit changed this item yet.") }}</p>
+  {%- else %}
+  {%- for revision in history.revisions %}
+  <details data-testid="item-revision">
+    <summary>
+      <code>{{ revision.commit }}</code> {{ revision.subject }}
+      &middot; {{ revision.author }} &middot; {{ revision.date }}
+    </summary>
+    <pre class="item_page__patch">{{ revision.patch }}</pre>
+  </details>
+  {%- endfor %}
+  {%- endif %}
+</div>
+{%- endif %}

@@ -16,7 +16,7 @@
     <tr><th>{{ _("Node") }}</th><th>{{ _("Title") }}</th><th>{{ _("Document") }}</th><th>{{ _("Status") }}</th><th>{{ _("Model") }}</th><th>{{ _("Accepted by") }}</th><th>{{ _("Date") }}</th></tr>
     {%- for row in rows %}
     <tr data-testid="llm-drafts-row">
-      <td><a href="/UID/{{ row.uid }}">{{ row.uid }}</a></td>
+      <td><a href="/item/{{ row.uid }}">{{ row.uid }}</a></td>
       <td>{{ row.title }}</td><td>{{ row.document }}</td><td>{{ row.status }}</td>
       <td>{{ row.provider }} / {{ row.model }}</td><td>{{ row.accepted_by }}</td><td>{{ row.date }}</td>
     </tr>

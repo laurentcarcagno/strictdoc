@@ -16,14 +16,14 @@
 <p>{{ count }} suspect link(s) in {{ groups|length }} parent(s).</p>
 {%- for group in groups %}
 <h2 data-testid="suspect-parent">
-  <a href="/UID/{{ group.parent.reserved_uid }}">{{ group.parent.reserved_uid }}</a>
+  <a href="/item/{{ group.parent.reserved_uid }}">{{ group.parent.reserved_uid }}</a>
   {{ group.parent.reserved_title or "" }}
 </h2>
 <table data-testid="suspect-table">
   <tr><th>{{ _("Child") }}</th><th>{{ _("Title") }}</th>{% if can_clear %}<th></th>{% endif %}</tr>
   {%- for child in group.children %}
   <tr data-testid="suspect-row">
-    <td><a href="/UID/{{ child.reserved_uid }}">{{ child.reserved_uid }}</a></td>
+    <td><a href="/item/{{ child.reserved_uid }}">{{ child.reserved_uid }}</a></td>
     <td>{{ child.reserved_title or "" }}</td>
     {%- if can_clear %}
     <td>

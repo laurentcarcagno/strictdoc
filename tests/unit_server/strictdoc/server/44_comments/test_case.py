@@ -273,7 +273,7 @@ def test_011_the_screen_lists_the_comments_with_a_state_filter(tmp_path):
     assert "First remark." in resolved and "Second remark." not in resolved
     everything = client.get("/comments?status=all", headers=READER).text
     assert everything.count('data-testid="comments-row"') == 3
-    assert "/UID/R-1" in everything
+    assert "/item/R-1" in everything
 
 
 def test_012_the_changes_are_in_the_audit_log(tmp_path):
