@@ -94,7 +94,8 @@
 
 {% block header_content %}
   {%- with
-      header__items=header_items
+      header__items=header_items,
+      header__context="components/header/document_context.jinja"
   -%}
     {% include "components/header/index.jinja" %}
   {%- endwith -%}

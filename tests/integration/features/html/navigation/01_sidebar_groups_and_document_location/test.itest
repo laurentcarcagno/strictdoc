@@ -1,0 +1,28 @@
+#
+# The sidebar of the static export shows its items in groups, and the page
+# header of a document says where the document is: the project, then its
+# folders. Without the GIT feature, the header shows no version.
+#
+# @relation(SDOC-SRS-208, SDOC-SRS-209, SDOC-SRS-210, scope=file)
+#
+
+RUN: %strictdoc export %S --output-dir %T | filecheck %s --dump-input=fail
+CHECK: Export completed.
+
+RUN: %cat "%T/html/01_sidebar_groups_and_document_location/specs/system/input.html" | filecheck %s --dump-input=fail --check-prefix CHECK-HTML
+CHECK-HTML: data-testid="nav-group-analysis"
+CHECK-HTML: Analysis
+CHECK-HTML: data-testid="project-tree-link-requirements-coverage"
+CHECK-HTML: data-testid="project-tree-link-tree-map"
+CHECK-HTML: Project map
+CHECK-HTML-NOT: data-testid="nav-group-versions"
+CHECK-HTML-NOT: data-testid="nav-group-administration"
+CHECK-HTML: data-testid="header-context"
+CHECK-HTML: id="header-project-name"
+CHECK-HTML-SAME: Navigation test
+CHECK-HTML: data-testid="header-breadcrumb-folder"
+CHECK-HTML-SAME: >specs<
+CHECK-HTML: data-testid="header-breadcrumb-folder"
+CHECK-HTML-SAME: >system<
+CHECK-HTML: System specification
+CHECK-HTML-NOT: data-testid="header-document-version"

@@ -11,13 +11,17 @@
   </div>
 
   <div class="header__body">
-    {# 0: shared by all screens #}
+    {# 0: the project, or where the screen is (header__context) #}
+    {%- if header__context is defined -%}
+    {% include header__context %}
+    {%- else -%}
     <div
       class="header__project_name"
       id="header-project-name"
       title="{{ view_object.project_config.project_title }}"
     >{{ view_object.project_config.project_title }}
     </div>
+    {%- endif -%}
 
     <div class="header__title">
       {# 1: blocks in header: #}

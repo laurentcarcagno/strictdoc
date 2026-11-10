@@ -832,6 +832,38 @@ html[data-nav="collapsed"] .nav__picker {
   overflow-y: auto;
 }
 
+/* Groups of items: an 11px uppercase label; a thin rule when collapsed. */
+
+.nav__group + .nav__group,
+.nav__items > .nav_button + .nav__group {
+  margin-top: var(--hem-space-sm);
+}
+
+.nav__group_label {
+  padding: var(--hem-space-sm) 20px 4px 21px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: var(--hem-track-eyebrow);
+  text-transform: uppercase;
+  color: rgb(252 253 254 / 50%);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+html[data-nav="collapsed"] .nav__group_label {
+  height: 0;
+  margin: var(--hem-space-sm) 12px;
+  padding: 0;
+  border-top: 1px solid rgb(252 253 254 / 18%);
+  font-size: 0;
+}
+
+/* All projects: below the groups, above the user. */
+.nav .nav__projects_item {
+  flex: 0 0 auto;
+}
+
 .nav_button {
   display: flex;
   align-items: center;
@@ -1326,6 +1358,59 @@ svg:hover .svg_icon_not_hover_visible {
   font-weight: 700;
   letter-spacing: var(--hem-track-eyebrow);
   text-transform: uppercase;
+  color: var(--hem-mute-ink);
+}
+
+/*
+  Where a document is: project › folder › folder, then its version, on the
+  eyebrow line (components/header/document_context.jinja).
+*/
+.header__context {
+  display: flex;
+  align-items: center;
+  column-gap: var(--hem-space-sm);
+  min-width: 0;
+}
+
+.header__breadcrumb {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--hem-size-label);
+  font-weight: 700;
+  letter-spacing: var(--hem-track-eyebrow);
+  text-transform: uppercase;
+  color: var(--hem-mute-ink);
+}
+
+.header__breadcrumb_item {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.header__breadcrumb_item + .header__breadcrumb_item::before {
+  content: "\203A";
+  padding: 0 6px;
+}
+
+.header__version {
+  flex: 0 0 auto;
+  padding: 0 6px;
+  border: 1px solid var(--hem-border);
+  background-color: var(--hem-white);
+  font-size: var(--hem-size-label);
+  font-weight: 700;
+  line-height: 18px;
+  color: var(--hem-sovereign);
+  white-space: nowrap;
+}
+
+.header__version--none {
+  font-weight: 500;
   color: var(--hem-mute-ink);
 }
 

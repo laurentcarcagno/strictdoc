@@ -1,0 +1,35 @@
+{#
+  Where the document is: the project, the folders of the document, and the
+  latest version tag of the repository that holds it (projects with the
+  GIT feature). It replaces the project eyebrow of the page header on the
+  screens of a document. The project name keeps its id and class: the
+  end-to-end tests click it to click outside an editor, so it is no link.
+#}
+<nav
+  class="header__context"
+  aria-label="{{ _("Location") }}"
+  data-testid="header-context"
+>
+  <ol class="header__breadcrumb">
+    <li class="header__breadcrumb_item">
+      <span class="header__project_name" id="header-project-name" title="{{ view_object.project_config.project_title }}">{{ view_object.project_config.project_title }}</span>
+    </li>
+    {%- for folder_ in view_object.get_document_folders() %}
+    <li class="header__breadcrumb_item" data-testid="header-breadcrumb-folder">{{ folder_ }}</li>
+    {%- endfor %}
+  </ol>
+  {%- if view_object.shows_document_version() %}
+    {%- set document_version = view_object.get_document_version() %}
+    <span
+      class="header__version{% if document_version is none %} header__version--none{% endif %}"
+      title="{{ _("Latest version tag of the repository that holds this document") }}"
+      data-testid="header-document-version"
+    >
+      {%- if document_version is not none -%}
+        {{ _("Version %(tag)s", tag=document_version) }}
+      {%- else -%}
+        {{ _("No version") }}
+      {%- endif -%}
+    </span>
+  {%- endif %}
+</nav>

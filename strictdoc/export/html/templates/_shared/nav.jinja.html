@@ -45,6 +45,12 @@
   {%- endif %}
 {%- endif %}
 
+  {#-
+    The items, in groups: what the project shows (Analysis), how it changed
+    (Versions), who works on it (Administration). A group without items is
+    not shown. The data-link values are the ones that element.css marks as
+    the current screen.
+  -#}
   <div class="nav__items">
 {%- if not view_object.project_config.is_running_on_server %}
   <a
@@ -59,17 +65,17 @@
   </a>
 {%- endif %}
 
-{%- set project_statistics_feature = view_object.project_config.get_feature("PROJECT_STATISTICS_SCREEN") -%}
-{%- if project_statistics_feature is not none -%}
+{%- set nav_group_analysis -%}
+{%- if view_object.project_config.is_activated_search() -%}
   <a
-    data-link="project_information"
+    data-link="search"
     class="nav_button"
-    href="{{ view_object.render_url('project_statistics.html') }}"
-    title="{{ _("Project statistics") }}"
-    data-testid="project-tree-link-project-statistics"
+    href="{{ view_object.render_url('search') }}"
+    title="{{ _("Search") }}"
+    data-testid="project-tree-link-search"
   >
-    {% include project_statistics_feature.screen_icon() %}
-    <span class="nav_button__label">{{ _("Project statistics") }}</span>
+    {% include "icons/ico16_search.svg" %}
+    <span class="nav_button__label">{{ _("Search") }}</span>
   </a>
 {%- endif -%}
 
@@ -99,33 +105,17 @@
   </a>
 {%- endif -%}
 
-{%- if view_object.project_config.is_activated_search() -%}
+{%- set project_statistics_feature = view_object.project_config.get_feature("PROJECT_STATISTICS_SCREEN") -%}
+{%- if project_statistics_feature is not none -%}
   <a
-    data-link="search"
+    data-link="project_information"
     class="nav_button"
-    href="{{ view_object.render_url('search') }}"
-    title="{{ _("Search") }}"
-    data-testid="project-tree-link-search"
+    href="{{ view_object.render_url('project_statistics.html') }}"
+    title="{{ _("Project statistics") }}"
+    data-testid="project-tree-link-project-statistics"
   >
-    {% include "icons/ico16_search.svg" %}
-    <span class="nav_button__label">{{ _("Search") }}</span>
-  </a>
-{%- endif -%}
-
-{%- if (view_object.project_config.is_running_on_server or view_object.project_config.diff_page)  and view_object.project_config.is_activated_diff() -%}
-  <a
-    data-link="diff"
-    class="nav_button"
-    {%- if view_object.project_config.is_running_on_server -%}
-    href="{{ view_object.render_url('diff') }}"
-    {%- else -%}
-    href="{{ view_object.render_url('diff.html') }}"
-    {%- endif -%}
-    title="{{ _("Diff") }}"
-    data-testid="project-tree-link-diff"
-  >
-    {% include "icons/ico16_diff.svg" %}
-    <span class="nav_button__label">{{ _("Diff") }}</span>
+    {% include project_statistics_feature.screen_icon() %}
+    <span class="nav_button__label">{{ _("Project statistics") }}</span>
   </a>
 {%- endif -%}
 
@@ -137,15 +127,36 @@
     data-link="tree-map"
     class="nav_button"
     href="{{ view_object.render_url('tree_map.html') }}"
-    title="{{ _("Tree map") }}"
+    title="{{ _("Project map") }}"
     data-testid="project-tree-link-tree-map"
   >
     {% include tree_map_feature.screen_icon() %}
-    <span class="nav_button__label">{{ _("Tree map") }}</span>
+    <span class="nav_button__label">{{ _("Project map") }}</span>
   </a>
 {%- endif -%}
+{%- endset -%}
 
-{#- A project of a registry (features/projects): its members, the portal. -#}
+{%- set nav_group_versions -%}
+{%- if (view_object.project_config.is_running_on_server or view_object.project_config.diff_page)  and view_object.project_config.is_activated_diff() -%}
+  <a
+    data-link="diff"
+    class="nav_button"
+    {%- if view_object.project_config.is_running_on_server -%}
+    href="{{ view_object.render_url('diff') }}"
+    {%- else -%}
+    href="{{ view_object.render_url('diff.html') }}"
+    {%- endif -%}
+    title="{{ _("Compare versions") }}"
+    data-testid="project-tree-link-diff"
+  >
+    {% include "icons/ico16_diff.svg" %}
+    <span class="nav_button__label">{{ _("Compare versions") }}</span>
+  </a>
+{%- endif -%}
+{%- endset -%}
+
+{#- A project of a registry (features/projects): its members. -#}
+{%- set nav_group_administration -%}
 {%- if view_object.project_config.is_running_on_server and view_object.project_config.members_admin is not none -%}
   <a
     data-link="members"
@@ -157,18 +168,41 @@
     <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 7a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5zM1.5 14c0-2.5 2-4.5 4.5-4.5s4.5 2 4.5 4.5M11 2.5a2.5 2.5 0 0 1 0 4.5M12.5 9.8c1.3.6 2 2 2 4.2" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
     <span class="nav_button__label">{{ _("Members") }}</span>
   </a>
+{%- endif -%}
+{%- endset -%}
+
+{%- for group_id_, group_label_, group_items_ in [
+      ("analysis", _("Analysis"), nav_group_analysis),
+      ("versions", _("Versions"), nav_group_versions),
+      ("administration", _("Administration"), nav_group_administration),
+    ] -%}
+  {%- if group_items_|trim|length > 0 %}
+  <div
+    class="nav__group"
+    role="group"
+    aria-labelledby="nav-group-{{ group_id_ }}"
+    data-testid="nav-group-{{ group_id_ }}"
+  >
+    <div class="nav__group_label" id="nav-group-{{ group_id_ }}">{{ group_label_ }}</div>
+    {{ group_items_ }}
+  </div>
+  {%- endif %}
+{%- endfor %}
+  </div>
+
+{#- The other projects of the user: the portal of the registry. -#}
+{%- if view_object.project_config.is_running_on_server and view_object.project_config.members_admin is not none %}
   <a
     data-link="projects"
-    class="nav_button"
+    class="nav_button nav__projects_item"
     href="/_projects"
-    title="{{ _("Projects") }}"
+    title="{{ _("All projects") }}"
     data-testid="nav-projects"
   >
     <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 3h5l1 2h6v8H2z" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
-    <span class="nav_button__label">{{ _("Projects") }}</span>
+    <span class="nav_button__label">{{ _("All projects") }}</span>
   </a>
-{%- endif -%}
-  </div>
+{%- endif %}
 
   {#- Filled by roles/role_gating.js behind the login proxy. -#}
   <div class="nav__user" id="nav-user" hidden></div>

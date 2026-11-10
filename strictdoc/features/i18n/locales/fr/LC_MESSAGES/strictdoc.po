@@ -2606,3 +2606,44 @@ msgstr "Le serveur ne répond pas."
 
 msgid "The merge is committed."
 msgstr "La fusion est enregistrée."
+
+#: strictdoc/export/html/templates/_shared/nav.jinja.html
+msgid "Analysis"
+msgstr "Analyse"
+
+#: strictdoc/export/html/templates/_shared/nav.jinja.html
+msgid "Versions"
+msgstr "Versions"
+
+#: strictdoc/export/html/templates/_shared/nav.jinja.html
+msgid "Administration"
+msgstr "Administration"
+
+#: strictdoc/export/html/templates/_shared/nav.jinja.html
+msgid "Compare versions"
+msgstr "Comparer les versions"
+
+#: strictdoc/export/html/templates/_shared/nav.jinja.html
+msgid "Project map"
+msgstr "Carte du projet"
+
+#: strictdoc/export/html/templates/_shared/nav.jinja.html
+msgid "All projects"
+msgstr "Tous les projets"
+
+#: strictdoc/export/html/templates/components/header/document_context.jinja
+msgid "Location"
+msgstr "Emplacement"
+
+#: strictdoc/export/html/templates/components/header/document_context.jinja
+#, python-format
+msgid "Version %(tag)s"
+msgstr "Version %(tag)s"
+
+#: strictdoc/export/html/templates/components/header/document_context.jinja
+msgid "No version"
+msgstr "Aucune version"
+
+#: strictdoc/export/html/templates/components/header/document_context.jinja
+msgid "Latest version tag of the repository that holds this document"
+msgstr "Dernière version taguée du dépôt qui contient ce document"

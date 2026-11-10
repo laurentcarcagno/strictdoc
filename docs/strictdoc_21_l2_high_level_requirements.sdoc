@@ -941,6 +941,67 @@ RELATIONS:
 [[/SECTION]]
 
 [[SECTION]]
+MID: 9051dac14e9c4080ad433c5c102126b2
+UID: SECTION-SRS-Navigation
+TITLE: Navigation
+
+[REQUIREMENT]
+MID: f37c01700de3410793f418281988d388
+UID: SDOC-SRS-208
+STATUS: Active
+TITLE: Sidebar groups
+STATEMENT: >>>
+StrictDoc's sidebar shall group the links to the screens of a project by
+purpose: analysis, versions and administration. A group without links shall
+not be shown.
+<<<
+RATIONALE: >>>
+A flat list of screens grows with every feature. Groups let a user find a
+screen by what it is for, and keep the administration apart from the daily
+work.
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: SDOC-SSS-91
+
+[REQUIREMENT]
+MID: a409ac97218d40dba56e61d83ed73e3d
+UID: SDOC-SRS-209
+STATUS: Active
+TITLE: Location of a document
+STATEMENT: >>>
+On every screen of a document, StrictDoc shall show the title of the project
+and the folders that hold the document, from the root of the document tree.
+<<<
+RATIONALE: >>>
+Two documents can have the same title in different folders. The location
+tells the user which one is open.
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: SDOC-SSS-91
+
+[REQUIREMENT]
+MID: ad80d79c75f04a64a60ce1ea2472b13f
+UID: SDOC-SRS-210
+STATUS: Active
+TITLE: Version of a document
+STATEMENT: >>>
+When the GIT feature is activated, StrictDoc shall show on every screen of a
+document the latest version tag of the Git repository that holds the
+document, or that the repository has no version tag.
+<<<
+RATIONALE: >>>
+A reader must know whether the text on the screen is a released version or
+work in progress.
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: SDOC-SSS-75
+
+[[/SECTION]]
+
+[[SECTION]]
 MID: 185cfc2d1ed4429ebaf0689f70a8cb0a
 UID: SECTION-SRS-Screen-Document-DOC
 TITLE: Screen: Document (DOC)

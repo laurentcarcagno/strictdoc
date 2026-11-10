@@ -68,6 +68,9 @@ from strictdoc.features.comments.service import (
     comments_of,
     supports_comments,
 )
+from strictdoc.features.git_config.document_version import (
+    latest_version_of_file,
+)
 from strictdoc.features.hierarchy.suspect import suspect_parents
 from strictdoc.features.html2pdf.changes import changed_nodes_since_last_tag
 from strictdoc.features.reviewers.reviewers import document_reviewers
@@ -174,6 +177,9 @@ class DocumentScreenViewObject:
         self.strictdoc_version = __version__
         self._chunked_rendering: Optional[bool] = None
         self._chunk_index_by_mid: Optional[Dict[str, int]] = None
+        # The version of the page header (get_document_version).
+        self._document_version_read: bool = False
+        self._document_version: Optional[str] = None
 
         self._table_content_cache: Optional[
             Tuple[
@@ -595,6 +601,43 @@ class DocumentScreenViewObject:
 
     def get_page_title(self) -> str:
         return self.document_type.get_page_title()
+
+    def get_document_folders(self) -> List[str]:
+        """
+        The folders of the document, from the root of its document tree,
+        for the location in the page header.
+
+        @relation(SDOC-SRS-209, scope=function)
+        """
+        meta = self.document.meta
+        if meta is None:
+            return []
+        folder_path = meta.input_doc_dir_rel_path.relative_path_posix
+        return [part_ for part_ in folder_path.split("/") if len(part_) > 0]
+
+    def shows_document_version(self) -> bool:
+        """
+        The page header shows a version: the project uses git.
+
+        @relation(SDOC-SRS-210, scope=function)
+        """
+        return self.project_config.is_activated_git()
+
+    def get_document_version(self) -> Optional[str]:
+        """
+        The latest version tag of the repository of the document, or None
+        if there is none. Read once per page.
+
+        @relation(SDOC-SRS-210, scope=function)
+        """
+        if not self._document_version_read:
+            self._document_version_read = True
+            meta = self.document.meta
+            if meta is not None:
+                self._document_version = latest_version_of_file(
+                    meta.input_doc_full_path
+                )
+        return self._document_version
 
     def get_document_level(self) -> int:
         assert self.document.meta is not None

@@ -1,0 +1,7 @@
+[DOCUMENT]
+TITLE: System specification
+
+[REQUIREMENT]
+UID: REQ-1
+TITLE: Braking
+STATEMENT: The system shall brake.

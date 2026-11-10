@@ -73,6 +73,7 @@ html[data-role="author"] [data-requires-role="administrator"] {
 }
 
 /* The members of a project: only its administrators manage them. */
-html:not([data-role="administrator"]) .nav [data-testid="nav-members"] {
+html:not([data-role="administrator"]) .nav [data-testid="nav-members"],
+html:not([data-role="administrator"]) .nav [data-testid="nav-group-administration"] {
   display: none;
 }
