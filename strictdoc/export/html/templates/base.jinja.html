@@ -3,6 +3,7 @@
 <head>
   {% block head %}
   <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
   {#- The texts of the scripts (features/i18n): window.sdocT("Save"). -#}
   <script>
     window.SDOC_I18N = {{ sdoc_js_catalog()|tojson }};
@@ -48,6 +49,7 @@
   <link rel="stylesheet" href="{{ view_object.render_static_url('requirement__temporary.css') }}"/>
   <link rel="stylesheet" href="{{ view_object.render_static_url('autogen.css') }}"/>
   <link rel="stylesheet" href="{{ view_object.render_static_url('pygments.css') }}"/>
+  <link rel="stylesheet" href="{{ view_object.render_static_url('responsive.css') }}"/>
   {% endblock head_css %}
 
   {# Kept outside head_css so that a custom stylesheet always loads after
@@ -77,6 +79,18 @@
 </div>
 
   <div class="layout" id="layout">
+
+    {#- Opens and closes the menu on a narrow screen (mobile_nav.js). -#}
+    <button
+      type="button"
+      class="layout_menu_toggle"
+      id="layout-menu-toggle"
+      aria-controls="layout"
+      aria-expanded="false"
+      aria-label="{{ _("Menu") }}"
+      data-testid="layout-menu-toggle"
+      hidden
+    ><span class="layout_menu_toggle__bars" aria-hidden="true"></span></button>
 
     <nav class="layout_nav">
       {% block layout_nav %}
@@ -114,6 +128,7 @@
   <div id="modal"></div>
   <div id="confirm"></div>
   {% block scripts %}{% endblock scripts %}
+  <script src="{{ view_object.render_static_url('mobile_nav.js') }}"></script>
 
 </body>
 </html>

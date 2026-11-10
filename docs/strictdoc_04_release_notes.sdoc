@@ -88,6 +88,11 @@ that build the query, so that a query does not have to be written by hand.
 the versions of the document: its version tags with their dates, the items of
 the document as they were at a tag (read only), and the comparison of two tags,
 which lists the items that were added, removed or changed.
+
+7\) The web interface fits a phone. On a screen of 768 pixels or less, a
+button switches between the content of the screen and the menu (the
+sidebar, the tree and the table of contents). The screens that open in the
+frame of the project no longer scroll sideways.
 <<<
 
 [[/SECTION]]

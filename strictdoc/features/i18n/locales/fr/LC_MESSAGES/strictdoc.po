@@ -2860,3 +2860,15 @@ msgstr "Seuls les documents au format SDoc peuvent être affichés à une versio
 #: strictdoc/features/document_versions
 msgid "The document does not exist at this version."
 msgstr "Le document n'existe pas à cette version."
+
+#: strictdoc/export/html/_static/mobile_nav.js
+msgid "Open the menu"
+msgstr "Ouvrir le menu"
+
+#: strictdoc/export/html/_static/mobile_nav.js
+msgid "Close the menu"
+msgstr "Fermer le menu"
+
+#: strictdoc/export/html/templates/base.jinja.html
+msgid "Menu"
+msgstr "Menu"

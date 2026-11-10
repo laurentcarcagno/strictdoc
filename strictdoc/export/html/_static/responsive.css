@@ -1,0 +1,130 @@
+/*
+  The layout on a narrow screen (a phone). The page shows either the content
+  (the page header and the main area) or the menu (the sidebar, the tree and
+  the table of contents), one under the other. The button of the menu
+  (mobile_nav.js) switches between the two. Above the breakpoint, nothing here
+  applies: the grid of layout.css is the layout.
+*/
+
+.layout_menu_toggle {
+  position: fixed;
+  top: 14px;
+  right: 14px;
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid var(--hem-border);
+  background-color: var(--hem-white);
+  color: var(--hem-sovereign);
+  cursor: pointer;
+}
+
+.layout_menu_toggle[hidden] {
+  display: none;
+}
+
+.layout_menu_toggle__bars,
+.layout_menu_toggle__bars::before,
+.layout_menu_toggle__bars::after {
+  display: block;
+  width: 20px;
+  height: 2px;
+  background-color: currentcolor;
+}
+
+.layout_menu_toggle__bars {
+  position: relative;
+}
+
+.layout_menu_toggle__bars::before,
+.layout_menu_toggle__bars::after {
+  content: "";
+  position: absolute;
+  left: 0;
+}
+
+.layout_menu_toggle__bars::before {
+  top: -6px;
+}
+
+.layout_menu_toggle__bars::after {
+  top: 6px;
+}
+
+@media (max-width: 768px) {
+  .layout {
+    display: block;
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+  }
+
+  .layout_nav,
+  .layout_tree,
+  .layout_toc,
+  .layout_aside {
+    display: none;
+  }
+
+  .layout[data-menu="open"] .layout_nav,
+  .layout[data-menu="open"] .layout_tree,
+  .layout[data-menu="open"] .layout_toc {
+    display: block;
+  }
+
+  .layout[data-menu="open"] .layout_header,
+  .layout[data-menu="open"] .layout_main {
+    display: none;
+  }
+
+  .layout_nav .nav {
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+
+  .nav .nav_button {
+    min-height: 44px;
+  }
+
+  .nav__toggle {
+    display: none;
+  }
+
+  .layout_header .header {
+    flex-wrap: wrap;
+    padding-right: 72px;
+  }
+
+  .main {
+    height: auto;
+    overflow: visible;
+    scrollbar-gutter: auto;
+    padding: var(--hem-space-md);
+  }
+
+  .main::after {
+    left: 0;
+  }
+
+  .app_screen {
+    overflow-x: auto;
+    padding: var(--hem-space-md);
+  }
+
+  .app_screen table {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
+  .app_screen form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--hem-space-sm);
+  }
+}

@@ -1095,6 +1095,25 @@ RELATIONS:
 - TYPE: Parent
   VALUE: SDOC-SSS-91
 
+[REQUIREMENT]
+MID: 87f09186a8464886b41df190cb8bce04
+UID: SDOC-SRS-216
+STATUS: Active
+TITLE: Layout on a narrow screen
+STATEMENT: >>>
+While the width of the screen is 768 pixels or less, StrictDoc's web server
+shall show the content of a screen alone, with a button that switches to the
+sidebar and back. The screens that open in the frame of the project, and the
+project home, shall not scroll sideways.
+<<<
+RATIONALE: >>>
+A reviewer who opens an item from a phone has no room for a sidebar next to
+the text.
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: SDOC-SSS-91
+
 [[/SECTION]]
 
 [[SECTION]]
