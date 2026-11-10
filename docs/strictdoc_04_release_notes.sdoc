@@ -64,6 +64,21 @@ document, document repositories can be submodules of a project repository,
 versions are Git tags (``A1``, ``A2``, ``A``, ``B1``, ...), and a page lists the
 repositories to tag and push them. Uploaded images are committed with the
 document.
+
+2\) The sidebar of the web interface is grouped (Analysis, Review, Versions,
+Administration). The page header of a document shows where the document is
+(project and folders) and, with the ``GIT`` feature, the latest version tag of
+its repository.
+
+3\) The suspect links, document hierarchy, comments, configuration management
+and audit log screens open inside the frame of the project, with the sidebar
+and the page header. An action that the role does not allow is disabled and
+names the role it needs, instead of being hidden. The "baseline" of the suspect
+links is now called the "reviewed state".
+
+4\) Each item has a page at ``/item/<UID>`` with its content, its links grouped
+by relation role, its comments and its history in Git. A tab that the project
+cannot fill is disabled and says why.
 <<<
 
 [[/SECTION]]

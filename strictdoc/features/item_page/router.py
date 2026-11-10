@@ -1,8 +1,8 @@
 """
 The page of one item (a node of a document) at /item/{uid_or_mid}: its
 content, its links grouped by relation role, its comments and its history in
-Git. The link /UID/{uid_or_mid} stays what it was: a redirect to the node in
-its document.
+Git. /UID/{uid_or_mid} is the stable link that redirects to the node in its
+document; this page is the item itself.
 
 The role each route needs is in strictdoc/features/roles/route_roles.py.
 

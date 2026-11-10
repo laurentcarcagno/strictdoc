@@ -1049,8 +1049,8 @@ link back to the item in its document. A tab that the project cannot fill
 shall be disabled and say why.
 <<<
 RATIONALE: >>>
-A reader who follows a UID wants the item, its context and its past without
-scrolling through the whole document.
+A reader who follows a UID wants to see the item with its links and its
+history, without scrolling through the whole document.
 <<<
 RELATIONS:
 - TYPE: Parent

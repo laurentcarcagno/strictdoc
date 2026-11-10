@@ -2739,11 +2739,11 @@ msgstr "Enfants"
 
 #: strictdoc/features/item_page/templates/features/item_page/item.jinja.html
 msgid "This item has no link."
-msgstr "Cet élément n’a aucun lien."
+msgstr "Cet élément n'a aucun lien."
 
 #: strictdoc/features/item_page/templates/features/item_page/item.jinja.html
 msgid "This item has no comment."
-msgstr "Cet élément n’a aucun commentaire."
+msgstr "Cet élément n'a aucun commentaire."
 
 #: strictdoc/features/item_page/templates/features/item_page/item.jinja.html
 msgid "Write a comment in the document"
@@ -2751,15 +2751,15 @@ msgstr "Écrire un commentaire dans le document"
 
 #: strictdoc/features/item_page/templates/features/item_page/item.jinja.html
 msgid "No commit changed this item yet."
-msgstr "Aucun commit n’a encore modifié cet élément."
+msgstr "Aucun commit n'a encore modifié cet élément."
 
 #: strictdoc/features/item_page/router.py
 msgid "Configuration management is not activated, so the history is not recorded."
-msgstr "La gestion de configuration n’est pas activée : l’historique n’est pas enregistré."
+msgstr "La gestion de configuration n'est pas activée : l'historique n'est pas enregistré."
 
 #: strictdoc/features/item_page/templates/features/item_page/item.jinja.html
 msgid "The item has no UID in its file, so its lines cannot be followed."
-msgstr "L’élément n’a pas d’UID dans son fichier : on ne peut pas suivre ses lignes."
+msgstr "L'élément n'a pas d'UID dans son fichier : on ne peut pas suivre ses lignes."
 
 #: strictdoc/features/item_page/templates/features/item_page/item.jinja.html
 msgid "The comments are not activated."
@@ -2767,4 +2767,4 @@ msgstr "Les commentaires ne sont pas activés."
 
 #: strictdoc/features/item_page/templates/features/item_page/item.jinja.html
 msgid "This kind of item has no COMMENT field."
-msgstr "Ce type d’élément n’a pas de champ COMMENT."
+msgstr "Ce type d'élément n'a pas de champ COMMENT."
