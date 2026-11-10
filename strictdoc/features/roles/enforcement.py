@@ -8,8 +8,14 @@ nothing is refused.
 """
 
 import json
+from html import escape
 from typing import Any, Awaitable, Callable, Dict, Optional
 
+from strictdoc.core.project_config import ProjectConfig
+from strictdoc.export.html.generators.view_objects.app_screen_view_object import (
+    render_app_screen,
+)
+from strictdoc.export.html.html_templates import JinjaEnvironment
 from strictdoc.features.i18n.i18n import gettext
 from strictdoc.features.roles.middleware import AUTH_MODE_NONE
 from strictdoc.features.roles.principal import Principal
@@ -32,9 +38,17 @@ class RoleMiddleware:
         app: ASGIApp,
         *,
         auth_mode: str = AUTH_MODE_NONE,
+        project_config: Optional[ProjectConfig] = None,
+        env: Optional[Callable[[], JinjaEnvironment]] = None,
     ) -> None:
+        """
+        project_config, env: with them, a browser that is refused gets the
+        page in the frame of the project; without them, a bare page.
+        """
         self.app = app
         self.auth_mode = auth_mode
+        self.project_config = project_config
+        self.env = env
 
     async def __call__(
         self, scope: Scope, receive: Receive, send: Send
@@ -71,8 +85,8 @@ class RoleMiddleware:
                 return None
         return match_route_key(method, scope["path"])
 
-    @staticmethod
     async def _refuse(
+        self,
         scope: Scope,
         send: Send,
         principal: Principal,
@@ -98,11 +112,7 @@ class RoleMiddleware:
             for name_, value_ in scope.get("headers", [])
         )
         if accepts_html:
-            body = (
-                "<!DOCTYPE html><html><body><h1>403</h1><p>"
-                + detail
-                + "</p></body></html>"
-            ).encode("utf8")
+            body = self._refusal_page(detail).encode("utf8")
             content_type = b"text/html; charset=utf-8"
         else:
             body = json.dumps({"detail": detail}).encode("utf8")
@@ -118,3 +128,31 @@ class RoleMiddleware:
             }
         )
         await send({"type": "http.response.body", "body": body})
+
+    def _refusal_page(self, detail: str) -> str:
+        """
+        The page of a refused browser: in the frame of the project when the
+        templates are there, else a bare page (a refusal before the project
+        is ready, or a template that fails).
+
+        @relation(SDOC-SRS-212, scope=function)
+        """
+        if self.project_config is not None and self.env is not None:
+            try:
+                return str(
+                    render_app_screen(
+                        jinja_environment=self.env(),
+                        project_config=self.project_config,
+                        title=gettext("Access refused"),
+                        viewtype="refused",
+                        content_template="features/roles/refused.jinja.html",
+                        detail=detail,
+                    )
+                )
+            except Exception:  # noqa: BLE001
+                pass
+        return (
+            "<!DOCTYPE html><html><body><h1>403</h1><p>"
+            + escape(detail)
+            + "</p></body></html>"
+        )

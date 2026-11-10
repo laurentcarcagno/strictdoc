@@ -152,13 +152,40 @@ def test_007_pages_load_the_role_gating_only_behind_a_proxy(tmp_path):
         "/_static/roles/role_gating.js", headers=_headers("t-readers")
     )
     assert script.status_code == 200 and "/whoami" in script.text
+    # What the role cannot do is disabled with the reason, not hidden.
+    assert '[data-testid^="node-edit-action"]' in script.text
+    assert "Needs the author role" in script.text
     style = client.get(
         "/_static/roles/role_gating.css", headers=_headers("t-readers")
     )
-    assert 'html[data-role="reader"] [data-testid^="node-edit-action"]' in (
-        style.text
-    )
+    assert "[data-role-disabled]" in style.text
 
     open_client, _ = _setup(tmp_path / "open", "none")
     open_page = open_client.get("/input/document.html")
     assert "role_gating" not in open_page.text
+
+
+def test_the_audit_screen_is_in_the_frame_of_the_project(tmp_path):
+    """
+    @relation(SDOC-SRS-211, scope=function)
+    """
+    client, _ = _setup(tmp_path)
+    page = client.get("/audit", headers=_headers("t-admins")).text
+    assert 'data-viewtype="audit"' in page
+    assert 'data-testid="app-screen"' in page
+    assert 'data-testid="nav-audit"' in page
+
+
+def test_a_refused_page_is_in_the_frame_and_says_why(tmp_path):
+    """
+    @relation(SDOC-SRS-212, scope=function)
+    """
+    client, _ = _setup(tmp_path)
+    refused = client.get(
+        "/audit", headers={**_headers("t-authors"), "Accept": "text/html"}
+    )
+    assert refused.status_code == 403
+    assert 'data-viewtype="refused"' in refused.text
+    assert 'data-testid="refused-detail"' in refused.text
+    assert "administrator" in refused.text
+    assert 'data-testid="refused-back"' in refused.text

@@ -313,3 +313,14 @@ def test_the_page_has_the_comment_button_and_a_hidden_form(tmp_path):
         'class="sdoc-comment-add"' in page
         and "hidden" in page.split('class="sdoc-comment-add"')[1][:200]
     )
+
+
+def test_the_screen_is_in_the_frame_of_the_project(tmp_path):
+    """
+    @relation(SDOC-SRS-211, scope=function)
+    """
+    client, _ = _setup(tmp_path)
+    page = client.get("/comments", headers=READER).text
+    assert 'data-viewtype="comments"' in page
+    assert 'data-testid="app-screen"' in page
+    assert 'data-testid="nav-comments"' in page

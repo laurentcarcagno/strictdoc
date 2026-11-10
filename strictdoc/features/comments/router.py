@@ -12,13 +12,15 @@ from typing import List, Optional, Tuple
 
 from fastapi import APIRouter, Depends, Form, HTTPException, Request
 from fastapi.responses import HTMLResponse
-from markupsafe import Markup
 from starlette.responses import Response
 
 from strictdoc.backend.sdoc.models.document import SDocDocument
 from strictdoc.backend.sdoc.models.node import SDocNode
 from strictdoc.core.document_iterator import SDocDocumentIterator
 from strictdoc.export.html.document_type import DocumentType
+from strictdoc.export.html.generators.view_objects.app_screen_view_object import (
+    render_app_screen,
+)
 from strictdoc.export.html.renderers.link_renderer import LinkRenderer
 from strictdoc.export.html.renderers.markup_renderer import MarkupRenderer
 from strictdoc.features.comments.model import (
@@ -263,10 +265,14 @@ def create_comments_routers(
                             "comment": comment_,
                         }
                     )
-        output = Markup(
-            context.env()
-            .get_template("features/comments/screen.jinja.html")
-            .render(rows=rows, selected_status=status)
+        output = render_app_screen(
+            jinja_environment=context.env(),
+            project_config=context.project_config,
+            title=gettext("Comments"),
+            viewtype="comments",
+            content_template="features/comments/screen.jinja.html",
+            rows=rows,
+            selected_status=status,
         )
         return HTMLResponse(content=output, status_code=200)
 

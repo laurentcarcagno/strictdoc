@@ -75,3 +75,15 @@ def test_005_the_suspect_column_appears_with_the_option(tmp_path):
     assert (
         "<th>Suspect</th>" not in client.get("/hierarchy", headers=READER).text
     )
+
+
+def test_006_the_screen_is_in_the_frame_of_the_project(tmp_path):
+    """
+    @relation(SDOC-SRS-211, scope=function)
+    """
+    client, _ = setup(tmp_path)
+    page = client.get("/hierarchy", headers=READER).text
+    assert 'data-viewtype="hierarchy"' in page
+    assert 'data-testid="nav"' in page
+    assert 'data-testid="app-screen"' in page
+    assert 'data-testid="nav-hierarchy"' in page

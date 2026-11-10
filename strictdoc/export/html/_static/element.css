@@ -926,6 +926,11 @@ html[data-nav="collapsed"] .nav_button__label {
 [data-viewtype="coverage-tree"] .nav [data-link="source_coverage"],
 [data-viewtype="tree-map"] .nav [data-link="tree-map"],
 [data-viewtype="portal"] .nav [data-link="projects"],
+[data-viewtype="hierarchy"] .nav [data-link="hierarchy"],
+[data-viewtype="comments"] .nav [data-link="comments"],
+[data-viewtype="suspect-links"] .nav [data-link="suspect-links"],
+[data-viewtype="git"] .nav [data-link="git"],
+[data-viewtype="audit"] .nav [data-link="audit"],
 [data-viewtype="members"] .nav [data-link="members"] {
   color: var(--hem-white);
   background-color: rgb(0 110 177 / 18%);
@@ -942,6 +947,11 @@ html[data-nav="collapsed"] .nav_button__label {
 [data-viewtype="coverage-tree"] .nav [data-link="source_coverage"] svg,
 [data-viewtype="tree-map"] .nav [data-link="tree-map"] svg,
 [data-viewtype="portal"] .nav [data-link="projects"] svg,
+[data-viewtype="hierarchy"] .nav [data-link="hierarchy"] svg,
+[data-viewtype="comments"] .nav [data-link="comments"] svg,
+[data-viewtype="suspect-links"] .nav [data-link="suspect-links"] svg,
+[data-viewtype="git"] .nav [data-link="git"] svg,
+[data-viewtype="audit"] .nav [data-link="audit"] svg,
 [data-viewtype="members"] .nav [data-link="members"] svg {
   color: var(--hem-sky);
 }
@@ -1411,6 +1421,70 @@ svg:hover .svg_icon_not_hover_visible {
 
 .header__version--none {
   font-weight: 500;
+  color: var(--hem-mute-ink);
+}
+
+/*
+  A screen that a feature renders inside the frame of the project
+  (_shared/app_screen.jinja.html): its tables, forms and messages.
+*/
+.app_screen {
+  padding: var(--hem-space-lg);
+  color: var(--hem-ink);
+}
+
+.app_screen h2 {
+  margin: var(--hem-space-lg) 0 var(--hem-space-sm);
+  font-family: var(--hem-font-heading);
+  font-size: var(--hem-size-h3);
+  font-weight: 600;
+  color: var(--hem-sovereign);
+}
+
+.app_screen p {
+  margin: 0 0 var(--hem-space-md);
+}
+
+.app_screen table {
+  border-collapse: collapse;
+  margin-bottom: var(--hem-space-md);
+  background-color: var(--hem-white);
+}
+
+.app_screen th,
+.app_screen td {
+  padding: 6px 10px;
+  border: 1px solid var(--hem-border);
+  text-align: left;
+  vertical-align: top;
+}
+
+.app_screen th {
+  font-size: var(--hem-size-label);
+  font-weight: 700;
+  letter-spacing: var(--hem-track-eyebrow);
+  text-transform: uppercase;
+  color: var(--hem-mute-ink);
+  background-color: var(--hem-mist);
+}
+
+.app_screen td.num {
+  text-align: right;
+}
+
+.app_screen form {
+  display: inline;
+}
+
+.app_screen details {
+  margin: 4px 0;
+}
+
+.app_screen .error {
+  color: var(--hem-tricolor-red);
+}
+
+.app_screen tr.resolved {
   color: var(--hem-mute-ink);
 }
 

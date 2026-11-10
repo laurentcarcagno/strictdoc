@@ -12,9 +12,11 @@ from typing import Tuple
 
 from fastapi import APIRouter, Depends, Form, HTTPException, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
-from markupsafe import Markup
 from starlette.responses import Response
 
+from strictdoc.export.html.generators.view_objects.app_screen_view_object import (
+    render_app_screen,
+)
 from strictdoc.features.git_config.config import GitConfig
 from strictdoc.features.git_config.git_service import (
     Author,
@@ -68,19 +70,20 @@ def create_git_routers(
         committer = context.git_committer
         assert committer is not None
         principal = get_principal(request)
-        page = (
-            context.env()
-            .get_template("features/git_config/status.jinja.html")
-            .render(
-                repositories=service().describe_repositories(),
-                pending=committer.pending_paths,
-                warnings=committer.warnings,
-                last_error=committer.last_error,
-                message=message,
-                can_administrate=principal.role in (None, ROLE_ADMINISTRATOR),
-            )
+        page = render_app_screen(
+            jinja_environment=context.env(),
+            project_config=context.project_config,
+            title=gettext("Configuration management"),
+            viewtype="git",
+            content_template="features/git_config/status.jinja.html",
+            repositories=service().describe_repositories(),
+            pending=committer.pending_paths,
+            warnings=committer.warnings,
+            last_error=committer.last_error,
+            message=message,
+            can_administrate=principal.role in (None, ROLE_ADMINISTRATOR),
         )
-        return HTMLResponse(content=Markup(page), status_code=status)
+        return HTMLResponse(content=page, status_code=status)
 
     def wants_stream(request: Request) -> bool:
         """A form of a modal (Turbo) asks for a stream, a plain form a page."""

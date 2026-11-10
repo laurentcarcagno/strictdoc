@@ -1,0 +1,9 @@
+{#
+  A page that the role of the user does not allow (status 403): why, and
+  the way back. The content of the screen; _shared/app_screen.jinja.html
+  frames it.
+#}
+<p data-testid="refused-detail">{{ detail }}</p>
+<p>
+  <a class="action_button" href="/" data-testid="refused-back">{{ _("Back to the project") }}</a>
+</p>

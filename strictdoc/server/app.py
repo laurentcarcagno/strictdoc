@@ -16,6 +16,7 @@ from starlette.responses import Response
 
 from strictdoc import __version__
 from strictdoc.core.project_config import ProjectConfig
+from strictdoc.export.html.html_templates import JinjaEnvironment
 from strictdoc.features.projects.app import create_projects_app
 from strictdoc.features.projects.directory import directory_from_environment
 from strictdoc.features.projects.members_router import create_members_router
@@ -108,6 +109,11 @@ def create_app(*, project_config: ProjectConfig) -> FastAPI:
     )
     app = FastAPI(lifespan=lifespan, **documentation_urls)  # type: ignore[arg-type]
 
+    def project_env() -> JinjaEnvironment:
+        """The templates of the project (its context is set below)."""
+        project_context: ProjectContext = app.state.project_context
+        return project_context.env()
+
     origins = [
         "http://localhost",
         "http://localhost:8081",
@@ -145,6 +151,8 @@ def create_app(*, project_config: ProjectConfig) -> FastAPI:
     app.add_middleware(
         RoleMiddleware,
         auth_mode=project_config.auth_mode,
+        project_config=project_config,
+        env=project_env,
     )
     audit_log = (
         AuditLog(
@@ -170,7 +178,6 @@ def create_app(*, project_config: ProjectConfig) -> FastAPI:
 
     lock_manager = HierarchicalRWLockManager()
 
-    app.include_router(create_roles_router(project_config.auth_mode, audit_log))
     if project_config.members_admin is not None:
         app.include_router(
             create_members_router(
@@ -189,6 +196,13 @@ def create_app(*, project_config: ProjectConfig) -> FastAPI:
     context = ProjectContext.create(project_config)
     # The portal of a server with several projects reads it.
     app.state.project_context = context
+    app.include_router(
+        create_roles_router(
+            project_config=project_config,
+            env=context.env,
+            audit_log=audit_log,
+        )
+    )
     app.include_router(
         create_main_router(
             project_config=project_config,

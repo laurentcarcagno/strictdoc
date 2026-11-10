@@ -60,9 +60,9 @@ def test_001_the_routes_need_the_option(tmp_path):
 
 def test_002_without_a_baseline_nothing_is_checked(tmp_path):
     client, input_path = setup(tmp_path, suspect=True)
-    assert "No baseline yet" in _suspects(client)
+    assert "No reviewed state yet" in _suspects(client)
     _edit_statement(client, SYS_1, SYSTEM_DOC, "The system shall do A, better.")
-    assert "No baseline yet" in _suspects(client)
+    assert "No reviewed state yet" in _suspects(client)
     assert not (input_path / "trace_baseline.json").exists()
 
 
@@ -161,3 +161,14 @@ def test_010_a_removed_link_loses_its_entry(tmp_path):
     )
     assert response.status_code == 200, response.text
     assert "SW-1 < SYS-1" not in _baseline(input_path)
+
+
+def test_the_screen_is_in_the_frame_of_the_project(tmp_path):
+    """
+    @relation(SDOC-SRS-211, scope=function)
+    """
+    client, _ = setup(tmp_path, suspect=True)
+    page = _suspects(client)
+    assert 'data-viewtype="suspect-links"' in page
+    assert 'data-testid="app-screen"' in page
+    assert 'data-testid="nav-suspect-links"' in page

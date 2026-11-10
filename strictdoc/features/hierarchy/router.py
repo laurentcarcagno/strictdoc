@@ -12,12 +12,14 @@ from typing import Any, Callable, Dict, Iterator, List, Tuple
 
 from fastapi import APIRouter, Depends, Form, HTTPException, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
-from markupsafe import Markup
 from starlette.responses import Response
 
 from strictdoc.backend.sdoc.models.document import SDocDocument
 from strictdoc.backend.sdoc.models.node import SDocNode
 from strictdoc.core.project_config import ProjectConfig
+from strictdoc.export.html.generators.view_objects.app_screen_view_object import (
+    render_app_screen,
+)
 from strictdoc.features.hierarchy.resolve_action import (
     resolve_project_references,
 )
@@ -34,6 +36,7 @@ from strictdoc.features.hierarchy.suspect import (
     sync_new_links,
     uid_of,
 )
+from strictdoc.features.i18n.i18n import gettext
 from strictdoc.features.roles.roles import ROLE_AUTHOR, role_allows
 from strictdoc.features.roles.router import get_principal
 from strictdoc.helpers.exception import StrictDocException
@@ -123,16 +126,17 @@ def create_hierarchy_routers(
         for group in groups.values():
             group["children"].sort(key=lambda node_: node_.reserved_uid)
         role = get_principal(request).role
-        output = Markup(
-            env()
-            .get_template("features/hierarchy/suspect_links.jinja.html")
-            .render(
-                groups=[groups[key_] for key_ in sorted(groups)],
-                has_baseline=has_baseline,
-                can_clear=role_allows(role, ROLE_AUTHOR),
-                can_baseline=role == "administrator",
-                count=sum(len(g["children"]) for g in groups.values()),
-            )
+        output = render_app_screen(
+            jinja_environment=env(),
+            project_config=project_config,
+            title=gettext("Suspect links"),
+            viewtype="suspect-links",
+            content_template="features/hierarchy/suspect_links.jinja.html",
+            groups=[groups[key_] for key_ in sorted(groups)],
+            has_baseline=has_baseline,
+            can_clear=role_allows(role, ROLE_AUTHOR),
+            can_baseline=role == "administrator",
+            count=sum(len(g["children"]) for g in groups.values()),
         )
         return HTMLResponse(content=output, status_code=200)
 
@@ -184,10 +188,14 @@ def create_hierarchy_routers(
         stats = compute_hierarchy_stats(
             get_index(), project_config.hierarchy_levels, suspect_children
         )
-        output = Markup(
-            env()
-            .get_template("features/hierarchy/hierarchy.jinja.html")
-            .render(stats=stats, suspect_links=project_config.suspect_links)
+        output = render_app_screen(
+            jinja_environment=env(),
+            project_config=project_config,
+            title=gettext("Document hierarchy"),
+            viewtype="hierarchy",
+            content_template="features/hierarchy/hierarchy.jinja.html",
+            stats=stats,
+            suspect_links=project_config.suspect_links,
         )
         return HTMLResponse(content=output, status_code=200)
 

@@ -1,0 +1,43 @@
+{#
+  A server screen that a feature renders by itself (suspect links, document
+  hierarchy, comments, configuration management, audit log): the sidebar
+  and the page header of the project around the content of the feature.
+  The view object is AppScreenViewObject.
+#}
+{% extends "base.jinja.html" %}
+{% set template_type = view_object.title %}
+
+{% block head_scripts %}
+  {{ super() }}
+  <script type="module">
+    import hotwiredTurbo from "{{ view_object.render_static_url_with_prefix('turbo.min.js') }}";
+  </script>
+  <script src="{{ view_object.render_static_url('modal.js') }}"></script>
+  <script src="{{ view_object.render_static_url('action_button_guard.js') }}"></script>
+{% endblock head_scripts %}
+
+{% block title %}
+  {{ view_object.project_config.project_title }} - {{ template_type }}
+{% endblock title %}
+
+{% block viewtype %}{{ view_object.viewtype }}{% endblock viewtype %}
+
+{% block layout_nav %}
+  {% include "_shared/nav.jinja.html" %}
+{% endblock layout_nav %}
+
+{% block tree_content %}
+   {# NOTHING #}
+{% endblock tree_content %}
+
+{% block header_content %}
+  {%- with header__pagetype=template_type -%}
+    {% include "components/header/index.jinja" %}
+  {%- endwith -%}
+{% endblock header_content %}
+
+{% block main_content %}
+  <div class="app_screen" data-testid="app-screen">
+    {{ view_object.content }}
+  </div>
+{% endblock main_content %}

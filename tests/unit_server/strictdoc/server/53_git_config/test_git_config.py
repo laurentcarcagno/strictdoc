@@ -320,3 +320,16 @@ def test_015_the_modal_of_the_configuration_management(tmp_path: Path) -> None:
     # A reader sees the modal without the actions.
     reader = client.get("/actions/git/overview", headers=READER)
     assert "git-tag-draft" not in reader.text
+
+
+def test_the_screen_is_in_the_frame_of_the_project(tmp_path: Path) -> None:
+    """
+    @relation(SDOC-SRS-211, scope=function)
+    """
+    client = _client(tmp_path)
+    page = client.get("/git", headers=READER).text
+    assert 'data-viewtype="git"' in page
+    assert 'data-testid="app-screen"' in page
+    assert 'data-testid="nav-git"' in page
+    # The synchronization opens in the modal; there is no page /git/sync.
+    assert 'href="/actions/git/sync_dialog"' in page

@@ -1,37 +1,25 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8"/>
-  <title>{{ _("Comments") }}</title>
-  <style>
-    body { font-family: sans-serif; margin: 24px; }
-    table { border-collapse: collapse; }
-    th, td { border: 1px solid #ccc; padding: 4px 8px; vertical-align: top; text-align: left; }
-    .resolved { color: #666; }
-  </style>
-</head>
-<body>
-  <h1>{{ _("Comments") }}</h1>
-  <p>
-    Show:
-    {% for status in ("open", "resolved", "all") -%}
-      {%- if status == selected_status %}<strong>{{ status }}</strong>{% else %}<a href="/comments?status={{ status }}">{{ status }}</a>{% endif %}
-      {%- if not loop.last %} | {% endif %}
-    {%- endfor %}
-    &middot; {{ rows|length }} comment(s)
-  </p>
-  <table data-testid="comments-table">
-    <tr><th>{{ _("Document") }}</th><th>{{ _("Node") }}</th><th>{{ _("Author") }}</th><th>{{ _("Date") }}</th><th>{{ _("State") }}</th><th>{{ _("Comment") }}</th></tr>
-    {%- for row in rows %}
-    <tr class="{{ row.comment.status }}" data-testid="comments-row">
-      <td>{{ row.document }}</td>
-      <td><a href="/UID/{{ row.node_ref }}">{{ row.node_label }}</a></td>
-      <td>{{ row.comment.author_label }}</td>
-      <td>{{ row.comment.date }}</td>
-      <td>{{ row.comment.status }}</td>
-      <td>{{ row.comment.body }}</td>
-    </tr>
-    {%- endfor %}
-  </table>
-</body>
-</html>
+{#
+  The comments of the project, open, resolved or all. The content of the
+  screen; _shared/app_screen.jinja.html frames it.
+#}
+<p>
+  {{ _("Show:") }}
+  {% for status, label in (("open", _("open")), ("resolved", _("resolved")), ("all", _("all"))) -%}
+    {%- if status == selected_status %}<strong>{{ label }}</strong>{% else %}<a href="/comments?status={{ status }}">{{ label }}</a>{% endif %}
+    {%- if not loop.last %} | {% endif %}
+  {%- endfor %}
+  &middot; {{ rows|length }} comment(s)
+</p>
+<table data-testid="comments-table">
+  <tr><th>{{ _("Document") }}</th><th>{{ _("Node") }}</th><th>{{ _("Author") }}</th><th>{{ _("Date") }}</th><th>{{ _("State") }}</th><th>{{ _("Comment") }}</th></tr>
+  {%- for row in rows %}
+  <tr class="{{ row.comment.status }}" data-testid="comments-row">
+    <td>{{ row.document }}</td>
+    <td><a href="/UID/{{ row.node_ref }}">{{ row.node_label }}</a></td>
+    <td>{{ row.comment.author_label }}</td>
+    <td>{{ row.comment.date }}</td>
+    <td>{{ row.comment.status }}</td>
+    <td>{{ row.comment.body }}</td>
+  </tr>
+  {%- endfor %}
+</table>

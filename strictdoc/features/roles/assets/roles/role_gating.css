@@ -1,6 +1,7 @@
 /*
- * What a role cannot do is hidden. This is comfort only: the server refuses
- * the action whatever the page shows (strictdoc/features/roles/enforcement.py).
+ * What a role cannot do is disabled and says why (role_gating.js). This is
+ * comfort only: the server refuses the action whatever the page shows
+ * (strictdoc/features/roles/enforcement.py).
  * The attribute data-role of <html> is set by role_gating.js from /whoami.
  */
 
@@ -8,58 +9,18 @@ html[data-role="reader"] sdoc-ai-bar:not([data-scope="document"]) {
   display: none;
 }
 
-/* Needs the author role: hidden for the reader and the reviewer. */
-html[data-role="reader"] [data-testid="node-comment-action"]:not([data-can-comment]),
-html[data-role="reader"] [data-testid^="node-edit-action"],
-html[data-role="reader"] [data-testid^="node-delete-action"],
-html[data-role="reader"] [data-testid^="node-move-action"],
-html[data-role="reader"] [data-testid^="node-clone-action"],
-html[data-role="reader"] [data-testid^="node-add-"],
-html[data-role="reader"] [data-testid="tree-add-document-action"],
-html[data-role="reader"] [data-testid="tree-add-folder-action"],
-html[data-role="reader"] [data-testid="tree-import-docx-action"],
-html[data-role="reader"] [data-testid="table-toolbar-edit-btn"],
-html[data-role="reader"] .content-view__add_new_row-TR,
-html[data-role="reviewer"] [data-testid^="node-edit-action"],
-html[data-role="reviewer"] [data-testid^="node-delete-action"],
-html[data-role="reviewer"] [data-testid^="node-move-action"],
-html[data-role="reviewer"] [data-testid^="node-clone-action"],
-html[data-role="reviewer"] [data-testid^="node-add-"],
-html[data-role="reviewer"] [data-testid="tree-add-document-action"],
-html[data-role="reviewer"] [data-testid="tree-add-folder-action"],
-html[data-role="reviewer"] [data-testid="tree-import-docx-action"],
-html[data-role="reviewer"] [data-testid="table-toolbar-edit-btn"],
-html[data-role="reviewer"] .content-view__add_new_row-TR {
-  display: none !important;
+/*
+  What the role cannot do stays visible, dimmed: role_gating.js marks it
+  with data-role-disabled, says in its title which role it needs and
+  ignores a click on it.
+*/
+[data-role-disabled] {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
-/* Needs the administrator role: hidden for everybody below. */
-html[data-role="reader"] [data-testid^="document-edit-config-action"],
-html[data-role="reader"] [data-testid="document-edit-grammar-action"],
-html[data-role="reader"] [data-testid="document-delete-action"],
-html[data-role="reader"] [data-testid="project-edit-title-action"],
-html[data-role="reader"] [data-testid="tree-import-reqif-action"],
-html[data-role="reviewer"] [data-testid^="document-edit-config-action"],
-html[data-role="reviewer"] [data-testid="document-edit-grammar-action"],
-html[data-role="reviewer"] [data-testid="document-delete-action"],
-html[data-role="reviewer"] [data-testid="project-edit-title-action"],
-html[data-role="reviewer"] [data-testid="tree-import-reqif-action"],
-html[data-role="author"] [data-testid^="document-edit-config-action"],
-html[data-role="author"] [data-testid="document-edit-grammar-action"],
-html[data-role="author"] [data-testid="document-delete-action"],
-html[data-role="author"] [data-testid="project-edit-title-action"],
-html[data-role="author"] [data-testid="tree-import-reqif-action"] {
-  display: none !important;
-}
-
-/* New controls name the role they need. */
-html[data-role="reader"] [data-requires-role="reviewer"],
-html[data-role="reader"] [data-requires-role="author"],
-html[data-role="reader"] [data-requires-role="administrator"],
-html[data-role="reviewer"] [data-requires-role="author"],
-html[data-role="reviewer"] [data-requires-role="administrator"],
-html[data-role="author"] [data-requires-role="administrator"] {
-  display: none !important;
+[data-role-disabled] * {
+  cursor: not-allowed;
 }
 
 .sdoc-user-badge {

@@ -46,8 +46,9 @@
 {%- endif %}
 
   {#-
-    The items, in groups: what the project shows (Analysis), how it changed
-    (Versions), who works on it (Administration). A group without items is
+    The items, in groups: what the project shows (Analysis), what waits for
+    a review (Review), how it changed (Versions), who works on it
+    (Administration). A group without items is
     not shown. The data-link values are the ones that element.css marks as
     the current screen.
   -#}
@@ -89,6 +90,19 @@
   >
     {% include "icons/ico16_requirement.svg" %}
     <span class="nav_button__label">{{ _("Traceability matrix") }}</span>
+  </a>
+{%- endif -%}
+
+{%- if view_object.project_config.is_running_on_server and view_object.project_config.document_hierarchy|length > 0 -%}
+  <a
+    data-link="hierarchy"
+    class="nav_button"
+    href="/hierarchy"
+    title="{{ _("Document hierarchy") }}"
+    data-testid="nav-hierarchy"
+  >
+    {% include "icons/ico16_tree.svg" %}
+    <span class="nav_button__label">{{ _("Document hierarchy") }}</span>
   </a>
 {%- endif -%}
 
@@ -136,6 +150,34 @@
 {%- endif -%}
 {%- endset -%}
 
+{%- set nav_group_review -%}
+{%- if view_object.project_config.is_running_on_server and view_object.project_config.is_activated_comments() -%}
+  <a
+    data-link="comments"
+    class="nav_button"
+    href="/comments"
+    title="{{ _("Comments") }}"
+    data-testid="nav-comments"
+  >
+    {% include "icons/ico16_comment.svg" %}
+    <span class="nav_button__label">{{ _("Comments") }}</span>
+  </a>
+{%- endif -%}
+
+{%- if view_object.project_config.is_running_on_server and view_object.project_config.suspect_links -%}
+  <a
+    data-link="suspect-links"
+    class="nav_button"
+    href="/suspect_links"
+    title="{{ _("Suspect links") }}"
+    data-testid="nav-suspect-links"
+  >
+    {% include "icons/ico16_link.svg" %}
+    <span class="nav_button__label">{{ _("Suspect links") }}</span>
+  </a>
+{%- endif -%}
+{%- endset -%}
+
 {%- set nav_group_versions -%}
 {%- if (view_object.project_config.is_running_on_server or view_object.project_config.diff_page)  and view_object.project_config.is_activated_diff() -%}
   <a
@@ -151,6 +193,19 @@
   >
     {% include "icons/ico16_diff.svg" %}
     <span class="nav_button__label">{{ _("Compare versions") }}</span>
+  </a>
+{%- endif -%}
+
+{%- if view_object.project_config.is_running_on_server and view_object.project_config.is_activated_git() -%}
+  <a
+    data-link="git"
+    class="nav_button"
+    href="/git"
+    title="{{ _("Configuration management") }}"
+    data-testid="nav-git"
+  >
+    {% include "icons/ico16_sync.svg" %}
+    <span class="nav_button__label">{{ _("Configuration management") }}</span>
   </a>
 {%- endif -%}
 {%- endset -%}
@@ -169,10 +224,24 @@
     <span class="nav_button__label">{{ _("Members") }}</span>
   </a>
 {%- endif -%}
+
+{%- if view_object.project_config.is_running_on_server and view_object.project_config.auth_mode == "proxy" -%}
+  <a
+    data-link="audit"
+    class="nav_button"
+    href="/audit"
+    title="{{ _("Audit log") }}"
+    data-testid="nav-audit"
+  >
+    {% include "icons/ico16_list.svg" %}
+    <span class="nav_button__label">{{ _("Audit log") }}</span>
+  </a>
+{%- endif -%}
 {%- endset -%}
 
 {%- for group_id_, group_label_, group_items_ in [
       ("analysis", _("Analysis"), nav_group_analysis),
+      ("review", _("Review"), nav_group_review),
       ("versions", _("Versions"), nav_group_versions),
       ("administration", _("Administration"), nav_group_administration),
     ] -%}

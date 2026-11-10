@@ -952,8 +952,8 @@ STATUS: Active
 TITLE: Sidebar groups
 STATEMENT: >>>
 StrictDoc's sidebar shall group the links to the screens of a project by
-purpose: analysis, versions and administration. A group without links shall
-not be shown.
+purpose: analysis, review, versions and administration. A group without
+links shall not be shown.
 <<<
 RATIONALE: >>>
 A flat list of screens grows with every feature. Groups let a user find a
@@ -998,6 +998,44 @@ work in progress.
 RELATIONS:
 - TYPE: Parent
   VALUE: SDOC-SSS-75
+
+[REQUIREMENT]
+MID: 6e19316108704fb6aaf551eec43c15f9
+UID: SDOC-SRS-211
+STATUS: Active
+TITLE: Screens in the frame of the project
+STATEMENT: >>>
+StrictDoc's web server shall show every screen of a project with the
+sidebar and the page header of the project, and the sidebar shall link to
+every screen that the project activates.
+<<<
+RATIONALE: >>>
+A screen without the sidebar leaves the user with no way back and no sign
+of the project they are in. A screen that no link reaches is only found by
+those who know its address.
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: SDOC-SSS-91
+
+[REQUIREMENT]
+MID: ac0078efef484878a1934a0c019263d7
+UID: SDOC-SRS-212
+STATUS: Active
+TITLE: Actions that the role does not allow
+STATEMENT: >>>
+StrictDoc's web server shall show an action that the role of the user does
+not allow as disabled, with the role that the action needs, and shall do
+nothing when the user activates it. A screen that the role does not allow
+shall say why and link back to the project, in the frame of the project.
+<<<
+RATIONALE: >>>
+A hidden action tells the user nothing: they do not know that it exists,
+nor whom to ask. A disabled action with its reason does.
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: SDOC-SSS-80
 
 [[/SECTION]]
 

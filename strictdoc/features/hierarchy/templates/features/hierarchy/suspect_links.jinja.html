@@ -1,53 +1,41 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8"/>
-  <title>{{ _("Suspect links") }}</title>
-  <style>
-    body { font-family: sans-serif; margin: 24px; }
-    table { border-collapse: collapse; margin-bottom: 16px; }
-    th, td { border: 1px solid #ccc; padding: 4px 8px; vertical-align: top; text-align: left; }
-    form { display: inline; }
-  </style>
-</head>
-<body>
-  <h1>{{ _("Suspect links") }}</h1>
-  {%- if not has_baseline %}
-  <p data-testid="suspect-no-baseline">
-    No baseline yet: no link is checked. The baseline records the state of every
-    parent as it is now.
-    {%- if can_baseline %}
-    <form action="/actions/suspect/baseline" method="POST">
-      <button type="submit" data-testid="suspect-create-baseline">{{ _("Create the baseline") }}</button>
-    </form>
+{#
+  The suspect links: a parent changed after someone reviewed the link of a
+  child to it. The content of the screen; _shared/app_screen.jinja.html
+  frames it.
+#}
+{%- if not has_baseline %}
+<p data-testid="suspect-no-baseline">
+  {{ _("No reviewed state yet: no link is checked. Recording it saves the state of every parent as it is now.") }}
+</p>
+{%- if can_baseline %}
+<form action="/actions/suspect/baseline" method="POST">
+  <button type="submit" class="action_button" data-testid="suspect-create-baseline">{{ _("Record the reviewed state") }}</button>
+</form>
+{%- endif %}
+{%- else %}
+<p>{{ count }} suspect link(s) in {{ groups|length }} parent(s).</p>
+{%- for group in groups %}
+<h2 data-testid="suspect-parent">
+  <a href="/UID/{{ group.parent.reserved_uid }}">{{ group.parent.reserved_uid }}</a>
+  {{ group.parent.reserved_title or "" }}
+</h2>
+<table data-testid="suspect-table">
+  <tr><th>{{ _("Child") }}</th><th>{{ _("Title") }}</th>{% if can_clear %}<th></th>{% endif %}</tr>
+  {%- for child in group.children %}
+  <tr data-testid="suspect-row">
+    <td><a href="/UID/{{ child.reserved_uid }}">{{ child.reserved_uid }}</a></td>
+    <td>{{ child.reserved_title or "" }}</td>
+    {%- if can_clear %}
+    <td>
+      <form action="/actions/suspect/clear" method="POST">
+        <input type="hidden" name="child_uid" value="{{ child.reserved_uid }}"/>
+        <input type="hidden" name="parent_uid" value="{{ group.parent.reserved_uid }}"/>
+        <button type="submit" class="action_button" data-testid="suspect-clear">{{ _("Reviewed") }}</button>
+      </form>
+    </td>
     {%- endif %}
-  </p>
-  {%- else %}
-  <p>{{ count }} suspect link(s) in {{ groups|length }} parent(s).</p>
-  {%- for group in groups %}
-  <h2 data-testid="suspect-parent">
-    <a href="/UID/{{ group.parent.reserved_uid }}">{{ group.parent.reserved_uid }}</a>
-    {{ group.parent.reserved_title or "" }}
-  </h2>
-  <table data-testid="suspect-table">
-    <tr><th>{{ _("Child") }}</th><th>{{ _("Title") }}</th>{% if can_clear %}<th></th>{% endif %}</tr>
-    {%- for child in group.children %}
-    <tr data-testid="suspect-row">
-      <td><a href="/UID/{{ child.reserved_uid }}">{{ child.reserved_uid }}</a></td>
-      <td>{{ child.reserved_title or "" }}</td>
-      {%- if can_clear %}
-      <td>
-        <form action="/actions/suspect/clear" method="POST">
-          <input type="hidden" name="child_uid" value="{{ child.reserved_uid }}"/>
-          <input type="hidden" name="parent_uid" value="{{ group.parent.reserved_uid }}"/>
-          <button type="submit" data-testid="suspect-clear">{{ _("Reviewed") }}</button>
-        </form>
-      </td>
-      {%- endif %}
-    </tr>
-    {%- endfor %}
-  </table>
+  </tr>
   {%- endfor %}
-  {%- endif %}
-</body>
-</html>
+</table>
+{%- endfor %}
+{%- endif %}

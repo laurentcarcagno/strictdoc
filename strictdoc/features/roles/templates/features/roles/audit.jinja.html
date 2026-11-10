@@ -1,0 +1,15 @@
+{#
+  The audit log: the last changes, newest first. The content of the
+  screen; _shared/app_screen.jinja.html frames it.
+#}
+{%- if not has_log %}
+<p data-testid="audit-no-log">{{ _("The audit log is written only behind a login proxy (auth_mode proxy).") }}</p>
+{%- else %}
+<p>{{ _("The last 200 changes, newest first.") }}</p>
+<table data-testid="audit-table">
+  <tr>{% for column_ in columns %}<th>{{ column_ }}</th>{% endfor %}</tr>
+  {%- for entry_ in entries %}
+  <tr data-testid="audit-row">{% for column_ in columns %}<td>{{ entry_.get(column_) or "" }}</td>{% endfor %}</tr>
+  {%- endfor %}
+</table>
+{%- endif %}

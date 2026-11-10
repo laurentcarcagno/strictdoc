@@ -472,10 +472,6 @@ msgstr "Contexte envoyé"
 msgid "Coverage"
 msgstr "Couverture"
 
-#: strictdoc/features/hierarchy/templates/features/hierarchy/suspect_links.jinja.html:21
-msgid "Create the baseline"
-msgstr "Créer la référence"
-
 #: strictdoc/features/projects/templates/portal.jinja.html:98
 msgid "Create the project"
 msgstr "Créer le projet"
@@ -2647,3 +2643,72 @@ msgstr "Aucune version"
 #: strictdoc/export/html/templates/components/header/document_context.jinja
 msgid "Latest version tag of the repository that holds this document"
 msgstr "Dernière version taguée du dépôt qui contient ce document"
+
+#: strictdoc/export/html/templates/_shared/nav.jinja.html
+msgid "Review"
+msgstr "Relecture"
+
+#: strictdoc/export/html/templates/_shared/nav.jinja.html
+#: strictdoc/features/roles/router.py
+msgid "Audit log"
+msgstr "Journal d'audit"
+
+#: strictdoc/features/hierarchy/templates/features/hierarchy/suspect_links.jinja.html
+msgid "No reviewed state yet: no link is checked. Recording it saves the state of every parent as it is now."
+msgstr "Aucun état revu : aucun lien n'est vérifié. L'enregistrer fige l'état actuel de chaque parent."
+
+#: strictdoc/features/hierarchy/templates/features/hierarchy/suspect_links.jinja.html
+msgid "Record the reviewed state"
+msgstr "Enregistrer l'état revu"
+
+#: strictdoc/features/hierarchy/templates/features/hierarchy/hierarchy.jinja.html
+msgid "Documents without a known kind:"
+msgstr "Documents sans nature connue :"
+
+#: strictdoc/features/comments/templates/features/comments/screen.jinja.html
+msgid "Show:"
+msgstr "Afficher :"
+
+#: strictdoc/features/comments/templates/features/comments/screen.jinja.html
+msgid "open"
+msgstr "ouverts"
+
+#: strictdoc/features/comments/templates/features/comments/screen.jinja.html
+msgid "resolved"
+msgstr "résolus"
+
+#: strictdoc/features/comments/templates/features/comments/screen.jinja.html
+msgid "all"
+msgstr "tous"
+
+#: strictdoc/features/roles/templates/features/roles/audit.jinja.html
+msgid "The audit log is written only behind a login proxy (auth_mode proxy)."
+msgstr "Le journal d'audit n'est écrit que derrière un proxy d'authentification (auth_mode proxy)."
+
+#: strictdoc/features/roles/templates/features/roles/audit.jinja.html
+msgid "The last 200 changes, newest first."
+msgstr "Les 200 dernières modifications, de la plus récente à la plus ancienne."
+
+#: strictdoc/features/roles/assets/roles/role_gating.js
+msgid "Needs the reviewer role"
+msgstr "Rôle relecteur requis"
+
+#: strictdoc/features/roles/assets/roles/role_gating.js
+msgid "Needs the author role"
+msgstr "Rôle auteur requis"
+
+#: strictdoc/features/roles/assets/roles/role_gating.js
+msgid "Needs the administrator role"
+msgstr "Rôle administrateur requis"
+
+#: strictdoc/features/roles/assets/roles/role_gating.js
+msgid "Only the reviewers of this document can comment"
+msgstr "Seuls les relecteurs de ce document peuvent commenter"
+
+#: strictdoc/features/roles/enforcement.py
+msgid "Access refused"
+msgstr "Accès refusé"
+
+#: strictdoc/features/roles/templates/features/roles/refused.jinja.html
+msgid "Back to the project"
+msgstr "Retour au projet"
