@@ -175,6 +175,12 @@ from strictdoc.features.reviewers.reviewers import (
     unknown_reviewers,
 )
 from strictdoc.features.reviewers.router import create_reviewers_routers
+from strictdoc.features.search.facets import (
+    SearchFacets,
+    build_facet_query,
+    collect_statuses,
+    find_item_by_exact_uid,
+)
 from strictdoc.features.search.view_object import (
     SearchScreenViewObject,
 )
@@ -4832,7 +4838,12 @@ def create_main_router(
         )
 
     @read_router.get("/search", response_class=Response)
-    def get_search(q: Optional[str] = None) -> Response:
+    def get_search(
+        q: Optional[str] = None,
+        kind: str = "",
+        status: str = "",
+        links: str = "",
+    ) -> Response:
         if not project_config.is_activated_search():
             return Response(
                 content=gettext(
@@ -4843,11 +4854,22 @@ def create_main_router(
         search_results = []
         error = None
         node_query = None
+        facet_query = None
         plain_text_query_phrase = None
         plain_text_query_pattern = None
+        facets = SearchFacets(kind=kind, status=status, links=links)
 
         if q is not None and len(q) > 0:
             normalized_query = q.strip()
+            if not search_query_contains_markers(normalized_query):
+                item = find_item_by_exact_uid(
+                    export_action.traceability_index, normalized_query
+                )
+                if item is not None:
+                    return RedirectResponse(
+                        url="/item/" + quote(str(item.reserved_uid), safe=""),
+                        status_code=302,
+                    )
             if len(normalized_query) > 0:
                 if search_query_contains_markers(normalized_query):
                     try:
@@ -4863,11 +4885,19 @@ def create_main_router(
                         plain_text_query_pattern,
                     ) = parse_plain_text_search_query(normalized_query)
 
-        if (
+        facet_query_text = build_facet_query(facets)
+        if len(facet_query_text) > 0 and error is None:
+            facet_query = QueryObject(
+                QueryReader.read(facet_query_text),
+                export_action.traceability_index,
+            )
+        has_text_query = (
             node_query is not None
             or plain_text_query_phrase is not None
             or plain_text_query_pattern is not None
-        ):
+        )
+
+        if has_text_query or facet_query is not None:
             result: List[SDocExtendedElementIF] = []
             try:
                 document_tree = assert_cast(
@@ -4882,10 +4912,16 @@ def create_main_router(
                     for node, _ in document_iterator.all_content(
                         print_fragments=False
                     ):
-                        if (
-                            node_query is not None and node_query.evaluate(node)
-                        ) or (
-                            search_node_matches_plain_text_query(
+                        if facet_query is not None and not (
+                            facet_query.evaluate(node)
+                        ):
+                            continue
+                        if not has_text_query or (
+                            (
+                                node_query is not None
+                                and node_query.evaluate(node)
+                            )
+                            or search_node_matches_plain_text_query(
                                 node,
                                 phrase=plain_text_query_phrase,
                                 pattern=plain_text_query_pattern,
@@ -4901,11 +4937,16 @@ def create_main_router(
                         source_file_info_: SourceFileTraceabilityInfo = export_action.traceability_index.get_file_traceability_index().get_coverage_info(
                             source_file_.in_doctree_source_file_rel_path_posix
                         )
-                        if (
-                            node_query is not None
-                            and node_query.evaluate(source_file_info_)
-                        ) or (
-                            search_node_matches_plain_text_query(
+                        if facet_query is not None and not (
+                            facet_query.evaluate(source_file_info_)
+                        ):
+                            continue
+                        if not has_text_query or (
+                            (
+                                node_query is not None
+                                and node_query.evaluate(source_file_info_)
+                            )
+                            or search_node_matches_plain_text_query(
                                 source_file_info_,
                                 phrase=plain_text_query_phrase,
                                 pattern=plain_text_query_pattern,
@@ -4930,6 +4971,8 @@ def create_main_router(
             search_results=search_results,
             search_value=q if q is not None else "",
             error=error,
+            facets=facets,
+            facet_statuses=collect_statuses(export_action.traceability_index),
         )
         output = view_object.render_screen(html_templates.jinja_environment())
 

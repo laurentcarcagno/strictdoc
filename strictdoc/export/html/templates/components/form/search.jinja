@@ -15,10 +15,26 @@
         id="q"
         name="q"
       />
+      <select name="kind" data-testid="search-facet-kind" aria-label="{{ _("Kind") }}">
+        <option value="">{{ _("Any kind") }}</option>
+        <option value="requirement"{% if view_object.facets.kind == "requirement" %} selected{% endif %}>{{ _("Requirements") }}</option>
+        <option value="section"{% if view_object.facets.kind == "section" %} selected{% endif %}>{{ _("Sections") }}</option>
+      </select>
+      <select name="status" data-testid="search-facet-status" aria-label="{{ _("Status") }}">
+        <option value="">{{ _("Any status") }}</option>
+        {%- for status in view_object.facet_statuses %}
+        <option value="{{ status }}"{% if view_object.facets.status == status %} selected{% endif %}>{{ status }}</option>
+        {%- endfor %}
+      </select>
+      <select name="links" data-testid="search-facet-links" aria-label="{{ _("Links") }}">
+        <option value="">{{ _("Any links") }}</option>
+        <option value="with_parent"{% if view_object.facets.links == "with_parent" %} selected{% endif %}>{{ _("With a parent") }}</option>
+        <option value="without_parent"{% if view_object.facets.links == "without_parent" %} selected{% endif %}>{{ _("Without a parent") }}</option>
+      </select>
       {% include "components/button/search.jinja" %}
   </form>
 
-{%- if view_object.search_value|length > 0 -%}
+{%- if view_object.search_value|length > 0 or view_object.facets.is_active() -%}
   {%- if view_object.error is none -%}
     {%- if view_object.search_results|length == 0 -%}
       <div class="sdoc-form-success">{{ _("Nothing matching the query was found.") }}</div>

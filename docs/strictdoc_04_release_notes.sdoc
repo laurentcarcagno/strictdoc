@@ -79,6 +79,10 @@ links is now called the "reviewed state".
 4\) Each item has a page at ``/item/<UID>`` with its content, its links grouped
 by relation role, its comments and its history in Git. A tab that the project
 cannot fill is disabled and says why.
+
+5\) The search screen opens the page of an item when the text is exactly its
+UID. It also offers the kind, the status and the links of an item as choices
+that build the query, so that a query does not have to be written by hand.
 <<<
 
 [[/SECTION]]

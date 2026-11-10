@@ -1,0 +1,23 @@
+[DOCUMENT]
+TITLE: Search facets
+
+[[SECTION]]
+UID: SEC-1
+TITLE: Section title
+
+[REQUIREMENT]
+UID: REQ-1
+STATUS: Active
+TITLE: Parent requirement
+STATEMENT: Alpha statement.
+
+[REQUIREMENT]
+UID: REQ-2
+STATUS: Draft
+TITLE: Child requirement
+STATEMENT: Beta statement.
+RELATIONS:
+- TYPE: Parent
+  VALUE: REQ-1
+
+[[/SECTION]]

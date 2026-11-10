@@ -1056,6 +1056,26 @@ RELATIONS:
 - TYPE: Parent
   VALUE: SDOC-SSS-91
 
+[REQUIREMENT]
+MID: dea380e50aed4dee98e3746d215b3e3b
+UID: SDOC-SRS-214
+STATUS: Active
+TITLE: Simple search
+STATEMENT: >>>
+When a user searches for a text that is exactly the UID of an item, the web
+server shall open the page of that item. The search screen shall offer the kind
+of the item, its status and its links as choices, and shall search with the
+query that these choices make, together with the text if there is one.
+<<<
+RATIONALE: >>>
+Most searches look for one known item or for the items of one kind and
+status. The query language does that, but a user who does not know it should
+not need it.
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: SDOC-SSS-95
+
 [[/SECTION]]
 
 [[SECTION]]

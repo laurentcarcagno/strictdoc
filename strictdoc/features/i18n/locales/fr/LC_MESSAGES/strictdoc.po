@@ -2768,3 +2768,27 @@ msgstr "Les commentaires ne sont pas activés."
 #: strictdoc/features/item_page/templates/features/item_page/item.jinja.html
 msgid "This kind of item has no COMMENT field."
 msgstr "Ce type d'élément n'a pas de champ COMMENT."
+
+#: strictdoc/export/html/templates/components/form/search.jinja
+msgid "Kind"
+msgstr "Type"
+
+#: strictdoc/export/html/templates/components/form/search.jinja
+msgid "Any kind"
+msgstr "Tout type"
+
+#: strictdoc/export/html/templates/components/form/search.jinja
+msgid "Any status"
+msgstr "Tout statut"
+
+#: strictdoc/export/html/templates/components/form/search.jinja
+msgid "Any links"
+msgstr "Tous les liens"
+
+#: strictdoc/export/html/templates/components/form/search.jinja
+msgid "With a parent"
+msgstr "Avec un parent"
+
+#: strictdoc/export/html/templates/components/form/search.jinja
+msgid "Without a parent"
+msgstr "Sans parent"

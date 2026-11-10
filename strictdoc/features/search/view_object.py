@@ -1,5 +1,5 @@
 """
-@relation(SDOC-SRS-155, scope=file)
+@relation(SDOC-SRS-155, SDOC-SRS-214, scope=file)
 """
 
 from dataclasses import dataclass
@@ -27,6 +27,7 @@ from strictdoc.export.html.document_type import DocumentType
 from strictdoc.export.html.html_templates import HTMLTemplates, JinjaEnvironment
 from strictdoc.export.html.renderers.link_renderer import LinkRenderer
 from strictdoc.export.html.renderers.markup_renderer import MarkupRenderer
+from strictdoc.features.search.facets import SearchFacets
 from strictdoc.helpers.cast import assert_cast
 
 
@@ -41,6 +42,8 @@ class SearchScreenViewObject:
         search_results: List[SDocExtendedElementIF],
         search_value: str,
         error: Optional[str],
+        facets: SearchFacets,
+        facet_statuses: List[str],
     ) -> None:
         self.traceability_index: TraceabilityIndex = traceability_index
         self.project_config: ProjectConfig = project_config
@@ -48,6 +51,8 @@ class SearchScreenViewObject:
         self.search_results: List[SDocExtendedElementIF] = search_results
         self.search_value: str = search_value
         self.error: Optional[str] = error
+        self.facets: SearchFacets = facets
+        self.facet_statuses: List[str] = facet_statuses
 
         link_renderer = LinkRenderer(
             root_path="", static_path=project_config.dir_for_sdoc_assets
