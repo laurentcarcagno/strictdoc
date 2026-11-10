@@ -83,6 +83,11 @@ cannot fill is disabled and says why.
 5\) The search screen opens the page of an item when the text is exactly its
 UID. It also offers the kind, the status and the links of an item as choices
 that build the query, so that a query does not have to be written by hand.
+
+6\) With the ``GIT`` feature, the version in the header of a document opens
+the versions of the document: its version tags with their dates, the items of
+the document as they were at a tag (read only), and the comparison of two tags,
+which lists the items that were added, removed or changed.
 <<<
 
 [[/SECTION]]

@@ -1,0 +1,39 @@
+{#
+  The version tags of a document, with the links to read it at a tag and to
+  compare two tags. The content of the screen; _shared/app_screen.jinja.html
+  frames it.
+#}
+<h1 data-testid="versions-title">{{ document.title }}</h1>
+{%- if error != "" %}
+<p class="error" data-testid="versions-error">{{ error }}</p>
+{%- elif tags|length == 0 %}
+<p data-testid="versions-none">{{ _("This document has no version tag yet.") }}</p>
+{%- else %}
+<form action="/versions/{{ document_mid }}/compare" method="GET" data-testid="versions-compare-form">
+  <label>{{ _("Compare") }}
+    <select name="from_tag" data-testid="versions-from">
+      {%- for tag in tags|reverse %}
+      <option value="{{ tag.name }}">{{ tag.name }}</option>
+      {%- endfor %}
+    </select>
+  </label>
+  <label>{{ _("with") }}
+    <select name="to_tag" data-testid="versions-to">
+      {%- for tag in tags %}
+      <option value="{{ tag.name }}">{{ tag.name }}</option>
+      {%- endfor %}
+    </select>
+  </label>
+  <button type="submit" class="action_button" data-testid="versions-compare">{{ _("Compare versions") }}</button>
+</form>
+<table data-testid="versions-table">
+  <tr><th>{{ _("Version") }}</th><th>{{ _("Date") }}</th><th>{{ _("Change") }}</th></tr>
+  {%- for tag in tags %}
+  <tr data-testid="versions-row">
+    <td><a href="/versions/{{ document_mid }}/{{ tag.name }}">{{ tag.name }}</a></td>
+    <td>{{ tag.date }}</td>
+    <td>{{ tag.subject }}</td>
+  </tr>
+  {%- endfor %}
+</table>
+{%- endif %}

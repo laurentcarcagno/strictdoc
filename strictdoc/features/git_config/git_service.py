@@ -25,6 +25,7 @@ from strictdoc.features.git_config.versioning import (
     latest_valid_tag,
     next_intermediate_tag,
     next_major_tag,
+    sorted_version_tags,
 )
 
 REMOTE = "origin"
@@ -64,6 +65,13 @@ class LineRevision:
     date: str
     subject: str
     patch: str
+
+
+@dataclass(frozen=True)
+class TagInfo:
+    name: str
+    date: str
+    subject: str
 
 
 SCP_URL_PATTERN = re.compile(
@@ -275,6 +283,40 @@ class GitService:
         return revisions
 
     # ---- Tags
+
+    def version_tags_of(self, path: str) -> List[TagInfo]:
+        """
+        The version tags of the repository of a path, the latest first, each
+        with the date and the subject of the commit that it marks.
+        """
+        repo = self._repo(self.repository_root(path))
+        by_name = {tag_.name: tag_ for tag_ in repo.tags}
+        infos: List[TagInfo] = []
+        for name_ in sorted_version_tags(by_name.keys(), reverse=True):
+            commit = by_name[name_].commit
+            infos.append(
+                TagInfo(
+                    name=name_,
+                    date=commit.committed_datetime.date().isoformat(),
+                    subject=str(commit.summary),
+                )
+            )
+        return infos
+
+    def text_at_tag(self, path: str, tag: str) -> Optional[str]:
+        """The text of a file at a tag, or None if the tag has no such file."""
+        root = self.repository_root(path)
+        relative = os.path.relpath(os.path.realpath(path), root)
+        repo = self._repo(root)
+        try:
+            return str(
+                repo.git.show(
+                    f"{tag}:{relative.replace(os.sep, '/')}",
+                    strip_newline_in_stdout=False,
+                )
+            )
+        except GitCommandError:
+            return None
 
     def list_tags(self, path: str) -> List[str]:
         repo = self._repo(self.repository_root(path))

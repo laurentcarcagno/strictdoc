@@ -1076,6 +1076,25 @@ RELATIONS:
 - TYPE: Parent
   VALUE: SDOC-SSS-95
 
+[REQUIREMENT]
+MID: ce411ac26a194ae790c096e03ea3b26c
+UID: SDOC-SRS-215
+STATUS: Active
+TITLE: Versions of a document
+STATEMENT: >>>
+Where the project uses the GIT feature, the web server shall list the version
+tags of a document with their date, show the items of the document as they
+were at a tag without changing any file, and compare two tags by listing the
+items that were added, removed or changed between them.
+<<<
+RATIONALE: >>>
+A reviewer who receives version B of a document needs to know what changed
+since version A, and to read version A again.
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: SDOC-SSS-91
+
 [[/SECTION]]
 
 [[SECTION]]

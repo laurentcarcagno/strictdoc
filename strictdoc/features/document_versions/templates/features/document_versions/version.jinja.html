@@ -1,0 +1,31 @@
+{#
+  The items of a document at a version tag, read only. The content of the
+  screen; _shared/app_screen.jinja.html frames it.
+#}
+<p><a href="/versions/{{ document_mid }}" data-testid="version-back">&larr; {{ _("Versions of the document") }}: {{ document.title }}</a></p>
+<h1 data-testid="version-title">{{ document.title }} &middot; {{ tag }}</h1>
+{%- if error != "" %}
+<p class="error" data-testid="version-error">{{ error }}</p>
+{%- else %}
+<p>{{ _("Read only: this is the document as it was at this version.") }}</p>
+<table data-testid="version-items">
+  <tr><th>{{ _("Item") }}</th><th>{{ _("Title") }}</th><th>{{ _("Fields") }}</th></tr>
+  {%- for item in items %}
+  <tr data-testid="version-item">
+    <td>{{ item.key }}</td>
+    <td>{{ item.title }}</td>
+    <td>
+      <details>
+        <summary>{{ item.fields|length }}</summary>
+        <dl>
+          {%- for name, value in item.fields.items() %}
+          <dt>{{ name }}</dt>
+          <dd style="white-space: pre-wrap">{{ value }}</dd>
+          {%- endfor %}
+        </dl>
+      </details>
+    </td>
+  </tr>
+  {%- endfor %}
+</table>
+{%- endif %}

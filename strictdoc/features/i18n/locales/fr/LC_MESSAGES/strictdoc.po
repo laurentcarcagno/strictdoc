@@ -2792,3 +2792,71 @@ msgstr "Avec un parent"
 #: strictdoc/export/html/templates/components/form/search.jinja
 msgid "Without a parent"
 msgstr "Sans parent"
+
+#: strictdoc/features/document_versions
+msgid "This document has no version tag yet."
+msgstr "Ce document n'a pas encore de version."
+
+#: strictdoc/features/document_versions
+msgid "Compare"
+msgstr "Comparer"
+
+#: strictdoc/features/document_versions
+msgid "with"
+msgstr "avec"
+
+#: strictdoc/features/document_versions
+msgid "Version"
+msgstr "Version"
+
+#: strictdoc/features/document_versions
+msgid "Versions of the document"
+msgstr "Versions du document"
+
+#: strictdoc/features/document_versions
+msgid "Item"
+msgstr "Élément"
+
+#: strictdoc/features/document_versions
+msgid "Fields"
+msgstr "Champs"
+
+#: strictdoc/features/document_versions
+msgid "Read only: this is the document as it was at this version."
+msgstr "Lecture seule : le document tel qu'il était à cette version."
+
+#: strictdoc/features/document_versions
+msgid "added"
+msgstr "ajouté(s)"
+
+#: strictdoc/features/document_versions
+msgid "removed"
+msgstr "supprimé(s)"
+
+#: strictdoc/features/document_versions
+msgid "changed"
+msgstr "modifié(s)"
+
+#: strictdoc/features/document_versions
+msgid "unchanged"
+msgstr "inchangé(s)"
+
+#: strictdoc/features/document_versions
+msgid "Added"
+msgstr "Ajoutés"
+
+#: strictdoc/features/document_versions
+msgid "Removed"
+msgstr "Supprimés"
+
+#: strictdoc/features/document_versions
+msgid "Changed"
+msgstr "Modifiés"
+
+#: strictdoc/features/document_versions
+msgid "Only the documents in the SDoc format can be shown at a version."
+msgstr "Seuls les documents au format SDoc peuvent être affichés à une version."
+
+#: strictdoc/features/document_versions
+msgid "The document does not exist at this version."
+msgstr "Le document n'existe pas à cette version."

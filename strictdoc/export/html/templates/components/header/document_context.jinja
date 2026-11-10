@@ -20,9 +20,11 @@
   </ol>
   {%- if view_object.shows_document_version() %}
     {%- set document_version = view_object.get_document_version() %}
-    <span
+    {%- set versions_url = view_object.get_versions_url() %}
+    <{{ "a" if versions_url != "" else "span" }}
       class="header__version{% if document_version is none %} header__version--none{% endif %}"
       title="{{ _("Latest version tag of the repository that holds this document") }}"
+      {% if versions_url != "" %}href="{{ versions_url }}"{% endif %}
       data-testid="header-document-version"
     >
       {%- if document_version is not none -%}
@@ -30,6 +32,6 @@
       {%- else -%}
         {{ _("No version") }}
       {%- endif -%}
-    </span>
+    </{{ "a" if versions_url != "" else "span" }}>
   {%- endif %}
 </nav>

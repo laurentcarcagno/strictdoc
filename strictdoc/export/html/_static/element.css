@@ -1419,6 +1419,10 @@ svg:hover .svg_icon_not_hover_visible {
   white-space: nowrap;
 }
 
+a.header__version {
+  text-decoration: none;
+}
+
 .header__version--none {
   font-weight: 500;
   color: var(--hem-mute-ink);

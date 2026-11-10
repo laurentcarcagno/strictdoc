@@ -139,6 +139,9 @@ from strictdoc.export.html.generators.view_objects.server_error_view_object impo
 from strictdoc.export.html.renderers.link_renderer import LinkRenderer
 from strictdoc.export.html.renderers.markup_renderer import MarkupRenderer
 from strictdoc.features.comments.router import create_comments_routers
+from strictdoc.features.document_versions.router import (
+    create_document_versions_router,
+)
 from strictdoc.features.folders.router import create_folders_routers
 from strictdoc.features.git_config.router import create_git_routers
 from strictdoc.features.git_config.setup import (
@@ -5292,6 +5295,7 @@ def create_main_router(
 
     read_router.include_router(create_sidebar_router(context=context))
     read_router.include_router(create_item_page_router(context=context))
+    read_router.include_router(create_document_versions_router(context=context))
 
     folders_read_router, folders_write_router = create_folders_routers(
         context=context

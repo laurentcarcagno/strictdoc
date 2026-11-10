@@ -639,6 +639,17 @@ class DocumentScreenViewObject:
                 )
         return self._document_version
 
+    def get_versions_url(self) -> str:
+        """
+        The screen of the versions of the document, or an empty string in a
+        static export.
+
+        @relation(SDOC-SRS-215, scope=function)
+        """
+        if not self.project_config.is_running_on_server:
+            return ""
+        return "/versions/" + self.document.reserved_mid.get_string_value()
+
     def get_document_level(self) -> int:
         assert self.document.meta is not None
         return self.document.meta.level

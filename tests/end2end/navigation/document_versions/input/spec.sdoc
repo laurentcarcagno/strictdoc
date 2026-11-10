@@ -1,0 +1,12 @@
+[DOCUMENT]
+TITLE: Versioned document
+
+[REQUIREMENT]
+UID: REQ-1
+TITLE: First
+STATEMENT: Alpha.
+
+[REQUIREMENT]
+UID: REQ-2
+TITLE: Second
+STATEMENT: Beta.

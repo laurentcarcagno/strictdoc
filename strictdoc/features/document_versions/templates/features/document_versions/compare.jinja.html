@@ -1,0 +1,42 @@
+{#
+  The difference between two versions of a document: the items that were
+  added, removed or changed. The content of the screen;
+  _shared/app_screen.jinja.html frames it.
+#}
+<p><a href="/versions/{{ document_mid }}" data-testid="compare-back">&larr; {{ _("Versions of the document") }}: {{ document.title }}</a></p>
+<h1 data-testid="compare-title">{{ document.title }} &middot; {{ from_tag }} &rarr; {{ to_tag }}</h1>
+{%- if error != "" %}
+<p class="error" data-testid="compare-error">{{ error }}</p>
+{%- else %}
+<p data-testid="compare-summary">
+  {{ comparison.added|length }} {{ _("added") }},
+  {{ comparison.removed|length }} {{ _("removed") }},
+  {{ comparison.changed|length }} {{ _("changed") }},
+  {{ comparison.unchanged }} {{ _("unchanged") }}
+</p>
+{%- if comparison.added|length > 0 %}
+<h2>{{ _("Added") }}</h2>
+<ul data-testid="compare-added">
+  {%- for item in comparison.added %}<li>{{ item.key }} {{ item.title }}</li>{% endfor %}
+</ul>
+{%- endif %}
+{%- if comparison.removed|length > 0 %}
+<h2>{{ _("Removed") }}</h2>
+<ul data-testid="compare-removed">
+  {%- for item in comparison.removed %}<li>{{ item.key }} {{ item.title }}</li>{% endfor %}
+</ul>
+{%- endif %}
+{%- if comparison.changed|length > 0 %}
+<h2>{{ _("Changed") }}</h2>
+{%- for item in comparison.changed %}
+<section data-testid="compare-changed">
+  <h3>{{ item.key }} {{ item.title }}</h3>
+  {%- for change in item.changes %}
+  <p>{{ change.name }}</p>
+  <pre style="white-space: pre-wrap">- {{ change.before }}</pre>
+  <pre style="white-space: pre-wrap">+ {{ change.after }}</pre>
+  {%- endfor %}
+</section>
+{%- endfor %}
+{%- endif %}
+{%- endif %}

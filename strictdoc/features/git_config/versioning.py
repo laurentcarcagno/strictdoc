@@ -55,6 +55,16 @@ def next_letters(letters: str) -> str:
     return letters[:-1] + chr(ord(letters[-1]) + 1)
 
 
+def sorted_version_tags(
+    tags: Iterable[str], reverse: bool = False
+) -> List[str]:
+    """The version tags in the order of their versions (others are dropped)."""
+    ordered = sorted(
+        _valid_tags(tags), key=lambda tag_: tag_.sort_key, reverse=reverse
+    )
+    return [tag_.name for tag_ in ordered]
+
+
 def _valid_tags(tags: Iterable[str]) -> List[VersionTag]:
     valid = []
     for tag in tags:
