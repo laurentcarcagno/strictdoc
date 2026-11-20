@@ -25,6 +25,9 @@ from strictdoc.backend.sdoc.models.document_config import (
     DocumentCustomMetadata,
     DocumentCustomMetadataKeyValuePair,
 )
+from strictdoc.backend.sdoc.models.document_from_file import (
+    DocumentFromFile,
+)
 from strictdoc.backend.sdoc.models.document_grammar import DocumentGrammar
 from strictdoc.backend.sdoc.models.inline_link import InlineLink
 from strictdoc.backend.sdoc.models.model import RequirementFieldName
@@ -224,6 +227,14 @@ class SDMarkdownReader:
 
         def walk(section_contents: List[Any]) -> None:
             for node_ in section_contents:
+                # A fragment that is included from another file is resolved
+                # later (an SDoc document with MARKUP: Markdown can have
+                # one): it gets its own pass as a document.
+                if (
+                    isinstance(node_, DocumentFromFile)
+                    and node_.resolved_document is None
+                ):
+                    continue
                 if isinstance(node_, SDocNode):
                     element = grammar.elements_by_type.get(node_.node_type)
                     if element is not None and element.property_is_composite:
