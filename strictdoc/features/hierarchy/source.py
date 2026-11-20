@@ -39,7 +39,10 @@ class IndexReferenceSource(ReferenceSource):
 
     def _find_document(self, location: str) -> Optional[SDocDocument]:
         wanted = os.path.splitext(location.replace("\\", "/").strip("/"))[0]
-        for document_ in self._index.document_tree.document_list:
+        document_list: List[SDocDocument] = (
+            self._index.document_tree.document_list
+        )
+        for document_ in document_list:
             if (
                 document_.config is not None
                 and document_.config.uid == location

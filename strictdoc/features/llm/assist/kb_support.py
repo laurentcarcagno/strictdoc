@@ -80,7 +80,8 @@ class KBSupport:
         cached = self._missions.get(key)
         now = time.monotonic()
         if cached is not None and now - cached[0] < MISSION_CACHE_SECONDS:
-            return cached[1]
+            cached_row: Optional[Dict[str, Any]] = cached[1]
+            return cached_row
         row = mission_row(
             self.client(), config, principal.user, principal.groups
         )

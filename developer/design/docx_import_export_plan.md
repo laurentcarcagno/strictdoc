@@ -57,16 +57,28 @@ rest of the configuration:
 
 ```python
 DocxProfile(
-    heading_styles={"Heading1": 1, "Heading2": 2, "Heading3": 3},      # paragraph style -> section depth
+    heading_styles={
+        "Heading1": 1,
+        "Heading2": 2,
+        "Heading3": 3,
+    },  # paragraph style -> section depth
     requirement_tables=RequirementTable(
-        id_style="RefExig", title_style="RefExigtitle",                 # first rows of the table
-        meta_rows={"Version:": "VERSION", "Applicable to:": "APPLICABLE_TO",
-                   "Verified by:": "VERIFIED_BY", "Linked Req:": "LINKED_REQ"},
-        text_style="RequirementText", note_label="Note :",
-        uid_from="id", relations={"LINKED_REQ": "Parent"}),            # which field carries the UID, which become relations
-    free_text="text",                    # "text" = keep running paragraphs as TEXT nodes, "drop" = report only
+        id_style="RefExig",
+        title_style="RefExigtitle",  # first rows of the table
+        meta_rows={
+            "Version:": "VERSION",
+            "Applicable to:": "APPLICABLE_TO",
+            "Verified by:": "VERIFIED_BY",
+            "Linked Req:": "LINKED_REQ",
+        },
+        text_style="RequirementText",
+        note_label="Note :",
+        uid_from="id",
+        relations={"LINKED_REQ": "Parent"},
+    ),  # which field carries the UID, which become relations
+    free_text="text",  # "text" = keep running paragraphs as TEXT nodes, "drop" = report only
     revision_author="Laurent Carcagno",  # used by the export in update mode
-    template="template.docx",            # styles, headers, footers, numbering for a fresh export
+    template="template.docx",  # styles, headers, footers, numbering for a fresh export
 )
 ```
 

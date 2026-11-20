@@ -77,7 +77,7 @@ class KBClient:
             with urllib.request.urlopen(  # noqa: S310 (address from the config)
                 request, timeout=timeout, context=context
             ) as response:
-                body = response.read(MAX_RESPONSE_BYTES + 1)
+                body: bytes = response.read(MAX_RESPONSE_BYTES + 1)
         except urllib.error.HTTPError as exception_:
             raise KBError(
                 f"The base answered HTTP {exception_.code}."

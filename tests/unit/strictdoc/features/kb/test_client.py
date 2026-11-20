@@ -17,7 +17,7 @@ class Server:
         self.is_error = is_error
         self.status_error = status_error
 
-    def __call__(self, request, timeout):
+    def __call__(self, request, timeout):  # noqa: ARG002
         self.requests.append(request)
         if request.full_url.endswith("/token"):
             return json.dumps(
@@ -166,7 +166,7 @@ def test_007_a_refusal_of_the_server_is_an_error():
 
 def test_008_missions_are_read_even_if_the_tool_is_not_in_the_list():
     class Missions(Server):
-        def __call__(self, request, timeout):
+        def __call__(self, request, timeout):  # noqa: ARG002
             if (
                 request.full_url.endswith("/mcp")
                 and json.loads(request.data)["params"]["name"]

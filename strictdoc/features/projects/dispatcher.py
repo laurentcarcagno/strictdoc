@@ -31,10 +31,10 @@ def host_of(scope: Scope) -> str:
     """The host name of the request, lower case, without the port."""
     for name_, value_ in scope.get("headers", []):
         if name_ == b"host":
-            host = value_.decode("latin-1").strip().lower()
+            host: str = value_.decode("latin-1").strip().lower()
             if host.startswith("["):  # an IPv6 address
-                return host.split("]")[0] + "]"
-            return host.split(":")[0]
+                return host.split("]", maxsplit=1)[0] + "]"
+            return host.split(":", maxsplit=1)[0]
     return ""
 
 
@@ -74,7 +74,7 @@ class ProjectDispatcher:
         """Serves a new project from now on, starting its lifespan."""
         if self._stack is not None and hasattr(app, "router"):
             await self._stack.enter_async_context(
-                app.router.lifespan_context(app)  # type: ignore[attr-defined]
+                app.router.lifespan_context(app)
             )
         self.projects[slug] = app
 

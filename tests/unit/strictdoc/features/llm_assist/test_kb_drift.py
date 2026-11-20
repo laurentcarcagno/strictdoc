@@ -1,4 +1,5 @@
 from strictdoc.features.kb.client import KBResult
+from strictdoc.features.llm.assist.agent_loop import citation_line
 from strictdoc.features.llm.assist.kb_drift import (
     RULE_CHANGED,
     RULE_EDITION,
@@ -68,8 +69,6 @@ def test_005_the_four_ways_a_quote_drifts():
 
 
 def test_006_the_page_of_the_source_is_in_the_citation_and_the_quote_is_still_found():
-    from strictdoc.features.llm.assist.agent_loop import citation_line
-
     line = citation_line(
         {"doc_ref": "SVC18", "edition": "1", "section": "1.1", "page": 4}
     )

@@ -50,9 +50,18 @@ A Python file, like `strictdoc_config.py`, listed on the command line: `strictdo
 (the positional `input_path` becomes optional when `--projects` is given). It defines `create_projects() -> List[ProjectSpec]`:
 
 ```python
-ProjectSpec(slug="revalto", title="Revalto flight software", path="/data/revalto", config="strictdoc_config.py",
-            roles={"administrator": ["revalto-admins"], "author": ["revalto-authors"],
-                   "reviewer": ["revalto-reviewers"], "reader": ["revalto-readers"]})
+ProjectSpec(
+    slug="revalto",
+    title="Revalto flight software",
+    path="/data/revalto",
+    config="strictdoc_config.py",
+    roles={
+        "administrator": ["revalto-admins"],
+        "author": ["revalto-authors"],
+        "reviewer": ["revalto-reviewers"],
+        "reader": ["revalto-readers"],
+    },
+)
 ```
 
 Each spec loads its own `strictdoc_config.py` from its folder (the profile, features, hierarchy of plan 4) and gets its own output folder

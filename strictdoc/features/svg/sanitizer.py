@@ -115,7 +115,10 @@ def sanitize_svg(data: bytes) -> bytes:
         return data
     ET.register_namespace("", SVG_NS)
     ET.register_namespace("xlink", XLINK_NS)
-    return ET.tostring(root, encoding="utf-8", xml_declaration=False)
+    serialized: bytes = ET.tostring(
+        root, encoding="utf-8", xml_declaration=False
+    )
+    return serialized
 
 
 def _local(tag: str) -> Tuple[str, str]:

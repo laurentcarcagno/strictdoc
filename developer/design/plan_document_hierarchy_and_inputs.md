@@ -34,12 +34,14 @@ references to applicable documents that exist only as text.
 - The project declares the hierarchy in `strictdoc_config.py`:
 
 ```python
-document_hierarchy=[
-    Level("input",          label="Applicable documents"),
-    Level("system",         label="System requirements",   parents=["input"]),
-    Level("software",       label="Software requirements", parents=["system", "input"]),
-    Level("design",         label="Design",                parents=["software"]),
-    Level("test",           label="Tests",                 parents=["software", "design"]),
+document_hierarchy = [
+    Level("input", label="Applicable documents"),
+    Level("system", label="System requirements", parents=["input"]),
+    Level(
+        "software", label="Software requirements", parents=["system", "input"]
+    ),
+    Level("design", label="Design", parents=["software"]),
+    Level("test", label="Tests", parents=["software", "design"]),
 ]
 ```
 

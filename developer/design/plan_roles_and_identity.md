@@ -59,8 +59,12 @@ A role includes the ones below it. A user has the highest role granted by any of
 A project option, in `strictdoc_config.py`:
 
 ```python
-roles={"administrator": ["strictdoc-admins"], "author": ["strictdoc-authors"],
-       "reviewer": ["strictdoc-reviewers"], "reader": ["strictdoc-readers"]}
+roles = {
+    "administrator": ["strictdoc-admins"],
+    "author": ["strictdoc-authors"],
+    "reviewer": ["strictdoc-reviewers"],
+    "reader": ["strictdoc-readers"],
+}
 ```
 
 Group names are plain strings; a group may appear under one role only. The multi-project plan makes the option per project; here it is already

@@ -18,7 +18,7 @@ MAX_BODY = 4 * 1024 * 1024
 
 
 class _NoRedirect(urllib.request.HTTPRedirectHandler):
-    def redirect_request(  # type: ignore[override]
+    def redirect_request(
         self,
         _req: Any,
         _fp: Any,

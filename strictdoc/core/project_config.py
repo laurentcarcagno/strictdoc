@@ -39,13 +39,13 @@ from strictdoc.commands.server_config import ServerCommandConfig
 from strictdoc.core.environment import SDocRuntimeEnvironment
 from strictdoc.core.feature import Feature
 from strictdoc.core.plugin import StrictDocPlugin
+from strictdoc.features.git_config.config import GitConfig
 from strictdoc.features.hierarchy.levels import (
     RELATION_POLICIES,
     Level,
     validate_hierarchy,
 )
 from strictdoc.features.i18n.languages import set_language, validate_language
-from strictdoc.features.git_config.config import GitConfig
 from strictdoc.features.llm.config import LLMConfig
 from strictdoc.features.roles.roles import validate_roles
 from strictdoc.helpers.auto_described import auto_described

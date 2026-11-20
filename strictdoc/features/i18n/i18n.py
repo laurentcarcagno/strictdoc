@@ -96,7 +96,7 @@ def _template_gettext(context: Context, message: str, **variables: Any) -> str:
     translated = gettext(message)
     if context.eval_ctx.autoescape:
         translated = Markup(translated)
-    return translated % variables  # type: ignore[no-any-return]
+    return translated % variables
 
 
 @pass_context
@@ -112,7 +112,7 @@ def _template_ngettext(
     translated = ngettext(singular, plural, number)
     if context.eval_ctx.autoescape:
         translated = Markup(translated)
-    return translated % variables  # type: ignore[no-any-return]
+    return translated % variables
 
 
 def install(environment: Environment) -> None:

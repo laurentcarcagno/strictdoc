@@ -48,7 +48,9 @@ class Test(E2ECase):
                 abs(w - 210) < 1 and abs(h - 297) < 1 for w, h in sizes
             ), sizes
             self.assert_element(".sdoc-page-clone", by="css selector")
-            self.assert_element_not_present(".sdoc-page-sheets .sdoc-page-clone")
+            self.assert_element_not_present(
+                ".sdoc-page-sheets .sdoc-page-clone"
+            )
 
             # Two pages: two columns of sheets.
             self.click(button("two"))

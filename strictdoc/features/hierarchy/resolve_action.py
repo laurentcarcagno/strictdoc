@@ -6,7 +6,7 @@ and adds the missing Parent relations. The text of the columns is not changed.
 """
 
 from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, List, Tuple
+from typing import Any, Callable, Dict, List, Set, Tuple
 
 from strictdoc.backend.docx.docx_export import load_project_profile
 from strictdoc.backend.sdoc.models.document import SDocDocument
@@ -106,7 +106,7 @@ def _resolve_node(
     node: SDocNode,
     relation_fields: List[str],
     resolver: Any,
-    all_uids: set,
+    all_uids: Set[str],
     report: ResolveReport,
 ) -> None:
     text = " ; ".join(

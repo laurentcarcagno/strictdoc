@@ -7,7 +7,7 @@ relations to. A document without a kind is not constrained.
 """
 
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Dict, List, Optional, Sequence
+from typing import TYPE_CHECKING, Dict, List, Optional, Sequence, Set
 
 if TYPE_CHECKING:
     from strictdoc.backend.sdoc.models.document import SDocDocument
@@ -66,7 +66,7 @@ def validate_hierarchy(levels: Sequence[Level]) -> Dict[str, Level]:
                     f"The level '{name}' has an unknown parent '{parent_}'."
                 )
     # A cycle: walk the parents with the path of the current branch.
-    done: set = set()
+    done: Set[str] = set()
 
     def visit(name: str, path: List[str]) -> None:
         if name in done:

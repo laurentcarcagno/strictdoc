@@ -33,6 +33,7 @@ concern in this domain, hence local first and an explicit, logged, per-project o
 class LLMProvider(Protocol):
     name: str
     is_local: bool
+
     def complete(self, request: LLMRequest) -> LLMResponse: ...
 ```
 
@@ -44,13 +45,19 @@ class LLMProvider(Protocol):
 Configuration in `strictdoc_config.py`, secrets by **name**, never by value:
 
 ```python
-llm=LLMConfig(
+llm = LLMConfig(
     default="local",
     providers={
-        "local":  OpenAICompatible(base_url="http://ollama:11434/v1", model="qwen3-coder:30b", is_local=True),
-        "claude": Anthropic(model="claude-sonnet-5-5", api_key_env="ANTHROPIC_API_KEY"),
+        "local": OpenAICompatible(
+            base_url="http://ollama:11434/v1",
+            model="qwen3-coder:30b",
+            is_local=True,
+        ),
+        "claude": Anthropic(
+            model="claude-sonnet-5-5", api_key_env="ANTHROPIC_API_KEY"
+        ),
     },
-    allow_cloud=False,                          # per project, default False
+    allow_cloud=False,  # per project, default False
     cloud_blocked_classifications=["Restricted"],
     audit_store_prompts=False,
     cloud_token_budget_per_month=0,

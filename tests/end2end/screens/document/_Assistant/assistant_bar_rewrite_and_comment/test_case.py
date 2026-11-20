@@ -59,7 +59,9 @@ class Test(E2ECase):
             self.assert_text("within 2 s", f"{PANEL} .ai-bar__diff ins")
             self.click(FORM_BAR + ' [data-testid="ai-bar-apply"]')
             self.wait_for_text("within 2 s", EDITOR)
-            self.assert_text("Ctrl+Z", FORM_BAR + ' [data-testid="ai-bar-done"]')
+            self.assert_text(
+                "Ctrl+Z", FORM_BAR + ' [data-testid="ai-bar-done"]'
+            )
             form.do_form_submit()
             screen_document.assert_text("The system shall start within 2 s.")
 

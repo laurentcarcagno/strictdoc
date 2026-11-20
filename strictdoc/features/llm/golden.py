@@ -22,7 +22,7 @@ import re
 import sys
 import time
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Sequence
+from typing import Any, Dict, List, Optional, Sequence, Set
 
 from strictdoc.features.llm.config import LLMConfig, OpenAICompatible
 from strictdoc.features.llm.context import ContextItem, build_prompt_from_items
@@ -104,7 +104,7 @@ def load_cases(path: str = CASES_PATH) -> "tuple[LLMConfig, List[GoldenCase]]":
     return llm, cases
 
 
-def _numbers(text: str) -> set:
+def _numbers(text: str) -> Set[str]:
     return {match_.replace(",", ".") for match_ in _NUMBER.findall(text)}
 
 

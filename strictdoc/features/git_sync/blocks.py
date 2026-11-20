@@ -15,7 +15,7 @@ added one). The closing line of a section has the key of its section.
 import hashlib
 import re
 from dataclasses import dataclass
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 # A line that opens a node or a section, or closes a section. "[/FREETEXT]"
 # (one bracket) is part of its block.
@@ -63,7 +63,7 @@ def _identity(lines: List[str]) -> Optional[str]:
 def split_blocks(text: str) -> List[Block]:
     """The blocks of a document text; "".join(b.text) gives the text back."""
     lines = text.splitlines(keepends=True)
-    raw: List[tuple] = []  # (kind, [lines])
+    raw: List[Tuple[str, List[str]]] = []  # (kind, [lines])
     current_kind = "header"
     current: List[str] = []
     inside = False  # in a multiline value (">>>" ... "<<<")

@@ -1,5 +1,6 @@
 import json
 
+from strictdoc.features.kb.client import KBResult
 from strictdoc.features.llm.assist.agent_loop import (
     gather,
     model_allowed,
@@ -8,7 +9,6 @@ from strictdoc.features.llm.assist.agent_loop import (
 )
 from strictdoc.features.llm.fake import FakeProvider
 from strictdoc.features.llm.types import LLMResponse, ToolCall
-from strictdoc.features.kb.client import KBResult
 from tests.support.kb_fixture import CITATION, FakeKBClient, make_kb_config
 
 
@@ -101,7 +101,7 @@ def test_004_the_rounds_are_bounded():
 
 def test_005_a_result_that_imitates_an_instruction_stays_data():
     class Hostile(FakeKBClient):
-        def call(self, tool, arguments, *, user, groups):
+        def call(self, tool, arguments, *, user, groups):  # noqa: ARG002
             self.calls.append({"tool": tool})
             return KBResult(
                 tool=tool,
@@ -123,7 +123,7 @@ def test_005_a_result_that_imitates_an_instruction_stays_data():
 
 def test_006_a_long_result_is_cut():
     class Long(FakeKBClient):
-        def call(self, tool, arguments, *, user, groups):
+        def call(self, tool, arguments, *, user, groups):  # noqa: ARG002
             return KBResult(
                 tool=tool,
                 ok=True,

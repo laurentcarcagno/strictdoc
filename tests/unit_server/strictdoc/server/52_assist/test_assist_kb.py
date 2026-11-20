@@ -2,11 +2,12 @@ import json
 
 import pytest
 
-import strictdoc.features.llm.assist.kb_support as kb_support
 import strictdoc.features.llm.assist.service as assist_service
+from strictdoc.features.llm.assist import kb_support
 from strictdoc.features.llm.config import Fake, OpenAICompatible
 from strictdoc.features.llm.fake import FakeProvider
 from strictdoc.features.llm.types import LLMResponse, ToolCall
+from tests.support import llm_fixture
 from tests.support.kb_fixture import (
     REQ_TEXT,
     FakeKBClient,
@@ -68,7 +69,7 @@ def setup(monkeypatch):
         monkeypatch.setattr(
             assist_service, "create_provider", lambda _n, _l: provider
         )
-        monkeypatch.setattr(kb_support.KBSupport, "client", lambda self: fake)
+        monkeypatch.setattr(kb_support.KBSupport, "client", lambda _self: fake)
         holder.update(provider=provider, kb=fake)
         return provider, fake
 
@@ -368,8 +369,6 @@ def _quote(req_id, text, edition="9.0"):
 
 
 def _flight_with(monkeypatch, comment):
-    from tests.support import llm_fixture
-
     monkeypatch.setattr(
         llm_fixture,
         "FLIGHT",

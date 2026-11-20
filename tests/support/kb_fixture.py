@@ -73,14 +73,14 @@ class FakeKBClient:
         self.calls: List[Dict[str, Any]] = []
 
     def tool_definitions(
-        self, *, user: str, groups: Sequence[str]
+        self, *, user: str, groups: Sequence[str]  # noqa: ARG002
     ) -> List[Dict[str, Any]]:
         if self.fail:
             raise KBError("The base cannot be reached: down.")
         return list(DEFINITIONS)
 
     def missions(
-        self, *, user: str, groups: Sequence[str]
+        self, *, user: str, groups: Sequence[str]  # noqa: ARG002
     ) -> List[Dict[str, Any]]:
         if self.fail:
             raise KBError("The base cannot be reached: down.")

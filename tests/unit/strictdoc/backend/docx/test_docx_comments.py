@@ -262,7 +262,9 @@ def test_010_a_legacy_comment_gets_the_unknown_author_in_word(tmp_path):
 
 # ---- update and reading back (step C5) ---------------------------------------
 
-from strictdoc.backend.docx.export.docx_tracked_update import DocxUpdater  # noqa: E402
+from strictdoc.backend.docx.export.docx_tracked_update import (
+    DocxUpdater,  # noqa: E402
+)
 from strictdoc.backend.docx.import_.docx_reader import (  # noqa: E402
     DocxReader,
     TrackedChangesMode,

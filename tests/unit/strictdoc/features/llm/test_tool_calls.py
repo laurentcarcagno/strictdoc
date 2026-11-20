@@ -1,6 +1,7 @@
 import json
 
-from strictdoc.features.llm.anthropic import AnthropicProvider
+from strictdoc.features.llm import openai_compatible as module
+from strictdoc.features.llm.anthropic import AnthropicProvider, _messages
 from strictdoc.features.llm.config import Anthropic, OpenAICompatible
 from strictdoc.features.llm.openai_compatible import (
     OpenAICompatibleProvider,
@@ -58,8 +59,6 @@ def test_002_openai_sends_tools_and_the_turns():
             {"choices": [{"message": {"content": "ok"}}]}
         ).encode()
 
-    import strictdoc.features.llm.openai_compatible as module
-
     original = module.post_json
     module.post_json = post
     try:
@@ -115,8 +114,6 @@ def test_003_anthropic_reads_tool_use_and_groups_the_results():
         response.text == "Let me look."
         and response.tool_calls[0].name == "search"
     )
-    from strictdoc.features.llm.anthropic import _messages
-
     turns = _messages(
         (
             Message(

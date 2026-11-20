@@ -148,7 +148,7 @@ def create_folders_routers(
         new_name: str,
         error: Optional[str] = None,
         kind: str = "folder",
-    ):
+    ) -> HTMLResponse:
         error_object = ErrorObject()
         if error:
             error_object.add_error("new_name", error)
