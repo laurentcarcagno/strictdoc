@@ -4972,7 +4972,7 @@ time. The commands are ``/write``, ``/review``, ``/trace``, ``/translate``, ``/g
        documents stay, comments are not copied, new MIDs are written and the metadata get
        ``LANGUAGE`` and ``TRANSLATION_OF``. The language is a code (``fr``, ``en``...) or a name
        (``French``, ``allemand``). Applying checks the path and that no UID exists already
-       - author
+     - author
    * - ``/glossary``
      - extracts the terms and their definitions (with the UID where they are used); one tick
        inserts the list as a paragraph at the end of the document
