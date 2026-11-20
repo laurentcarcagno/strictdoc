@@ -6346,6 +6346,91 @@ to a requirement statement.
 <<<
 
 [[SECTION]]
+MID: d2877cc4f1ae4edb88d2fc995dba85de
+UID: SECTION-UG-Markdown-HTML-elements
+TITLE: HTML elements in a Markdown field
+
+[TEXT]
+MID: 22fa0f0c03054a1889bf3ec14737e102
+STATEMENT: >>>
+A Markdown field can contain HTML. StrictDoc keeps the elements that draw a
+document and shows the others as text, so that a field never runs a script.
+The allowed elements are ``a``, ``abbr``, ``aside``, ``b``, ``blockquote``,
+``br``, ``caption``, ``cite``, ``code``, ``col``, ``colgroup``, ``dd``,
+``del``, ``details``, ``dfn``, ``div``, ``dl``, ``dt``, ``em``,
+``figcaption``, ``figure``, ``h1`` to ``h6``, ``hr``, ``i``, ``img``, ``ins``,
+``kbd``, ``li``, ``mark``, ``ol``, ``p``, ``pre``, ``q``, ``s``, ``samp``,
+``small``, ``span``, ``strong``, ``sub``, ``summary``, ``sup``, ``table``,
+``tbody``, ``td``, ``tfoot``, ``th``, ``thead``, ``time``, ``tr``, ``u``,
+``ul``, ``var`` and ``wbr``. An element that is not in the list, such as
+``script``, ``iframe`` or ``form``, appears as text.
+
+On an element, StrictDoc keeps ``class``, ``id``, ``title``, ``lang``, ``dir``,
+``role`` and the ``aria-*`` attributes that name or hide it, and the attributes
+that the element needs (``href`` of a link, ``src``, ``alt``, ``width`` and
+``height`` of an image, ``colspan`` and ``rowspan`` of a cell, and so on).
+Event attributes such as ``onclick`` are removed. The addresses of ``href``,
+``src`` and ``cite`` can use ``http``, ``https``, ``mailto``, ``tel`` or be
+relative; ``src`` also accepts a base64 image of type PNG, JPEG, GIF, WebP or
+BMP. In ``style``, only ``text-align``, ``background-color``, ``color``,
+``width``, ``max-width``, ``height``, the margins, ``font-weight``,
+``font-style``, ``text-decoration`` and ``vertical-align`` are kept. The rule
+applies to documents in Markdown only.
+
+**Admonitions.** Markdown has no equivalent of the ``note`` and ``warning``
+directives of RST. Write a ``div`` with the classes ``sdoc-admonition`` and
+``sdoc-`` followed by the type. The empty lines let Markdown work inside the
+box:
+
+.. code-block:: markdown
+
+    <div class="sdoc-admonition sdoc-note" role="note">
+    <p class="sdoc-admonition-title">Note</p>
+
+    Text in **Markdown**.
+
+    </div>
+
+The types are ``note``, ``hint``, ``tip``, ``important``, ``attention``,
+``caution``, ``danger``, ``error`` and ``warning``. Without a type class, the
+box has the colour of the text. The title is written in the document, in the
+language of the document.
+
+**Definition lists.** Write ``<dl><dt>Term</dt><dd>Definition</dd></dl>``.
+
+**Superscripts and subscripts.** Write ``H<sub>2</sub>O`` and
+``E = mc<sup>2</sup>``.
+
+**Side box.** ``<aside class="sdoc-sidebar">`` floats a box to the right of the
+text.
+
+**Footnotes.** Write the note as an anchor, ``[ANCHOR: <anchor uid>, <title>]``,
+and the reference as ``[LINK: <anchor uid>]``. StrictDoc checks that the anchor
+exists and lists the links that point to it.
+
+**Numbered equations.** Write the number in the formula with ``\tag``, and the
+reference as plain text:
+
+.. code-block:: markdown
+
+    $$
+    E = mc^2 \tag{1}
+    $$
+
+    Equation (1) gives the energy.
+
+**What is not available.** A code block has no line numbers. The directives of
+RST that describe a page and not a node (``contents``, ``sectnum``,
+``header``, ``footer``, ``include``, ``only`` and ``toctree``) have no
+equivalent.
+
+In the web editor, an HTML element is kept as written and appears as its
+source text: the editor does not draw an admonition as a box.
+<<<
+
+[[/SECTION]]
+
+[[SECTION]]
 MID: 5bf99b072e4b4aa08c14f2f776a57f49
 TITLE: Editing Markdown in the web interface
 

@@ -287,7 +287,7 @@ Documenter ce que l'on fait à la place : l'export Markdown existe déjà. Une p
 
 Effort et risque : effort S (½ j) ; risque faible.
 
-Entrée dans « Unreleased » des notes de version, et message de commit `feat!(export): remove the RST export`.
+Entrée dans « Unreleased » des notes de version, et message de commit `feat(export): remove the RST export` avec `BREAKING CHANGE:` dans le corps (le contrôle de messages du dépôt refuse le `!`).
 
 Fichiers :
 

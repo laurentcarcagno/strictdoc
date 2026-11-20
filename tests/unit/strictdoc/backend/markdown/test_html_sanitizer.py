@@ -24,6 +24,8 @@ from strictdoc.backend.markdown.markdown_to_html_fragment_writer import (
         '<td colspan="2" rowspan="3" style="text-align: center">cell</td>',
         "<!-- a comment -->",
         "<details><summary>More</summary></details>",
+        '<pre class="mermaid">\ngraph TD\nA --> B(Preview)\n</pre>',
+        '<pre class="plantuml">\n@startuml\nAlice -> Bob: Hello\n@enduml\n</pre>',
     ],
 )
 def test_001_allowed_html_is_kept(html):
