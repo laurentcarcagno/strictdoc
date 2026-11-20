@@ -241,7 +241,8 @@ def find_sdoc_files(paths: List[str]) -> List[str]:
             dirs_[:] = [
                 dir_
                 for dir_ in dirs_
-                if dir_ not in (".git", "output", "build", "node_modules")
+                if dir_
+                not in (".git", ".sandbox", "output", "build", "node_modules")
             ]
             for file_ in files_:
                 if file_.endswith(".sdoc"):

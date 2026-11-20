@@ -27,7 +27,8 @@ from docutils.parsers.rst import Directive, directives, roles
 from strictdoc.backend.rst.directives.raw_html_role import raw_html_role
 from strictdoc.core.image_formats import SUPPORTED_IMAGE_FORMATS
 
-_MARKER = re.compile(r"\[(?:LINK|ANCHOR): [^\]\n]*\]")
+# An anchor title in double quotes may hold a closing bracket.
+_MARKER = re.compile(r'\[(?:LINK|ANCHOR): (?:[^\]"\n]|"[^"\n]*")*\]')
 _MARKER_WORD = re.compile(r"SDOCMARKER(\d+)END")
 _EQUATION_WORD = re.compile(r"SDOCEQUATION([A-Za-z0-9]+)END")
 
