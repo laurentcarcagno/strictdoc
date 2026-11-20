@@ -91,8 +91,8 @@ Déduits des décisions, absents de la liste des 97 tâches. À valider si vous 
 |---|---|---|---|
 | PRE-1 | Créer la branche `feature/markdown-only` depuis `develop` et l'étiquette `pre-markdown-only` | C-08 | S (½ j) |
 | PRE-2 | Retirer arm64 et le disque amovible des tests Docker (Q-08) | Q-08 | S (½ j) |
-| PRE-3 | Renuméroter les exigences SDOC-SRS-208 à 216 du fork, qui entrent en collision avec l'amont | Q-03 | S (½ j) |
-| PRE-4 | Cherry-pick des correctifs utiles de l'amont : cycles avec rôle (`e9183ab39`), commentaires multiples en Markdown (`b9163da37`), restriction du clone (`b74372e08`), correctifs ReqIF et Excel | C-07 | M (1 à 2 j) |
+| PRE-3 | Renuméroter les exigences SDOC-SRS-208 à 216 du fork, qui entrent en collision avec l'amont. Fait : elles deviennent SDOC-SRS-1208 à 1216 | Q-03 | S (½ j) |
+| PRE-4 | Cherry-pick des correctifs utiles de l'amont : cycles avec rôle (`e9183ab39`), commentaires multiples en Markdown (`b9163da37`), restriction du clone (`b74372e08`), correctifs Excel (`82316b358`) et ReqIF (`c7b1e0879`, `bbbc23f31`, `423475562`). Fait, avec `-x` | C-07 | M (1 à 2 j) |
 | PRE-5 | Mesures de référence : export HTML de REQ_02 et de `docs/`, temps d'export | Q-02, Q-07 | S (½ j) |
 | PRE-6 | Inventaire des projets réels (M-01), pour confirmer qu'aucun projet RST ne manque | M-01 | S (½ j) |
 
@@ -118,6 +118,7 @@ Déduits des décisions, absents de la liste des 97 tâches. À valider si vous 
 | Q-06 | CI, packaging et durée (arm64 retiré) | Phase 4 |
 | Q-07 | Mesure de performance | Avant la phase 1 et après la phase 4 |
 | Q-08 | Retirer la prise en charge d'arm64 des tests Docker | Préalable, en premier |
+| Q-09 | Corriger les tests qui échouent déjà sur `develop` (10 tests d'intégration, 1 unitaire, 1 serveur, liste dans la mémoire du projet) | Quand une phase touche ce qu'un test vérifie, tous avant la fin |
 
 ## 7. Détail des tâches
 
