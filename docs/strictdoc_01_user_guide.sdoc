@@ -58,7 +58,7 @@ Summary of StrictDoc features:
 - StrictDoc reads these files and builds an in-memory representation of a
   document tree.
 - From this in-memory representation, StrictDoc can generate the documentation
-  into a number of formats including HTML, RST, ReqIF, PDF, JSON, Excel.
+  into a number of formats including HTML, Markdown, ReqIF, PDF, JSON, Excel.
 - StrictDoc has a web-based user interface which allows viewing and editing
   the documents and requirements. The changes are written back to .sdoc files
   and Markdown files.
@@ -601,7 +601,7 @@ MID: aad57726976f4882982458de90d168c7
 STATEMENT: >>>
 StrictDoc language markup (SDoc) can be activated in all IDEs that support the
 TextMate grammars. When the StrictDoc grammar is integrated into an IDE, the
-SDoc syntax becomes highlighted just as any other syntax like Markdown, RST,
+SDoc syntax becomes highlighted just as any other syntax like Markdown,
 Python, etc.
 
 The TextMate grammars can be defined in either JSON or PLIST formats.
@@ -795,7 +795,7 @@ The `OPTIONS` field may have the following attribute fields:
 </thead>
 <tbody>
 <tr><td><code>ENABLE_MID</code></td><td><code>False</code> (default), <code>True</code></td></tr>
-<tr><td><code>MARKUP</code></td><td><code>RST</code> (default), <code>HTML</code>, <code>Text</code></td></tr>
+<tr><td><code>MARKUP</code></td><td><code>Markdown</code> (default), <code>HTML</code></td></tr>
 <tr><td><code>AUTO_LEVELS</code></td><td><code>On</code> (default), <code>Off</code></td></tr>
 <tr><td><code>VIEW_STYLE</code></td><td><code>Inline</code> (default), <code>Table</code>, <code>Zebra</code></td></tr>
 <tr><td><code>NODE_IN_TOC</code></td><td><code>True</code> (default), <code>False</code></td></tr>
@@ -823,8 +823,10 @@ TITLE: MARKUP
 MID: 19f65eabcd1c4f28a0091133979b5b6e
 STATEMENT: >>>
 The `MARKUP` option controls which markup renderer will be used.
-The available options are: `RST`, `HTML` and `Text`. Default is
-`RST`.
+The available options are: `Markdown` and `HTML`. Default is
+`Markdown`: the option can be left out, and `MARKUP: Markdown` changes nothing.
+`MARKUP: RST` and `MARKUP: Text` are no longer supported: see
+[LINK: SECTION-UG-Migrate-RST-to-Markdown].
 <<<
 
 [[/SECTION]]
@@ -1125,7 +1127,7 @@ As of 2025 Q2, StrictDoc is switching to a new `[[SECTION]]` syntax for declarin
 
 The `[[SECTION]]` element can used for creating document chapters and grouping
 requirements into logical groups. It is equivalent to the use of `#`, `##`,
-`###`, etc., in Markdown and `====`, `----`, `~~~~` in RST.
+`###`, etc., in Markdown.
 
 ```strictdoc
 [DOCUMENT]
@@ -1767,8 +1769,8 @@ meta-information such as `MID`, `UID`, `TITLE`, `TAGS`, etc. Multiline
 fields are used for the actual document or requirement content such as
 `STATEMENT`, `RATIONALE`, `COMMENT`, and similar fields.
 
-Single-line fields are parsed as plain text, not as RST. To render RST or to
-have `[LINK: ...]` recognized as HTML, the field must be multiline.
+Single-line fields are parsed as plain text, not as Markdown. To render Markdown
+or to have `[LINK: ...]` recognized as HTML, the field must be multiline.
 
 By convention, each node contains one primary multiline field: `STATEMENT`,
 `CONTENT` or `DESCRIPTION`. All fields before the primary multiline field
@@ -2573,7 +2575,7 @@ The following link references a section: [LINK: SDOC_UG_LINKS_AND_ANCHORS].
 <div class="sdoc-admonition sdoc-note" role="note">
 <p class="sdoc-admonition-title">Note</p>
 
-Adding a LINK tag only works when it is placed in multiline fields written with `>>>...<<<`. Single-line fields do not support RST syntax or tags such as `[LINK:...]`. See also: [LINK: SECTION-UG-Single-vs-multiline-fields].
+Adding a LINK tag only works when it is placed in multiline fields written with `>>>...<<<`. Single-line fields do not support Markdown syntax or tags such as `[LINK:...]`. See also: [LINK: SECTION-UG-Single-vs-multiline-fields].
 
 </div>
 <<<
