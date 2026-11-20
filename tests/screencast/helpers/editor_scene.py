@@ -7,7 +7,7 @@ from playwright.sync_api import Page
 from pygments import highlight
 from pygments.formatters import HtmlFormatter
 
-from strictdoc.backend.rst.strictdoc_lexer import StrictDocLexer
+from strictdoc.backend.markdown.strictdoc_lexer import StrictDocLexer
 
 # Reuses StrictDoc's own .sdoc syntax highlighter (the same Pygments lexer
 # used to highlight `.. code:: strictdoc` blocks in the docs) and the

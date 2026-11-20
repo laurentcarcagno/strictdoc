@@ -1146,7 +1146,7 @@ def release_pyinstaller(context):
             --additional-hooks-dir developer/pyinstaller_hooks
             --distpath {path_to_pyi_dist}
             --hidden-import strictdoc.api
-            --hidden-import strictdoc.backend.rst.strictdoc_lexer
+            --hidden-import strictdoc.backend.markdown.strictdoc_lexer
             --hidden-import strictdoc.core.statistics.metric
             --hidden-import strictdoc.export.html.generators.project_statistics
             --hidden-import strictdoc.export.html.generators.view_objects.project_statistics_view_object

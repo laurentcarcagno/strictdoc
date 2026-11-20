@@ -44,7 +44,7 @@ class RstToHtmlFragmentWriter:
     roles.register_local_role("rawhtml", raw_html_role)
 
     # FIXME: It doesn't feel right to load lexers like this.
-    _load_lexers("strictdoc.backend.rst.strictdoc_lexer")
+    _load_lexers("strictdoc.backend.markdown.strictdoc_lexer")
 
     BASE_SETTINGS = {
         # This is important for code syntax highlighting. The setting of

@@ -140,7 +140,7 @@ class StrictDocLexer(RegexLexer):  # type: ignore[misc]
 
 # Register the lexer
 _mapping.LEXERS["StrictDocLexer"] = (
-    "strictdoc.backend.rst.strictdoc_lexer",  # module path
+    "strictdoc.backend.markdown.strictdoc_lexer",  # module path
     "StrictDoc",
     ("strictdoc",),  # aliases
     ("*.sdoc",),  # filename patterns

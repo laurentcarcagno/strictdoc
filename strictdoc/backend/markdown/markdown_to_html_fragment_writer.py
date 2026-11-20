@@ -15,10 +15,13 @@ from markdown_it.token import Token
 from markdown_it.utils import EnvType, OptionsDict
 from markupsafe import Markup
 from pygments.formatters import HtmlFormatter
-from pygments.lexers import get_lexer_by_name
+from pygments.lexers import _load_lexers, get_lexer_by_name
 from pygments.util import ClassNotFound
 
 from strictdoc.backend.markdown.html_sanitizer import sanitize_html_fragment
+
+# The lexer of the SDoc syntax, for the code blocks written ```strictdoc.
+_load_lexers("strictdoc.backend.markdown.strictdoc_lexer")
 
 # This mirrors RstToHtmlFragmentWriter.BASE_SETTINGS' "syntax_highlight":
 # "short", so that Markdown and RST code blocks emit the same short Pygments

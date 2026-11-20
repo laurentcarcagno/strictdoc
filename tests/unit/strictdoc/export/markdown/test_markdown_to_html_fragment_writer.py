@@ -136,3 +136,13 @@ def test_10_renders_two_inline_math_formulas_in_one_paragraph():
         '<span class="math notranslate nohighlight">\\( m_p = 30\\,kg \\)</span>'
         in html_output
     )
+
+
+def test_strictdoc_code_blocks_are_highlighted_with_the_sdoc_lexer():
+    markdown_input = "```strictdoc\n[DOCUMENT]\nTITLE: Title\n```\n"
+
+    html_output = MarkdownToHtmlFragmentWriter().write(markdown_input)
+
+    assert '<pre class="code">' in html_output
+    assert '<span class="' in html_output
+    assert "TITLE" in html_output

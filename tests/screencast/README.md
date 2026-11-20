@@ -160,7 +160,7 @@ visual/color changes, which stay CSS-only.
 
 `editor.html`'s content isn't hand-highlighted: `editor_scene.py` reuses
 StrictDoc's own Pygments lexer
-(`strictdoc.backend.rst.strictdoc_lexer.StrictDocLexer` — the same one
+(`strictdoc.backend.markdown.strictdoc_lexer.StrictDocLexer` — the same one
 that highlights `.. code:: strictdoc` blocks in the docs) to tokenize
 each `.sdoc` line, and reuses the product's own
 `strictdoc/export/html/_static/pygments.css` for the token colors, so the
