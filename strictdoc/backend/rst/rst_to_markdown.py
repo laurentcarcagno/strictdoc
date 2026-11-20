@@ -170,6 +170,28 @@ class RstToMarkdownConverter:
             constructs=self._constructs,
         )
 
+    def convert_plain_text(self, text: str) -> ConversionResult:
+        """
+        The Markdown of a field of a document with MARKUP: Text. That markup
+        shows the text as it is, with a line break at every new line: the
+        special characters are escaped and a new line is a hard break.
+        """
+        self._markers = []
+        protected = _MARKER.sub(self._protect_marker, text)
+        paragraphs: List[str] = []
+        for block_ in re.split(r"\n[ \t]*\n", protected.strip("\n")):
+            lines = _escape_line_starts(
+                [_escape_text(line_.rstrip()) for line_ in block_.split("\n")]
+            )
+            paragraphs.append("\\\n".join(lines))
+        markdown = "\n\n".join(paragraphs)
+        markdown = _MARKER_WORD.sub(
+            lambda match_: self._markers[int(match_.group(1))], markdown
+        )
+        if len(markdown) > 0:
+            markdown += "\n"
+        return ConversionResult(markdown=markdown)
+
     def reference_text(self, rst: str) -> str:
         """
         The words of the RST as docutils reads them, for the check of the

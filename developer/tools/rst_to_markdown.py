@@ -5,6 +5,7 @@ pre-markdown-only keeps it).
 
     python developer/tools/rst_to_markdown.py PATH [PATH ...]
         [--dry-run] [--report DIR] [--strict] [--force] [--verify]
+        [--baseline FILE] [--suspect-fields TITLE,STATEMENT] [--text]
 
 PATH is an .sdoc file or a folder. The tool changes the text of the multiline
 fields (and of the STATEMENT, RATIONALE, COMMENT, DESCRIPTION and CONTENT
@@ -22,6 +23,16 @@ of the document that includes it.
 --force     convert even when the Git working tree has changes in the paths
 --verify    compare the words of every field before and after, and list the
             fields that differ
+--baseline  the trace_baseline.json of the project (suspect links). The text of
+            the parents changes with the conversion, so every link would turn
+            suspect: the entries of the links that were reviewed take the hash
+            of the converted parent. A link that was already suspect stays
+            suspect. A trace_baseline.json in a folder that is given is used
+            without this option.
+--text      also convert the documents with MARKUP: Text (their text is
+            escaped, and a new line is a hard break)
+--suspect-fields  the fields of the hash, as the suspect_fields option of the
+            project (default TITLE,STATEMENT)
 
 Nothing is committed: one commit per document or per project is up to the
 person who runs the tool.
@@ -42,6 +53,15 @@ from strictdoc.backend.markdown.markdown_to_html_fragment_writer import (
     MarkdownToHtmlFragmentWriter,
 )
 from strictdoc.backend.rst.rst_to_markdown import RstToMarkdownConverter
+from strictdoc.backend.sdoc.models.node import SDocNode
+from strictdoc.backend.sdoc.reader import SDReader
+from strictdoc.core.document_iterator import SDocDocumentIterator
+from strictdoc.features.hierarchy.suspect import (
+    BASELINE_FILE_NAME,
+    DEFAULT_SUSPECT_FIELDS,
+    Baseline,
+    content_hash,
+)
 
 _MULTILINE_START = re.compile(r"^([A-Za-z_][A-Za-z_0-9]*): >>>[ \t]*$")
 _SINGLE_LINE = re.compile(r"^([A-Z_]+): (\S.*)$")
@@ -266,7 +286,7 @@ def effective_markup(
 
 
 def convert_file(
-    file_: LoadedFile, verify: bool
+    file_: LoadedFile, verify: bool, plain_text: bool = False
 ) -> Tuple[List[str], FileReport, Counter]:  # type: ignore[type-arg]
     """The new lines of the file, and what was done."""
     spans = scan_fields(file_.lines)
@@ -277,12 +297,13 @@ def convert_file(
         values.append(_value_of(file_.lines, span_))
     # Two passes: the equations are numbered in the order of the file, so a
     # reference to an equation of a later field finds its number.
+    convert = converter.convert_plain_text if plain_text else converter.convert
     for value_ in values:
-        converter.convert(value_)
+        convert(value_)
     report = FileReport(file_.path, "unchanged")
     replacements: List[Tuple[FieldSpan, str]] = []
     for span_, value_ in zip(spans, values):
-        result = converter.convert(value_)
+        result = convert(value_)
         constructs.update(result.constructs)
         new_value = result.markdown.rstrip("\n")
         status = (
@@ -290,7 +311,9 @@ def convert_file(
         )
         detail = ""
         if verify and len(value_.strip()) > 0:
-            old_words = words_of_rst(converter.reference_text(value_))
+            old_words = words_of_rst(
+                value_ if plain_text else converter.reference_text(value_)
+            )
             new_words = words_of_markdown(new_value)
             if old_words != new_words:
                 status = "differs"
@@ -313,7 +336,7 @@ def convert_file(
         lines[span_.first : span_.last + 1] = _field_lines(
             span_, new_value, file_.newline
         )
-    if len(replacements) > 0 or file_.own_markup == "RST":
+    if len(replacements) > 0 or file_.own_markup in ("RST", "Text"):
         lines = set_markup(lines, file_.newline)
         report.status = "converted"
     return lines, report, constructs
@@ -343,6 +366,43 @@ def _first_difference(old: List[str], new: List[str]) -> str:
                 f"({len(old)} words before, {len(new)} after)"
             )
     return f"{len(old)} words before, {len(new)} after"
+
+
+def node_hashes(path: str, fields: List[str]) -> Dict[str, str]:
+    """The hash of the reviewed content of every node of a file, by UID."""
+    with open(path, encoding="utf8") as file_:
+        document = SDReader.read(file_.read(), path)
+    hashes: Dict[str, str] = {}
+    iterator = SDocDocumentIterator(document=document, node_filter=None)
+    for node_, _ in iterator.all_content(print_fragments=False):
+        if isinstance(node_, SDocNode) and node_.reserved_uid:
+            hashes[node_.reserved_uid] = content_hash(node_, fields)
+    return hashes
+
+
+def rebaseline(
+    baseline: Baseline,
+    old_hashes: Dict[str, str],
+    new_hashes: Dict[str, str],
+) -> Tuple[int, int]:
+    """
+    The entries of the reviewed links take the hash of the converted parent.
+    Returns the number of entries that were updated and the number of links
+    that stay suspect because they were suspect before.
+    """
+    updated = 0
+    suspect = 0
+    for key_, reviewed_ in list(baseline.entries.items()):
+        parent = key_.rsplit(" < ", 1)[-1]
+        if parent not in old_hashes or parent not in new_hashes:
+            continue
+        if reviewed_ == old_hashes[parent]:
+            if new_hashes[parent] != reviewed_:
+                baseline.entries[key_] = new_hashes[parent]
+                updated += 1
+        else:
+            suspect += 1
+    return updated, suspect
 
 
 def git_is_clean(paths: List[str]) -> bool:
@@ -443,7 +503,19 @@ def main(argv: Optional[List[str]] = None) -> int:
     parser.add_argument("--strict", action="store_true")
     parser.add_argument("--force", action="store_true")
     parser.add_argument("--verify", action="store_true")
+    parser.add_argument("--text", action="store_true")
+    parser.add_argument("--baseline")
+    parser.add_argument(
+        "--suspect-fields", default=",".join(DEFAULT_SUSPECT_FIELDS)
+    )
     args = parser.parse_args(argv)
+    suspect_fields = [f_.strip() for f_ in args.suspect_fields.split(",")]
+    baseline_path = args.baseline
+    if baseline_path is None:
+        for path_ in args.paths:
+            candidate = os.path.join(path_, BASELINE_FILE_NAME)
+            if os.path.isfile(candidate):
+                baseline_path = candidate
 
     if not args.dry_run and not args.force and not git_is_clean(args.paths):
         print(  # noqa: T201
@@ -456,18 +528,38 @@ def main(argv: Optional[List[str]] = None) -> int:
     files = load_files(find_sdoc_files(args.paths))
     reports: List[FileReport] = []
     constructs: Counter = Counter()  # type: ignore[type-arg]
+    old_hashes: Dict[str, str] = {}
+    converted_paths: List[str] = []
     for path_, file_ in files.items():
         markup = effective_markup(files, path_)
-        if markup not in (None, "RST"):
+        convertible = (None, "RST", "Text") if args.text else (None, "RST")
+        if markup not in convertible:
             reports.append(FileReport(path_, "skipped", f"MARKUP: {markup}"))
             continue
-        lines, report, file_constructs = convert_file(file_, args.verify)
+        lines, report, file_constructs = convert_file(
+            file_, args.verify, plain_text=markup == "Text"
+        )
         constructs.update(file_constructs)
         reports.append(report)
         if report.status == "converted" and not args.dry_run:
+            if baseline_path is not None:
+                old_hashes.update(node_hashes(path_, suspect_fields))
             with open(path_, "w", encoding="utf8", newline="") as output_:
                 output_.write("".join(lines))
+            converted_paths.append(path_)
 
+    if baseline_path is not None and not args.dry_run:
+        new_hashes: Dict[str, str] = {}
+        for path_ in converted_paths:
+            new_hashes.update(node_hashes(path_, suspect_fields))
+        baseline = Baseline.load(baseline_path)
+        updated, suspect = rebaseline(baseline, old_hashes, new_hashes)
+        if updated > 0:
+            baseline.save(baseline_path)
+        print(  # noqa: T201
+            f"Baseline {baseline_path}: {updated} links reviewed again, "
+            f"{suspect} links that were suspect stay suspect."
+        )
     if args.report:
         write_report(args.report, reports, constructs)
     converted_files = sum(1 for r_ in reports if r_.status == "converted")

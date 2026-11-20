@@ -211,3 +211,104 @@ def test_015_a_single_line_field_that_becomes_long_is_written_as_a_block(
     text = path.read_text(encoding="utf8")
     assert "STATEMENT: >>>\n<div" in text
     assert "<<<\n" in text
+
+
+PARENT_CHILD = """\
+[DOCUMENT]
+TITLE: Document
+
+[REQUIREMENT]
+UID: REQ-1
+TITLE: Parent
+STATEMENT: >>>
+The system shall use ``x`` and *y*.
+<<<
+
+[REQUIREMENT]
+UID: REQ-2
+TITLE: Child
+STATEMENT: Child text.
+RELATIONS:
+- TYPE: Parent
+  VALUE: REQ-1
+
+[REQUIREMENT]
+UID: REQ-3
+TITLE: Other child
+STATEMENT: Other child text.
+RELATIONS:
+- TYPE: Parent
+  VALUE: REQ-1
+"""
+
+
+def test_016_the_baseline_follows_the_conversion_of_a_reviewed_parent(
+    tmp_path,
+):
+    path = _write(tmp_path, "a.sdoc", PARENT_CHILD)
+    fields = ["TITLE", "STATEMENT"]
+    before = script.node_hashes(str(path), fields)["REQ-1"]
+    baseline = script.Baseline(
+        {
+            "REQ-2 < REQ-1": before,
+            # This link was already suspect: its parent changed after review.
+            "REQ-3 < REQ-1": "0" * 40,
+        }
+    )
+    baseline_path = tmp_path / "trace_baseline.json"
+    baseline.save(str(baseline_path))
+
+    code = _run(tmp_path, "--baseline", str(baseline_path))
+
+    assert code == 0
+    after = script.node_hashes(str(path), fields)["REQ-1"]
+    assert after != before
+    saved = script.Baseline.load(str(baseline_path)).entries
+    assert saved["REQ-2 < REQ-1"] == after
+    assert saved["REQ-3 < REQ-1"] == "0" * 40
+
+
+def test_017_a_baseline_in_the_given_folder_is_found_without_the_option(
+    tmp_path,
+):
+    path = _write(tmp_path, "a.sdoc", PARENT_CHILD)
+    before = script.node_hashes(str(path), ["TITLE", "STATEMENT"])["REQ-1"]
+    script.Baseline({"REQ-2 < REQ-1": before}).save(
+        str(tmp_path / "trace_baseline.json")
+    )
+
+    _run(tmp_path)
+
+    saved = script.Baseline.load(str(tmp_path / "trace_baseline.json"))
+    assert saved.entries["REQ-2 < REQ-1"] != before
+
+
+TEXT_DOCUMENT = """\
+[DOCUMENT]
+TITLE: Text document
+OPTIONS:
+  MARKUP: Text
+
+[TEXT]
+STATEMENT: >>>
+First line with *stars* and <tags>.
+Second line.
+
+New paragraph.
+<<<
+"""
+
+
+def test_018_text_documents_are_converted_with_the_text_option_only(tmp_path):
+    path = _write(tmp_path, "t.sdoc", TEXT_DOCUMENT)
+
+    _run(tmp_path)
+    assert path.read_text(encoding="utf8") == TEXT_DOCUMENT
+
+    _run(tmp_path, "--text", "--verify", "--strict")
+    text = path.read_text(encoding="utf8")
+    assert "  MARKUP: Markdown\n" in text
+    assert (
+        "First line with \\*stars\\* and \\<tags>.\\\nSecond line.\n\n"
+        "New paragraph.\n"
+    ) in text
