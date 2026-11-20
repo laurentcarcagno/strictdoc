@@ -81,3 +81,29 @@ sdoc-autogen aside.sdoc-sidebar {
   border: 1px solid var(--color-border);
   background-color: var(--color-bg-secondary);
 }
+
+/* Print and PDF: keep the tint of the title and do not split a box. */
+@media print {
+  sdoc-autogen .sdoc-admonition {
+    break-inside: avoid;
+  }
+
+  sdoc-autogen .sdoc-admonition > .sdoc-admonition-title::after {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  sdoc-autogen .sdoc-admonition > .sdoc-admonition-title {
+    break-after: avoid;
+  }
+
+  sdoc-autogen dl > dt {
+    break-after: avoid;
+  }
+
+  sdoc-autogen aside.sdoc-sidebar {
+    float: none;
+    width: auto;
+    break-inside: avoid;
+  }
+}
