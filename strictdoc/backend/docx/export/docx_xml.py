@@ -22,6 +22,8 @@ def run_xml(run: ExportRun) -> str:
         properties += "<w:b/>"
     if run.italic:
         properties += "<w:i/>"
+    if run.vertical is not None:
+        properties += f'<w:vertAlign w:val="{run.vertical}"/>'
     if run.monospace:
         properties += (
             f'<w:rFonts w:ascii="{MONOSPACE_FONT}" w:hAnsi="{MONOSPACE_FONT}"/>'

@@ -24,6 +24,9 @@ ELEMENTS:
   - TITLE: STATEMENT
     TYPE: String
     REQUIRED: True
+  - TITLE: COMMENT
+    TYPE: String
+    REQUIRED: False
 - TAG: REQUIREMENT
   FIELDS:
   - TITLE: UID
@@ -45,6 +48,9 @@ ELEMENTS:
     TYPE: String
     REQUIRED: True
   - TITLE: NOTE
+    TYPE: String
+    REQUIRED: False
+  - TITLE: COMMENT
     TYPE: String
     REQUIRED: False
   - TITLE: OWNER

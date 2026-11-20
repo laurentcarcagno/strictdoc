@@ -73,6 +73,12 @@ class DocxProfile:
     # A relative path is resolved against the profile file. Without it, a
     # minimal template is built.
     template: Optional[str] = None
+    # The Word styles of the paragraphs of an admonition (a note, a hint, a
+    # tip or an important block use the first; an attention, caution, danger,
+    # error or warning block the second). A template that has no such style
+    # shows these paragraphs as normal text.
+    note_style: str = "Note"
+    warning_style: str = "Warning"
     # The author of the tracked changes that an update of a Word document
     # writes.
     revision_author: str = "StrictDoc"

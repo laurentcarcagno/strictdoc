@@ -38,12 +38,17 @@ class ExportRun:
     bold: bool = False
     italic: bool = False
     monospace: bool = False
+    # "superscript" or "subscript" (<sup> and <sub> of a Markdown field).
+    vertical: Optional[str] = None
     image: Optional[ExportImage] = None
 
 
 @dataclass
 class ExportParagraph:
     runs: List[ExportRun] = field(default_factory=list)
+    # "note" or "warning" for a paragraph of an admonition (a div with the
+    # class sdoc-admonition); the profile names the Word style of each.
+    admonition: Optional[str] = None
 
 
 def rst_to_paragraphs(rst: str) -> List[ExportParagraph]:

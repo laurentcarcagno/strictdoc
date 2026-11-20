@@ -232,7 +232,7 @@ class DocxGenerator:
                 )
             elif isinstance(item_, ExportText):
                 blocks = _text_blocks(
-                    item_.statement, item_.markup, item_.base_dir
+                    item_.statement, item_.markup, item_.base_dir, profile
                 )
                 if item_.comments and blocks:
                     # The comments of a paragraph sit on its first block.
@@ -309,16 +309,28 @@ def heading_style_by_level(profile: DocxProfile) -> Dict[int, str]:
 
 
 def _text_blocks(
-    statement: str, markup: str = MARKUP_RST, base_dir: str = ""
+    statement: str,
+    markup: str = MARKUP_RST,
+    base_dir: str = "",
+    profile: Optional[DocxProfile] = None,
 ) -> List[str]:
     if markup == MARKUP_MARKDOWN:
+        admonition_styles = {
+            "note": profile.note_style if profile is not None else None,
+            "warning": profile.warning_style if profile is not None else None,
+        }
         blocks: List[str] = []
         for block_ in markdown_to_blocks(statement, base_dir):
             if isinstance(block_, ExportTable):
                 blocks.append(table_xml(block_.rows))
                 blocks.append(empty_paragraph_xml())
             else:
-                blocks.append(paragraph_xml(block_))
+                style = (
+                    admonition_styles.get(block_.admonition)
+                    if block_.admonition is not None
+                    else None
+                )
+                blocks.append(paragraph_xml(block_, style))
         return blocks
     if statement.lstrip().startswith(".. list-table::"):
         return [table_xml(_parse_list_table(statement)), empty_paragraph_xml()]

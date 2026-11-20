@@ -14,6 +14,8 @@ from strictdoc.backend.docx.export.markdown_to_paragraphs import (
 )
 from strictdoc.backend.docx.export.sdoc_to_docx_generator import (
     DocxGenerator,
+    ExportText,
+    effective_profile,
     items_from_document,
 )
 from strictdoc.backend.docx.import_.docx_reader import (
@@ -283,3 +285,105 @@ def test_011_an_aligned_html_image_exports_like_a_markdown_image():
 
     assert len(blocks) == 1
     assert [run.text for run in blocks[0].runs] == ["[image: missing.png]"]
+
+
+ADMONITION = (
+    "Before.\n\n"
+    '<div class="sdoc-admonition sdoc-{kind}" role="note">\n'
+    '<p class="sdoc-admonition-title">Title</p>\n\n'
+    "Text in **Markdown**.\n\n"
+    "- item\n\n"
+    "</div>\n\n"
+    "After."
+)
+
+
+def test_012_an_admonition_is_exported_as_paragraphs_of_its_kind():
+    blocks = markdown_to_blocks(ADMONITION.format(kind="note"))
+
+    assert [
+        ("".join(run.text for run in block.runs), block.admonition)
+        for block in blocks
+    ] == [
+        ("Before.", None),
+        ("Title", "note"),
+        ("Text in Markdown.", "note"),
+        ("- item", "note"),
+        ("After.", None),
+    ]
+    assert blocks[1].runs[0].bold is True
+
+
+def test_013_warning_kinds_use_the_warning_style():
+    for kind_ in ("attention", "caution", "danger", "error", "warning"):
+        blocks = markdown_to_blocks(ADMONITION.format(kind=kind_))
+        assert blocks[1].admonition == "warning", kind_
+    for kind_ in ("note", "hint", "tip", "important"):
+        blocks = markdown_to_blocks(ADMONITION.format(kind=kind_))
+        assert blocks[1].admonition == "note", kind_
+
+
+def test_014_a_definition_list_exports_bold_terms_and_definitions():
+    blocks = markdown_to_blocks(
+        "<dl><dt>Term</dt><dd>The <em>definition</em>.</dd></dl>"
+    )
+
+    assert [
+        ("".join(run.text for run in block.runs), block.runs[0].bold)
+        for block in blocks
+    ] == [("Term", True), ("The definition.", False)]
+
+
+def test_015_superscript_and_subscript_are_runs_of_their_own():
+    blocks = markdown_to_blocks("H<sub>2</sub>O and E = mc<sup>2</sup>.")
+
+    assert [(run.text, run.vertical) for run in blocks[0].runs] == [
+        ("H", None),
+        ("2", "subscript"),
+        ("O and E = mc", None),
+        ("2", "superscript"),
+        (".", None),
+    ]
+
+
+def test_016_html_comments_are_dropped_and_other_blocks_keep_their_text():
+    blocks = markdown_to_blocks(
+        "<!-- a comment -->\n\n"
+        '<aside class="sdoc-sidebar">\nSide text.\n</aside>\n'
+    )
+
+    assert ["".join(run.text for run in block.runs) for block in blocks] == [
+        "Side text."
+    ]
+
+
+def test_017_default_template_defines_the_admonition_styles():
+    template = DocxTemplate.minimal(effective_profile(DocxProfile.generic()))
+    package = template.build_package("")
+
+    styles = package["word/styles.xml"].decode("utf8")
+
+    assert 'w:styleId="Note"' in styles
+    assert 'w:styleId="Warning"' in styles
+
+
+def test_018_a_free_text_admonition_gets_the_word_styles_of_the_profile():
+    profile = DocxProfile(
+        requirement_table=PROFILE.requirement_table,
+        markup="Markdown",
+        note_style="Remarque",
+        warning_style="Avertissement",
+    )
+    items = [
+        ExportText(ADMONITION.format(kind="note"), markup="Markdown"),
+        ExportText(ADMONITION.format(kind="danger"), markup="Markdown"),
+    ]
+
+    package = DocxGenerator.generate(
+        items, profile, DocxTemplate.minimal(profile)
+    )
+
+    document_xml = package["word/document.xml"].decode("utf8")
+    assert 'w:pStyle w:val="Remarque"' in document_xml
+    assert 'w:pStyle w:val="Avertissement"' in document_xml
+    assert "&lt;div" not in document_xml

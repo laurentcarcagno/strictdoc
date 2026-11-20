@@ -5,14 +5,19 @@ It supports paragraphs, headings (a bold paragraph), bullet and numbered lists
 (the marker is written as text, like the RST path does), **bold**, *italic*,
 `monospace`, code blocks (one monospace paragraph per line), pipe tables, links
 (the text and the address) and images (written as "[image: name]"). Raw HTML is
-ignored, except <br>, which is a line break.
+ignored, except <br>, which is a line break; <sup> and <sub>, which are
+superscript and subscript runs; the admonitions (a div of the class
+sdoc-admonition), whose paragraphs carry the kind "note" or "warning"; and the
+definition lists (the term is bold). The text of any other HTML block is kept
+without its tags, and the comments are dropped.
 """
 
 import html
 import os
 import re
 from dataclasses import dataclass
-from typing import List, Optional, Union
+from html.parser import HTMLParser
+from typing import List, Optional, Tuple, Union
 from urllib.parse import unquote, urlparse
 
 from markdown_it import MarkdownIt
@@ -32,6 +37,18 @@ _HTML_PARAGRAPH = re.compile(
     r"<p(?:\s[^>]*)?>(.*)</p>", re.IGNORECASE | re.DOTALL
 )
 _EMPHASIS_HTML = re.compile(r"<(/?)(strong|b|em|i)>", re.IGNORECASE)
+_VERTICAL_HTML = re.compile(r"<(/?)(sup|sub)>", re.IGNORECASE)
+_ADMONITION_OPEN = re.compile(
+    r'<div\b[^>]*\bclass="([^"]*\bsdoc-admonition\b[^"]*)"[^>]*>',
+    re.IGNORECASE,
+)
+_ADMONITION_TITLE = re.compile(
+    r'<p\b[^>]*\bclass="[^"]*\bsdoc-admonition-title\b[^"]*"[^>]*>'
+    r"(.*?)</p>",
+    re.IGNORECASE | re.DOTALL,
+)
+_CLOSING_DIV = re.compile(r"</div>", re.IGNORECASE)
+_WARNING_KINDS = ("attention", "caution", "danger", "error", "warning")
 _IMAGE_HTML = re.compile(r"<img\s[^>]*>", re.IGNORECASE)
 _HTML_ATTRIBUTE = re.compile(r'([\w-]+)="([^"]*)"')
 
@@ -52,10 +69,12 @@ def markdown_to_blocks(markdown: str, base_dir: str = "") -> List[ExportBlock]:
     blocks: List[ExportBlock] = []
     lists: List[List[object]] = []  # [ordered, next number]
     prefix: Optional[str] = None
+    admonition: Optional[str] = None
     index = 0
     while index < len(tokens):
         token = tokens[index]
         kind = token.type
+        blocks_before = len(blocks)
         if kind in ("bullet_list_open", "ordered_list_open"):
             start = token.attrGet("start")
             lists.append([kind == "ordered_list_open", int(start or 1)])
@@ -92,23 +111,137 @@ def markdown_to_blocks(markdown: str, base_dir: str = "") -> List[ExportBlock]:
             blocks.append(table)
         elif kind == "html_block":
             text = token.content.strip()
-            html_paragraph = _HTML_PARAGRAPH.fullmatch(text)
-            if html_paragraph is not None:
-                # The text of the paragraph, without its tags. This export
-                # has no alignment.
-                inline_tokens = _PARSER.parseInline(html_paragraph.group(1))
-                blocks.append(
-                    ExportParagraph(
-                        _inline_runs(
-                            inline_tokens[0].children or [],
-                            base_dir=base_dir,
+            opening = _admonition_kind(text)
+            if opening is not None:
+                admonition = opening
+                title = _ADMONITION_TITLE.search(text)
+                if title is not None:
+                    title_tokens = _PARSER.parseInline(title.group(1))
+                    blocks.append(
+                        ExportParagraph(
+                            _inline_runs(
+                                title_tokens[0].children or [],
+                                bold=True,
+                                base_dir=base_dir,
+                            )
                         )
                     )
-                )
-            elif len(text) > 0 and _LINE_BREAK_HTML.fullmatch(text) is None:
-                blocks.append(ExportParagraph([ExportRun(text)]))
+            elif (
+                admonition is not None
+                and _CLOSING_DIV.fullmatch(text) is not None
+            ):
+                admonition = None
+            else:
+                blocks.extend(_html_block_paragraphs(text, base_dir))
+        if admonition is not None:
+            for block_ in blocks[blocks_before:]:
+                if isinstance(block_, ExportParagraph):
+                    block_.admonition = admonition
         index += 1
     return blocks
+
+
+def _admonition_kind(html_text: str) -> Optional[str]:
+    """The kind ("note" or "warning") of an admonition that this HTML opens."""
+    match = _ADMONITION_OPEN.match(html_text)
+    if match is None:
+        return None
+    classes = match.group(1).split()
+    if any(f"sdoc-{kind_}" in classes for kind_ in _WARNING_KINDS):
+        return "warning"
+    return "note"
+
+
+def _html_block_paragraphs(text: str, base_dir: str) -> List[ExportParagraph]:
+    if len(text) == 0 or _LINE_BREAK_HTML.fullmatch(text) is not None:
+        return []
+    html_paragraph = _HTML_PARAGRAPH.fullmatch(text)
+    if html_paragraph is not None:
+        # The text of the paragraph, without its tags. This export has no
+        # alignment.
+        inline_tokens = _PARSER.parseInline(html_paragraph.group(1))
+        return [
+            ExportParagraph(
+                _inline_runs(inline_tokens[0].children or [], base_dir=base_dir)
+            )
+        ]
+    if re.match(r"<dl\b", text, re.IGNORECASE) is not None:
+        parser = _DefinitionListParser()
+        parser.feed(text)
+        parser.close()
+        return [
+            ExportParagraph([ExportRun(text_, bold=is_term_)])
+            for is_term_, text_ in parser.entries
+        ]
+    text_parser = _TextParser()
+    text_parser.feed(text)
+    text_parser.close()
+    return [
+        ExportParagraph([ExportRun(line_)]) for line_ in text_parser.lines()
+    ]
+
+
+class _TextParser(HTMLParser):
+    """The text of an HTML block, one line per block element."""
+
+    _BREAKING = frozenset(
+        {
+            "p", "div", "li", "dt", "dd", "tr", "br", "details", "summary",
+            "aside", "figure", "figcaption", "blockquote", "table", "ul", "ol",
+            "dl", "h1", "h2", "h3", "h4", "h5", "h6", "pre", "hr",
+        }
+    )  # fmt: skip
+
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.parts: List[str] = []
+
+    def handle_starttag(self, tag: str, _attrs: object) -> None:
+        if tag in self._BREAKING:
+            self.parts.append("\n")
+
+    def handle_endtag(self, tag: str) -> None:
+        if tag in self._BREAKING:
+            self.parts.append("\n")
+
+    def handle_data(self, data: str) -> None:
+        self.parts.append(data)
+
+    def lines(self) -> List[str]:
+        lines = (
+            " ".join(line_.split()) for line_ in "".join(self.parts).split("\n")
+        )
+        return [line_ for line_ in lines if len(line_) > 0]
+
+
+class _DefinitionListParser(HTMLParser):
+    """The terms (True) and the definitions (False) of a <dl>."""
+
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.entries: List[Tuple[bool, str]] = []
+        self._current: Optional[bool] = None
+        self._text: List[str] = []
+
+    def handle_starttag(self, tag: str, _attrs: object) -> None:
+        if tag in ("dt", "dd"):
+            self._flush()
+            self._current = tag == "dt"
+
+    def handle_endtag(self, tag: str) -> None:
+        if tag in ("dt", "dd", "dl"):
+            self._flush()
+
+    def handle_data(self, data: str) -> None:
+        if self._current is not None:
+            self._text.append(data)
+
+    def _flush(self) -> None:
+        text = " ".join("".join(self._text).split())
+        if self._current is not None and len(text) > 0:
+            self.entries.append((self._current, text))
+        self._text = []
+        self._current = None
 
 
 def markdown_to_paragraphs(
@@ -148,6 +281,7 @@ def _inline_runs(
     italic_depth = 0
     links: List[str] = []
     link_text_start: List[int] = []
+    vertical: List[str] = []
 
     def add(text: str, monospace: bool = False) -> None:
         if len(text) == 0:
@@ -157,6 +291,7 @@ def _inline_runs(
             bold=bold or bold_depth > 0,
             italic=italic_depth > 0,
             monospace=monospace,
+            vertical=vertical[-1] if len(vertical) > 0 else None,
         )
         if len(runs) > 0 and _same_format(runs[-1], run):
             runs[-1].text += text
@@ -194,8 +329,17 @@ def _inline_runs(
         elif kind == "html_inline":
             tag = child_.content.strip()
             emphasis = _EMPHASIS_HTML.fullmatch(tag)
+            vertical_tag = _VERTICAL_HTML.fullmatch(tag)
             if _LINE_BREAK_HTML.fullmatch(tag) is not None:
                 add("\n")
+            elif vertical_tag is not None:
+                if vertical_tag.group(1) == "/":
+                    if len(vertical) > 0:
+                        vertical.pop()
+                elif vertical_tag.group(2).lower() == "sup":
+                    vertical.append("superscript")
+                else:
+                    vertical.append("subscript")
             elif emphasis is not None:
                 step = -1 if emphasis.group(1) == "/" else 1
                 if emphasis.group(2).lower() in ("strong", "b"):
@@ -228,10 +372,11 @@ def _inline_runs(
 
 
 def _same_format(first: ExportRun, second: ExportRun) -> bool:
-    return (first.bold, first.italic, first.monospace) == (
+    return (first.bold, first.italic, first.monospace, first.vertical) == (
         second.bold,
         second.italic,
         second.monospace,
+        second.vertical,
     )
 
 

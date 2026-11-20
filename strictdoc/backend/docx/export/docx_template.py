@@ -396,6 +396,18 @@ def _styles_xml(profile: DocxProfile) -> str:
             f'<w:name w:val="{style_}"/><w:basedOn w:val="Normal"/>{bold}'
             "</w:style>"
         )
+    # The paragraphs of an admonition: an indent and a coloured bar on the left.
+    for style_, color_ in (
+        (profile.note_style, "4682B4"),
+        (profile.warning_style, "FF8C00"),
+    ):
+        styles.append(
+            f'<w:style w:type="paragraph" w:customStyle="1" w:styleId="{style_}">'
+            f'<w:name w:val="{style_}"/><w:basedOn w:val="Normal"/>'
+            '<w:pPr><w:pBdr><w:left w:val="single" w:sz="24" w:space="8" '
+            f'w:color="{color_}"/></w:pBdr><w:ind w:left="284"/></w:pPr>'
+            "</w:style>"
+        )
     return (
         '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
         f'<w:styles xmlns:w="{WORD_NAMESPACE}">'
