@@ -130,22 +130,6 @@ class SDocRuntimeEnvironment:
             assert os.path.isabs(path), path
         return static_files_paths
 
-    def get_path_to_rst_templates(self) -> str:
-        if self.is_py_installer:  # pragma: no cover
-            # If the application is run as a bundle, the PyInstaller bootloader
-            # extends the sys module by a flag frozen=True and sets the app
-            # path into variable _MEIPASS'.
-            bundle_dir = (
-                sys._MEIPASS  # type: ignore[attr-defined]
-            )
-            return os.path.join(bundle_dir, "templates/rst")
-        if self.is_nuitka:  # pragma: no cover
-            return os.path.join(self.path_to_strictdoc, "templates/rst")
-        # Normal Python
-        return os.path.join(
-            self.path_to_strictdoc, "strictdoc", "backend", "rst", "templates"
-        )
-
     def get_path_to_html_templates(self) -> List[str]:
         if self.is_py_installer:  # pragma: no cover
             # If the application is run as a bundle, the PyInstaller bootloader

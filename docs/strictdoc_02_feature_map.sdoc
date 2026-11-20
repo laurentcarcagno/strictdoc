@@ -473,56 +473,6 @@ DOCUMENTATION: >>>
 [[/SECTION]]
 
 [[SECTION]]
-MID: dd4d9c0d593b46f8a0abfb3fd91356ae
-TITLE: Export to RST
-
-[[SECTION]]
-MID: ab0e4d27b6334b44bd4b46425842cdbe
-TITLE: Definition
-
-[FEATURE]
-MID: dd686a557c3e4e50ba89538a74d39383
-UID: SDOC-FEAT-8
-STATUS: Stable
-TITLE: Export to RST
-STATEMENT: >>>
-The "Export to RST" feature in StrictDoc allows users to convert their SDoc
-documentation into reStructuredText (RST) format, which is compatible with
-Sphinx documentation generator. This process enables a two-stage conversion
-workflow where SDoc documents can first be exported to RST and then further
-processed by Sphinx to generate HTML websites, PDF documents, or other formats.
-This feature is particularly useful for users who already have a Sphinx-based
-documentation pipeline, as it integrates StrictDoc’s requirements management
-capabilities with Sphinx.
-<<<
-DOCUMENTATION: >>>
-- [LINK: SECTION-UG-HTML-export-via-Sphinx]
-- [LINK: SECTION-UG-PDF-export-via-Sphinx-LaTeX]
-- [LINK: SDOC_UG_LIMIT_RST]
-<<<
-
-[[/SECTION]]
-
-[[SECTION]]
-MID: f0a7041347444f3a822129120faf0fcd
-TITLE: Screenshots
-
-[TEXT]
-MID: 45be72764a73440b8abf313bb84420aa
-STATEMENT: >>>
-**Export to RST and PDF using Sphinx/LaTeX**
-
-.. image:: _assets/Feature_Screenshot_RSTExport_01_SphinxPDF.png
-    :alt: StrictDoc HTML export – Project tree
-    :class: image
-    :width: 100%
-<<<
-
-[[/SECTION]]
-
-[[/SECTION]]
-
-[[SECTION]]
 MID: 2e8e39a2198e4f8aa18a470a892e4d25
 TITLE: Export to PDF
 

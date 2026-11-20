@@ -699,9 +699,6 @@ class ProjectConfig:
         from strictdoc.backend.reqif.reqif_format import (  # noqa: PLC0415
             ReqIFFormat,
         )
-        from strictdoc.backend.rst.rst_format import (  # noqa: PLC0415
-            RSTFormat,
-        )
         from strictdoc.backend.sdoc.sdoc_format import (  # noqa: PLC0415
             SDocFormat,
         )
@@ -727,7 +724,6 @@ class ProjectConfig:
         return [
             HTMLFormat(),
             HTML2PDFFormat(),
-            RSTFormat(),
             ExcelFormat(),
             DocxFormat(),
             ReqIFFormat(),

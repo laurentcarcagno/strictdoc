@@ -214,17 +214,10 @@ STATEMENT: >>>
 StrictDoc is only partially compatible with Sphinx.
 
 StrictDoc does not have Sphinx in its dependency tree, and it does not use any
-of Sphinx API. Instead, StrictDoc uses Docutils for RST markup support. Using
-Docutils, StrictDoc can generate SDoc files to RST files.
+of Sphinx API. Instead, StrictDoc uses Docutils for RST markup support.
 
-There are users of StrictDoc who use both StrictDoc and Sphinx. The following
-workflow is known to work:
-
-- Write some documentation in SDoc files.
-- Export an SDoc documentation tree to an RST documentation tree.
-- Connect RST documentation tree with a Sphinx setup.
-- Run Sphinx against an RST documentation tree, obtain a Sphinx documentation
-  website or LaTex PDF.
+StrictDoc no longer exports SDoc content to RST, so it no longer feeds a Sphinx
+documentation tree.
 
 There is a GitHub issue
 `Unexpected restriction on specific RST directives / compatibility with Breathe Sphinx Plugin #1093 <https://github.com/strictdoc-project/strictdoc/issues/1093>`_
@@ -326,12 +319,7 @@ STATEMENT: >>>
 Both Sphinx and StrictDoc are both documentation generators but StrictDoc is at
 a higher level of abstraction: StrictDoc's specialization is requirements and
 specifications documents. StrictDoc can generate documentation to a number of
-formats including HTML format as well as the RST format which is a default
-input format for Sphinx.
-
-A two-stage generation is therefore possible: StrictDoc generates RST
-documentation which then can be generated to HTML, PDF, and other formats using
-Sphinx.
+formats including HTML and Markdown.
 
 This documentation itself (the website you may currently be reading at
 https://strictdoc.readthedocs.io) is generated directly by StrictDoc's HTML

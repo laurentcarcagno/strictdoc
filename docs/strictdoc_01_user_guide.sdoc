@@ -461,7 +461,7 @@ The easiest way to see the static HTML export feature in action is to run the
 
 The ``export`` command is the main producer of documentation. The native export
 format of StrictDoc is HTML. The ``export`` command supports a number of
-parameters, including the option for selecting export formats (HTML, RST, Excel,
+parameters, including the option for selecting export formats (HTML, Markdown, Excel,
 etc.). The options can be explored with the ``--help`` command.
 
 .. code:: text
@@ -2765,41 +2765,6 @@ This is the example of how images are included using the reST syntax:
     directory and inserts references using the configured document markup.
 <<<
 
-[[SECTION]]
-MID: 821447ebb4404103a8214f5d838842ff
-TITLE: Wildcard image paths for RST/Sphinx export
-
-[TEXT]
-MID: 1aea9a21a4ea4dd791a749465992058d
-STATEMENT: >>>
-StrictDoc extends the RST ``image`` directive with wildcard-based paths for
-documents exported to RST/Sphinx:
-
-.. code:: strictdoc
-
-    [TEXT]
-    STATEMENT: >>>
-    .. image:: _assets/diagram.*
-    <<<
-
-A wildcard path allows Sphinx to select the image format for each output
-format. For example, Sphinx can use ``diagram.svg`` for HTML output and
-``diagram.png`` for LaTeX/PDF output.
-
-Store both files in the same directory with the same filename stem. Replace
-the file extension in the ``image`` directive with ``*``, as shown above.
-
-In documents configured to use RST markup, the Web UI creates the wildcard
-path when an upload completes a vector and raster pair. If the field already
-contains a direct reference to one file, the editor replaces that path without
-moving the image directive.
-
-In documents configured to use HTML or Markdown markup, the Web UI inserts a
-direct reference to each uploaded file. It does not use wildcard image paths.
-<<<
-
-[[/SECTION]]
-
 [[/SECTION]]
 
 [[SECTION]]
@@ -2919,62 +2884,6 @@ external references.
 <<<
 
 [[/SECTION]]
-
-[[/SECTION]]
-
-[[SECTION]]
-MID: f6091bab49714c1fa72c2fbca12c970b
-UID: SECTION-UG-HTML-export-via-Sphinx
-TITLE: HTML export via Sphinx
-
-[TEXT]
-MID: bf8160f43703418db306785c48463123
-STATEMENT: >>>
-The following command creates an RST export:
-
-.. code:: text
-
-    strictdoc export YourDoc.sdoc --formats=rst --output-dir output
-
-The created RST files can be copied to a project created using Sphinx, see
-`Getting Started with Sphinx <https://docs.readthedocs.io/en/stable/intro/getting-started-with-sphinx.html>`_.
-
-.. code:: text
-
-    cp -v output/YourDoc.rst path/to/sphinx-project/source/
-    cd path/to/sphinx-project && make html
-<<<
-
-[[/SECTION]]
-
-[[SECTION]]
-MID: c95a2b4c4fbd40fcbd92fe7f24c2cd91
-UID: SECTION-UG-PDF-export-via-Sphinx-LaTeX
-TITLE: PDF export via Sphinx/LaTeX
-
-[TEXT]
-MID: 58595abe6ff148afbb45e2b6adc25110
-STATEMENT: >>>
-
-The following command creates an RST export:
-
-.. code:: text
-
-    strictdoc export YourDoc.sdoc --formats=rst --output-dir output
-
-The created RST files can be copied to a project created using Sphinx, see
-`Getting Started with Sphinx <https://docs.readthedocs.io/en/stable/intro/getting-started-with-sphinx.html>`_.
-
-.. code:: text
-
-    cp -v output/YourDoc.rst path/to/sphinx-project/source/
-    cd path/to/sphinx-project && make latexpdf
-
-Building the PDF requires a LaTeX toolchain (for example, ``xelatex``) to be
-installed. For a self-contained way to generate PDFs directly from StrictDoc
-without Sphinx/LaTeX, see the
-[LINK: SECTION-UG-HTML2PDF-document-generator] section.
-<<<
 
 [[/SECTION]]
 

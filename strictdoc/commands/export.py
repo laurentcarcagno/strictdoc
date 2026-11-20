@@ -18,7 +18,6 @@ EXPORT_FORMATS = [
     "html",
     "html2pdf",
     "markdown",
-    "rst",
     "json",
     "excel",
     "reqif-sdoc",
@@ -104,6 +103,11 @@ def _check_formats(formats: str) -> List[str]:
     formats_array = _split_formats(formats)
     allowed_handles = _get_allowed_format_handles()
     for fmt in formats_array:
+        if fmt == "rst":
+            raise argparse.ArgumentTypeError(
+                "the 'rst' format has been removed. Export to 'markdown' "
+                "or 'html' instead."
+            )
         if fmt in allowed_handles:
             continue
         export_formats = ", ".join(map(lambda f: f"'{f}'", allowed_handles))

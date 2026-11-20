@@ -1154,7 +1154,6 @@ def release_pyinstaller(context):
             --hidden-import strictdoc.server.app
             {html_template_data_options}
             {html_static_data_options}
-            --add-data strictdoc/backend/rst/templates:templates/rst
             strictdoc/cli/main.py
     """
 
@@ -1232,7 +1231,6 @@ def nuitka(context):
             --include-module=docutils.parsers.rst
             {html_template_data_options}
             {html_static_data_options}
-            --include-data-dir=strictdoc/backend/rst/templates=templates/rst
             --include-package-data=docutils
             strictdoc/cli/main.py
         """,

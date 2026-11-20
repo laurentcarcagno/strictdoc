@@ -1,8 +1,0 @@
-[DOCUMENT]
-TITLE: Document 2
-UID: DOC-2
-
-[TEXT]
-STATEMENT: >>>
-Read [LINK: DOC-2] then [LINK: DOC-1].
-<<<

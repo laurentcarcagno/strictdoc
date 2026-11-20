@@ -1,3 +1,5 @@
+import pytest
+
 from strictdoc.cli.cli_arg_parser import (
     SDocArgsParser,
 )
@@ -52,30 +54,27 @@ def test_export_03_parallelization():
     assert args.output_dir is None
 
 
-def test_export_04_export_format_rst():
+def test_export_04_export_format_rst_has_been_removed(capsys):
     parser = cli_args_parser()
 
-    args = parser.parse_args(["export", "--formats=rst", "docs"])
+    with pytest.raises(SystemExit) as exit_info:
+        parser.parse_args(["export", "--formats=rst", "docs"])
 
-    assert args.command == "export"
-    assert args.fields == ["uid", "statement", "parent"]
-    assert args.formats == ["rst"]
-    assert args.input_paths == ["docs"]
-    assert args.no_parallelization is False
-    assert args.output_dir is None
+    assert exit_info.value.code == 2
+    assert "the 'rst' format has been removed" in capsys.readouterr().err
 
 
 def test_export_05_export_format_multiple():
     parser = cli_args_parser()
 
-    args = parser.parse_args(["export", "--formats=html,rst", "docs"])
+    args = parser.parse_args(["export", "--formats=html,markdown", "docs"])
 
     assert args.command == "export"
     assert args.input_paths == ["docs"]
 
     assert args.command == "export"
     assert args.fields == ["uid", "statement", "parent"]
-    assert args.formats == ["html", "rst"]
+    assert args.formats == ["html", "markdown"]
     assert args.input_paths == ["docs"]
     assert args.no_parallelization is False
     assert args.output_dir is None

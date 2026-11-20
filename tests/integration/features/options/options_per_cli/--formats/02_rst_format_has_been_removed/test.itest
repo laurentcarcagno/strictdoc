@@ -1,0 +1,3 @@
+RUN: %expect_exit 2 %strictdoc export --formats=rst %S | filecheck %s --dump-input=fail
+
+CHECK: {{.*}} export: error: argument --formats: the 'rst' format has been removed. Export to 'markdown' or 'html' instead.

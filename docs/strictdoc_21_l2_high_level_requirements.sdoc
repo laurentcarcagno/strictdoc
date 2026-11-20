@@ -1943,26 +1943,6 @@ UID: SECTION-SRS-RST
 TITLE: RST
 
 [REQUIREMENT]
-MID: 2aa615b9cf264e7aad826f4ff466e514
-UID: SDOC-SRS-70
-STATUS: Active
-TITLE: Export to RST
-STATEMENT: >>>
-StrictDoc shall allow exporting SDoc content to the RST format.
-<<<
-RATIONALE: >>>
-Exporting SDoc content to RST enables:
-
-1) Generating RST to Sphinx HTML documentation.
-2) Generating RST to PDF using Sphinx/LaTeX.
-<<<
-RELATIONS:
-- TYPE: Parent
-  VALUE: DO178-5
-- TYPE: Parent
-  VALUE: DO178-16
-
-[REQUIREMENT]
 MID: 6faffbd1d4cc47ea88c08ef38966e5ec
 UID: SDOC-SRS-71
 STATUS: Active

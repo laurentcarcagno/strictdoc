@@ -105,6 +105,13 @@ different options. Before, the export failed with an assertion error.
 markup characters in multiline fields. Before, a ``<`` or ``&`` in a
 multiline field made the ReqIF file not well-formed XML. As a result,
 ``reqif validate`` and the ReqIF import of StrictDoc rejected the file.
+
+11\) Breaking change: the RST export is removed. ``strictdoc export
+--formats=rst`` now stops with the error "the 'rst' format has been removed".
+The ``RSTFormat`` class and the RST templates are gone. The sections of the
+user guide about the export through Sphinx and about wildcard image paths for
+Sphinx are removed with it. The RST markup of the fields (``MARKUP: RST``) is
+not affected by this change.
 <<<
 
 [[/SECTION]]
