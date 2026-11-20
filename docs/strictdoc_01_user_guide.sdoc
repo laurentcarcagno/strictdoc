@@ -6448,6 +6448,102 @@ HTML block is written as its text, and an HTML comment is dropped.
 [[/SECTION]]
 
 [[SECTION]]
+MID: b543e23e6da8414db233a517bbe6ae28
+UID: SECTION-UG-Migrate-RST-to-Markdown
+TITLE: Migrating the RST fields to Markdown
+
+[TEXT]
+MID: 4e775a2127d94fe887b1e625f41490a6
+STATEMENT: >>>
+StrictDoc keeps the Markdown and HTML markups only. A document without a
+``MARKUP`` option used to be read as RST: the tool
+``developer/tools/rst_to_markdown.py`` rewrites such a document in Markdown
+(the Git tag ``pre-markdown-only`` keeps it when the RST support is removed).
+
+**Before.**
+
+1. Commit your changes. The tool refuses a working tree with changes in the
+   given paths, unless you pass ``--force``.
+2. Put a version tag on the commit, for example ``git tag before-markdown``.
+   The conversion cannot be undone: there is no conversion from Markdown to
+   RST.
+3. Back up the production projects.
+
+**Run.**
+
+.. code:: text
+
+    python developer/tools/rst_to_markdown.py path/to/project --dry-run --verify --report report
+    python developer/tools/rst_to_markdown.py path/to/project --verify --report report
+
+The first command writes nothing and lists what would change. ``--verify``
+compares the words of every field before and after the conversion and lists
+the fields that differ. ``--strict`` makes the exit code 1 when anything could
+not be converted faithfully. ``--text`` also converts the documents with
+``MARKUP: Text``. ``report/conversion_report.md`` and ``conversion_report.json``
+list the RST constructs that were met, the warnings (document, node, field and
+line) and the files that were skipped.
+
+The tool rewrites the content fields (``STATEMENT``, ``RATIONALE``,
+``COMMENT``, ``DESCRIPTION``, ``CONTENT`` and the other multiline fields) of the
+documents in RST, writes ``MARKUP: Markdown`` in them and leaves the rest of the
+file as it is, line endings included. A document that another document includes
+takes the markup of the document that includes it. A second run changes nothing.
+The tool does not commit: one commit per document or per project is yours to
+make.
+
+**What the RST becomes.**
+
+- Emphasis, strong text, literals and links become their Markdown form. The
+  special characters of Markdown are escaped. ``[LINK: ...]`` and
+  ``[ANCHOR: ...]`` are never touched.
+- ``.. code::`` and ``.. code-block::`` become fenced code blocks with their
+  language, without line numbers. A line that starts with three less-than signs
+  inside such a block gets one space in front, because that line would end the
+  field of the SDoc file.
+- ``.. note::``, ``.. warning::`` and the other admonitions become the HTML box
+  described in [LINK: SECTION-UG-Markdown-HTML-elements].
+- ``.. list-table::``, ``.. csv-table::``, grid tables and simple tables become
+  an HTML table with its header rows, ``colspan`` and ``rowspan``. The CSV file
+  of a ``csv-table`` is not needed any more: delete it yourself.
+- ``.. image::`` and ``.. figure::`` become a Markdown image, or an HTML image
+  when the directive has a width or an alignment. An image path with a wildcard
+  (``diagram.*``) is replaced by the file that exists in the folder: the SVG,
+  otherwise the PNG.
+- ``.. math::`` and ``:math:`` become ``$$...$$`` and ``$...$``. A formula with a
+  ``:label:`` is numbered with ``\tag{n}``, and ``:eq:`` becomes the number in
+  parentheses.
+- ``.. raw:: html`` becomes plain HTML. A raw block for another format
+  (``latex``) is dropped with a warning.
+- Definition lists become ``<dl>``, ``:sub:`` and ``:sup:`` become ``<sub>`` and
+  ``<sup>``, field lists become bullet items, line blocks end each line with a
+  backslash, a quote starts with ``>``, a transition is ``---``.
+- Lists numbered with letters or Roman numerals keep their labels as text.
+- An RST comment becomes an HTML comment, and the header ``.. sdoc-comment:`` of
+  a review comment becomes ``<!-- sdoc-comment ... -->``.
+- A construct that has no equivalent (``contents``, ``sectnum``, ``header``,
+  ``footer``, footnotes, an unknown directive) is dropped or kept as an HTML
+  comment, with a warning.
+
+**After.**
+
+1. Read the report, then open a few documents and a PDF.
+2. If the project uses suspect links, pass ``--baseline trace_baseline.json``
+   (or run the tool on the folder that holds the file): the text of every
+   parent changes with the conversion, so the links that were reviewed take the
+   hash of the converted parent, and the links that were already suspect stay
+   suspect. Without it, every link turns suspect.
+3. Commit, and put a new version tag. The change bars of the PDF and the
+   comparison of the versions of a document use the latest tag: before the new
+   tag they show every converted node as changed.
+4. A table that was converted to HTML is written again as a pipe table by the
+   web editor the first time someone edits it, which makes a small diff in
+   Git.
+<<<
+
+[[/SECTION]]
+
+[[SECTION]]
 MID: 5bf99b072e4b4aa08c14f2f776a57f49
 TITLE: Editing Markdown in the web interface
 
