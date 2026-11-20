@@ -23,8 +23,6 @@ from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Set, Tuple
 
 from strictdoc.backend.docx.docx_profile import (
-    MARKUP_MARKDOWN,
-    MARKUP_RST,
     DocxProfile,
     DocxRequirementTable,
 )
@@ -40,7 +38,7 @@ from strictdoc.backend.docx.export.docx_template import (
     split_top_level,
 )
 from strictdoc.backend.docx.export.docx_xml import paragraph_xml
-from strictdoc.backend.docx.export.rst_to_paragraphs import (
+from strictdoc.backend.docx.export.paragraph_model import (
     ExportParagraph,
     ExportRun,
 )
@@ -125,18 +123,9 @@ class DocxUpdater:
 
         revisions = _Revisions(profile.revision_author, document_xml)
         report = DocxUpdateReport()
-        # The markup of the SDoc text decides how the Word text is compared.
-        markup = next(
-            (
-                item_.markup
-                for item_ in items
-                if isinstance(item_, ExportRequirement)
-            ),
-            MARKUP_RST,
-        )
         base_comments = read_word_comments(base_path)
         base_requirements = _index_requirements(
-            chunks, document_xml[:body_start], layout, markup, base_comments
+            chunks, document_xml[:body_start], layout, base_comments
         )
         anchored_comments: List[ExportComment] = []
         base_headings = _index_headings(chunks, profile)
@@ -240,7 +229,6 @@ def _index_requirements(
     chunks: List[str],
     document_head: str,
     layout: DocxRequirementTable,
-    markup: str,
     base_comments: Dict[int, WordComment],
 ) -> Dict[str, _BaseRequirement]:
     marker = f'<w:pStyle w:val="{layout.id_style}"/>'
@@ -262,8 +250,8 @@ def _index_requirements(
             uid=requirement.uid,
             title=requirement.title,
             fields=requirement.fields,
-            statement=join_paragraphs(requirement.statement_paragraphs, markup),
-            note=join_paragraphs(requirement.note_paragraphs, markup),
+            statement=join_paragraphs(requirement.statement_paragraphs),
+            note=join_paragraphs(requirement.note_paragraphs),
             comment_fingerprints={
                 comment_fingerprint(c_.author, c_.date, c_.text)
                 for id_ in re.findall(
@@ -334,30 +322,28 @@ def _changed_fields(
             model.fields.get(field_name_, "")
         ):
             changed.append(field_name_)
-    if _normal(base.statement) != _normal(_projected(model.statement, model)):
+    if _normal(base.statement) != _normal(_projected(model.statement)):
         changed.append("STATEMENT")
     if layout.note_label is not None and _normal(base.note) != _normal(
-        _projected(model.note, model)
+        _projected(model.note)
     ):
         changed.append(layout.note_field)
     return changed
 
 
-def _projected(text: str, model: ExportRequirement) -> str:
+def _projected(text: str) -> str:
     """
     What reading the Word text back would give for this text. A Markdown text
     can hold what Word does not keep as Markdown (a table, an image, a hard
     break), so it is compared through its Word form.
     """
-    if model.markup != MARKUP_MARKDOWN:
-        return text
     paragraphs = [
         paragraph_from_segments(
             [(r_.text, r_.bold, r_.italic, r_.monospace) for r_ in p_.runs]
         )
-        for p_ in text_to_paragraphs(text, model.markup)
+        for p_ in text_to_paragraphs(text)
     ]
-    return join_paragraphs(paragraphs, model.markup)
+    return join_paragraphs(paragraphs)
 
 
 # ---- editing a requirement table ----------------------------------------------------
@@ -386,9 +372,7 @@ def _edit_table(
             if "STATEMENT" in changed:
                 new_row = _edit_paragraph_cell(
                     row_,
-                    text_to_paragraphs(
-                        model.statement, model.markup, model.base_dir
-                    ),
+                    text_to_paragraphs(model.statement, model.base_dir),
                     revisions,
                 )
         elif role == "note" and layout.note_field in changed:
@@ -398,7 +382,6 @@ def _edit_table(
                     row_,
                     model.note,
                     layout.note_label or "",
-                    model.markup,
                     model.base_dir,
                 ),
                 revisions,
@@ -412,7 +395,6 @@ def _note_paragraphs(
     row_xml: str,
     note: str,
     note_label: str,
-    markup: str = MARKUP_RST,
     base_dir: str = "",
 ) -> List[ExportParagraph]:
     cell = re.search(r"<w:tc\b.*?</w:tc>", row_xml, re.S)
@@ -425,7 +407,7 @@ def _note_paragraphs(
         else None
     )
     label = label_match.group(0).strip() if label_match else f"{note_label} :"
-    paragraphs = text_to_paragraphs(note, markup, base_dir)
+    paragraphs = text_to_paragraphs(note, base_dir)
     if len(paragraphs) == 0:
         return [ExportParagraph([ExportRun(label)])]
     first = ExportParagraph([ExportRun(label + " ")] + paragraphs[0].runs)

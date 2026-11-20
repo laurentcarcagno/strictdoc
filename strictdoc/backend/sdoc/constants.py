@@ -1,7 +1,10 @@
 class SDocMarkup:
-    RST = "RST"
     HTML = "HTML"
-    TEXT = "Text"
     MARKDOWN = "Markdown"
 
-    ALL = {RST, HTML, TEXT, MARKDOWN}
+    ALL = {HTML, MARKDOWN}
+
+    # The markups that StrictDoc read until the Markdown-only change. A
+    # document that declares one of them stops with an error that tells what
+    # to do (see SDocParsingProcessor).
+    REMOVED = {"RST", "Text"}

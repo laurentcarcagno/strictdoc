@@ -1226,12 +1226,8 @@ def nuitka(context):
             --standalone
             --include-module=textx
             --include-module=strictdoc.server.app
-            --include-module=docutils
-            --include-module=docutils.readers.standalone
-            --include-module=docutils.parsers.rst
             {html_template_data_options}
             {html_static_data_options}
-            --include-package-data=docutils
             strictdoc/cli/main.py
         """,
     )

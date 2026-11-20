@@ -289,7 +289,7 @@ class Requirement(Node):  # pylint: disable=invalid-name
             click_by=By.XPATH,
         )
 
-    def do_copy_rst_anchor_to_buffer(self, anchor_uid: str) -> None:
+    def do_copy_inline_anchor_to_buffer(self, anchor_uid: str) -> None:
         # See do_copy_anchor_to_buffer: the hover target must be on-screen
         # before hovering, not just present in the DOM.
         self.test_case.sdoc_do_scroll_to_element_by_xpath(self.node_xpath)

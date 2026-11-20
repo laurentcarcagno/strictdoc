@@ -138,7 +138,6 @@ def _create_one(
     config = context.project_config
     assert document.grammar is not None
     element = document.grammar.elements_by_type[ELEMENT_TYPE]
-    markup = document.config.get_markup()
 
     form = RequirementFormObject.create_new(
         document=document,
@@ -173,7 +172,7 @@ def _create_one(
             RequirementFormField.create_from_grammar_field(
                 grammar_field=element.fields_map["COMMENT"],
                 multiline=True,
-                value=format_comment(comment, markup),
+                value=format_comment(comment),
             )
         ]
     for uid_ in proposal.linked_to:

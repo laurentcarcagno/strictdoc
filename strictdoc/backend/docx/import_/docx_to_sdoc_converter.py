@@ -13,8 +13,6 @@ from typing import Dict, List, Optional, Set, Tuple, Union
 
 from strictdoc.backend.docx.docx_profile import (
     FREE_TEXT_DROP,
-    MARKUP_MARKDOWN,
-    MARKUP_RST,
     DocxProfile,
     DocxRequirementTable,
 )
@@ -28,7 +26,6 @@ from strictdoc.backend.docx.import_.docx_reader import (
     DocxTable,
     WordComment,
     _escape_markdown,
-    _escape_rst,
 )
 from strictdoc.backend.docx.import_.sdoc_requirement_blocks import (
     CarryOver,
@@ -183,10 +180,8 @@ class DocxToSDocConverter:
             if profile.document_title is not None
             else fallback_title
         )
-        markup = profile.markup
         header = f"[DOCUMENT]\nTITLE: {_single_line(title)}\n"
-        if markup == MARKUP_MARKDOWN:
-            header += "OPTIONS:\n  MARKUP: Markdown\n"
+        header += "OPTIONS:\n  MARKUP: Markdown\n"
         parts: List[str] = [header]
         extra_fields = (
             carry_over.extra_grammar_fields if carry_over is not None else []
@@ -205,11 +200,9 @@ class DocxToSDocConverter:
                 )
                 open_sections += 1
             elif isinstance(item_, _FreeText):
-                parts.append(
-                    _text_node(join_paragraphs(item_.paragraphs, markup))
-                )
+                parts.append(_text_node(join_paragraphs(item_.paragraphs)))
             elif isinstance(item_, DocxTable):
-                parts.append(_text_node(_list_table(item_, markup)))
+                parts.append(_text_node(_list_table(item_)))
             else:
                 assert profile.requirement_table is not None
                 parts.append(
@@ -219,7 +212,6 @@ class DocxToSDocConverter:
                         known_uids,
                         report,
                         carry_over,
-                        markup,
                         reference_resolver,
                     )
                 )
@@ -327,19 +319,12 @@ def _note_paragraphs(
     kept: List[DocxParagraph] = []
     for index_, paragraph_ in enumerate(paragraphs):
         text = paragraph_.text
-        rst = paragraph_.rst
         markdown = paragraph_.markdown
         if index_ == 0:
             text = re.sub(
                 rf"^{re.escape(note_label)}\s*:?\s*", "", text, count=1
             )
             # The label may sit inside the opening markup of a styled run.
-            rst = re.sub(
-                rf"^((?:\*\*|\*|``)?){re.escape(note_label)}\s*:?\s*",
-                r"\1",
-                rst,
-                count=1,
-            )
             markdown = re.sub(
                 rf"^((?:\*\*\*|\*\*|\*|`)?){re.escape(note_label)}\s*:?\s*",
                 r"\1",
@@ -351,7 +336,6 @@ def _note_paragraphs(
                 DocxParagraph(
                     paragraph_.style,
                     text,
-                    rst,
                     paragraph_.is_list_item,
                     markdown,
                 )
@@ -447,7 +431,6 @@ def _requirement_text(
     known_uids: Set[str],
     report: DocxImportReport,
     carry_over: Optional[CarryOver],
-    markup: str = MARKUP_RST,
     reference_resolver: Optional[ResolverFunction] = None,
 ) -> str:
     fields: List[Tuple[str, str]] = []
@@ -459,9 +442,9 @@ def _requirement_text(
             fields.append((field_name_, value))
     title = _single_line(requirement.title)
     fields.append(("TITLE", title if len(title) > 0 else requirement.uid))
-    statement = join_paragraphs(requirement.statement_paragraphs, markup)
+    statement = join_paragraphs(requirement.statement_paragraphs)
     fields.append(("STATEMENT", _multiline(statement or "(no text)")))
-    note = join_paragraphs(requirement.note_paragraphs, markup)
+    note = join_paragraphs(requirement.note_paragraphs)
     if len(note) > 0:
         fields.append((layout.note_field, _multiline(note)))
 
@@ -494,14 +477,13 @@ def _requirement_text(
                 if name_ == "COMMENT"
             ]
             file_relations = old_block.file_relations
-    fields += _comment_fields(requirement, old_comments, markup, report)
+    fields += _comment_fields(requirement, old_comments, report)
     return _render_requirement(fields, parent_uids, file_relations)
 
 
 def _comment_fields(
     requirement: DocxRequirement,
     old_values: List[str],
-    markup: str,
     report: DocxImportReport,
 ) -> List[Tuple[str, str]]:
     """
@@ -516,7 +498,7 @@ def _comment_fields(
             comment_fingerprint(
                 comment_.author,
                 comment_.date,
-                comment_plain_text(comment_.body, markup),
+                comment_plain_text(comment_.body),
             )
         )
     values = list(old_values)
@@ -531,7 +513,7 @@ def _comment_fields(
         if date and not date.endswith("Z") and "+" not in date[10:]:
             date += "Z"
         comment = Comment(
-            body=_escape_for_markup(word_comment_.text, markup),
+            body=_escape_markdown(word_comment_.text),
             id="w"
             + hashlib.sha1("|".join(fingerprint).encode()).hexdigest()[:7],
             author=word_comment_.author,
@@ -539,17 +521,9 @@ def _comment_fields(
             status=STATUS_RESOLVED if word_comment_.done else STATUS_OPEN,
             source="word",
         )
-        values.append(_multiline(format_comment(comment, markup)))
+        values.append(_multiline(format_comment(comment)))
         report.comments_added += 1
     return [("COMMENT", value_) for value_ in values]
-
-
-def _escape_for_markup(text: str, markup: str) -> str:
-    return (
-        _escape_markdown(text)
-        if markup == MARKUP_MARKDOWN
-        else _escape_rst(text)
-    )
 
 
 def _parent_uids(
@@ -666,20 +640,18 @@ def _looks_like_known_uid(name: str, known_uids: Set[str]) -> bool:
     return any(uid_.split("-", 1)[0] == prefix for uid_ in known_uids)
 
 
-def join_paragraphs(
-    paragraphs: List[DocxParagraph], markup: str = MARKUP_RST
-) -> str:
+def join_paragraphs(paragraphs: List[DocxParagraph]) -> str:
     """
-    One paragraph of the given markup per Word paragraph. List items that
+    One Markdown paragraph per Word paragraph. List items that
     follow each other stay together, so that the markup sees one list.
     """
     result: List[str] = []
     previous_was_item = False
     for paragraph_ in paragraphs:
-        text = paragraph_.marked_up(markup).strip()
+        text = paragraph_.marked_up().strip()
         if len(text) == 0:
             continue
-        marker = _list_marker(paragraph_, markup)
+        marker = _list_marker(paragraph_)
         is_item = marker is not None
         if marker is not None:
             text = _ITEM_MARKER_PATTERN.sub("", text, count=1)
@@ -692,42 +664,28 @@ def join_paragraphs(
     return "".join(result)
 
 
-# The marker of a list item, as written by the Markdown or the RST escaping.
+# The marker of a list item, as written by the Markdown escaping.
 _ITEM_MARKER_PATTERN = re.compile(r"^\\?(?:-|\u2022|\d+\\?[.)])\s+")
 _PLAIN_ITEM_PATTERN = re.compile(r"^\s*(?:(-|\u2022)|(\d+)[.)])\s+")
 
 
-def _list_marker(paragraph: DocxParagraph, markup: str) -> Optional[str]:
+def _list_marker(paragraph: DocxParagraph) -> Optional[str]:
     """The marker to write for a list item, or None for a normal paragraph."""
     match = _PLAIN_ITEM_PATTERN.match(paragraph.text)
     if match is not None:
         if match.group(2) is None:
             return "- "
-        if markup == MARKUP_MARKDOWN:
-            return f"{match.group(2)}. "
-        # In RST, a paragraph that starts with a number is a normal paragraph.
+        return f"{match.group(2)}. "
     if paragraph.is_list_item:
         return "- "
     return None
 
 
-def _list_table(table: DocxTable, markup: str = MARKUP_RST) -> str:
+def _list_table(table: DocxTable) -> str:
     column_count = max((len(row_) for row_ in table.rows), default=0)
     if column_count == 0:
         return ""
-    if markup == MARKUP_MARKDOWN:
-        return _pipe_table(table, column_count)
-    lines = [".. list-table::", ""]
-    for row_ in table.rows:
-        cells = [
-            _single_line(" ".join(p_.rst for p_ in cell_.paragraphs))
-            for cell_ in row_
-        ]
-        cells += [""] * (column_count - len(cells))
-        for index_, cell_text_ in enumerate(cells):
-            prefix = "   * - " if index_ == 0 else "     - "
-            lines.append((prefix + cell_text_).rstrip())
-    return "\n".join(lines)
+    return _pipe_table(table, column_count)
 
 
 def _pipe_table(table: DocxTable, column_count: int) -> str:
@@ -736,9 +694,7 @@ def _pipe_table(table: DocxTable, column_count: int) -> str:
     for row_ in table.rows:
         cells = [
             _single_line(
-                " ".join(
-                    p_.marked_up(MARKUP_MARKDOWN) for p_ in cell_.paragraphs
-                )
+                " ".join(p_.marked_up() for p_ in cell_.paragraphs)
             ).replace("|", "\\|")
             for cell_ in row_
         ]

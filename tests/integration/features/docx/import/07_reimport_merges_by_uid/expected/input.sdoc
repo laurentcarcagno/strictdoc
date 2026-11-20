@@ -1,5 +1,7 @@
 [DOCUMENT]
 TITLE: input
+OPTIONS:
+  MARKUP: Markdown
 
 [GRAMMAR]
 ELEMENTS:

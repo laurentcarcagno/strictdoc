@@ -155,7 +155,6 @@ def test_006_a_markdown_comment_keeps_its_formatting(tmp_path):
                 "R-1",
                 _comment(
                     body="Use **bold** and a list:\n\n- one\n- two",
-                    markup="Markdown",
                 ),
             )
         ],
@@ -193,12 +192,12 @@ STATEMENT: >>>
 The system shall start.
 <<<
 COMMENT: >>>
-.. sdoc-comment: id=c1 author=anna date=2026-10-10T12%3A00%3A00Z status=open
+<!-- sdoc-comment id=c1 author=anna date=2026-10-10T12%3A00%3A00Z status=open -->
 
 Open remark.
 <<<
 COMMENT: >>>
-.. sdoc-comment: id=c2 author=paul date=2026-10-10T13%3A00%3A00Z status=resolved resolved_by=anna
+<!-- sdoc-comment id=c2 author=paul date=2026-10-10T13%3A00%3A00Z status=resolved resolved_by=anna -->
 
 Resolved remark.
 <<<
@@ -406,11 +405,10 @@ def test_015_the_reader_finds_the_comments_of_each_requirement(tmp_path):
     ]
 
 
-def _import(path: str, markup: str, carry_over=None):
+def _import(path: str, carry_over=None):
     profile = DocxProfile(
         heading_styles=PROFILE.heading_styles,
         requirement_table=PROFILE.requirement_table,
-        markup=markup,
     )
     blocks = DocxReader.read(path, TrackedChangesMode.ACCEPT)
     return DocxToSDocConverter.build_sdoc_text(
@@ -431,23 +429,22 @@ def _comment_values(sdoc_text: str):
 
 def test_016_import_writes_the_word_comments_with_their_state(tmp_path):
     path = _word_with_comments(tmp_path)
-    for markup in ("RST", "Markdown"):
-        sdoc_text, report = _import(path, markup)
-        comments = _comment_values(sdoc_text)
-        assert report.comments_added == 2
-        assert [(c.author, c.body, c.status, c.source) for c in comments] == [
-            ("anna.durand", "Open remark.", "open", "word"),
-            ("paul", "Done remark.", "resolved", "word"),
-        ]
-        assert comments[0].date == "2026-10-10T12:00:00Z"
-        assert "Comments read from Word: 2" in report.format()
+    sdoc_text, report = _import(path)
+    comments = _comment_values(sdoc_text)
+    assert report.comments_added == 2
+    assert [(c.author, c.body, c.status, c.source) for c in comments] == [
+        ("anna.durand", "Open remark.", "open", "word"),
+        ("paul", "Done remark.", "resolved", "word"),
+    ]
+    assert comments[0].date == "2026-10-10T12:00:00Z"
+    assert "Comments read from Word: 2" in report.format()
 
 
 def test_017_a_second_import_does_not_duplicate_the_comments(tmp_path):
     path = _word_with_comments(tmp_path)
-    first, _ = _import(path, "Markdown")
+    first, _ = _import(path)
     carry_over = build_carry_over(first, PROFILE.requirement_table)  # type: ignore[arg-type]
-    second, report = _import(path, "Markdown", carry_over)
+    second, report = _import(path, carry_over)
     assert report.comments_added == 0
     assert len(_comment_values(second)) == 2
     assert [c.id for c in _comment_values(second)] == [
@@ -457,14 +454,15 @@ def test_017_a_second_import_does_not_duplicate_the_comments(tmp_path):
 
 def test_018_a_merge_keeps_the_comments_written_in_the_interface(tmp_path):
     path = _word_with_comments(tmp_path)
-    first, _ = _import(path, "RST")
+    first, _ = _import(path)
     web = (
-        "COMMENT: >>>\n.. sdoc-comment: id=web1 author=rita "
-        "date=2026-10-11T08:00:00Z status=open source=web\n\nFrom the web.\n<<<\n"
+        "COMMENT: >>>\n<!-- sdoc-comment id=web1 author=rita "
+        "date=2026-10-11T08:00:00Z status=open source=web -->\n\n"
+        "From the web.\n<<<\n"
     )
     first = first.rstrip("\n") + "\n" + web
     carry_over = build_carry_over(first, PROFILE.requirement_table)  # type: ignore[arg-type]
-    second, report = _import(path, "RST", carry_over)
+    second, report = _import(path, carry_over)
     bodies = [c.body for c in _comment_values(second)]
     assert "From the web." in bodies
     assert bodies.count("Open remark.") == 1
@@ -483,7 +481,7 @@ def test_019_sdoc_to_word_to_sdoc_gives_the_same_comments(tmp_path):
     items = items_from_document(document, PROFILE.requirement_table, "all")  # type: ignore[arg-type]
     word = _base(tmp_path, items)
     carry_over = build_carry_over(source, PROFILE.requirement_table)  # type: ignore[arg-type]
-    again, report = _import(word, "Markdown", carry_over)
+    again, report = _import(word, carry_over)
     comments = _comment_values(again)
     assert report.comments_added == 0
     assert [(c.id, c.body) for c in comments] == [("c1", "Use **bold** here.")]

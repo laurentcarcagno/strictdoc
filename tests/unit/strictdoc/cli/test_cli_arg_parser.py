@@ -23,7 +23,6 @@ def test_export_01_minimal():
     assert args.input_paths == ["docs"]
     assert args.no_parallelization is False
     assert args.output_dir is None
-    assert args.enable_mathjax is False
 
 
 def test_export_02_output_dir():
@@ -91,14 +90,6 @@ def test_export_06_export_format_markdown():
     assert args.input_paths == ["docs"]
     assert args.no_parallelization is False
     assert args.output_dir is None
-
-
-def test_export_07_enable_mathjax():
-    parser = cli_args_parser()
-    args = parser.parse_args(["export", "--enable-mathjax", "docs"])
-
-    assert args.command == "export"
-    assert args.enable_mathjax is True
 
 
 def test_export_08_project_title():

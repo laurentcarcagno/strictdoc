@@ -197,7 +197,7 @@ def test_007_free_paragraphs_become_one_text_node(tmp_path):
     assert report.free_paragraph_count == 2
 
 
-def test_008_list_items_stay_in_one_rst_list(tmp_path):
+def test_008_list_items_stay_in_one_list(tmp_path):
     text, _, _ = _convert(
         tmp_path,
         [
@@ -221,14 +221,13 @@ def test_009_free_text_can_be_dropped_and_is_still_counted(tmp_path):
     assert report.dropped_paragraph_count == 1
 
 
-def test_010_other_tables_become_rst_list_tables(tmp_path):
+def test_010_other_tables_become_pipe_tables(tmp_path):
     text, _, report = _convert(
         tmp_path,
         [table(row(cell(paragraph("a")), cell(paragraph("b"))))],
         _requirement_table_profile(),
     )
-    assert ".. list-table::" in text
-    assert "* - a" in text and "- b" in text
+    assert "| a | b |\n| --- | --- |" in text
     assert report.free_table_count == 1
 
 
@@ -418,9 +417,9 @@ def test_markdown_profile_writes_a_pipe_table_and_escapes_the_closing_marker(
     assert document is not None
 
 
-def test_default_profile_is_still_rst(tmp_path):
+def test_default_profile_writes_markdown(tmp_path):
     sdoc_text, document, _ = _convert(
         tmp_path, [_requirement("R-1")], _requirement_table_profile()
     )
-    assert "MARKUP" not in sdoc_text
-    assert document.config.markup is None
+    assert "OPTIONS:\n  MARKUP: Markdown\n" in sdoc_text
+    assert document.config.markup == "Markdown"

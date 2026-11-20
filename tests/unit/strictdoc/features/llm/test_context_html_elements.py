@@ -33,5 +33,5 @@ def test_001_a_model_reads_the_words_not_the_tags_of_a_markdown_field():
     assert "sdoc-admonition" not in text
 
 
-def test_002_a_field_of_another_markup_is_sent_as_it_is():
-    assert "<div" in _context_text("RST")
+def test_002_a_field_of_an_html_document_is_sent_as_it_is():
+    assert "<div" in _context_text("HTML")

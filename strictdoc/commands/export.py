@@ -186,11 +186,6 @@ class ExportCommand(BaseCommand):
             ),
         )
         command_parser_export.add_argument(
-            "--enable-mathjax",
-            action="store_true",
-            help="Enables Mathjax support (only HTML export).",
-        )
-        command_parser_export.add_argument(
             "--included-documents",
             action="store_true",
             help=(

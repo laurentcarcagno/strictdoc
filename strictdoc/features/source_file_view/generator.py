@@ -137,15 +137,15 @@ class SourceFileViewHTMLGenerator:
             static_path=project_config.dir_for_sdoc_assets,
         )
         markup_renderer = MarkupRenderer.create(
-            markup=SDocMarkup.RST,
+            markup=SDocMarkup.MARKDOWN,
             traceability_index=traceability_index,
             link_renderer=link_renderer,
             html_templates=html_templates,
             config=project_config,
             context_document=None,
         )
-        text_renderer = MarkupRenderer.create(
-            markup=SDocMarkup.TEXT,
+        html_renderer = MarkupRenderer.create(
+            markup=SDocMarkup.HTML,
             traceability_index=traceability_index,
             link_renderer=link_renderer,
             html_templates=html_templates,
@@ -158,7 +158,7 @@ class SourceFileViewHTMLGenerator:
             project_config=project_config,
             link_renderer=link_renderer,
             markup_renderer=markup_renderer,
-            text_renderer=text_renderer,
+            html_renderer=html_renderer,
             source_file=source_file,
             pygments_styles=pygments_styles,
             pygmented_source_file_lines=pygmented_source_file_lines,

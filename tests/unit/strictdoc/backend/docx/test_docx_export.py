@@ -90,7 +90,7 @@ def test_001_sections_text_and_requirements_are_written(tmp_path):
         ("", "Hello bold."),
         ("Heading2", "Detail"),
     ]
-    assert paragraphs[1].rst == "Hello **bold**."
+    assert paragraphs[1].markdown == "Hello **bold**."
     requirement_table = [b_ for b_ in blocks if isinstance(b_, DocxTable)][0]
     texts = [
         [" ".join(p_.text for p_ in c_.paragraphs) for c_ in r_]
@@ -125,9 +125,9 @@ def test_004_special_characters_are_escaped(tmp_path):
     assert table_.rows[4][0].paragraphs[0].text == "x < y & z"
 
 
-def test_005_a_list_table_becomes_a_word_table(tmp_path):
-    rst = ".. list-table::\n\n   * - a\n     - b\n   * - c\n     - d"
-    path = _generate(tmp_path, [ExportText(rst)])
+def test_005_a_pipe_table_becomes_a_word_table(tmp_path):
+    markdown = "| a | b |\n| --- | --- |\n| c | d |"
+    path = _generate(tmp_path, [ExportText(markdown)])
     table_ = _read(path)[0]
     assert [[c_.paragraphs[0].text for c_ in r_] for r_ in table_.rows] == [
         ["a", "b"],

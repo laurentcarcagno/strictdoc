@@ -118,9 +118,7 @@ def test_002_a_reviewer_adds_a_comment_with_author_and_date(tmp_path, markup):
     assert comment.date.endswith("Z") and len(comment.id) == 8
     assert comment.body == "This is not testable."
     header = path.read_text(encoding="utf8").split("COMMENT: >>>\n")[1]
-    assert header.startswith(
-        "<!-- sdoc-comment" if markup == "Markdown" else ".. sdoc-comment:"
-    )
+    assert header.startswith("<!-- sdoc-comment")
 
 
 def test_003_the_author_comes_from_the_server_not_from_the_form(tmp_path):

@@ -24,7 +24,7 @@ from markdown_it import MarkdownIt
 from markdown_it.token import Token
 
 from strictdoc.backend.docx.export.docx_images import load_image
-from strictdoc.backend.docx.export.rst_to_paragraphs import (
+from strictdoc.backend.docx.export.paragraph_model import (
     ExportImage,
     ExportParagraph,
     ExportRun,

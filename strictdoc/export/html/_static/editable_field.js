@@ -31,39 +31,6 @@
     return path.split('/').pop().replace(/ /g, '_');
   }
 
-  function getDirectImageUri(wildcardUri, filename) {
-    if (!wildcardUri.endsWith('.*')) return wildcardUri;
-    const extension = filename.match(/\.[^.]+$/)?.[0] || '';
-    return `${wildcardUri.slice(0, -1)}${extension.slice(1)}`;
-  }
-
-  function replaceDirectImageUris(editable, wildcardUri) {
-    if (!wildcardUri.endsWith('.*')) return false;
-
-    const uriPrefix = wildcardUri.slice(0, -1);
-    const directUris = [...SUPPORTED_IMAGE_FORMATS.keys()].map(
-      (extension) => `${uriPrefix}${extension.slice(1)}`
-    );
-    const textNodes = [];
-    const walker = document.createTreeWalker(
-      editable,
-      NodeFilter.SHOW_TEXT,
-    );
-    while (walker.nextNode()) textNodes.push(walker.currentNode);
-
-    let replaced = false;
-    for (const textNode of textNodes) {
-      let text = textNode.nodeValue;
-      for (const directUri of directUris) {
-        if (!text.includes(directUri)) continue;
-        text = text.replaceAll(directUri, wildcardUri);
-        replaced = true;
-      }
-      textNode.nodeValue = text;
-    }
-    return replaced;
-  }
-
   function isSupportedImageFile(file) {
     const extensionMatch = file.name.toLowerCase().match(/\.[^.]+$/);
     if (!extensionMatch) return false;
@@ -211,7 +178,7 @@
     const requirementMid =
       form.querySelector('[name="requirement_mid"]')?.value;
     const documentMarkup =
-      form.querySelector('[name="document_markup"]')?.value || 'RST';
+      form.querySelector('[name="document_markup"]')?.value || 'Markdown';
     if (!documentMid || !requirementMid) {
       console.error('Missing document_mid or requirement_mid for file upload.');
       return;
@@ -284,8 +251,7 @@
 
       // For each returned image URI:
       // - replace the placeholder with the markup-specific image reference;
-      // - remove the placeholder if the image is already referenced;
-      // - insert a shared wildcard URI only once for a multi-file pair.
+      // - remove the placeholder if the image is already referenced.
       for (const {
           filename,
           node
@@ -294,18 +260,7 @@
         const uri = imagesByFilename[filename];
         if (!uri) continue;
 
-        if (
-          documentMarkup === 'RST' &&
-          replaceDirectImageUris(editable, uri)
-        ) {
-          node.nodeValue = '';
-          currentText = editable.innerText;
-          continue;
-        }
-
-        const referenceUri = documentMarkup === 'RST' ?
-          uri :
-          getDirectImageUri(uri, filename);
+        const referenceUri = uri;
 
         if (currentText.includes(referenceUri)) {
           // The image is already referenced in the document.
@@ -324,9 +279,6 @@
         // Otherwise, this is a newly uploaded image, we add an image directive
         // suitable to the documentMarkup mode.
         switch (documentMarkup) {
-          case 'RST':
-            node.nodeValue = `\n.. image:: ${referenceUri}\n`;
-            break;
           case 'HTML':
             node.nodeValue = `\n<img src="${referenceUri}" />\n`;
             break;

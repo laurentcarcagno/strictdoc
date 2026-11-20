@@ -26,6 +26,7 @@ from strictdoc.core.file_system.file_tree import File
 from strictdoc.core.project_config import ProjectConfig
 from strictdoc.helpers.cast import assert_cast, assert_optional_cast
 from strictdoc.helpers.file_system import file_open_read_utf8
+from strictdoc.helpers.html_table import key_value_table
 from strictdoc.helpers.paths import path_to_posix_path
 from strictdoc.helpers.string import is_uppercase_underscore_string
 
@@ -163,20 +164,15 @@ class JUnitXMLReader:
             )
             document.section_contents.append(test_suite_section)
 
-            summary_table = f"""\
-.. list-table:: Test suite summary
-    :widths: 25 10
-    :header-rows: 0
-
-    * - **Number of tests:**
-      - {total_tests}
-    * - **Number of successful tests:**
-      - {total_success}
-    * - **Number of failed tests:**
-      - {total_failures}
-    * - **Number of skipped tests:**
-      - {total_skipped}
-"""
+            summary_table = key_value_table(
+                [
+                    ("Number of tests:", total_tests),
+                    ("Number of successful tests:", total_success),
+                    ("Number of failed tests:", total_failures),
+                    ("Number of skipped tests:", total_skipped),
+                ],
+                caption="Test suite summary",
+            )
 
             testcase_node = SDocNode(
                 parent=test_suite_section,

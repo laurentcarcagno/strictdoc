@@ -5,14 +5,12 @@ import sys
 from pathlib import Path
 from typing import Set
 
-from strictdoc.backend.rst.directives.wildcard_enhanced_image import (
-    WildcardEnhancedImage,
-)
 from strictdoc.backend.sdoc.errors.document_tree_error import DocumentTreeError
 from strictdoc.backend.sdoc.writer import SDWriter
 from strictdoc.cli.base_command import BaseCommand, CLIValidationError
 from strictdoc.commands.manage_assets_config import ManageAssetsCommandConfig
 from strictdoc.core.asset_manager import AssetManager
+from strictdoc.core.image_formats import SUPPORTED_IMAGE_FORMATS
 from strictdoc.core.project_config import ProjectConfig, ProjectConfigLoader
 from strictdoc.core.traceability_index import TraceabilityIndex
 from strictdoc.core.traceability_index_builder import TraceabilityIndexBuilder
@@ -92,21 +90,10 @@ and optionally delete them to keep the repository clean.
         for physical_path in physical_assets:
             is_used = False
 
-            physical_base_posix = Path(physical_path).with_suffix("").as_posix()
-
             for ref in referenced_assets:
-                if ref.endswith(".*"):
-                    # Remove the '.*' from a wildcard enhanced image directive
-                    ref_base = ref[:-2]
-                    # Check if the extension-less physical path ends with the reference base
-                    if physical_base_posix.endswith(ref_base):
-                        is_used = True
-                        break
-                else:
-                    # Standard exact match check
-                    if physical_path.endswith(ref):
-                        is_used = True
-                        break
+                if physical_path.endswith(ref):
+                    is_used = True
+                    break
 
             if not is_used:
                 unused_assets.append(physical_path)
@@ -159,13 +146,12 @@ and optionally delete them to keep the repository clean.
         """Scans the raw document text to extract paths of referenced images."""
         referenced_assets: set[str] = set()
 
-        # Regex to catch image directive
-        # e.g., .. image:: ./_assets/0011223344556677889900aabbccddeeff/picture.svg
-        #       <img src="./_assets/0011223344556677889900aabbccddeeff/picture.svg" />
+        # Regex to catch an image reference
+        # e.g., <img src="./_assets/0011223344556677889900aabbccddeeff/picture.svg" />
         #       ![](./_assets/0011223344556677889900aabbccddeeff/picture.svg)
         #       ![](_assets/0011223344556677889900aabbccddeeff/picture.svg)
         asset_regex = re.compile(
-            r"(image::\s+|src=\"|\]\()"
+            r"(src=\"|\]\()"
             r"(?:\./)?(_assets/[^\s'\"\)\]>]+)"
         )
 
@@ -190,10 +176,7 @@ and optionally delete them to keep the repository clean.
                     continue
 
                 # skip extensions that are not images
-                if (
-                    asset_file_.suffix.lstrip(".").lower()
-                    not in WildcardEnhancedImage.WILDCARD_EXTENSIONS
-                ):
+                if asset_file_.suffix.lower() not in SUPPORTED_IMAGE_FORMATS:
                     continue
 
                 # Store as posix path for easy regex comparison later

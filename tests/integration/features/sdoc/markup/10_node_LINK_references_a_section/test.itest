@@ -4,12 +4,12 @@ CHECK: Export completed.
 RUN: %cat %T/html/%THIS_TEST_FOLDER/input.html | filecheck %s --check-prefix CHECK-HTML-DOC
 
 # [LINK: ...] is used 6 times in the doc.
-CHECK-HTML-DOC: <a href="../10_node_LINK_references_a_section/section.html#SECTION">🔗&nbsp;1. Referenced section</a>
-CHECK-HTML-DOC: <a href="../10_node_LINK_references_a_section/section.html#SECTION">🔗&nbsp;1. Referenced section</a>
-CHECK-HTML-DOC: <a href="../10_node_LINK_references_a_section/section.html#SECTION">🔗&nbsp;1. Referenced section</a>
-CHECK-HTML-DOC: <a href="../10_node_LINK_references_a_section/section.html#SECTION">🔗&nbsp;1. Referenced section</a>
-CHECK-HTML-DOC: <a href="../10_node_LINK_references_a_section/section.html#SECTION">🔗&nbsp;1. Referenced section</a>
-CHECK-HTML-DOC: <a href="../10_node_LINK_references_a_section/section.html#SECTION">🔗&nbsp;1. Referenced section</a>
+CHECK-HTML-DOC: <a href="../10_node_LINK_references_a_section/section.html#SECTION">🔗{{.*}}1. Referenced section</a>
+CHECK-HTML-DOC: <a href="../10_node_LINK_references_a_section/section.html#SECTION">🔗{{.*}}1. Referenced section</a>
+CHECK-HTML-DOC: <a href="../10_node_LINK_references_a_section/section.html#SECTION">🔗{{.*}}1. Referenced section</a>
+CHECK-HTML-DOC: <a href="../10_node_LINK_references_a_section/section.html#SECTION">🔗{{.*}}1. Referenced section</a>
+CHECK-HTML-DOC: <a href="../10_node_LINK_references_a_section/section.html#SECTION">🔗{{.*}}1. Referenced section</a>
+CHECK-HTML-DOC: <a href="../10_node_LINK_references_a_section/section.html#SECTION">🔗{{.*}}1. Referenced section</a>
 
 # The referenced section shall have 6 incoming links.
 RUN: %cat %T/html/%THIS_TEST_FOLDER/section.html | filecheck %s --check-prefix CHECK-HTML-DOC-REFERENCED-SECTION

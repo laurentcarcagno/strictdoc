@@ -24,15 +24,6 @@ def test_02_writes_escaped_anchor_link():
     )
 
 
-def test_03_write_with_validation_returns_html_without_error():
-    html_output, error = MarkdownToHtmlFragmentWriter.write_with_validation(
-        "Hello **Markdown**."
-    )
-
-    assert error is None
-    assert html_output == "<p>Hello <strong>Markdown</strong>.</p>\n"
-
-
 def test_04_writes_markdown_table_to_html_table():
     markdown_input = "| Col A | Col B |\n| --- | --- |\n| A1 | B1 |\n"
 

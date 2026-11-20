@@ -3,7 +3,6 @@ from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
 from strictdoc.backend.markdown.formatter import wrap_md_text
-from strictdoc.backend.rst.formatter import wrap_rst_text
 from strictdoc.backend.sdoc.constants import SDocMarkup
 from strictdoc.backend.sdoc.models.document import SDocDocument
 from strictdoc.backend.sdoc.models.document_config import DocumentConfig
@@ -447,13 +446,12 @@ class SDWriter:
                         effective_value = field_value
                         if self.project_config.document_line_width is not None:
                             line_width = self.project_config.document_line_width
-                            markup = document.config.get_markup()
-                            if markup == SDocMarkup.MARKDOWN:
+                            # HTML is kept as it was written.
+                            if (
+                                document.config.get_markup()
+                                == SDocMarkup.MARKDOWN
+                            ):
                                 effective_value = wrap_md_text(
-                                    effective_value, line_width
-                                )
-                            else:
-                                effective_value = wrap_rst_text(
                                     effective_value, line_width
                                 )
                         output += ensure_newline(effective_value)

@@ -3416,7 +3416,6 @@ default-groups = []
 dependencies = [
     { name = "babel" },
     { name = "beautifulsoup4" },
-    { name = "docutils" },
     { name = "fastapi" },
     { name = "gitpython" },
     { name = "html2pdf4doc" },
@@ -3520,7 +3519,6 @@ release-local = [
 requires-dist = [
     { name = "babel", specifier = ">=2.12" },
     { name = "beautifulsoup4", specifier = "==4.*,>=4.12.0" },
-    { name = "docutils", specifier = "==0.*,>=0.22.2" },
     { name = "fastapi", specifier = ">=0.83.0" },
     { name = "gitpython", specifier = ">=3.1.40" },
     { name = "html2pdf4doc", specifier = "==0.0.35" },

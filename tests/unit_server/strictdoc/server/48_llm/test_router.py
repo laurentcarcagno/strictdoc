@@ -177,7 +177,7 @@ def test_004_accepted_proposals_become_draft_nodes_with_a_mark(tmp_path):
     text = _flight(tmp_path)
     assert "TITLE: Memory budget" in text and "TITLE: Boot time" in text
     assert text.count("STATUS: Draft") == 2
-    marks = re.findall(r"\.\. sdoc-comment: ([^\n]+)", text)
+    marks = re.findall(r"<!-- sdoc-comment ([^\n]+) -->", text)
     assert len(marks) == 2
     for mark in marks:
         assert "source=llm" in mark and "model=test-model" not in mark or True

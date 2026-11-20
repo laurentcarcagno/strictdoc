@@ -1,0 +1,2 @@
+RUN: %expect_exit 1 %strictdoc export %S --formats=html --output-dir %T | filecheck %s --dump-input=fail
+CHECK: error: config: project_features: unknown feature declared: 'MATHJAX'.

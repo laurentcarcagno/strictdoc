@@ -159,7 +159,6 @@ def create_config() -> ProjectConfig:
             "SEARCH",
             "TRACEABILITY_MATRIX_SCREEN",
             "REQUIREMENT_TO_SOURCE_TRACEABILITY",
-            # "MATHJAX"
 
             # Experimental features.
             # "PROJECT_STATISTICS_SCREEN",

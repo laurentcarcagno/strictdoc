@@ -2,10 +2,8 @@
 A review comment: author, date, state and text, kept in the value of a
 COMMENT field (no change of the SDoc grammar).
 
-The first line of the value is a header that does not render:
-
-- RST: ``.. sdoc-comment: id=c7f3a9 author=anna date=2026-10-10T12:00:00Z status=open``
-- Markdown: ``<!-- sdoc-comment id=c7f3a9 author=anna date=... status=open -->``
+The first line of the value is a header that does not render, an HTML
+comment: ``<!-- sdoc-comment id=c7f3a9 author=anna date=... status=open -->``
 
 The text follows after a blank line. A COMMENT without a header (every comment
 written before this feature) is a legacy comment: no author, no date, open.
@@ -15,14 +13,13 @@ import re
 import uuid
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from typing import Dict, List, Optional
+from typing import Dict, List
 from urllib.parse import quote, unquote
 
 STATUS_OPEN = "open"
 STATUS_RESOLVED = "resolved"
 STATUSES = (STATUS_OPEN, STATUS_RESOLVED)
 
-_RST_HEADER = re.compile(r"^\.\. sdoc-comment:[ \t]*(.*)$")
 _MARKDOWN_HEADER = re.compile(r"^<!-- sdoc-comment[ \t]+(.*?)[ \t]*-->$")
 _SAFE = "@.-_"
 
@@ -113,14 +110,10 @@ def parse_comment(value: str) -> Comment:
     """The comment of a COMMENT value, with or without a header."""
     stripped = value.strip("\n")
     first_line, _, rest = stripped.partition("\n")
-    fields: Optional[str] = None
-    for pattern_ in (_RST_HEADER, _MARKDOWN_HEADER):
-        match = pattern_.match(first_line.strip())
-        if match is not None:
-            fields = match.group(1)
-            break
-    if fields is None:
+    match = _MARKDOWN_HEADER.match(first_line.strip())
+    if match is None:
         return Comment(body=stripped.strip(), legacy=True)
+    fields = match.group(1)
 
     values: Dict[str, str] = {}
     for item_ in fields.split():
@@ -146,7 +139,7 @@ def parse_comment(value: str) -> Comment:
     )
 
 
-def format_comment(comment: Comment, markup: str) -> str:
+def format_comment(comment: Comment) -> str:
     """The COMMENT value of a comment: the header, a blank line, the text."""
     parts: List[str] = []
     for key_ in _KEYS:
@@ -154,11 +147,7 @@ def format_comment(comment: Comment, markup: str) -> str:
         if len(value) > 0 and not (key_ == "status" and value == ""):
             parts.append(f"{key_}={quote(value, safe=_SAFE)}")
     fields = " ".join(parts)
-    if markup == "Markdown":
-        header = f"<!-- sdoc-comment {fields} -->"
-    else:
-        header = f".. sdoc-comment: {fields}"
-    return f"{header}\n\n{comment.body.strip()}"
+    return f"<!-- sdoc-comment {fields} -->\n\n{comment.body.strip()}"
 
 
 def initials(author: str) -> str:

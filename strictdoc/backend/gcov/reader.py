@@ -21,6 +21,7 @@ from strictdoc.backend.sdoc.models.reference import (
 from strictdoc.core.file_system.file_tree import File
 from strictdoc.core.project_config import ProjectConfig
 from strictdoc.helpers.file_system import file_open_read_utf8
+from strictdoc.helpers.html_table import key_value_table
 
 
 @dataclass
@@ -188,7 +189,7 @@ class GCovJSONReader:
                     "../../../../"  # noqa: ISC003
                     + "coverage."
                     + Path(json_file_name).name
-                    + ". "
+                    + "."
                     + gcov_path_hash
                     + ".html"
                 )
@@ -198,11 +199,7 @@ class GCovJSONReader:
                     value=SDocNodeField(
                         parent=testcase_node,
                         field_name="STATEMENT",
-                        parts=[
-                            f"""
-                            `LINK <{link}>`_
-                            """
-                        ],
+                        parts=[f"[LINK]({link})"],
                         multiline__=None,
                     ),
                 )
@@ -238,16 +235,19 @@ class GCovJSONReader:
                         testcase_node
                     )
 
-            summary_table = f"""\
-.. list-table:: Coverage summary for {json_file_name}
-    :widths: 25 10
-    :header-rows: 0
-
-    * - **Total covered functions:**
-      - {stats.total_number_of_covered_functions}
-    * - **Total non-covered functions:**
-      - {stats.total_number_of_non_covered_functions}
-        """
+            summary_table = key_value_table(
+                [
+                    (
+                        "Total covered functions:",
+                        stats.total_number_of_covered_functions,
+                    ),
+                    (
+                        "Total non-covered functions:",
+                        stats.total_number_of_non_covered_functions,
+                    ),
+                ],
+                caption=f"Coverage summary for {json_file_name}",
+            )
 
             testcase_node = SDocNode(
                 parent=document,
@@ -276,18 +276,20 @@ class GCovJSONReader:
                 stats.total_number_of_non_covered_functions
             )
 
-        summary_table = f"""\
-.. list-table:: Coverage summary
-    :widths: 25 10
-    :header-rows: 0
-
-    * - **Total number of files :**
-      - {len(json_files)}
-    * - **Total covered functions:**
-      - {document_stats.total_number_of_covered_functions}
-    * - **Total non-covered functions:**
-      - {document_stats.total_number_of_non_covered_functions}
-        """
+        summary_table = key_value_table(
+            [
+                ("Total number of files :", len(json_files)),
+                (
+                    "Total covered functions:",
+                    document_stats.total_number_of_covered_functions,
+                ),
+                (
+                    "Total non-covered functions:",
+                    document_stats.total_number_of_non_covered_functions,
+                ),
+            ],
+            caption="Coverage summary",
+        )
 
         testcase_node = SDocNode(
             parent=document,

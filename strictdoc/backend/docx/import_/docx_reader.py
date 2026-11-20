@@ -38,19 +38,13 @@ class DocxParagraph:
     style: str
     # Plain text, without markup.
     text: str
-    # The same text with RST inline markup for bold, italic and monospace.
-    rst: str
     is_list_item: bool = False
-    # The same text with Markdown inline markup.
+    # The same text with Markdown inline markup for bold, italic and monospace.
     markdown: str = ""
 
-    def marked_up(self, markup: str) -> str:
-        """The text in the given markup ("RST" or "Markdown")."""
-        if markup == "Markdown":
-            return (
-                self.markdown if self.markdown else _escape_markdown(self.text)
-            )
-        return self.rst
+    def marked_up(self) -> str:
+        """The text as Markdown."""
+        return self.markdown if self.markdown else _escape_markdown(self.text)
 
 
 @dataclass
@@ -123,7 +117,6 @@ def paragraph_from_segments(
     return DocxParagraph(
         style="",
         text="".join(segment_[0] for segment_ in segments),
-        rst=_segments_to_rst(segments),
         markdown=_segments_to_markdown(segments),
     )
 
@@ -190,7 +183,6 @@ def _read_cell(element: ET.Element, mode: TrackedChangesMode) -> DocxCell:
                     DocxParagraph(
                         "",
                         text,
-                        _escape_rst(text),
                         markdown=_escape_markdown(text),
                     )
                 )
@@ -233,7 +225,6 @@ def _read_paragraph(
     return DocxParagraph(
         style=style,
         text=text,
-        rst=_segments_to_rst(segments),
         is_list_item=is_list_item,
         markdown=_segments_to_markdown(segments),
     )
@@ -326,39 +317,6 @@ def _image_text(drawing: ET.Element) -> Optional[str]:
     if not name.startswith(IMAGE_NAME_PREFIX):
         return None
     return f"[image: {name[len(IMAGE_NAME_PREFIX) :]}]"
-
-
-def _segments_to_rst(segments: List[_Segment]) -> str:
-    merged: List[_Segment] = []
-    for segment_ in segments:
-        if len(merged) > 0 and merged[-1][1:] == segment_[1:]:
-            previous = merged[-1]
-            merged[-1] = (previous[0] + segment_[0], *previous[1:])
-        else:
-            merged.append(segment_)
-
-    pieces: List[str] = []
-    for text_, bold_, italic_, monospace_ in merged:
-        core = text_.strip(" ")
-        if len(core) == 0 or not (bold_ or italic_ or monospace_):
-            pieces.append(_escape_rst(text_))
-            continue
-        leading = text_[: len(text_) - len(text_.lstrip(" "))]
-        trailing = text_[len(text_.rstrip(" ")) :]
-        if monospace_:
-            marked = "``" + core + "``"
-        else:
-            marker = "**" if bold_ else "*"
-            marked = marker + _escape_rst(core) + marker
-        pieces.append(leading + marked + trailing)
-    return "".join(pieces)
-
-
-def _escape_rst(text: str) -> str:
-    text = text.replace("\\", "\\\\")
-    text = text.replace("*", "\\*")
-    text = text.replace("`", "\\`")
-    return re.sub(r"(?<=\w)_(?=\W|$)", r"\\_", text)
 
 
 def _segments_to_markdown(segments: List[_Segment]) -> str:

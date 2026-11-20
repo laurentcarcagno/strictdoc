@@ -10,8 +10,6 @@ from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Union
 
 from strictdoc.backend.docx.docx_profile import (
-    MARKUP_MARKDOWN,
-    MARKUP_RST,
     DocxProfile,
     DocxRequirementTable,
 )
@@ -38,11 +36,10 @@ from strictdoc.backend.docx.export.markdown_to_paragraphs import (
     ExportTable,
     markdown_to_blocks,
 )
-from strictdoc.backend.docx.export.rst_to_paragraphs import (
+from strictdoc.backend.docx.export.paragraph_model import (
     ExportImage,
     ExportParagraph,
     ExportRun,
-    rst_to_paragraphs,
 )
 from strictdoc.backend.docx.export.text_to_paragraphs import text_to_paragraphs
 from strictdoc.backend.sdoc.models.document import SDocDocument
@@ -73,8 +70,6 @@ class ExportSection:
 @dataclass
 class ExportText:
     statement: str
-    # The markup of the SDoc document that the text comes from.
-    markup: str = MARKUP_RST
     # The folder of that document: relative image paths start there.
     base_dir: str = ""
     comments: List[ExportComment] = field(default_factory=list)
@@ -87,7 +82,6 @@ class ExportRequirement:
     statement: str
     fields: Dict[str, str] = field(default_factory=dict)
     note: str = ""
-    markup: str = MARKUP_RST
     base_dir: str = ""
     comments: List[ExportComment] = field(default_factory=list)
 
@@ -112,7 +106,7 @@ def effective_profile(profile: DocxProfile) -> DocxProfile:
 
 
 def _export_comments(
-    node: SDocNode, mode: str, markup: str, base_dir: str
+    node: SDocNode, mode: str, base_dir: str
 ) -> List[ExportComment]:
     """The comments of a node that go to Word, as the profile says."""
     if mode == "none":
@@ -135,7 +129,6 @@ def _export_comments(
                 date=comment.date,
                 body=comment.body,
                 resolved=comment.is_resolved,
-                markup=markup,
                 base_dir=base_dir,
             )
         )
@@ -148,11 +141,6 @@ def items_from_document(
     comments: str = "none",
 ) -> List[ExportItem]:
     items: List[ExportItem] = []
-    markup = (
-        document.config.get_markup()
-        if document.config is not None
-        else MARKUP_RST
-    )
     base_dir = (
         os.path.dirname(document.meta.input_doc_full_path)
         if document.meta is not None
@@ -170,11 +158,8 @@ def items_from_document(
             items.append(
                 ExportText(
                     _content(node_),
-                    markup,
                     base_dir,
-                    comments=_export_comments(
-                        node_, comments, markup, base_dir
-                    ),
+                    comments=_export_comments(node_, comments, base_dir),
                 )
             )
         elif node_.node_type == "REQUIREMENT":
@@ -194,11 +179,8 @@ def items_from_document(
                     statement=_content(node_),
                     fields=fields,
                     note=note,
-                    markup=markup,
                     base_dir=base_dir,
-                    comments=_export_comments(
-                        node_, comments, markup, base_dir
-                    ),
+                    comments=_export_comments(node_, comments, base_dir),
                 )
             )
     return items
@@ -231,9 +213,7 @@ class DocxGenerator:
                     text_paragraph_xml(item_.title, heading_styles[level])
                 )
             elif isinstance(item_, ExportText):
-                blocks = _text_blocks(
-                    item_.statement, item_.markup, item_.base_dir, profile
-                )
+                blocks = _text_blocks(item_.statement, item_.base_dir, profile)
                 if item_.comments and blocks:
                     # The comments of a paragraph sit on its first block.
                     blocks[0] = anchor_first_paragraph(
@@ -269,19 +249,16 @@ def collect_item_images(items: List[ExportItem]) -> Dict[str, ExportImage]:
     paragraphs: List[ExportParagraph] = []
     for item_ in items:
         if isinstance(item_, ExportText):
-            if item_.markup == MARKUP_MARKDOWN:
-                paragraphs.extend(
-                    block_
-                    for block_ in markdown_to_blocks(
-                        item_.statement, item_.base_dir
-                    )
-                    if isinstance(block_, ExportParagraph)
+            paragraphs.extend(
+                block_
+                for block_ in markdown_to_blocks(
+                    item_.statement, item_.base_dir
                 )
+                if isinstance(block_, ExportParagraph)
+            )
         elif isinstance(item_, ExportRequirement):
             for text_ in (item_.statement, item_.note):
-                paragraphs.extend(
-                    text_to_paragraphs(text_, item_.markup, item_.base_dir)
-                )
+                paragraphs.extend(text_to_paragraphs(text_, item_.base_dir))
     return images_in(paragraphs)
 
 
@@ -310,50 +287,26 @@ def heading_style_by_level(profile: DocxProfile) -> Dict[int, str]:
 
 def _text_blocks(
     statement: str,
-    markup: str = MARKUP_RST,
     base_dir: str = "",
     profile: Optional[DocxProfile] = None,
 ) -> List[str]:
-    if markup == MARKUP_MARKDOWN:
-        admonition_styles = {
-            "note": profile.note_style if profile is not None else None,
-            "warning": profile.warning_style if profile is not None else None,
-        }
-        blocks: List[str] = []
-        for block_ in markdown_to_blocks(statement, base_dir):
-            if isinstance(block_, ExportTable):
-                blocks.append(table_xml(block_.rows))
-                blocks.append(empty_paragraph_xml())
-            else:
-                style = (
-                    admonition_styles.get(block_.admonition)
-                    if block_.admonition is not None
-                    else None
-                )
-                blocks.append(paragraph_xml(block_, style))
-        return blocks
-    if statement.lstrip().startswith(".. list-table::"):
-        return [table_xml(_parse_list_table(statement)), empty_paragraph_xml()]
-    return [paragraph_xml(p_) for p_ in rst_to_paragraphs(statement)]
-
-
-def _parse_list_table(rst: str) -> List[List[str]]:
-    rows: List[List[str]] = []
-    for line_ in rst.split("\n")[1:]:
-        stripped = line_.strip()
-        if stripped.startswith("* -"):
-            rows.append([_plain(stripped[3:])])
-        elif stripped.startswith("-") and len(rows) > 0:
-            rows[-1].append(_plain(stripped[1:]))
-    return rows
-
-
-def _plain(text: str) -> str:
-    text = text.strip()
-    runs: List[ExportRun] = [
-        run_ for p_ in rst_to_paragraphs(text) for run_ in p_.runs
-    ]
-    return "".join(run_.text for run_ in runs)
+    admonition_styles = {
+        "note": profile.note_style if profile is not None else None,
+        "warning": profile.warning_style if profile is not None else None,
+    }
+    blocks: List[str] = []
+    for block_ in markdown_to_blocks(statement, base_dir):
+        if isinstance(block_, ExportTable):
+            blocks.append(table_xml(block_.rows))
+            blocks.append(empty_paragraph_xml())
+        else:
+            style = (
+                admonition_styles.get(block_.admonition)
+                if block_.admonition is not None
+                else None
+            )
+            blocks.append(paragraph_xml(block_, style))
+    return blocks
 
 
 def requirement_xml(
@@ -378,12 +331,12 @@ def requirement_xml(
         elif role == "text":
             text_row_done = True
             paragraphs = text_to_paragraphs(
-                requirement.statement, requirement.markup, requirement.base_dir
+                requirement.statement, requirement.base_dir
             )
             out_rows.append(_fill_row(row_, [paragraphs or [_p("")]]))
         elif role == "note":
             note_paragraphs = text_to_paragraphs(
-                requirement.note, requirement.markup, requirement.base_dir
+                requirement.note, requirement.base_dir
             )
             out_rows.append(
                 fill_note_row(row_, note_paragraphs, layout.note_label or "")

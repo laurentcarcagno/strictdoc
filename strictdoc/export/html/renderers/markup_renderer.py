@@ -6,9 +6,6 @@ from markupsafe import Markup
 from strictdoc.backend.markdown.markdown_to_html_fragment_writer import (
     MarkdownToHtmlFragmentWriter,
 )
-from strictdoc.backend.rst.rst_to_html_fragment_writer import (
-    RstToHtmlFragmentWriter,
-)
 from strictdoc.backend.sdoc.constants import SDocMarkup
 from strictdoc.backend.sdoc.models.anchor import Anchor
 from strictdoc.backend.sdoc.models.document import SDocDocument
@@ -23,15 +20,16 @@ from strictdoc.export.html.renderers.html_fragment_writer import (
     HTMLFragmentWriter,
 )
 from strictdoc.export.html.renderers.link_renderer import LinkRenderer
-from strictdoc.export.html.renderers.text_to_html_writer import TextToHtmlWriter
-from strictdoc.helpers.rst import escape_str_after_inline_markup
 
-FragmentWriterType = Union[
-    RstToHtmlFragmentWriter,
-    MarkdownToHtmlFragmentWriter,
-    HTMLFragmentWriter,
-    TextToHtmlWriter,
-]
+FragmentWriterType = Union[MarkdownToHtmlFragmentWriter, HTMLFragmentWriter]
+
+
+def _create_fragment_writer(
+    markup: Optional[str], flat_assets: bool
+) -> FragmentWriterType:
+    if markup == SDocMarkup.HTML:
+        return HTMLFragmentWriter()
+    return MarkdownToHtmlFragmentWriter(flat_assets=flat_assets)
 
 
 class MarkupRenderer:
@@ -42,28 +40,12 @@ class MarkupRenderer:
         traceability_index: TraceabilityIndex,
         link_renderer: LinkRenderer,
         html_templates: HTMLTemplates,
-        config: ProjectConfig,
+        config: ProjectConfig,  # noqa: ARG004 (the callers pass it)
         context_document: Optional[SDocDocument],
         flat_assets: bool = False,
-        reference_path_override: Optional[str] = None,
     ) -> "MarkupRenderer":
         assert isinstance(html_templates, HTMLTemplates)
-        html_fragment_writer: FragmentWriterType
-        if not markup or markup == SDocMarkup.RST:
-            html_fragment_writer = RstToHtmlFragmentWriter(
-                project_config=config,
-                context_document=context_document,
-                flat_assets=flat_assets,
-                reference_path_override=reference_path_override,
-            )
-        elif markup == SDocMarkup.MARKDOWN:
-            html_fragment_writer = MarkdownToHtmlFragmentWriter(
-                flat_assets=flat_assets
-            )
-        elif markup == SDocMarkup.HTML:
-            html_fragment_writer = HTMLFragmentWriter()
-        else:
-            html_fragment_writer = TextToHtmlWriter()
+        html_fragment_writer = _create_fragment_writer(markup, flat_assets)
         return MarkupRenderer(
             fragment_writer=html_fragment_writer,
             traceability_index=traceability_index,
@@ -101,30 +83,16 @@ class MarkupRenderer:
         # Cache of fragment writers keyed by markup string. Pre-populated with
         # the primary writer so the dispatch method reuses it without creating
         # duplicates for the common case.
-        primary_key: str = primary_markup or SDocMarkup.RST
+        primary_key: str = primary_markup or SDocMarkup.MARKDOWN
         self._writers_by_markup: Dict[str, FragmentWriterType] = {
             primary_key: fragment_writer
         }
 
-        # FIXME: Now that the underlying RST fragment caching is in place,
-        # This caching could be removed. It is unlikely that it adds any serious
-        # performance improvement.
         self.cache: Dict[Tuple[DocumentType, SDocNodeField], Markup] = {}
 
-        if isinstance(
-            fragment_writer, (MarkdownToHtmlFragmentWriter, HTMLFragmentWriter)
-        ):
-            self.template_anchor = (
-                html_templates.jinja_environment().get_template(
-                    "markup/anchor.jinja"
-                )
-            )
-        else:
-            self.template_anchor = (
-                html_templates.jinja_environment().get_template(
-                    "rst/anchor.jinja"
-                )
-            )
+        self.template_anchor = html_templates.jinja_environment().get_template(
+            "markup/anchor.jinja"
+        )
 
     def _get_writer_for_node_field(
         self, node_field: SDocNodeField
@@ -132,28 +100,20 @@ class MarkupRenderer:
         """
         Return the fragment writer appropriate for the node field's markup.
 
-        When the bundle document (RST by default) contains sub-documents with
-        different markup (e.g. Markdown), nodes from those sub-documents must be
-        rendered with the correct writer, not the bundle's primary RST writer.
+        When the bundle document (Markdown by default) contains sub-documents
+        with another markup (HTML), nodes from those sub-documents must be
+        rendered with the correct writer, not the primary one of the bundle.
         """
         if node_field.parent is None:
             return self.fragment_writer
         doc = node_field.parent.get_document()
         if doc is None or doc.config is None:
             return self.fragment_writer
-        markup = doc.config.markup  # raw value; None means RST
-        key = markup or SDocMarkup.RST
+        key = doc.config.get_markup()
         if key not in self._writers_by_markup:
-            if not markup or markup == SDocMarkup.RST:
-                self._writers_by_markup[key] = self.fragment_writer
-            elif markup == SDocMarkup.MARKDOWN:
-                self._writers_by_markup[key] = MarkdownToHtmlFragmentWriter(
-                    flat_assets=self.flat_assets
-                )
-            elif markup == SDocMarkup.HTML:
-                self._writers_by_markup[key] = HTMLFragmentWriter()
-            else:
-                self._writers_by_markup[key] = TextToHtmlWriter()
+            self._writers_by_markup[key] = _create_fragment_writer(
+                key, self.flat_assets
+            )
         return self._writers_by_markup[key]
 
     def render_node_statement(
@@ -189,7 +149,6 @@ class MarkupRenderer:
 
         fragment_writer = self._get_writer_for_node_field(node_field)
 
-        prev_part = None
         parts_output = ""
         # The HTML that StrictDoc writes itself (the anchors) goes through the
         # Markdown writer as a comment and is put back afterwards, so that the
@@ -201,12 +160,7 @@ class MarkupRenderer:
         )
         for part in node_field.parts:
             if isinstance(part, str):
-                if isinstance(prev_part, InlineLink) and isinstance(
-                    fragment_writer, RstToHtmlFragmentWriter
-                ):
-                    parts_output += escape_str_after_inline_markup(part)
-                else:
-                    parts_output += part
+                parts_output += part
             elif isinstance(part, InlineLink):
                 linkable_node = (
                     self.traceability_index.get_linkable_node_by_uid(part.link)
@@ -239,7 +193,6 @@ class MarkupRenderer:
                     parts_output += anchor_html
             else:
                 raise NotImplementedError
-            prev_part = part
 
         output = fragment_writer.write(parts_output)
         if len(trusted_html) > 0:

@@ -1,0 +1,9 @@
+[DOCUMENT]
+TITLE: Document that still holds RST
+
+[TEXT]
+STATEMENT: >>>
+.. note::
+
+    This was RST.
+<<<

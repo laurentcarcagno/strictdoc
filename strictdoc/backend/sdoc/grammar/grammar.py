@@ -128,6 +128,8 @@ ViewElementHiddenTag[noskipws]:
   '  - ' hidden_tag = SingleLineString '\n'
 ;
 
+// 'RST' and 'Text' are not markups any more: the processor stops on them with
+// a message that says how to convert the document.
 MarkupChoice[noskipws]:
   'RST' | 'Text' | 'HTML' | 'Markdown'
 ;

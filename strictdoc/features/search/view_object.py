@@ -8,6 +8,7 @@ from typing import Iterator, List, Optional, Union
 from markupsafe import Markup
 
 from strictdoc import __version__
+from strictdoc.backend.sdoc.constants import SDocMarkup
 from strictdoc.backend.sdoc.models.anchor import Anchor
 from strictdoc.backend.sdoc.models.document import SDocDocument
 from strictdoc.backend.sdoc.models.document_view import DocumentView
@@ -58,7 +59,7 @@ class SearchScreenViewObject:
             root_path="", static_path=project_config.dir_for_sdoc_assets
         )
         markup_renderer = MarkupRenderer.create(
-            markup="RST",
+            markup=SDocMarkup.MARKDOWN,
             traceability_index=traceability_index,
             link_renderer=link_renderer,
             html_templates=templates,

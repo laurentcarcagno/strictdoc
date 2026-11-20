@@ -31,7 +31,7 @@ class Test(E2ECase):
             # click copies the anchor ID defined with [ANCHOR: RST-ANCHOR, ...].
             # TEXT is the second node-requirement in the DOM.
             text_node = screen_document.get_node(node_order=2)
-            text_node.do_copy_rst_anchor_to_buffer("RST-ANCHOR")
+            text_node.do_copy_inline_anchor_to_buffer("RST-ANCHOR")
             assert self.paste_text() == "RST-ANCHOR"
 
             # Field content: hover reveals the copy button; click copies the

@@ -6,6 +6,7 @@ from typing import Dict, Optional
 
 from markupsafe import Markup
 
+from strictdoc.backend.sdoc.constants import SDocMarkup
 from strictdoc.backend.sdoc.models.document import SDocDocument
 from strictdoc.backend.sdoc.models.document_grammar import DocumentGrammar
 from strictdoc.core.project_config import ProjectConfig
@@ -93,7 +94,7 @@ class TraceabilityMatrixHTMLGenerator:
             root_path="", static_path=project_config.dir_for_sdoc_assets
         )
         markup_renderer = MarkupRenderer.create(
-            markup="RST",
+            markup=SDocMarkup.MARKDOWN,
             traceability_index=traceability_index,
             link_renderer=link_renderer,
             html_templates=html_templates,

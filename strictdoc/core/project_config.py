@@ -113,8 +113,6 @@ class ProjectFeature(str, Enum):
     TRACEABILITY_SCREEN = "TRACEABILITY_SCREEN"
     DEEP_TRACEABILITY_SCREEN = "DEEP_TRACEABILITY_SCREEN"
 
-    MATHJAX = "MATHJAX"
-
     # Experimental features.
     SEARCH = "SEARCH"
     HTML2PDF = "HTML2PDF"
@@ -897,12 +895,6 @@ class ProjectConfig:
         if export_config.disable_ssl_check:
             self.html2pdf_disable_ssl_check = True
 
-        if (
-            export_config.enable_mathjax
-            and ProjectFeature.MATHJAX not in self.project_features
-        ):
-            self.project_features.append(ProjectFeature.MATHJAX)
-
         if export_config.reqif_profile is not None:
             self.reqif_profile = export_config.reqif_profile
 
@@ -998,15 +990,6 @@ class ProjectConfig:
                 "info: the SOURCE_FILE_LANGUAGE_PARSERS feature is no longer "
                 "experimental and is now enabled by default. "
                 "It can be safely removed from the project configuration."
-            )
-
-        if ProjectFeature.MATHJAX in self.project_features:
-            DEPRECATION_ENGINE.add_message(
-                "MATHJAX_feature_deprecated",
-                "The MATHJAX feature is now enabled by default and no longer "
-                "needs to be listed in the project configuration. "
-                "Please remove it from the project_features list in your "
-                "strictdoc_config.py file.",
             )
 
         if ProjectFeature.MERMAID in self.project_features:
@@ -1229,12 +1212,6 @@ class ProjectConfig:
 
     def is_activated_docx(self) -> bool:
         return ProjectFeature.DOCX in self.project_features
-
-    def is_activated_mathjax(self) -> bool:
-        # FIXME: Refactor Jinja templates to not rely on the MathJax feature
-        # flag, since MathJax is now a stable feature that is always included in
-        # the static assets.
-        return True
 
     def is_activated_mermaid(self) -> bool:
         # FIXME: Refactor Jinja templates to not rely on the Mermaid feature

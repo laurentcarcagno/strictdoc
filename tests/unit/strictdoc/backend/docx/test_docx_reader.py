@@ -120,7 +120,7 @@ def test_008_list_item_is_detected_from_numbering(tmp_path):
     assert blocks[1].is_list_item is False
 
 
-def test_009_bold_italic_and_monospace_runs_become_rst_markup(tmp_path):
+def test_009_bold_italic_and_monospace_runs_become_markdown(tmp_path):
     content = (
         run("plain ")
         + run("bold", bold=True)
@@ -131,24 +131,24 @@ def test_009_bold_italic_and_monospace_runs_become_rst_markup(tmp_path):
     )
     blocks = _read(tmp_path, [paragraph(content)])
     assert blocks[0].text == "plain bold and italic and code"
-    assert blocks[0].rst == "plain **bold** and *italic* and ``code``"
+    assert blocks[0].markdown == "plain **bold** and *italic* and `code`"
 
 
 def test_010_markup_never_swallows_surrounding_spaces(tmp_path):
     content = run("a ") + run(" bold ", bold=True) + run("b")
     blocks = _read(tmp_path, [paragraph(content)])
-    assert blocks[0].rst == "a  **bold** b"
+    assert blocks[0].markdown == "a  **bold** b"
 
 
-def test_011_rst_special_characters_are_escaped(tmp_path):
+def test_011_markdown_special_characters_are_escaped(tmp_path):
     blocks = _read(tmp_path, [paragraph("2*3 `x` name_ back\\slash")])
-    assert blocks[0].rst == "2\\*3 \\`x\\` name\\_ back\\\\slash"
+    assert blocks[0].markdown == "2\\*3 \\`x\\` name\\_ back\\\\slash"
 
 
 def test_012_adjacent_runs_with_the_same_format_are_merged(tmp_path):
     content = run("one", bold=True) + run("two", bold=True)
     blocks = _read(tmp_path, [paragraph(content)])
-    assert blocks[0].rst == "**onetwo**"
+    assert blocks[0].markdown == "**onetwo**"
 
 
 def test_013_a_file_that_is_not_a_docx_is_rejected(tmp_path):

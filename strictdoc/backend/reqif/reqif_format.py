@@ -43,7 +43,7 @@ class ReqIFFormat(Format):
             type=_check_reqif_import_markup,
             help=(
                 "Controls which MARKUP option the imported SDoc documents will have. "
-                "This value is RST as what StrictDoc has by default but very often "
+                "This value is Markdown as what StrictDoc has by default but very often "
                 "the requirements tools use the (X)HTML markup for multiline fields in "
                 "which case HTML is the best option."
             ),

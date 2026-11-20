@@ -132,7 +132,6 @@ def strip_bom(s: str) -> str:
 
 _PROTECTED_INLINE_RE = re.compile(
     r"\[(LINK|ANCHOR):[^\]]*\]"  # StrictDoc [LINK: UID] and [ANCHOR: UID]
-    r"|`[^`]+<[^>]+>`_{1,2}"  # RST hyperlink: `text <url>`_ or `text <url>`__
     r"|\[[^\]]+\]\([^)]+\)"  # Markdown inline link: [text](url)
 )
 

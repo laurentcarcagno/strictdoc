@@ -159,8 +159,10 @@ class DocumentConfig:
         self.custom_metadata: Optional[DocumentCustomMetadata] = custom_metadata
 
     def get_markup(self) -> str:
+        # MARKUP is optional: a field is Markdown unless the document says
+        # HTML. MARKUP: Markdown is accepted and changes nothing.
         if self.markup is None:
-            return SDocMarkup.RST
+            return SDocMarkup.MARKDOWN
         return self.markup
 
     def get_requirement_style_mode(self) -> str:

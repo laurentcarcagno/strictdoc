@@ -72,7 +72,7 @@ class SourceFileViewObject:
         project_config: ProjectConfig,
         link_renderer: LinkRenderer,
         markup_renderer: MarkupRenderer,
-        text_renderer: MarkupRenderer,
+        html_renderer: MarkupRenderer,
         source_file: SourceFile,
         pygments_styles: Markup,
         pygmented_source_file_lines: List[SourceLineEntry],
@@ -83,7 +83,7 @@ class SourceFileViewObject:
         self.project_config: ProjectConfig = project_config
         self.link_renderer: LinkRenderer = link_renderer
         self.markup_renderer: MarkupRenderer = markup_renderer
-        self.text_renderer: MarkupRenderer = text_renderer
+        self.html_renderer: MarkupRenderer = html_renderer
         self.source_file: SourceFile = source_file
         self.pygments_styles: Markup = pygments_styles
         self.pygmented_source_file_lines: List[SourceLineEntry] = (
@@ -200,9 +200,9 @@ class SourceFileViewObject:
     def get_node_renderer(self, node: SDocNode) -> MarkupRenderer:
         parent_doc = node.get_parent_or_including_document()
         parent_doc_config = parent_doc.config
-        if parent_doc_config.markup is SDocMarkup.RST:
-            return self.markup_renderer
-        return self.text_renderer
+        if parent_doc_config.get_markup() == SDocMarkup.HTML:
+            return self.html_renderer
+        return self.markup_renderer
 
     def get_source_file_path(self) -> str:
         return self.source_file.in_doctree_source_file_rel_path_posix

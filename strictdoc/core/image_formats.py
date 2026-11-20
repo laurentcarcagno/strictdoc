@@ -1,11 +1,9 @@
 """
 Image formats supported by StrictDoc's drag-and-drop/paste image upload and
-by the wildcard-based RST/Sphinx image directive
-(strictdoc/backend/rst/directives/wildcard_enhanced_image.py). This is the
-single source of truth for the supported extensions and their expected MIME
-content types; the client-side upload script
-(strictdoc/export/html/_static/editable_field.js) mirrors this list for
-same-format checks in the browser.
+by the command that finds the unused images. This is the single source of
+truth for the supported extensions and their expected MIME content types; the
+client-side upload script (strictdoc/export/html/_static/editable_field.js)
+mirrors this list for same-format checks in the browser.
 """
 
 from enum import Enum

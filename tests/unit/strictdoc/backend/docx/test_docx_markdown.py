@@ -375,8 +375,8 @@ def test_018_a_free_text_admonition_gets_the_word_styles_of_the_profile():
         warning_style="Avertissement",
     )
     items = [
-        ExportText(ADMONITION.format(kind="note"), markup="Markdown"),
-        ExportText(ADMONITION.format(kind="danger"), markup="Markdown"),
+        ExportText(ADMONITION.format(kind="note")),
+        ExportText(ADMONITION.format(kind="danger")),
     ]
 
     package = DocxGenerator.generate(

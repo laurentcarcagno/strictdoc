@@ -204,8 +204,8 @@ def test_008_the_editor_textarea_carries_the_markdown_unchanged(tmp_path):
     )
 
 
-def test_009_other_markups_keep_the_plain_editor(tmp_path):
-    for markup in ("RST", "Text", "HTML"):
+def test_009_an_html_document_keeps_the_plain_editor(tmp_path):
+    for markup in ("HTML",):
         client = _client(tmp_path / markup, markup)
         form = _edit_form(client, R1_MID)
         assert form.find("sdoc-markdown-editor") is None, markup

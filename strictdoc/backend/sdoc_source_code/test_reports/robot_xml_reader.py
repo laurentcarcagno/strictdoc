@@ -18,6 +18,7 @@ from strictdoc.backend.sdoc.models.reference import (
 )
 from strictdoc.core.file_system.file_tree import File
 from strictdoc.core.project_config import ProjectConfig
+from strictdoc.helpers.html_table import key_value_table
 from strictdoc.helpers.paths import path_to_posix_path
 
 
@@ -186,20 +187,15 @@ class SdocVisitor(ResultVisitor):  # type: ignore[misc]
         parent: Union[SDocDocument, SDocNode],
     ) -> SDocNode:
         assert self.document
-        summary_table = f"""\
-.. list-table:: Test suite summary
-    :widths: 25 10
-    :header-rows: 0
-
-    * - **Number of tests:**
-      - {suite.statistics.total}
-    * - **Number of successful tests:**
-      - {suite.statistics.passed}
-    * - **Number of failed tests:**
-      - {suite.statistics.failed}
-    * - **Number of skipped tests:**
-      - {suite.statistics.skipped}
-"""
+        summary_table = key_value_table(
+            [
+                ("Number of tests:", suite.statistics.total),
+                ("Number of successful tests:", suite.statistics.passed),
+                ("Number of failed tests:", suite.statistics.failed),
+                ("Number of skipped tests:", suite.statistics.skipped),
+            ],
+            caption="Test suite summary",
+        )
         summary_node = SDocNode(
             parent=parent,
             node_type="TEXT",

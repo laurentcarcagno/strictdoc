@@ -33,7 +33,7 @@ def test_gcov_html_link_uses_actual_source_file_path_for_hash():
     )
     statement = testcase_node.get_field_by_name("STATEMENT").parts[0]
 
-    assert f"coverage.functions.cpp. {source_path_hash}.html" in statement
+    assert f"coverage.functions.cpp.{source_path_hash}.html" in statement
 
 
 def test_gcov_report_normalizes_windows_source_file_path():
@@ -69,7 +69,7 @@ def test_gcov_report_normalizes_windows_source_file_path():
         "GCOV:src/functions.cpp:test::Adder::add(int const&, int const&)"
     )
     assert file_reference.g_file_entry.g_file_path == "src/functions.cpp"
-    assert f"coverage.functions.cpp. {source_path_hash}.html" in statement
+    assert f"coverage.functions.cpp.{source_path_hash}.html" in statement
 
 
 def test_gcov_report_relativizes_windows_absolute_source_file_path():
@@ -107,7 +107,7 @@ def test_gcov_report_relativizes_windows_absolute_source_file_path():
         "GCOV:src/functions.cpp:test::Adder::add(int const&, int const&)"
     )
     assert file_reference.g_file_entry.g_file_path == "src/functions.cpp"
-    assert f"coverage.functions.cpp. {source_path_hash}.html" in statement
+    assert f"coverage.functions.cpp.{source_path_hash}.html" in statement
 
 
 def test_gcov_report_prefers_demangled_name_over_name():

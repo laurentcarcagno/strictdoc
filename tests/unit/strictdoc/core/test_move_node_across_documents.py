@@ -68,7 +68,7 @@ def test_can_move_node_across_documents_false_for_node_with_image():
     requirement.set_field_value(
         field_name="STATEMENT",
         form_field_index=0,
-        value="See the diagram: .. image:: diagram.png",
+        value="See the diagram: ![](diagram.png)",
     )
     assert not traceability_index.can_move_node_across_documents(requirement)
 
@@ -88,7 +88,7 @@ def test_can_move_node_across_documents_false_for_subtree_with_image():
     child_with_image.set_field_value(
         field_name="STATEMENT",
         form_field_index=0,
-        value="See the diagram: .. image:: diagram.png",
+        value="See the diagram: ![](diagram.png)",
     )
 
     assert not traceability_index.can_move_node_across_documents(

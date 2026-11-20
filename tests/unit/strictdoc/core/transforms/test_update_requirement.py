@@ -469,7 +469,7 @@ def test_30_markdown_document_updates_field_with_markdown_table():
 def test_31_included_markdown_document_uses_own_markup_when_updated_from_parent():
     parent_document_builder = DocumentBuilder(uid="PARENT")
     parent_document = parent_document_builder.build()
-    parent_document.config.markup = SDocMarkup.RST
+    parent_document.config.markup = SDocMarkup.HTML
 
     included_document_builder = DocumentBuilder(uid="INCLUDED")
     requirement = included_document_builder.add_requirement("REQ-001")

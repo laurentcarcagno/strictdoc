@@ -1,0 +1,4 @@
+RUN: %expect_exit 1 %strictdoc export %S --output-dir %T | filecheck %s --dump-input=fail
+
+CHECK: error: {{.*}}MARKUP: RST is no longer supported: StrictDoc reads Markdown and HTML only.
+CHECK-SAME: rst-to-markdown-converter

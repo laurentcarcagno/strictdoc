@@ -1397,13 +1397,12 @@ class Screen_Document(Screen):  # pylint: disable=invalid-name
 
         # Wait for the UI to update
         # We wait until the placeholder "Uploading..." disappears
-        # and is replaced by the actual RST directive path.
+        # and is replaced by the actual image path.
         start_time = datetime.now()
         while True:
             current_content = target_element.text
             upload_finished = "Uploading " not in current_content and (
-                ".. image:: ./_assets/" in current_content
-                or '<img src="./_assets/' in current_content
+                '<img src="./_assets/' in current_content
                 or "![](./_assets/" in current_content
             )
             if upload_finished:
@@ -1416,7 +1415,7 @@ class Screen_Document(Screen):  # pylint: disable=invalid-name
 
             if (datetime.now() - start_time).total_seconds() > 10:
                 raise TimeoutError(
-                    "Image upload failed or RST path never appeared."
+                    "Image upload failed or the image path never appeared."
                 )
 
             self.test_case.sleep(0.5)
@@ -1597,13 +1596,11 @@ class Screen_Document(Screen):  # pylint: disable=invalid-name
 
         # Wait for the UI to update
         # We wait until the placeholder "Uploading..." disappears
-        # and is replaced by the actual RST directive path.
+        # and is replaced by the actual image path.
         start_time = datetime.now()
         while True:
             current_content = target_element.text
             # Checking for both asset path variations just to be safe
-            if ".. image:: ./_assets/" in current_content:
-                break
             if '<img src="./_assets/' in current_content:
                 break
             if "![](./_assets/" in current_content:
@@ -1613,7 +1610,7 @@ class Screen_Document(Screen):  # pylint: disable=invalid-name
 
             if (datetime.now() - start_time).total_seconds() > 10:
                 raise TimeoutError(
-                    "Image paste failed or RST path never appeared."
+                    "Image paste failed or the image path never appeared."
                 )
 
             self.test_case.sleep(0.5)

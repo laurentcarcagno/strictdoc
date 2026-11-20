@@ -71,7 +71,6 @@ def _requirement(
         title="Title",
         statement=statement,
         fields={"VERSION": "V1"},
-        markup="Markdown",
         base_dir=base_dir,
     )
 
@@ -192,7 +191,7 @@ def test_006_free_text_images_are_embedded_too(tmp_path):
         tmp_path,
         [
             ExportSection(1, "Section"),
-            ExportText("Intro\n\n![p](./pic.png)", "Markdown", str(tmp_path)),
+            ExportText("Intro\n\n![p](./pic.png)", str(tmp_path)),
         ],
     )
     parts = _parts(path)

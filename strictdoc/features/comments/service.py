@@ -65,7 +65,6 @@ def save_comments(
     """
     document = assert_cast(node.get_document(), SDocDocument)
     assert document.grammar is not None
-    markup = document.config.get_markup()
     node_mid = node.reserved_mid.get_string_value()
     element = document.grammar.elements_by_type[node.node_type]
     revision = context.revisions[node_mid]
@@ -86,7 +85,7 @@ def save_comments(
                 value=(
                     comment_.body
                     if comment_.legacy
-                    else format_comment(comment_, markup)
+                    else format_comment(comment_)
                 ),
             )
             for comment_ in comments

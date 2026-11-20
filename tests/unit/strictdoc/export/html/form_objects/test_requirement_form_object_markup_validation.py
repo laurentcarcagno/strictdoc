@@ -79,27 +79,3 @@ def test_markdown_document_validates_field_as_markdown():
 
     assert not form_object.any_errors()
     assert form_object.get_errors("STATEMENT") == []
-
-
-def test_rst_document_validates_field_as_rst():
-    """
-    In an RST document, a field is validated as RST. The pipe table is not
-    valid RST, so validation reports an error against the field.
-    """
-    traceability_index, document, requirement = (
-        _build_index_with_single_requirement()
-    )
-    document.config.markup = SDocMarkup.RST
-
-    form_object = _make_form_object_with_statement(
-        requirement, document, MARKDOWN_TABLE
-    )
-    form_object.validate(
-        traceability_index=traceability_index,
-        context_document=document,
-        config=ProjectConfig.default_config(),
-        existing_revision=0,
-    )
-
-    assert form_object.any_errors()
-    assert len(form_object.get_errors("STATEMENT")) > 0

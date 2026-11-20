@@ -1,0 +1,9 @@
+[DOCUMENT]
+TITLE: Document in RST
+OPTIONS:
+  MARKUP: RST
+
+[TEXT]
+STATEMENT: >>>
+A ``literal``.
+<<<

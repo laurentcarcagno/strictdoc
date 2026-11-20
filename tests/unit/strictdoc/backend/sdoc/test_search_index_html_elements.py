@@ -44,7 +44,7 @@ def test_002_the_tags_and_attributes_of_a_markdown_field_are_not_searchable():
     assert "div" not in index
 
 
-def test_003_a_field_of_another_markup_is_indexed_as_it_is():
-    index = _words("RST")
+def test_003_a_field_of_an_html_document_is_indexed_as_it_is():
+    index = _words("HTML")
 
     assert "admonition" in index

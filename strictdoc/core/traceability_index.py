@@ -284,7 +284,7 @@ class TraceabilityIndex:
 
     def node_has_image(self, node: SDocNode) -> bool:
         assert isinstance(node, SDocNode), node
-        image_markers = (".. image::", "![", "<img")
+        image_markers = ("![", "<img")
         for field_ in node.enumerate_fields():
             field_text = field_.get_text_value().lower()
             for marker_ in image_markers:

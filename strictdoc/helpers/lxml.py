@@ -13,7 +13,7 @@ def convert_xhtml_to_multiline_string(xhtml_value: str) -> str:
     remove all training spaces before and after each paragraph.
 
     The method is used for converting ReqIF XHTML text blocks to plain text
-    paragraphs that StrictDoc renders as RST (current default).
+    paragraphs that StrictDoc renders as Markdown (the default).
 
     The method assumes that the input HTML string has already been stripped
     from the xhtml namespace. i.e., instead of <xhtml:div>...</xhtml:div>, the

@@ -4,7 +4,7 @@
 
 import re
 from html import escape
-from typing import Callable, MutableMapping, Optional, Sequence, Tuple, cast
+from typing import Callable, MutableMapping, Sequence, cast
 
 import pygments
 from markdown_it import MarkdownIt
@@ -202,18 +202,6 @@ class MarkdownToHtmlFragmentWriter:
         if self.flat_assets:
             html = _strip_dotdot_from_img_src(html)
         return Markup(html)
-
-    @staticmethod
-    def write_with_validation(
-        markdown_fragment: str,
-    ) -> Tuple[Optional[str], Optional[str]]:
-        assert isinstance(markdown_fragment, str), markdown_fragment
-        return (
-            MarkdownToHtmlFragmentWriter.markdown_parser.render(
-                markdown_fragment
-            ),
-            None,
-        )
 
     @staticmethod
     def write_anchor_link(title: str, href: str) -> str:

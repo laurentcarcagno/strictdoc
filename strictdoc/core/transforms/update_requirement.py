@@ -9,13 +9,6 @@ from typing import Dict, List, Optional, Set, Tuple, Union
 
 from textx import TextXSyntaxError
 
-from strictdoc.backend.markdown.markdown_to_html_fragment_writer import (
-    MarkdownToHtmlFragmentWriter,
-)
-from strictdoc.backend.rst.rst_to_html_fragment_writer import (
-    RstToHtmlFragmentWriter,
-)
-from strictdoc.backend.sdoc.constants import SDocMarkup
 from strictdoc.backend.sdoc.document_reference import DocumentReference
 from strictdoc.backend.sdoc.error_handling import get_textx_syntax_error_message
 from strictdoc.backend.sdoc.free_text_reader import SDFreeTextReader
@@ -113,18 +106,6 @@ class CreateOrUpdateNodeCommand:
 
         traceability_index: TraceabilityIndex = self.traceability_index
 
-        if node_to_update_or_none is not None:
-            node_document = assert_cast(
-                node_to_update_or_none.get_document(), SDocDocument
-            )
-        else:
-            node_document = assert_cast(
-                traceability_index.get_node_by_mid(
-                    MID(form_object.document_mid)
-                ),
-                SDocDocument,
-            )
-
         map_form_to_requirement_fields: Dict[
             RequirementFormField, Optional[FreeTextContainer]
         ] = {}
@@ -134,92 +115,63 @@ class CreateOrUpdateNodeCommand:
             for field_ in field_bucket_:
                 if field_.field_type != RequirementFormFieldType.MULTILINE:
                     continue
-                # Validate the field content using the writer that matches the
-                # document's markup (RST by default, Markdown for Markdown
-                # documents).
-                markup = (
-                    node_document.config.markup
-                    if node_document is not None
-                    else None
-                )
-                if markup == SDocMarkup.MARKDOWN:
-                    (
-                        parsed_html,
-                        markup_error,
-                    ) = MarkdownToHtmlFragmentWriter.write_with_validation(
-                        field_.field_value
+                try:
+                    free_text_container: Optional[FreeTextContainer] = (
+                        SDFreeTextReader.read(field_.field_value)
+                        if len(field_.field_value) > 0
+                        else None
                     )
-                else:
-                    (
-                        parsed_html,
-                        markup_error,
-                    ) = RstToHtmlFragmentWriter(
-                        project_config=self.project_config,
-                        context_document=node_document,
-                    ).write_with_validation(field_.field_value)
-                if parsed_html is None:
-                    assert markup_error is not None
-                    form_object.add_error(field_.field_name, markup_error)
-                else:
-                    try:
-                        free_text_container: Optional[FreeTextContainer] = (
-                            SDFreeTextReader.read(field_.field_value)
-                            if len(field_.field_value) > 0
-                            else None
-                        )
-                        map_form_to_requirement_fields[field_] = (
-                            free_text_container
-                        )
-                        if free_text_container is None:
-                            continue
-                        anchors: List[Anchor] = []
-                        for part in free_text_container.parts:
-                            if isinstance(part, InlineLink):
-                                linked_to_node = traceability_index.get_linkable_node_by_uid_weak(
-                                    part.link
-                                )
-                                if linked_to_node is None:
-                                    form_object.add_error(
-                                        field_.field_name,
-                                        gettext(
-                                            "A LINK points to a node that "
-                                            "does not exist: '%(uid)s'."
-                                        )
-                                        % {"uid": part.link},
-                                    )
-                            elif isinstance(part, Anchor):
-                                if part.value in this_node_unique_anchors:
-                                    form_object.add_error(
-                                        field_.field_name,
-                                        gettext(
-                                            "The node fields contain "
-                                            "duplicate anchor: '%(anchor)s'."
-                                        )
-                                        % {"anchor": part.value},
-                                    )
-                                    break
-                                this_node_unique_anchors.add(part.value)
-                                anchors.append(part)
-                            else:
-                                pass
-                        if anchors is not None:
-                            try:
-                                traceability_index.validate_node_against_anchors(
-                                    node=node_to_update_or_none,
-                                    new_anchors=anchors,
-                                )
-                            except (
-                                SingleValidationError
-                            ) as anchors_validation_error:
+                    map_form_to_requirement_fields[field_] = free_text_container
+                    if free_text_container is None:
+                        continue
+                    anchors: List[Anchor] = []
+                    for part in free_text_container.parts:
+                        if isinstance(part, InlineLink):
+                            linked_to_node = traceability_index.get_linkable_node_by_uid_weak(
+                                part.link
+                            )
+                            if linked_to_node is None:
                                 form_object.add_error(
                                     field_.field_name,
-                                    anchors_validation_error.args[0],
+                                    gettext(
+                                        "A LINK points to a node that "
+                                        "does not exist: '%(uid)s'."
+                                    )
+                                    % {"uid": part.link},
                                 )
-                    except TextXSyntaxError as exception:
-                        form_object.add_error(
-                            field_.field_name,
-                            get_textx_syntax_error_message(exception),
-                        )
+                        elif isinstance(part, Anchor):
+                            if part.value in this_node_unique_anchors:
+                                form_object.add_error(
+                                    field_.field_name,
+                                    gettext(
+                                        "The node fields contain "
+                                        "duplicate anchor: '%(anchor)s'."
+                                    )
+                                    % {"anchor": part.value},
+                                )
+                                break
+                            this_node_unique_anchors.add(part.value)
+                            anchors.append(part)
+                        else:
+                            pass
+                    if anchors is not None:
+                        try:
+                            traceability_index.validate_node_against_anchors(
+                                node=node_to_update_or_none,
+                                new_anchors=anchors,
+                            )
+                        except (
+                            SingleValidationError
+                        ) as anchors_validation_error:
+                            form_object.add_error(
+                                field_.field_name,
+                                anchors_validation_error.args[0],
+                            )
+                except TextXSyntaxError as exception:
+                    form_object.add_error(
+                        field_.field_name,
+                        get_textx_syntax_error_message(exception),
+                    )
 
         if form_object.any_errors():
             return None

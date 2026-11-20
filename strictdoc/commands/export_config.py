@@ -21,7 +21,6 @@ class ExportCommandConfig:
         fields: List[str],
         generate_bundle_document: bool,
         no_parallelization: bool,
-        enable_mathjax: bool,
         included_documents: bool,
         filter_nodes: Optional[str],
         reqif_profile: Optional[str],
@@ -46,7 +45,6 @@ class ExportCommandConfig:
         self.fields: List[str] = fields
         self.generate_bundle_document: bool = generate_bundle_document
         self.no_parallelization: bool = no_parallelization
-        self.enable_mathjax: bool = enable_mathjax
         self.included_documents: bool = included_documents
         self.filter_nodes: Optional[str] = filter_nodes
         self.reqif_profile: Optional[str] = reqif_profile

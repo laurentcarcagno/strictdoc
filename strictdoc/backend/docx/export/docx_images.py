@@ -14,7 +14,7 @@ import struct
 from typing import Dict, Iterable, List, Optional, Tuple
 from xml.sax.saxutils import quoteattr
 
-from strictdoc.backend.docx.export.rst_to_paragraphs import (
+from strictdoc.backend.docx.export.paragraph_model import (
     ExportImage,
     ExportParagraph,
 )

@@ -601,7 +601,7 @@ VERSION: 0.0.1
 CLASSIFICATION: Restricted
 ROOT: True
 OPTIONS:
-  MARKUP: Text
+  MARKUP: HTML
   AUTO_LEVELS: Off
   LAYOUT: Website
   VIEW_STYLE: Table
@@ -629,7 +629,7 @@ STATEMENT: ABC
     assert document.config.uid == "SDOC-01"
     assert document.config.classification == "Restricted"
     assert document.config.root is True
-    assert document.config.markup == "Text"
+    assert document.config.markup == "HTML"
     assert document.config.auto_levels is False
     assert document.config.requirement_style == "Table"
     assert document.config.requirement_in_toc == "True"
@@ -728,7 +728,7 @@ def test_081_document_config_markup_specified(default_project_config):
 TITLE: Test Doc
 VERSION: 0.0.1
 OPTIONS:
-  MARKUP: Text
+  MARKUP: HTML
 
 [REQUIREMENT]
 STATEMENT: ...
@@ -1306,3 +1306,39 @@ STATEMENT: >>>
     output = writer.write(document)
 
     assert input_sdoc == output
+
+
+@pytest.mark.parametrize("removed_markup", ["RST", "Text"])
+def test_091_removed_markups_stop_with_a_message_that_says_what_to_do(
+    removed_markup,
+):
+    input_sdoc = f"""
+[DOCUMENT]
+TITLE: Test Doc
+OPTIONS:
+  MARKUP: {removed_markup}
+
+[TEXT]
+STATEMENT: ...
+""".lstrip()
+
+    with pytest.raises(StrictDocException) as exception_info:
+        SDReader().read(input_sdoc)
+
+    assert f"MARKUP: {removed_markup} is no longer supported" in str(
+        exception_info.value
+    )
+    assert "rst-to-markdown-converter" in str(exception_info.value)
+
+
+def test_092_markup_markdown_is_accepted_and_is_the_default():
+    with_markup = SDReader().read(
+        "[DOCUMENT]\nTITLE: T\nOPTIONS:\n  MARKUP: Markdown\n\n"
+        "[TEXT]\nSTATEMENT: ...\n"
+    )
+    without_markup = SDReader().read(
+        "[DOCUMENT]\nTITLE: T\n\n[TEXT]\nSTATEMENT: ...\n"
+    )
+
+    assert with_markup.config.get_markup() == "Markdown"
+    assert without_markup.config.get_markup() == "Markdown"

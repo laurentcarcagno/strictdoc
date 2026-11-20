@@ -41,8 +41,7 @@ else:
 class StrictDocLauncher(tk.Tk):
     help_links = {
         "User Guide StrictDoc": "https://strictdoc.readthedocs.io/en/stable/stable/docs/strictdoc_01_user_guide.html",
-        "User Guide RST docutils": "https://docutils.sourceforge.io/docs/ref/rst/directives.html",
-        "User Guide RST sphinx": "https://sphinx-tutorial.readthedocs.io/step-1/",
+        "User Guide Markdown": "https://commonmark.org/help/",
     }
     min_width = 420
     min_height = 230

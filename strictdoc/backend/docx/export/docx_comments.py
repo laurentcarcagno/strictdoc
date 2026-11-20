@@ -53,7 +53,6 @@ class ExportComment:
     date: str
     body: str
     resolved: bool = False
-    markup: str = "RST"
     base_dir: str = ""
 
     @property
@@ -62,15 +61,15 @@ class ExportComment:
         return comment_fingerprint(
             self.author,
             self.date,
-            comment_plain_text(self.body, self.markup),
+            comment_plain_text(self.body),
         )
 
 
-def comment_plain_text(body: str, markup: str) -> str:
+def comment_plain_text(body: str) -> str:
     """The text of a comment as Word holds it: the paragraphs, no markup."""
     return " ".join(
         "".join(run_.text for run_ in paragraph_.runs)
-        for paragraph_ in text_to_paragraphs(body, markup)
+        for paragraph_ in text_to_paragraphs(body)
     )
 
 
@@ -135,9 +134,7 @@ def _paragraph_id(key: str) -> str:
 
 
 def _comment_xml(comment: ExportComment, word_id: int) -> str:
-    paragraphs = text_to_paragraphs(
-        comment.body, comment.markup, comment.base_dir
-    )
+    paragraphs = text_to_paragraphs(comment.body, comment.base_dir)
     rendered = [paragraph_xml(paragraph_) for paragraph_ in paragraphs]
     if len(rendered) == 0:
         rendered = ["<w:p/>"]

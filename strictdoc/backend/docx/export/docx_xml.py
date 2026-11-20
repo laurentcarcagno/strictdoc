@@ -6,7 +6,7 @@ from typing import List, Optional
 from xml.sax.saxutils import escape
 
 from strictdoc.backend.docx.export.docx_images import drawing_xml
-from strictdoc.backend.docx.export.rst_to_paragraphs import (
+from strictdoc.backend.docx.export.paragraph_model import (
     ExportParagraph,
     ExportRun,
 )
