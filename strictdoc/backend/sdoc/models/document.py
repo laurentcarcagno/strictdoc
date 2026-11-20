@@ -6,6 +6,8 @@ from collections import defaultdict
 from dataclasses import dataclass
 from typing import DefaultDict, Dict, Generator, List, Optional, Set, Tuple
 
+from strictdoc.backend.markdown.html_sanitizer import strip_html_tags
+from strictdoc.backend.sdoc.constants import SDocMarkup
 from strictdoc.backend.sdoc.document_reference import DocumentReference
 from strictdoc.backend.sdoc.models.document_config import DocumentConfig
 from strictdoc.backend.sdoc.models.document_grammar import (
@@ -365,7 +367,15 @@ class SDocDocument(SDocDocumentIF):
 
                 node_dict[field_name_] = requirement_field_value
 
-                tokens = set(tokenize(requirement_field_value))
+                # The words of an HTML element of a Markdown field (a note, a
+                # definition) are searchable, its tags and attributes are not.
+                searched_value = (
+                    strip_html_tags(requirement_field_value)
+                    if self.config is not None
+                    and self.config.get_markup() == SDocMarkup.MARKDOWN
+                    else requirement_field_value
+                )
+                tokens = set(tokenize(searched_value))
                 for token in tokens:
                     if len(token) > 1:
                         document_index[token].add(

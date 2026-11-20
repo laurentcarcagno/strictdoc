@@ -74,6 +74,22 @@ _STYLE_PROPERTIES: FrozenSet[str] = frozenset(
 _STYLE_VALUE = re.compile(r"^[A-Za-z0-9\s#%.,()+\-/]*$")
 
 
+_KNOWN_TAG = re.compile(
+    r"</?(?:" + "|".join(sorted(ALLOWED_ELEMENTS)) + r")(?:\s[^<>]*)?/?>",
+    re.IGNORECASE,
+)
+_COMMENT = re.compile(r"<!--.*?-->", re.DOTALL)
+
+
+def strip_html_tags(text: str) -> str:
+    """
+    The text of a Markdown field without the tags of the allowed elements and
+    without the HTML comments, for the search index and for a prompt. Text
+    that looks like a tag but is not one (``<UID>``) stays.
+    """
+    return _KNOWN_TAG.sub("", _COMMENT.sub("", text))
+
+
 def sanitize_html_fragment(html: str) -> str:
     """
     The HTML of a Markdown block or span, with only the allowed elements and

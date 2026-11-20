@@ -4,7 +4,10 @@
 
 import pytest
 
-from strictdoc.backend.markdown.html_sanitizer import sanitize_html_fragment
+from strictdoc.backend.markdown.html_sanitizer import (
+    sanitize_html_fragment,
+    strip_html_tags,
+)
 from strictdoc.backend.markdown.markdown_to_html_fragment_writer import (
     MarkdownToHtmlFragmentWriter,
 )
@@ -125,3 +128,14 @@ def test_010_markdown_writer_keeps_markdown_inside_an_admonition():
     assert '<div class="sdoc-admonition sdoc-note" role="note">' in html
     assert "<strong>Markdown</strong>" in html
     assert "</div>" in html
+
+
+def test_011_strip_html_tags_keeps_the_words_and_other_angle_brackets():
+    assert (
+        strip_html_tags(
+            '<div class="sdoc-admonition sdoc-note" role="note">\n'
+            '<p class="sdoc-admonition-title">Note</p>\n\n'
+            "Text with <UID> and H<sub>2</sub>O. <!-- hidden -->\n\n</div>"
+        )
+        == "\nNote\n\nText with <UID> and H2O. \n\n"
+    )

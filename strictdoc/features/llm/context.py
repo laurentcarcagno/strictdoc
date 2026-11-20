@@ -10,6 +10,8 @@ import re
 from dataclasses import dataclass, field
 from typing import Any, List, Optional, Sequence, Set
 
+from strictdoc.backend.markdown.html_sanitizer import strip_html_tags
+from strictdoc.backend.sdoc.constants import SDocMarkup
 from strictdoc.backend.sdoc.models.document import SDocDocument
 from strictdoc.backend.sdoc.models.node import SDocNode
 from strictdoc.core.document_iterator import SDocDocumentIterator
@@ -187,11 +189,19 @@ def _item(kind: str, node: SDocNode) -> ContextItem:
     classification = ""
     if document.config is not None and document.config.classification:
         classification = document.config.classification
+    text = node_text(node)
+    if (
+        document.config is not None
+        and document.config.get_markup() == SDocMarkup.MARKDOWN
+    ):
+        # A model that only reads the item gets its words, not the tags of
+        # the HTML elements of the field.
+        text = strip_html_tags(text).strip()
     return ContextItem(
         kind=kind,
         uid=node.reserved_uid or "",
         title=node.reserved_title or "",
-        text=node_text(node),
+        text=text,
         document_title=document.title,
         classification=classification,
     )
