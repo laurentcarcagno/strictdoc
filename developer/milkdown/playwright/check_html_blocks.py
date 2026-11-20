@@ -70,6 +70,16 @@ SAMPLES: Dict[str, str] = {
         '<figure><img src="a.png" alt="a"><figcaption>Caption</figcaption>'
         "</figure>"
     ),
+    "converted_table_unknown_cells": (
+        "<table>\n<thead>\n<tr><th>Command</th><th>Role</th></tr>\n</thead>\n"
+        "<tbody>\n<tr><td><code>/a</code></td><td>author</td></tr>\n"
+        '<tr><td colspan="2">merged &lt; cell</td></tr>\n</tbody>\n</table>'
+    ),
+    "converted_table_simple": (
+        "<table>\n<thead>\n<tr><th>A</th><th>B</th></tr>\n</thead>\n"
+        "<tbody>\n<tr><td>1</td><td><strong>2</strong></td></tr>\n"
+        "</tbody>\n</table>"
+    ),
     "unknown_table": (
         '<table class="x"><tr><td><ul><li>a</li></ul></td></tr></table>'
     ),
@@ -85,6 +95,9 @@ SAMPLES: Dict[str, str] = {
 # What the editor changes outside the HTML: the Markdown that it parses and
 # writes again. The HTML itself is never changed.
 EXPECTED_DIFFERENT: Dict[str, str] = {
+    # A table of the converter without a merged cell or a colour is a simple
+    # table: the first edit writes it as a pipe table (a small Git diff).
+    "converted_table_simple": "| A | B     |\n| - | ----- |\n| 1 | **2** |",
     "raw_block_with_blank_lines_inside": (
         '<div class="box">\nfirst\n\n* item a\n* item b\n\n'
         "```python\nprint(1)\n```\n\n</div>"
