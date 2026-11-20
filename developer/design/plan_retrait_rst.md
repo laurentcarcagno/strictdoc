@@ -1124,3 +1124,13 @@ Fichiers :
 
 - P4-01 Avertissement de dépréciation : sans objet, le retrait est direct (C-06).
 - P4-12 Erreur ou avertissement final : sans objet pour la même raison.
+
+## 8. Campagne de vérification (fin du plan)
+
+Demandée par l'utilisateur le 2026-11-20. Elle couvre ce qui n'a pas pu être vérifié pendant le travail. La liste vivante est dans la mémoire du projet (`unverified-items`) ; état au 2026-11-20 :
+
+- Tests qui échouaient déjà sur `develop`, à corriger au plus tard avant la fin : 4 tests d'intégration (`missing_input_path_no_duplicate_error`, `html/escaping/01_escape_input_from_sdoc`, `01_strictdoc_smoke_test`, `passthrough/01_hello_world`), 1 test unitaire (`test_docx_svg::test_010`), 1 test serveur (`test_server_process`).
+- Non exécutés ici : le lanceur Docker (`run_tests.ps1`), tous les tests end2end Selenium, l'export PDF réel (html2pdf4doc), `invoke docs`, l'ouverture d'un `.docx` dans Word, le test de fumée (libtidy absent).
+- Non inspectés : les dépôts GitLab de documents, l'indexeur `kb-platform`, les prompts de l'assistant, Firefox et Safari pour l'éditeur.
+- Choix à confirmer : les documents `MARKUP: HTML` ne sont pas filtrés par la liste blanche ; dans le tableau d'une exigence, les encadrés Word gardent l'aspect de la cellule.
+
