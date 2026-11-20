@@ -6434,7 +6434,10 @@ RST that describe a page and not a node (``contents``, ``sectnum``,
 equivalent.
 
 In the web editor, an HTML element is kept as written and appears as its
-source text: the editor does not draw an admonition as a box.
+source text, except the admonitions, which are drawn as a box with their title.
+Type ``/`` and choose one of the nine admonition items (``Note box``,
+``Warning box``...) to insert a box. The type and the title of a box cannot be
+changed in the editor: delete the box and insert another one.
 
 The Word export writes an admonition as paragraphs of the Word style of its
 kind, with the title in bold, a definition list as a bold term followed by its

@@ -24,7 +24,7 @@ import threading
 from pathlib import Path
 from typing import Dict, List
 
-from playwright.sync_api import sync_playwright
+from playwright.sync_api import Page, sync_playwright
 
 HERE = Path(__file__).resolve().parent
 BUNDLE = HERE.parents[2] / "strictdoc/features/milkdown/assets/milkdown"
@@ -132,6 +132,9 @@ async (samples) => {
       result.html_nodes = wrapper.querySelectorAll(
         '.ProseMirror [data-type="html"]'
       ).length;
+      const count = (part) => wrapper.querySelectorAll('.sdoc-adm-' + part).length;
+      result.boxes = { open: count('open'), body: count('body'), close: count('close') };
+      result.title = wrapper.querySelector('.sdoc-adm-open')?.dataset.sdocTitle ?? null;
     }
     results[name] = result;
   }
@@ -163,6 +166,38 @@ def serve(folder: str) -> http.server.ThreadingHTTPServer:
     return server
 
 
+def insert_with_slash_menu(page: Page, port: int) -> Dict[str, object]:
+    """Types "/" in an empty field and chooses "Note box" in the menu."""
+    page.goto(f"http://127.0.0.1:{port}/index.html")
+    page.evaluate(
+        """() => {
+          const wrapper = document.createElement('div');
+          const editor = document.createElement('sdoc-markdown-editor');
+          const textarea = document.createElement('textarea');
+          textarea.hidden = true;
+          wrapper.append(editor, textarea);
+          document.getElementById('stage').append(wrapper);
+        }"""
+    )
+    page.wait_for_selector("sdoc-markdown-editor[data-ready=true] .ProseMirror")
+    page.click("sdoc-markdown-editor .ProseMirror")
+    page.keyboard.type("/")
+    page.wait_for_selector(".milkdown-slash-menu")
+    page.locator(".milkdown-slash-menu li", has_text="Note box").click()
+    page.wait_for_selector(".sdoc-adm-open")
+    shot = os.environ.get("SDOC_SHOT")
+    if shot:
+        page.screenshot(path=shot)
+    return {
+        "markdown": page.evaluate(
+            "document.querySelector('sdoc-markdown-editor').getMarkdown()"
+        ),
+        "boxes": page.evaluate(
+            "[...document.querySelectorAll('.sdoc-adm')].map(e => e.className)"
+        ),
+    }
+
+
 def main() -> int:
     samples = dict(SAMPLES)
     samples.update(SAMPLES_DIFFERENT)
@@ -179,6 +214,7 @@ def main() -> int:
                 page = browser.new_page()
                 page.goto(f"http://127.0.0.1:{server.server_port}/index.html")
                 results = page.evaluate(SCRIPT, samples)
+                inserted = insert_with_slash_menu(page, server.server_port)
                 browser.close()
         finally:
             server.shutdown()
@@ -199,6 +235,33 @@ def main() -> int:
             f"{name}: the form sends the edited text",
             result["sent"] == result["edited"],
         )
+    for name in ("div_class_with_markdown", "sdoc_link_in_div"):
+        boxes = results[name]["boxes"]
+        check(
+            f"{name}: drawn as one box",
+            boxes["open"] == 1 and boxes["close"] == 1 and boxes["body"] >= 1,
+            boxes,
+        )
+    check(
+        "the title of the box comes from the HTML",
+        results["div_class_with_markdown"]["title"] == "Note"
+        and results["sdoc_link_in_div"]["title"] == "Warning",
+        results["div_class_with_markdown"]["title"],
+    )
+    check(
+        "a div without the admonition class is not a box",
+        results["div_class_one_line"]["boxes"]["open"] == 0,
+    )
+    check(
+        "the slash menu inserts a note box, written as HTML",
+        inserted["markdown"]
+        == (
+            '<div class="sdoc-admonition sdoc-note" role="note">\n'
+            '<p class="sdoc-admonition-title">Note</p>\n\nText.\n\n</div>\n'
+        ),
+        inserted["markdown"],
+    )
+    check("the inserted box is drawn", len(inserted["boxes"]) >= 3, inserted)
     report(json.dumps({"failed": FAILED}))
     return 1 if FAILED else 0
 

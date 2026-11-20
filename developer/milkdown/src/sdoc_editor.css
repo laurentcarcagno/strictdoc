@@ -301,3 +301,57 @@ sdoc-markdown-editor {
   margin-right: 0;
   margin-left: auto;
 }
+
+/*
+Admonitions (see admonition.js): the opening, the body and the closing blocks
+are drawn as one box. The HTML of the opening and of the closing is hidden;
+the title comes from the text of the HTML.
+*/
+.sdoc-markdown-editor__host .ProseMirror .sdoc-adm {
+  --sdoc-adm-color: currentColor;
+
+  margin: 0;
+  padding-right: 16px;
+  padding-left: 16px;
+  border-right: 1px solid var(--sdoc-adm-color);
+  border-left: 1px solid var(--sdoc-adm-color);
+}
+
+.sdoc-markdown-editor__host .ProseMirror .sdoc-adm-open {
+  margin-top: 12px;
+  padding-top: 6px;
+  padding-bottom: 6px;
+  border-top: 1px solid var(--sdoc-adm-color);
+  background: color-mix(in srgb, var(--sdoc-adm-color) 10%, transparent);
+}
+
+.sdoc-markdown-editor__host .ProseMirror .sdoc-adm-open::before {
+  content: attr(data-sdoc-title);
+  color: var(--sdoc-adm-color);
+  font-weight: 600;
+}
+
+.sdoc-markdown-editor__host .ProseMirror .sdoc-adm-open [data-type='html'],
+.sdoc-markdown-editor__host .ProseMirror .sdoc-adm-close [data-type='html'] {
+  display: none;
+}
+
+.sdoc-markdown-editor__host .ProseMirror .sdoc-adm-close {
+  height: 0;
+  margin-bottom: 12px;
+  padding-top: 0;
+  padding-bottom: 0;
+  border-bottom: 1px solid var(--sdoc-adm-color);
+  overflow: hidden;
+  line-height: 0;
+}
+
+.sdoc-markdown-editor__host .ProseMirror .sdoc-adm-note { --sdoc-adm-color: SteelBlue; }
+.sdoc-markdown-editor__host .ProseMirror .sdoc-adm-hint { --sdoc-adm-color: DarkSlateBlue; }
+.sdoc-markdown-editor__host .ProseMirror .sdoc-adm-tip { --sdoc-adm-color: MediumSlateBlue; }
+.sdoc-markdown-editor__host .ProseMirror .sdoc-adm-important { --sdoc-adm-color: OrangeRed; }
+.sdoc-markdown-editor__host .ProseMirror .sdoc-adm-attention,
+.sdoc-markdown-editor__host .ProseMirror .sdoc-adm-caution { --sdoc-adm-color: Crimson; }
+.sdoc-markdown-editor__host .ProseMirror .sdoc-adm-danger,
+.sdoc-markdown-editor__host .ProseMirror .sdoc-adm-error { --sdoc-adm-color: Red; }
+.sdoc-markdown-editor__host .ProseMirror .sdoc-adm-warning { --sdoc-adm-color: DarkOrange; }

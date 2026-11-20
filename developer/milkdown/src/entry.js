@@ -19,6 +19,7 @@ import { sdocTables } from './tables.js';
 import { buildTableToggle, tableBar } from './table_bar.js';
 import { createDiagramSupport } from './diagram_node.js';
 import { buildAlignButtons, sdocAlignment } from './alignment.js';
+import { buildAdmonitionMenu, sdocAdmonition } from './admonition.js';
 import { installToolbarTooltips } from './toolbar_tooltips.js';
 import './sdoc_editor.css';
 
@@ -80,6 +81,7 @@ class SdocMarkdownEditor extends HTMLElement {
           blockOnUpload: (file) => this._upload(file),
         },
         [Crepe.Feature.Placeholder]: { text: 'Write here...' },
+        [Crepe.Feature.BlockEdit]: { buildMenu: buildAdmonitionMenu },
         [Crepe.Feature.TopBar]: {
           buildTopBar: (builder) => {
             this._topBarBuilder = builder;
@@ -105,6 +107,7 @@ class SdocMarkdownEditor extends HTMLElement {
     crepe.editor.use(sdocImageCaption);
     crepe.editor.use(sdocTables);
     crepe.editor.use(sdocAlignment);
+    crepe.editor.use(sdocAdmonition);
     crepe.editor.use(sdocMarkers);
     crepe.editor.use(tableBar);
     crepe.editor.use(diagrams.plugin);

@@ -28,6 +28,7 @@ Commit `milkdown.js`, `milkdown.css` and `milkdown.js.LEGAL.txt` together with a
 | `src/diagram_size.js` | reads and writes the display size (`width`, `height`) of a diagram SVG |
 | `src/image_caption.js` | gives an image without title an empty caption, so that Crepe keeps the image block when a field is opened again |
 | `src/alignment.js` | the alignment of paragraphs (left, centre, right, justified), images and diagrams (left, centre, right): an attribute of the node, the four toolbar buttons, and the HTML they are written as. The alignment of a table is in `src/tables.js` |
+| `src/admonition.js` | the admonitions (`<div class="sdoc-admonition sdoc-note">`): draws the opening, the body and the closing blocks as one box (CSS classes added as decorations, the text is not changed) and adds the nine `... box` items to the slash menu |
 | `src/toolbar_tooltips.js` | the tooltips of the toolbar buttons (top bar and table bar), and their accessible names |
 | `src/languages.js` | code block languages (replaces the 100+ grammars of `@codemirror/language-data`, about 1 MB) |
 | `src/katex_stub.js`, `src/empty.css` | formulas are switched off, so KaTeX (about 1.7 MB with its fonts) is left out |
@@ -85,6 +86,7 @@ text with headings, lists, a quote, a code block, a table, a link and a `[LINK: 
   `code`, `a`, `br`, `img`; any other HTML table stays raw HTML and is not touched;
 - two cells that are merged join their paragraphs with a line break;
 - an empty paragraph is written as `<br />`;
+- an HTML element stays as written and appears as its source text (`<sub>`, `<dl>`, comments...), except the admonitions, which are drawn as a box (`src/admonition.js`). The HTML of the box is hidden: the title and the type cannot be edited, only the Markdown inside;
 - a paragraph that is centred, right aligned or justified is written as an HTML paragraph, `<p style="text-align: center">...</p>`, with its content as inline HTML (`strong`, `em`, `del`, `code`, `a`, `br`, `img`). It is read back as an aligned paragraph only if its tags and attributes are `p`, `style` (`text-align`), `align` and those inline tags; any other `<p>` stays raw HTML. A left paragraph stays a Markdown paragraph;
 - an image or a diagram that is centred or on the right is written as an HTML paragraph that holds an `<img>`, `<p style="text-align: right"><img src="./pic.png" alt="1.00" /></p>`, and read back as an image block. A left image stays a Markdown image. The editor shows an image on the left unless it is aligned (the image block of Crepe centres it, the document does not);
 - a table that is aligned is an HTML `<table>` with `style="width: fit-content; margin-left: auto"` (right), `margin-right: auto` (left) or both margins (centre). An aligned table has the width of its content, because the document shows a table as a block that is as wide as its container. The button that is already on puts the table back to the full width (a pipe table);

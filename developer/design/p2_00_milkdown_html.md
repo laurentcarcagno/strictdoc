@@ -47,7 +47,7 @@ Une balise en ligne (`<sub>`, `<sup>`) devient deux petits nœuds de part et d'a
 supprimer ces nœuds, pas modifier les attributs d'une balise.
 
 Il n'y a pas de perte, mais ce n'est pas un rendu WYSIWYG. Un encadré qui s'affiche comme un encadré est le travail de
-P2-22.
+P2-22 (fait : `developer/milkdown/src/admonition.js`).
 
 ## Conséquences pour le plan
 
