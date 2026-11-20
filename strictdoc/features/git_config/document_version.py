@@ -3,7 +3,7 @@ The version of a document that the page header shows: the latest version
 tag (A1, A2, A, B1... see versioning.py) of the git repository that holds
 the document file.
 
-@relation(SDOC-SRS-210, scope=file)
+@relation(SDOC-SRS-1210, scope=file)
 """
 
 import os

@@ -1,5 +1,5 @@
 """
-@relation(SDOC-SRS-210, scope=file)
+@relation(SDOC-SRS-1210, scope=file)
 """
 
 import subprocess

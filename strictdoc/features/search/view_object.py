@@ -1,5 +1,5 @@
 """
-@relation(SDOC-SRS-155, SDOC-SRS-214, scope=file)
+@relation(SDOC-SRS-155, SDOC-SRS-1214, scope=file)
 """
 
 from dataclasses import dataclass

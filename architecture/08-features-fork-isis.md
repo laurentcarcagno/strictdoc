@@ -139,7 +139,7 @@ Option `git=GitConfig(...)` (`config.py` : `author_name`, `author_email`,
 | `git_service.py` | `GitService` sur GitPython : `commit_paths`, tags, `push` (avec jeton https), sous-modules, `fetch`, `ahead_behind`, fusion (`start_merge`, `stage_text`, `commit_merge`, `abort_merge`), `describe_repositories`. Lecture de l'historique : `history_of_lines` (`git log -L` sur les lignes d'un bloc, avec le patch ; `LineRevision`), `version_tags_of` (étiquettes de version, la plus récente d'abord, avec date et sujet ; `TagInfo`), `text_at_tag` (`git show <tag>:<fichier>`, sans extraire) |
 | `commit_message.py` | messages de commit conventionnels : `changed_uids` repère les UID modifiés par les numéros de ligne d'un `git diff -U0` |
 | `versioning.py` | étiquettes de version d'un document : `A1`, `A2` (brouillons), `A` (majeure), `B1`, ... `Z`, `ZA`... ; `next_intermediate_tag`, `next_major_tag`, `latest_valid_tag`, `sorted_version_tags` |
-| `document_version.py` | `latest_version_of_file(path)` : dernière étiquette du dépôt qui contient le fichier, ou `None` ; lue par l'en-tête des écrans de document (`SDOC-SRS-210`) |
+| `document_version.py` | `latest_version_of_file(path)` : dernière étiquette du dépôt qui contient le fichier, ou `None` ; lue par l'en-tête des écrans de document (`SDOC-SRS-1210`) |
 | `gitlab_service.py` | création de dépôts sur GitLab |
 | `asset_names.py` | dossiers `_assets` qui appartiennent à un nœud et à ses enfants |
 | `router.py` | page `/git`, aperçu, commit en attente, tag, version de document, push, création de dépôt, sous-modules |
@@ -178,15 +178,15 @@ sont dans la section « Navigation » de `docs/strictdoc_21_l2_high_level_requir
 
 | Exigence | Sujet | Où |
 |---|---|---|
-| `SDOC-SRS-208` | barre latérale en groupes (Analysis, Review, Versions, Administration) | `_shared/nav.jinja.html`, [06](06-frontend-et-export-html.md) |
-| `SDOC-SRS-209` | emplacement d'un document : projet puis dossiers, dans l'en-tête | `components/header/document_context.jinja`, `DocumentScreenViewObject.get_document_folders` |
-| `SDOC-SRS-210` | version d'un document : dernière étiquette Git | `features/git_config/document_version.py` |
-| `SDOC-SRS-211` | écrans du projet dans le cadre (barre latérale et en-tête) | `AppScreenViewObject`, `render_app_screen`, `_shared/app_screen.jinja.html` |
-| `SDOC-SRS-212` | actions interdites au rôle : grisées avec la raison, page 403 dans le cadre | `features/roles` |
-| `SDOC-SRS-213` | page d'un item | `features/item_page` |
-| `SDOC-SRS-214` | recherche simple : UID exact et facettes | `features/search/facets.py` |
-| `SDOC-SRS-215` | versions d'un document | `features/document_versions` |
-| `SDOC-SRS-216` | mise en page sur petit écran | `responsive.css`, `mobile_nav.js` |
+| `SDOC-SRS-1208` | barre latérale en groupes (Analysis, Review, Versions, Administration) | `_shared/nav.jinja.html`, [06](06-frontend-et-export-html.md) |
+| `SDOC-SRS-1209` | emplacement d'un document : projet puis dossiers, dans l'en-tête | `components/header/document_context.jinja`, `DocumentScreenViewObject.get_document_folders` |
+| `SDOC-SRS-1210` | version d'un document : dernière étiquette Git | `features/git_config/document_version.py` |
+| `SDOC-SRS-1211` | écrans du projet dans le cadre (barre latérale et en-tête) | `AppScreenViewObject`, `render_app_screen`, `_shared/app_screen.jinja.html` |
+| `SDOC-SRS-1212` | actions interdites au rôle : grisées avec la raison, page 403 dans le cadre | `features/roles` |
+| `SDOC-SRS-1213` | page d'un item | `features/item_page` |
+| `SDOC-SRS-1214` | recherche simple : UID exact et facettes | `features/search/facets.py` |
+| `SDOC-SRS-1215` | versions d'un document | `features/document_versions` |
+| `SDOC-SRS-1216` | mise en page sur petit écran | `responsive.css`, `mobile_nav.js` |
 
 Écrans qui passent maintenant par le cadre : liens suspects (l'ancienne « baseline » devient
 « reviewed state »), hiérarchie, gestion de configuration (le lien « Synchronize »

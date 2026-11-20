@@ -3,7 +3,7 @@
 # header of a document says where the document is: the project, then its
 # folders. Without the GIT feature, the header shows no version.
 #
-# @relation(SDOC-SRS-208, SDOC-SRS-209, SDOC-SRS-210, scope=file)
+# @relation(SDOC-SRS-1208, SDOC-SRS-1209, SDOC-SRS-1210, scope=file)
 #
 
 RUN: %strictdoc export %S --output-dir %T | filecheck %s --dump-input=fail

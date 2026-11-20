@@ -317,7 +317,7 @@ def test_the_page_has_the_comment_button_and_a_hidden_form(tmp_path):
 
 def test_the_screen_is_in_the_frame_of_the_project(tmp_path):
     """
-    @relation(SDOC-SRS-211, scope=function)
+    @relation(SDOC-SRS-1211, scope=function)
     """
     client, _ = _setup(tmp_path)
     page = client.get("/comments", headers=READER).text

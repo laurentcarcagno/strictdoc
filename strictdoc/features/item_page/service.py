@@ -2,7 +2,7 @@
 What the item page shows about a node: the links grouped by relation role and
 the lines of the node in its file (for the history).
 
-@relation(SDOC-SRS-213, scope=file)
+@relation(SDOC-SRS-1213, scope=file)
 """
 
 import re

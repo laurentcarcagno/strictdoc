@@ -3,7 +3,7 @@ The simple search: a UID that is typed exactly opens the item, and three
 facets (kind, status, links) build a query of the query language, so that a
 user does not have to write one.
 
-@relation(SDOC-SRS-214, scope=file)
+@relation(SDOC-SRS-1214, scope=file)
 """
 
 from dataclasses import dataclass

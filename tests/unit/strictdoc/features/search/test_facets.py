@@ -1,5 +1,5 @@
 """
-@relation(SDOC-SRS-214, scope=file)
+@relation(SDOC-SRS-1214, scope=file)
 """
 
 from strictdoc.features.search.facets import SearchFacets, build_facet_query

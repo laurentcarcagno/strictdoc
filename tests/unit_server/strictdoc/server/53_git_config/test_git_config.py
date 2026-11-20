@@ -324,7 +324,7 @@ def test_015_the_modal_of_the_configuration_management(tmp_path: Path) -> None:
 
 def test_the_screen_is_in_the_frame_of_the_project(tmp_path: Path) -> None:
     """
-    @relation(SDOC-SRS-211, scope=function)
+    @relation(SDOC-SRS-1211, scope=function)
     """
     client = _client(tmp_path)
     page = client.get("/git", headers=READER).text

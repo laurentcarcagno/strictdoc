@@ -6,7 +6,7 @@ document; this page is the item itself.
 
 The role each route needs is in strictdoc/features/roles/route_roles.py.
 
-@relation(SDOC-SRS-213, scope=file)
+@relation(SDOC-SRS-1213, scope=file)
 """
 
 from typing import Any, Dict, List, Optional

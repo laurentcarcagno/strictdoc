@@ -1,5 +1,5 @@
 """
-@relation(SDOC-SRS-212, scope=file)
+@relation(SDOC-SRS-1212, scope=file)
 """
 
 import os

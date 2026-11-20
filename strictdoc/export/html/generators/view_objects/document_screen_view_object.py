@@ -607,7 +607,7 @@ class DocumentScreenViewObject:
         The folders of the document, from the root of its document tree,
         for the location in the page header.
 
-        @relation(SDOC-SRS-209, scope=function)
+        @relation(SDOC-SRS-1209, scope=function)
         """
         meta = self.document.meta
         if meta is None:
@@ -619,7 +619,7 @@ class DocumentScreenViewObject:
         """
         The page header shows a version: the project uses git.
 
-        @relation(SDOC-SRS-210, scope=function)
+        @relation(SDOC-SRS-1210, scope=function)
         """
         return self.project_config.is_activated_git()
 
@@ -628,7 +628,7 @@ class DocumentScreenViewObject:
         The latest version tag of the repository of the document, or None
         if there is none. Read once per page.
 
-        @relation(SDOC-SRS-210, scope=function)
+        @relation(SDOC-SRS-1210, scope=function)
         """
         if not self._document_version_read:
             self._document_version_read = True
@@ -644,7 +644,7 @@ class DocumentScreenViewObject:
         The screen of the versions of the document, or an empty string in a
         static export.
 
-        @relation(SDOC-SRS-215, scope=function)
+        @relation(SDOC-SRS-1215, scope=function)
         """
         if not self.project_config.is_running_on_server:
             return ""

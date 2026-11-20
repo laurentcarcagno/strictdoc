@@ -2,7 +2,7 @@
 The items of a document as they were at a version tag, and the difference
 between two versions: the items that were added, removed or changed.
 
-@relation(SDOC-SRS-215, scope=file)
+@relation(SDOC-SRS-1215, scope=file)
 """
 
 from dataclasses import dataclass, field

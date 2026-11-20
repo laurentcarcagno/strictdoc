@@ -167,7 +167,7 @@ def test_007_pages_load_the_role_gating_only_behind_a_proxy(tmp_path):
 
 def test_the_audit_screen_is_in_the_frame_of_the_project(tmp_path):
     """
-    @relation(SDOC-SRS-211, scope=function)
+    @relation(SDOC-SRS-1211, scope=function)
     """
     client, _ = _setup(tmp_path)
     page = client.get("/audit", headers=_headers("t-admins")).text
@@ -178,7 +178,7 @@ def test_the_audit_screen_is_in_the_frame_of_the_project(tmp_path):
 
 def test_a_refused_page_is_in_the_frame_and_says_why(tmp_path):
     """
-    @relation(SDOC-SRS-212, scope=function)
+    @relation(SDOC-SRS-1212, scope=function)
     """
     client, _ = _setup(tmp_path)
     refused = client.get(

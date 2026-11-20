@@ -43,7 +43,7 @@ navigateur, avec IndexedDB. Chaque `SDocDocument.build_search_index()` calcule
 l'index par document ; l'index est régénéré seulement si un document a changé
 (`FileDependencyManager.must_generate`).
 
-Ajouts du fork dans `search/facets.py` (`SDOC-SRS-214`) :
+Ajouts du fork dans `search/facets.py` (`SDOC-SRS-1214`) :
 
 - `find_item_by_exact_uid` : si le texte est exactement l'UID d'un nœud normatif
   (un seul mot), `/search` redirige (302) vers `/item/<uid>`.

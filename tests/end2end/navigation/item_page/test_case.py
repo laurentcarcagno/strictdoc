@@ -1,5 +1,5 @@
 """
-@relation(SDOC-SRS-213, scope=file)
+@relation(SDOC-SRS-1213, scope=file)
 """
 
 from tests.end2end.e2e_case import E2ECase

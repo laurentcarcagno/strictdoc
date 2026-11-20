@@ -16,7 +16,7 @@
     });
   }
 
-  // @relation(SDOC-SRS-212, scope=range_start)
+  // @relation(SDOC-SRS-1212, scope=range_start)
   // The actions that the role cannot do stay on the page, disabled, and say
   // which role they need (role_gating.css dims them). A click on them does
   // nothing. The server refuses them whatever the page shows.
@@ -123,7 +123,7 @@
     },
     true,
   );
-  // @relation(SDOC-SRS-212, scope=range_end)
+  // @relation(SDOC-SRS-1212, scope=range_end)
 
   function apply(who) {
     root.dataset.role = who.role || 'none';

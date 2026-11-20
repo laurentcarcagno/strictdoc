@@ -3,7 +3,7 @@ The frame of a server screen that a feature renders by itself: the sidebar
 and the page header of the project around the content of the feature
 (_shared/app_screen.jinja.html).
 
-@relation(SDOC-SRS-211, scope=file)
+@relation(SDOC-SRS-1211, scope=file)
 """
 
 from markupsafe import Markup

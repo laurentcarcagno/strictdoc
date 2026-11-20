@@ -7,7 +7,7 @@ checked out and no file changes.
 The routes need the project feature GIT (412 otherwise). The role each route
 needs is in strictdoc/features/roles/route_roles.py.
 
-@relation(SDOC-SRS-215, scope=file)
+@relation(SDOC-SRS-1215, scope=file)
 """
 
 from typing import Any, Dict, List, Optional

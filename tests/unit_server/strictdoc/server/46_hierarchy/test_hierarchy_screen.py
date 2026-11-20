@@ -79,7 +79,7 @@ def test_005_the_suspect_column_appears_with_the_option(tmp_path):
 
 def test_006_the_screen_is_in_the_frame_of_the_project(tmp_path):
     """
-    @relation(SDOC-SRS-211, scope=function)
+    @relation(SDOC-SRS-1211, scope=function)
     """
     client, _ = setup(tmp_path)
     page = client.get("/hierarchy", headers=READER).text

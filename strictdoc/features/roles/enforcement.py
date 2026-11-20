@@ -135,7 +135,7 @@ class RoleMiddleware:
         templates are there, else a bare page (a refusal before the project
         is ready, or a template that fails).
 
-        @relation(SDOC-SRS-212, scope=function)
+        @relation(SDOC-SRS-1212, scope=function)
         """
         if self.project_config is not None and self.env is not None:
             try:
