@@ -305,6 +305,8 @@ Tout le plan suppose qu'un document Markdown contenant un encadré HTML survit �
 
 Livrable : un rapport sur des échantillons (`div` avec classe, `dl`, `sup`, `sub`, `aside`, commentaires HTML) et, si besoin, une extension de l'éditeur qui les conserve octet pour octet.
 
+Résultat (2026-11-20) : l'éditeur conserve tout le HTML des 21 échantillons, avec ou sans modification du champ ; il l'affiche comme texte source. Aucune extension n'est nécessaire pour la conservation. Rapport : `developer/design/p2_00_milkdown_html.md`, contrôle : `developer/milkdown/playwright/check_html_blocks.py`.
+
 Fichiers :
 
 - `developer/milkdown/src/`

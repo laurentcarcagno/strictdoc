@@ -1,6 +1,6 @@
 # Browser checks of the Markdown editor
 
-Two scripts drive the editor in Chromium with Playwright:
+Three scripts drive the editor in Chromium with Playwright. The first two:
 
 - `check_diagrams.py` draws a diagram, aligns and distributes the shapes, resizes the image with its handles, opens the
   diagram again by a double click and by the toolbar button, saves the form, and reads the SVG file that the server stored.
@@ -8,6 +8,17 @@ Two scripts drive the editor in Chromium with Playwright:
   justified), its round trip through the saved text, and the document view.
 
 Both save the form, so they change the sample project.
+
+A third script, `check_html_blocks.py`, needs no server and no sample project. It puts HTML samples (`div`, `dl`, `sup`,
+comments...) into the editor and checks that the Markdown written back keeps the HTML, with and without an edit. It
+loads the committed bundle, so run it after `npm run build` and before committing the bundle:
+
+```
+pip install playwright==1.49.1 && playwright install chromium
+python developer/milkdown/playwright/check_html_blocks.py
+```
+
+Set `CHROMIUM` to the path of a browser when the default one of Playwright is not installed.
 
 The project end-to-end tests use Selenium. These checks run in a container, so the host needs neither Playwright nor a
 browser. The image has the architecture of the Docker host: Chromium runs natively on arm64 and on x86-64.
