@@ -2,4 +2,4 @@ RUN: %strictdoc export %S/nested --formats=html --output-dir %T | filecheck %s -
 CHECK: Export completed.
 
 RUN: cat Output/html/nested/input.html | filecheck %s --dump-input=fail --check-prefix=CHECK-HTML
-CHECK-HTML: <object data="_assets/picture.svg" type="image/svg+xml">_assets/picture.svg</object>
+CHECK-HTML: <img src="_assets/picture.svg" alt="">

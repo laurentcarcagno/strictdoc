@@ -1,9 +1,11 @@
 [DOCUMENT]
 TITLE: Included document
+OPTIONS:
+  MARKUP: Markdown
 
 [TEXT]
 STATEMENT: >>>
-.. image:: _assets/keep_no_prefix.svg
+![](_assets/keep_no_prefix.svg)
 
-.. image:: ./_assets/keep_dot.svg
+![](./_assets/keep_dot.svg)
 <<<

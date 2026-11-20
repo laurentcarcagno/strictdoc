@@ -3,12 +3,12 @@ MID: 398e37d756ea406f87ca83ec8e29c178
 TITLE: Document 1
 OPTIONS:
   ENABLE_MID: True
+  MARKUP: Markdown
 
 [REQUIREMENT]
 MID: a5c6b14d5ee443149687fb9be69a7ede
 STATEMENT: >>>
 Requirement statement.
 
-
-.. image:: ./_assets/a5c6b14d5ee443149687fb9be69a7ede/picture_with_spaces.svg
+![](./_assets/a5c6b14d5ee443149687fb9be69a7ede/picture_with_spaces.svg)
 <<<

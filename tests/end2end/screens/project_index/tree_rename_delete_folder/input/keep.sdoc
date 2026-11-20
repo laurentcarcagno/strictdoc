@@ -1,7 +1,9 @@
 [DOCUMENT]
 TITLE: Keep
+OPTIONS:
+  MARKUP: Markdown
 
 [TEXT]
 STATEMENT: >>>
-K.
+K\.
 <<<

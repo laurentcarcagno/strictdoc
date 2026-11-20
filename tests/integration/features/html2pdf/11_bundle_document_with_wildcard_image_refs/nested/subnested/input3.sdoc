@@ -1,13 +1,12 @@
 [DOCUMENT]
 TITLE: Subnested Document
+OPTIONS:
+  MARKUP: Markdown
 
 [TEXT]
 STATEMENT: >>>
 This document is two levels deep and references an image from the root
 assets directory using a wildcard extension.
 
-.. image:: ../../_assets/root_image.*
-   :alt: Root image referenced from subnested doc via wildcard
-   :class: image
-   :width: 100%
+<img src="../../_assets/root_image.svg" alt="Root image referenced from subnested doc via wildcard" width="100%" />
 <<<

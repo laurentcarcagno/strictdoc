@@ -1,5 +1,7 @@
 [DOCUMENT]
 TITLE: Document 1
+OPTIONS:
+  MARKUP: Markdown
 
 [[SECTION]]
 TITLE: Section title
@@ -7,13 +9,11 @@ TITLE: Section title
 [TEXT]
 UID: TEXT-NODE-1
 STATEMENT: >>>
-.. raw:: html
-
-    <pre class="plantuml">
-    @startuml
-    Alice -> Bob: Hello again
-    @enduml
-    </pre>
+<pre class="plantuml">
+@startuml
+Alice -> Bob: Hello again
+@enduml
+</pre>
 <<<
 
 [[/SECTION]]

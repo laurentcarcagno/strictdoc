@@ -1,14 +1,14 @@
 [DOCUMENT]
 TITLE: Hello world doc
+OPTIONS:
+  MARKUP: Markdown
 
 [[SECTION]]
 TITLE: Images
 
 [TEXT]
 STATEMENT: >>>
-.. image:: _assets/en62625-1_table2.png
-   :alt: EN62625-1 - Table 2
-   :class: image
+![EN62625-1 - Table 2](_assets/en62625-1_table2.png)
 <<<
 
 [[/SECTION]]

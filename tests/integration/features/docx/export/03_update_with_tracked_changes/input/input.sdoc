@@ -1,5 +1,7 @@
 [DOCUMENT]
 TITLE: input
+OPTIONS:
+  MARKUP: Markdown
 
 [GRAMMAR]
 ELEMENTS:
@@ -126,12 +128,9 @@ The delay is measured at the connector.
 
 [TEXT]
 STATEMENT: >>>
-.. list-table::
-
-   * - Mode
-     - Delay
-   * - Nominal
-     - 2 s
+| Mode | Delay |
+| --- | --- |
+| Nominal | 2 s |
 <<<
 
 [TEXT]

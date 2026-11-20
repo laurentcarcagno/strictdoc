@@ -1,9 +1,11 @@
 [DOCUMENT]
 TITLE: Document 1
+OPTIONS:
+  MARKUP: Markdown
 
 [REQUIREMENT]
 UID: REQ-1
 TITLE: First title
 STATEMENT: >>>
-.. image:: _assets/picture.svg
+![](_assets/picture.svg)
 <<<

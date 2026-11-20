@@ -1,7 +1,9 @@
 [DOCUMENT]
 TITLE: Document with a link to CSV
+OPTIONS:
+  MARKUP: Markdown
 
 [TEXT]
 STATEMENT: >>>
-`Test link <_assets/foo.csv>`_
+[Test link](_assets/foo.csv)
 <<<

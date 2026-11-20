@@ -1,11 +1,13 @@
 [DOCUMENT]
 TITLE: Hello world doc
+OPTIONS:
+  MARKUP: Markdown
 
 [REQUIREMENT]
 UID: REQ-1
 TITLE: Test wildcard-enhanced image directive
 STATEMENT: >>>
-.. image:: ./_assets/picture.*
+![](./_assets/picture.svg)
 <<<
 
 [REQUIREMENT]

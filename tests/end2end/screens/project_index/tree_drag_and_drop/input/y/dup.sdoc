@@ -1,7 +1,9 @@
 [DOCUMENT]
 TITLE: Dup2
+OPTIONS:
+  MARKUP: Markdown
 
 [TEXT]
 STATEMENT: >>>
-D.
+D\.
 <<<

@@ -1,14 +1,12 @@
 [DOCUMENT]
 TITLE: Hello world doc 2
 OPTIONS:
+  MARKUP: Markdown
   AUTO_LEVELS: On
 
 [TEXT]
 STATEMENT: >>>
-.. image:: _assets/file.svg
-   :alt: Test image
-   :class: image
-   :width: 100%
+<img src="_assets/file.svg" alt="Test image" width="100%" />
 <<<
 
 [DOCUMENT_FROM_FILE]

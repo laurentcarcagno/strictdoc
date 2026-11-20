@@ -6,6 +6,7 @@ from strictdoc.backend.docx.docx_profile import (
 
 def create_profile() -> DocxProfile:
     return DocxProfile(
+        markup="Markdown",
         requirement_table=DocxRequirementTable(
             id_style="ReqId",
             title_style="ReqTitle",

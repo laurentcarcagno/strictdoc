@@ -1,15 +1,20 @@
 [DOCUMENT]
 TITLE: Test
+OPTIONS:
+  MARKUP: Markdown
 
 [REQUIREMENT]
 UID: Id1
 STATEMENT: >>>
-.. image:: _assets/img.jpg
+![](_assets/img.jpg)
 <<<
 
 [REQUIREMENT]
 UID: Id2
 STATEMENT: >>>
-.. csv-table::
-     :file: _assets/tab.csv
+<table>
+<tbody>
+<tr><td>a</td><td>b</td><td>c</td></tr>
+</tbody>
+</table>
 <<<

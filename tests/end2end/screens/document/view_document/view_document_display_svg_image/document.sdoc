@@ -1,7 +1,9 @@
 [DOCUMENT]
 TITLE: Document 1
+OPTIONS:
+  MARKUP: Markdown
 
 [TEXT]
 STATEMENT: >>>
-.. image:: _assets/picture.svg
+![](_assets/picture.svg)
 <<<

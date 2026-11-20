@@ -1,5 +1,7 @@
 [DOCUMENT]
 TITLE: Links
+OPTIONS:
+  MARKUP: Markdown
 
 [TEXT]
 STATEMENT: >>>
@@ -10,7 +12,7 @@ Something.
 [TEXT]
 STATEMENT: >>>
 [LINK: THING-1] may be followed by whitespace.
-[LINK: THING-1]	may be followed by tab.
+[LINK: THING-1]  may be followed by tab.
 Maybe punctuation like comma follows [LINK: THING-1], or dot follows [LINK: THING-1].
 [LINK: THING-1]s may be followed by character.
 <<<

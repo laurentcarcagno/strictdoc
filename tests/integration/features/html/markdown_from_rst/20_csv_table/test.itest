@@ -3,7 +3,5 @@ CHECK: Export completed.
 
 RUN: %cat %T/html/20_csv_table/path1/test.html | filecheck %s --dump-input=fail --check-prefix CHECK-HTML-FILE
 
-# csv-table directive gets expanded to CSV table.
-CHECK-HTML-FILE: <td>a</td>
-CHECK-HTML-FILE: <td>b</td>
-CHECK-HTML-FILE: <td>c</td>
+# The csv-table directive was converted to an HTML table.
+CHECK-HTML-FILE: <tr><td>a</td><td>b</td><td>c</td></tr>

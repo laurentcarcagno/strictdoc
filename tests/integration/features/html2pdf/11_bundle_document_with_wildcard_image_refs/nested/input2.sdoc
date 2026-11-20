@@ -1,13 +1,12 @@
 [DOCUMENT]
 TITLE: Nested Document
+OPTIONS:
+  MARKUP: Markdown
 
 [TEXT]
 STATEMENT: >>>
 This nested document references an image from the parent directory using a
 wildcard extension.
 
-.. image:: ../_assets/root_image.*
-   :alt: Root image referenced from nested doc via wildcard
-   :class: image
-   :width: 100%
+<img src="../_assets/root_image.svg" alt="Root image referenced from nested doc via wildcard" width="100%" />
 <<<

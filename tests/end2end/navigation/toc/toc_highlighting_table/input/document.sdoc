@@ -6,6 +6,7 @@ VERSION: Git commit: @GIT_VERSION, Git branch: @GIT_BRANCH
 DATE: @GIT_COMMIT_DATETIME
 OPTIONS:
   ENABLE_MID: True
+  MARKUP: Markdown
   VIEW_STYLE: Inline
   NODE_IN_TOC: True
 
@@ -112,15 +113,15 @@ MID: ffbdb80fb21d48adbaeffb782d7994a2
 STATEMENT: >>>
 "Hello World" example of the SDoc text language:
 
-.. code:: strictdoc
+```strictdoc
+[DOCUMENT]
+TITLE: StrictDoc
 
-    [DOCUMENT]
-    TITLE: StrictDoc
-
-    [REQUIREMENT]
-    UID: SDOC-HIGH-REQS-MANAGEMENT
-    TITLE: Requirements management
-    STATEMENT: StrictDoc shall enable requirements management.
+[REQUIREMENT]
+UID: SDOC-HIGH-REQS-MANAGEMENT
+TITLE: Requirements management
+STATEMENT: StrictDoc shall enable requirements management.
+```
 
 Test line.
 
@@ -211,45 +212,45 @@ Test line.
 
 Test line.
 
-.. code:: text
-
-    cd <your user home directory>/workspace/hello_world
+```text
+cd <your user home directory>/workspace/hello_world
+```
 
 Run StrictDoc as follows:
 
-.. code:: text
-
-    strictdoc export .
+```text
+strictdoc export .
+```
 
 The expected output:
 
-.. code:: text
-
-    $ strictdoc export hello.sdoc
-    Parallelization: Enabled
-    Step 'Collect traceability information' start
-    Step 'Find and read SDoc files' start
-    Reading SDOC: hello.sdoc .................................... 0.08s
-    Step 'Find and read SDoc files' took: 0.09 sec
-    Step 'Collect traceability information' start
-    Step 'Collect traceability information' took: 0.01 sec
-    Step 'Collect traceability information' took: 0.11 sec
-    Published: StrictDoc ........................................ 0.24s
-    ...
-    Export completed. Documentation tree can be found at:
-    .../output/html
+```text
+$ strictdoc export hello.sdoc
+Parallelization: Enabled
+Step 'Collect traceability information' start
+Step 'Find and read SDoc files' start
+Reading SDOC: hello.sdoc .................................... 0.08s
+Step 'Find and read SDoc files' took: 0.09 sec
+Step 'Collect traceability information' start
+Step 'Collect traceability information' took: 0.01 sec
+Step 'Collect traceability information' took: 0.11 sec
+Published: StrictDoc ........................................ 0.24s
+...
+Export completed. Documentation tree can be found at:
+.../output/html
+```
 
 The HTML output produced so far has been generated statically. Now, start a StrictDoc server from the same directory:
 
-.. code:: text
-
-    strictdoc server .
+```text
+strictdoc server .
+```
 
 The expected output should contain the following line:
 
-.. code:: text
-
-    INFO:     Uvicorn running on http://127.0.0.1:5111 (Press CTRL+C to quit)
+```text
+INFO:     Uvicorn running on http://127.0.0.1:5111 (Press CTRL+C to quit)
+```
 
 Open the URL in the browser and explore the contents of the example.
 <<<

@@ -1,7 +1,9 @@
 [DOCUMENT]
 TITLE: Hello world doc
+OPTIONS:
+  MARKUP: Markdown
 
 [TEXT]
 STATEMENT: >>>
-.. image:: _assets/picture.*
+![](_assets/picture.svg)
 <<<

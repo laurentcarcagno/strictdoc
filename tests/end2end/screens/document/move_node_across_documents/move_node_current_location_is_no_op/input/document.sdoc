@@ -1,5 +1,7 @@
 [DOCUMENT]
 TITLE: No-op placements
+OPTIONS:
+  MARKUP: Markdown
 
 [REQUIREMENT]
 UID: REQ-BEFORE
@@ -14,7 +16,7 @@ STATEMENT: Consecutive text content.
 
 [TEXT]
 STATEMENT: >>>
-.. image:: assets/only-image.png
+![](assets/only-image.png)
 <<<
 
 [REQUIREMENT]

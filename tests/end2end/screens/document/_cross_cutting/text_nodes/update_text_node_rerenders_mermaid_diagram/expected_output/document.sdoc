@@ -1,5 +1,7 @@
 [DOCUMENT]
 TITLE: Document 1
+OPTIONS:
+  MARKUP: Markdown
 
 [[SECTION]]
 TITLE: Section title
@@ -7,12 +9,10 @@ TITLE: Section title
 [TEXT]
 UID: TEXT-NODE-1
 STATEMENT: >>>
-.. raw:: html
-
-    <pre class="mermaid">
-    graph TD
-    A[Enter Chart Definition] --> B(Preview again)
-    </pre>
+<pre class="mermaid">
+graph TD
+A[Enter Chart Definition] --> B(Preview again)
+</pre>
 <<<
 
 [[/SECTION]]

@@ -1,5 +1,7 @@
 [DOCUMENT]
 TITLE: Test Document
+OPTIONS:
+  MARKUP: Markdown
 
 [GRAMMAR]
 ELEMENTS:
@@ -21,7 +23,7 @@ STATEMENT: >>>
 the foo must bar
 <<<
 META_TEST: >>>
-This custom field shall be rendered as RST:
+This custom field shall be rendered as Markdown:
 
-`StrictDoc <https://github.com/strictdoc-project/strictdoc>`_
+[StrictDoc](https://github.com/strictdoc-project/strictdoc)
 <<<

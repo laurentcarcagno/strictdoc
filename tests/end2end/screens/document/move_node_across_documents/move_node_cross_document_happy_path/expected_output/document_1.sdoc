@@ -1,5 +1,7 @@
 [DOCUMENT]
 TITLE: Document One
+OPTIONS:
+  MARKUP: Markdown
 
 [REQUIREMENT]
 UID: REQ-002
@@ -7,7 +9,7 @@ TITLE: Requirement with an image
 STATEMENT: >>>
 See the diagram below.
 
-.. image:: diagram.png
+![](diagram.png)
 <<<
 
 [[SECTION]]
@@ -19,7 +21,7 @@ TITLE: Child requirement with an image
 STATEMENT: >>>
 See the child diagram below.
 
-.. image:: child-diagram.png
+![](child-diagram.png)
 <<<
 
 [[/SECTION]]

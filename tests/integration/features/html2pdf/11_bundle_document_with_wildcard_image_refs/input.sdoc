@@ -1,10 +1,9 @@
 [DOCUMENT]
 TITLE: Root Document
+OPTIONS:
+  MARKUP: Markdown
 
 [TEXT]
 STATEMENT: >>>
-.. image:: _assets/root_image.*
-   :alt: Root image
-   :class: image
-   :width: 100%
+<img src="_assets/root_image.svg" alt="Root image" width="100%" />
 <<<

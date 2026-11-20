@@ -1,5 +1,7 @@
 [DOCUMENT]
 TITLE: Lazy Loading Static Document
+OPTIONS:
+  MARKUP: Markdown
 
 [REQUIREMENT]
 UID: REQ-001
@@ -177,16 +179,14 @@ TITLE: Requirement 35
 STATEMENT: >>>
 The lazy loading fixture statement LAZYSTMT-035 must appear exactly once.
 
-.. raw:: html
+<pre class="mermaid">
+graph TD
+A --> B
+</pre>
 
-    <pre class="mermaid">
-    graph TD
-    A --> B
-    </pre>
-
-    <pre class="plantuml">
-    @startuml
-    Alice -> Bob: Hello
-    @enduml
-    </pre>
+<pre class="plantuml">
+@startuml
+Alice -> Bob: Hello
+@enduml
+</pre>
 <<<

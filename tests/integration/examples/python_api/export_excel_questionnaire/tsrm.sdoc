@@ -1,5 +1,7 @@
 [DOCUMENT]
 TITLE: NMFTA Telematics Security Requirements Matrix
+OPTIONS:
+  MARKUP: Markdown
 
 [GRAMMAR]
 ELEMENTS:
@@ -67,12 +69,15 @@ Ideally the logs are immutable,  backed up, and retained for a certain period of
 PUB_REFS: >>>
 NIST 800-53 r5 AU-2 – EVENT LOGGING
 
-a. Identify the types of events that the system is capable of logging in support of the audit function: [Assignment: organization-defined event types that the system is capable of logging];
-b. Coordinate the event logging function with other organizational entities requiring audit related information to guide and inform the selection criteria for events to be logged;
-c. Specify the following event types for logging within the system: [Assignment: organization defined event types (subset of the event types defined in AU-2a.) along with the frequency of (or situation requiring) logging for each identified event type];
-d. Provide a rationale for why the event types selected for logging are deemed to be adequate to support after-the-fact investigations of incidents; and
-e. Review and update the event types selected for logging [Assignment: organization-defined frequency].
+a\. Identify the types of events that the system is capable of logging in support of the audit function: \[Assignment: organization-defined event types that the system is capable of logging\];
 
+b\. Coordinate the event logging function with other organizational entities requiring audit related information to guide and inform the selection criteria for events to be logged;
+
+c\. Specify the following event types for logging within the system: \[Assignment: organization defined event types (subset of the event types defined in AU-2a.) along with the frequency of (or situation requiring) logging for each identified event type\];
+
+d\. Provide a rationale for why the event types selected for logging are deemed to be adequate to support after-the-fact investigations of incidents; and
+
+e\. Review and update the event types selected for logging \[Assignment: organization-defined frequency\].
 
 CTIA CCTPID 4.7 Audit Log
 <<<
@@ -97,7 +102,7 @@ e.g. a Linux system with MAC configured to deny access to the processes dealing 
 PUB_REFS: >>>
 NIST 800-53 r5 SI-16 - MEMORY PROTECTION
 Implement the following controls to protect the system memory from unauthorized
-code execution: [Assignment: organization-defined controls].
+code execution: \[Assignment: organization-defined controls\].
 
 NIST 800-53 r5 AC-6 (4) - LEAST PRIVILEGE | SEPARATE PROCESSING DOMAINS
 Provide separate processing domains to enable finer-grained allocation of user privileges.
@@ -110,7 +115,7 @@ NIST 800-53 r5 SC-2 (1) - SEPARATION OF SYSTEM AND USER FUNCTIONALITY | INTERFAC
 Prevent the presentation of system management functionality at interfaces to nonprivileged users.
 
 NIST 800-53 r5 AC-25 – REFERENCE MONITOR
-Implement a reference monitor for [Assignment: organization-defined access control policies] that is tamperproof, always invoked, and small enough to be subject to analysis and testing, the completeness of which can be assured.
+Implement a reference monitor for \[Assignment: organization-defined access control policies\] that is tamperproof, always invoked, and small enough to be subject to analysis and testing, the completeness of which can be assured.
 
 UL 1376 3.9 Least privilege: Systems must implement 'least privilege', or utilize hardware based features to protect sensitive code and data
 <<<
@@ -137,9 +142,9 @@ NIST 800-53 r5 AC-6 – LEAST PRIVILEGE
 Employ the principle of least privilege, allowing only authorized accesses for users (or processes acting on behalf of users) that are necessary to accomplish assigned organizational tasks.
 
 NIST 800-53 r5 AC-6 (1) - LEAST PRIVILEGE | AUTHORIZE ACCESS TO SECURITY FUNCTIONS
-Authorize access for [Assignment: organization-defined individuals or roles] to:
-(a) [Assignment: organization-defined security functions (deployed in hardware, software, and firmware)]; and
-(b) [Assignment: organization-defined security-relevant information].
+Authorize access for \[Assignment: organization-defined individuals or roles\] to:
+(a) \[Assignment: organization-defined security functions (deployed in hardware, software, and firmware)\]; and
+(b) \[Assignment: organization-defined security-relevant information\].
 
 CTIA CCTPID 5.17 Design-In Features “designed to isolate critical functions from less critical functions”
 
@@ -197,7 +202,7 @@ The vendor shall identify all instances where the telematics system includes act
 <<<
 PUB_REFS: >>>
 NIST 800-53 r5 AC-14 – PERMITTED ACTIONS WITHOUT IDENTIFICATION OR AUTHENTICATION
-a. Identify [Assignment: organization-defined user actions] that can be performed on the system without identification or authentication consistent with organizational mission and business functions; and
+a. Identify \[Assignment: organization-defined user actions\] that can be performed on the system without identification or authentication consistent with organizational mission and business functions; and
 b. Document and provide supporting rationale in the security plan for the system, user actions not requiring identification or authentication.
 
 NIST 800-53 r5 AC-6 – LEAST PRIVILEGE
@@ -223,7 +228,7 @@ e.g. it should not be possible to identify the device type nor firmware version 
 <<<
 PUB_REFS: >>>
 NIST 800-53 r5 AC-14 – PERMITTED ACTIONS WITHOUT IDENTIFICATION OR AUTHENTICATION
-a. Identify [Assignment: organization-defined user actions] that can be performed on the system without identification or authentication consistent with organizational mission and business functions; and
+a. Identify \[Assignment: organization-defined user actions\] that can be performed on the system without identification or authentication consistent with organizational mission and business functions; and
 b. Document and provide supporting rationale in the security plan for the system, user actions not requiring identification or authentication.
 <<<
 VERIFICATION: >>>
@@ -341,8 +346,8 @@ Authentication attempts to the vendor’s devices and backends shall be rate-lim
 <<<
 PUB_REFS: >>>
 NIST 800-53 r5 AC-7 - UNSUCCESSFUL LOGON ATTEMPTS
-a. Enforce a limit of [Assignment: organization-defined number] consecutive invalid logon attempts by a user during a [Assignment: organization-defined time period]; and
-b. Automatically [Selection (one or more): lock the account or node for an [Assignment: organization-defined time period]; lock the account or node until released by an administrator; delay next logon prompt per [Assignment: organization-defined delay algorithm]; notify system administrator; take other [Assignment: organization-defined action]] when the maximum
+a. Enforce a limit of \[Assignment: organization-defined number\] consecutive invalid logon attempts by a user during a \[Assignment: organization-defined time period\]; and
+b. Automatically \[Selection (one or more): lock the account or node for an \[Assignment: organization-defined time period\]; lock the account or node until released by an administrator; delay next logon prompt per \[Assignment: organization-defined delay algorithm\]; notify system administrator; take other \[Assignment: organization-defined action\]\] when the maximum
 number of unsuccessful attempts is exceeded.
 
 CTIA CCTPID 5.2 Password Management Test
@@ -396,8 +401,8 @@ E.g. this is particularly true of unauthenticated or unencrypted transport servi
 <<<
 PUB_REFS: >>>
 NIST 800-53 r5 CM-7 – LEAST FUNCTIONALITY
-a. Configure the system to provide only [Assignment: organization-defined mission essential capabilities]; and
-b. Prohibit or restrict the use of the following functions, ports, protocols, software, and/or services: [Assignment: organization-defined prohibited or restricted functions, system ports, protocols, software, and/or services].
+a. Configure the system to provide only \[Assignment: organization-defined mission essential capabilities\]; and
+b. Prohibit or restrict the use of the following functions, ports, protocols, software, and/or services: \[Assignment: organization-defined prohibited or restricted functions, system ports, protocols, software, and/or services\].
 
 CTIA CCTPID 5.17 Design-In Features “designed to deny all inbound and outbound network communications, except for those that are essential for the device to operate properly“
 
@@ -431,8 +436,8 @@ Deploying with test or debug facilities enabled is egregious
 <<<
 PUB_REFS: >>>
 NIST 800-53 r5 CM-7 – LEAST FUNCTIONALITY
-a. Configure the system to provide only [Assignment: organization-defined mission essential capabilities]; and
-b. Prohibit or restrict the use of the following functions, ports, protocols, software, and/or services: [Assignment: organization-defined prohibited or restricted functions, system ports, protocols, software, and/or services].
+a. Configure the system to provide only \[Assignment: organization-defined mission essential capabilities\]; and
+b. Prohibit or restrict the use of the following functions, ports, protocols, software, and/or services: \[Assignment: organization-defined prohibited or restricted functions, system ports, protocols, software, and/or services\].
 
 FMCSA GDL 54 Disable unnecessary debugging interfaces in production.
 
@@ -462,8 +467,8 @@ Functionality that allows for the direct execution of scripts or commands by the
 <<<
 PUB_REFS: >>>
 NIST 800-53 r5 CM-7 – LEAST FUNCTIONALITY
-a. Configure the system to provide only [Assignment: organization-defined mission essential capabilities]; and
-b. Prohibit or restrict the use of the following functions, ports, protocols, software, and/or services: [Assignment: organization-defined prohibited or restricted functions, system ports, protocols, software, and/or services].
+a. Configure the system to provide only \[Assignment: organization-defined mission essential capabilities\]; and
+b. Prohibit or restrict the use of the following functions, ports, protocols, software, and/or services: \[Assignment: organization-defined prohibited or restricted functions, system ports, protocols, software, and/or services\].
 
 CAIQ CCC-03.6 Are mechanisms in place to ensure that all debugging and test code elements are removed from released software versions?
 
@@ -522,7 +527,7 @@ e.g. that a remote system authenticate the other remote parties by referring to 
 <<<
 PUB_REFS: >>>
 NIST 800-53 r5 IA-3 – DEVICE IDENTIFICATION AND AUTHENTICATION
-Uniquely identify and authenticate [Assignment: organization-defined devices and/or types of devices] before establishing a [Selection (one or more): local; remote; network] connection.
+Uniquely identify and authenticate \[Assignment: organization-defined devices and/or types of devices\] before establishing a \[Selection (one or more): local; remote; network\] connection.
 <<<
 VERIFICATION: >>>
 Inspection of vendor-supplied documentation detailing how devices and components are uniquely identified.
@@ -545,7 +550,7 @@ Where public information is any information that is visible (externally or inter
 <<<
 PUB_REFS: >>>
 NIST 800-53 r5 IA-3 – DEVICE IDENTIFICATION AND AUTHENTICATION
-Uniquely identify and authenticate [Assignment: organization-defined devices and/or types of devices] before establishing a [Selection (one or more): local; remote; network] connection.
+Uniquely identify and authenticate \[Assignment: organization-defined devices and/or types of devices\] before establishing a \[Selection (one or more): local; remote; network\] connection.
 <<<
 VERIFICATION: >>>
 Inspection of vendor documentation detailing the inputs to the authenticator generation process per device. Ensure that no input is information that can be easily-guessed from simple facts about the device.
@@ -571,7 +576,7 @@ e.g.
 <<<
 PUB_REFS: >>>
 NIST 800-57 Part 3 r1 - 2.3.3 Cryptographic Modules
-3. Ensure that relying party and user cryptographic modules are validated as meeting FIPS 140-2 Level 1 or higher.
+3\. Ensure that relying party and user cryptographic modules are validated as meeting FIPS 140-2 Level 1 or higher.
 
 UL 1376 2.4 Industry-standard cryptography: Industry standard cryptographic algorithms must be used for security services.
 
@@ -601,21 +606,24 @@ PUB_REFS: >>>
 NIST 800-53 r5 IR-8 - INCIDENT RESPONSE PLAN
 a. Develop an incident response plan that:
 
-  1. Provides the organization with a roadmap for implementing its incident response capability;
-  2. Describes the structure and organization of the incident response capability;
-  3. Provides a high-level approach for how the incident response capability fits into the overall organization;
-  4. Meets the unique requirements of the organization, which relate to mission, size, structure, and functions;
-  5. Defines reportable incidents;
-  6. Provides metrics for measuring the incident response capability within the organization;
-  7. Defines the resources and management support needed to effectively maintain and mature an incident response capability;
-  8. Addresses the sharing of incident information;
-  9. Is reviewed and approved by [Assignment: organization-defined personnel or roles] [Assignment: organization-defined frequency]; and
-  10. Explicitly designates responsibility for incident response to [Assignment: organization defined entities, personnel, or roles].
+> 1. Provides the organization with a roadmap for implementing its incident response capability;
+> 2. Describes the structure and organization of the incident response capability;
+> 3. Provides a high-level approach for how the incident response capability fits into the overall organization;
+> 4. Meets the unique requirements of the organization, which relate to mission, size, structure, and functions;
+> 5. Defines reportable incidents;
+> 6. Provides metrics for measuring the incident response capability within the organization;
+> 7. Defines the resources and management support needed to effectively maintain and mature an incident response capability;
+> 8. Addresses the sharing of incident information;
+> 9. Is reviewed and approved by \[Assignment: organization-defined personnel or roles\] \[Assignment: organization-defined frequency\]; and
+> 10. Explicitly designates responsibility for incident response to \[Assignment: organization defined entities, personnel, or roles\].
 
-b. Distribute copies of the incident response plan to [Assignment: organization-defined incident response personnel (identified by name and/or by role) and organizational elements];
-c. Update the incident response plan to address system and organizational changes or problems encountered during plan implementation, execution, or testing;
-d. Communicate incident response plan changes to [Assignment: organization-defined incident response personnel (identified by name and/or by role) and organizational elements]; and
-e. Protect the incident response plan from unauthorized disclosure and modification.
+b\. Distribute copies of the incident response plan to \[Assignment: organization-defined incident response personnel (identified by name and/or by role) and organizational elements\];
+
+c\. Update the incident response plan to address system and organizational changes or problems encountered during plan implementation, execution, or testing;
+
+d\. Communicate incident response plan changes to \[Assignment: organization-defined incident response personnel (identified by name and/or by role) and organizational elements\]; and
+
+e\. Protect the incident response plan from unauthorized disclosure and modification.
 
 FMCSA GDL 14 Employ an incident response process.
 <<<
@@ -640,10 +648,10 @@ PUB_REFS: >>>
 NIST 800-53 r5 MA-2 – CONTROLLED MAINTENANCE
 a. Schedule, document, and review records of maintenance, repair, and replacement on system components in accordance with manufacturer or vendor specifications and/or organizational requirements;
 b. Approve and monitor all maintenance activities, whether performed on site or remotely and whether the system or system components are serviced on site or removed to another location;
-c. Require that [Assignment: organization-defined personnel or roles] explicitly approve the removal of the system or system components from organizational facilities for off-site maintenance, repair, or replacement;
-d. Sanitize equipment to remove the following information from associated media prior to removal from organizational facilities for off-site maintenance, repair, or replacement: [Assignment: organization-defined information];
+c. Require that \[Assignment: organization-defined personnel or roles\] explicitly approve the removal of the system or system components from organizational facilities for off-site maintenance, repair, or replacement;
+d. Sanitize equipment to remove the following information from associated media prior to removal from organizational facilities for off-site maintenance, repair, or replacement: \[Assignment: organization-defined information\];
 e. Check all potentially impacted controls to verify that the controls are still functioning properly following maintenance, repair, or replacement actions; and
-f. Include the following information in organizational maintenance records: [Assignment: organization-defined information].
+f. Include the following information in organizational maintenance records: \[Assignment: organization-defined information\].
 <<<
 VERIFICATION: >>>
 Inspection of vendor-supplied documentation detailing their maintenance/release process.
@@ -667,12 +675,12 @@ TSPs must demonstrate this level of maturity to be trusted with business critica
 <<<
 PUB_REFS: >>>
 NIST 800-53 r5 CP-4 - CONTINGENCY PLAN TESTING
-a. Test the contingency plan for the system [Assignment: organization-defined frequency] using the following tests to determine the effectiveness of the plan and the readiness to execute the plan: [Assignment: organization-defined tests].
+a. Test the contingency plan for the system \[Assignment: organization-defined frequency\] using the following tests to determine the effectiveness of the plan and the readiness to execute the plan: \[Assignment: organization-defined tests\].
 b. Review the contingency plan test results; and
 c. Initiate corrective actions, if needed.
 
 NIST 800-53 r5 CP-9 (1) - SYSTEM BACKUP | TESTING FOR RELIABILITY AND INTEGRITY
-Test backup information [Assignment: organization-defined frequency] to verify media reliability and information integrity.
+Test backup information \[Assignment: organization-defined frequency\] to verify media reliability and information integrity.
 
 CAIQ BCR-11.7 Do you test your backup or redundancy mechanisms at least annually?
 <<<
@@ -771,26 +779,29 @@ PUB_REFS: >>>
 NIST 800-53 r5 PL-2 - SECURITY AND PRIVACY PLANS
 a. Develop security and privacy plans for the system that:
 
-  1. Are consistent with the organization’s enterprise architecture;
-  2. Explicitly define the constituent system components;
-  3. Describe the operational context of the system in terms of mission and business processes;
-  4. Identify the individuals that fulfill system roles and responsibilities;
-  5. Identify the information types processed, stored, and transmitted by the system;
-  6. Provide the security categorization of the system, including supporting rationale;
-  7. Describe any specific threats to the system that are of concern to the organization;
-  8. Provide the results of a privacy risk assessment for systems processing personally identifiable information;
-  9. Describe the operational environment for the system and any dependencies on or connections to other systems or system components;
-  10. Provide an overview of the security and privacy requirements for the system;
-  11. Identify any relevant control baselines or overlays, if applicable;
-  12. Describe the controls in place or planned for meeting the security and privacy requirements, including a rationale for any tailoring decisions;
-  13. Include risk determinations for security and privacy architecture and design decisions;
-  14. Include security- and privacy-related activities affecting the system that require planning and coordination with [Assignment: organization-defined individuals or groups]; and
-  15. Are reviewed and approved by the authorizing official or designated representative prior to plan implementation.
+> 1. Are consistent with the organization’s enterprise architecture;
+> 2. Explicitly define the constituent system components;
+> 3. Describe the operational context of the system in terms of mission and business processes;
+> 4. Identify the individuals that fulfill system roles and responsibilities;
+> 5. Identify the information types processed, stored, and transmitted by the system;
+> 6. Provide the security categorization of the system, including supporting rationale;
+> 7. Describe any specific threats to the system that are of concern to the organization;
+> 8. Provide the results of a privacy risk assessment for systems processing personally identifiable information;
+> 9. Describe the operational environment for the system and any dependencies on or connections to other systems or system components;
+> 10. Provide an overview of the security and privacy requirements for the system;
+> 11. Identify any relevant control baselines or overlays, if applicable;
+> 12. Describe the controls in place or planned for meeting the security and privacy requirements, including a rationale for any tailoring decisions;
+> 13. Include risk determinations for security and privacy architecture and design decisions;
+> 14. Include security- and privacy-related activities affecting the system that require planning and coordination with \[Assignment: organization-defined individuals or groups\]; and
+> 15. Are reviewed and approved by the authorizing official or designated representative prior to plan implementation.
 
-b. Distribute copies of the plans and communicate subsequent changes to the plans to [Assignment: organization-defined personnel or roles];
-c. Review the plans [Assignment: organization-defined frequency];
-d. Update the plans to address changes to the system and environment of operation or problems identified during plan implementation or control assessments; and
-e. Protect the plans from unauthorized disclosure and modification.
+b\. Distribute copies of the plans and communicate subsequent changes to the plans to \[Assignment: organization-defined personnel or roles\];
+
+c\. Review the plans \[Assignment: organization-defined frequency\];
+
+d\. Update the plans to address changes to the system and environment of operation or problems identified during plan implementation or control assessments; and
+
+e\. Protect the plans from unauthorized disclosure and modification.
 <<<
 VERIFICATION: >>>
 Inspection of vendor-supplied SSP document that details the authorization boundaries of telematics system.
@@ -813,13 +824,14 @@ PUB_REFS: >>>
 NIST 800-53 r5 PL-8 - SECURITY AND PRIVACY ARCHITECTURES
 a. Develop security and privacy architectures for the system that:
 
-  1. Describe the requirements and approach to be taken for protecting the confidentiality, integrity, and availability of organizational information;
-  2. Describe the requirements and approach to be taken for processing personally identifiable information to minimize privacy risk to individuals;
-  3. Describe how the architectures are integrated into and support the enterprise architecture; and
-  4. Describe any assumptions about, and dependencies on, external systems and services;
+> 1. Describe the requirements and approach to be taken for protecting the confidentiality, integrity, and availability of organizational information;
+> 2. Describe the requirements and approach to be taken for processing personally identifiable information to minimize privacy risk to individuals;
+> 3. Describe how the architectures are integrated into and support the enterprise architecture; and
+> 4. Describe any assumptions about, and dependencies on, external systems and services;
 
-b. Review and update the architectures [Assignment: organization-defined frequency] to reflect changes in the enterprise architecture; and
-c. Reflect planned architecture changes in security and privacy plans, Concept of Operations (CONOPS), criticality analysis, organizational procedures, and procurements and acquisitions.
+b\. Review and update the architectures \[Assignment: organization-defined frequency\] to reflect changes in the enterprise architecture; and
+
+c\. Reflect planned architecture changes in security and privacy plans, Concept of Operations (CONOPS), criticality analysis, organizational procedures, and procurements and acquisitions.
 <<<
 VERIFICATION: >>>
 Inspection of vendor-supplied ISA documentation.
@@ -873,26 +885,28 @@ The vendor shall have personnel security policies & procedures, position risk ca
 PUB_REFS: >>>
 NIST 800-53 r5 PS-1 - POLICY AND PROCEDURES
 
-a. Develop, document, and disseminate to [Assignment: organization-defined personnel or roles]:
+a\. Develop, document, and disseminate to \[Assignment: organization-defined personnel or roles\]:
 
-  1. [Selection (one or more): Organization-level; Mission/business process-level; System level] personnel security policy that:
+> 1. \[Selection (one or more): Organization-level; Mission/business process-level; System level\] personnel security policy that:
+>
+> > a\) Addresses purpose, scope, roles, responsibilities, management commitment, coordination among organizational entities, and compliance; and
+> >
+> > b\) Is consistent with applicable laws, executive orders, directives, regulations, policies, standards, and guidelines; and
+>
+> 2. Procedures to facilitate the implementation of the personnel security policy and the associated personnel security controls;
 
-    (a) Addresses purpose, scope, roles, responsibilities, management commitment, coordination among organizational entities, and compliance; and
-    (b) Is consistent with applicable laws, executive orders, directives, regulations, policies, standards, and guidelines; and
+b\. Designate an \[Assignment: organization-defined official\] to manage the development, documentation, and dissemination of the personnel security policy and procedures; and
 
-  2. Procedures to facilitate the implementation of the personnel security policy and the associated personnel security controls;
+c\. Review and update the current personnel security:
 
-b. Designate an [Assignment: organization-defined official] to manage the development, documentation, and dissemination of the personnel security policy and procedures; and
-c. Review and update the current personnel security:
-
-  1. Policy [Assignment: organization-defined frequency] and following [Assignment: organization-defined events]; and
-  2. Procedures [Assignment: organization-defined frequency] and following [Assignment: organization-defined events].
+> 1. Policy \[Assignment: organization-defined frequency\] and following \[Assignment: organization-defined events\]; and
+> 2. Procedures \[Assignment: organization-defined frequency\] and following \[Assignment: organization-defined events\].
 
 NIST 800-53 r5 PS-7 - EXTERNAL PERSONNEL SECURITY
 a. Establish personnel security requirements, including security roles and responsibilities for external providers;
 b. Require external providers to comply with personnel security policies and procedures established by the organization;
 c. Document personnel security requirements;
-d. Require external providers to notify [Assignment: organization-defined personnel or roles] of any personnel transfers or terminations of external personnel who possess organizational credentials and/or badges, or who have system privileges within [Assignment: organization defined time period]; and
+d. Require external providers to notify \[Assignment: organization-defined personnel or roles\] of any personnel transfers or terminations of external personnel who possess organizational credentials and/or badges, or who have system privileges within \[Assignment: organization defined time period\]; and
 e. Monitor provider compliance with personnel security requirements.
 <<<
 VERIFICATION: >>>
@@ -914,15 +928,19 @@ PUB_REFS: >>>
 NIST 800-53 r5 RA-3 – RISK ASSESSMENT
 a. Conduct a risk assessment, including:
 
-  1. Identifying threats to and vulnerabilities in the system;
-  2. Determining the likelihood and magnitude of harm from unauthorized access, use, disclosure, disruption, modification, or destruction of the system, the information it processes, stores, or transmits, and any related information; and
-  3. Determining the likelihood and impact of adverse effects on individuals arising from the processing of personally identifiable information;
+> 1. Identifying threats to and vulnerabilities in the system;
+> 2. Determining the likelihood and magnitude of harm from unauthorized access, use, disclosure, disruption, modification, or destruction of the system, the information it processes, stores, or transmits, and any related information; and
+> 3. Determining the likelihood and impact of adverse effects on individuals arising from the processing of personally identifiable information;
 
-b. Integrate risk assessment results and risk management decisions from the organization and mission or business process perspectives with system-level risk assessments;
-c. Document risk assessment results in [Selection: security and privacy plans; risk assessment report; [Assignment: organization-defined document]];
-d. Review risk assessment results [Assignment: organization-defined frequency];
-e. Disseminate risk assessment results to [Assignment: organization-defined personnel or roles]; and
-f. Update the risk assessment [Assignment: organization-defined frequency] or when there are significant changes to the system, its environment of operation, or other conditions that may impact the security or privacy state of the system.
+b\. Integrate risk assessment results and risk management decisions from the organization and mission or business process perspectives with system-level risk assessments;
+
+c\. Document risk assessment results in \[Selection: security and privacy plans; risk assessment report; \[Assignment: organization-defined document\]\];
+
+d\. Review risk assessment results \[Assignment: organization-defined frequency\];
+
+e\. Disseminate risk assessment results to \[Assignment: organization-defined personnel or roles\]; and
+
+f\. Update the risk assessment \[Assignment: organization-defined frequency\] or when there are significant changes to the system, its environment of operation, or other conditions that may impact the security or privacy state of the system.
 
 FMCSA GDL 1 Conduct architectural analysis and/or threat modeling during system design
 <<<
@@ -945,15 +963,19 @@ PUB_REFS: >>>
 NIST 800-53 r5 RA-3 – RISK ASSESSMENT
 a. Conduct a risk assessment, including:
 
-  1. Identifying threats to and vulnerabilities in the system;
-  2. Determining the likelihood and magnitude of harm from unauthorized access, use, disclosure, disruption, modification, or destruction of the system, the information it processes, stores, or transmits, and any related information; and
-  3. Determining the likelihood and impact of adverse effects on individuals arising from the processing of personally identifiable information;
+> 1. Identifying threats to and vulnerabilities in the system;
+> 2. Determining the likelihood and magnitude of harm from unauthorized access, use, disclosure, disruption, modification, or destruction of the system, the information it processes, stores, or transmits, and any related information; and
+> 3. Determining the likelihood and impact of adverse effects on individuals arising from the processing of personally identifiable information;
 
-b. Integrate risk assessment results and risk management decisions from the organization and mission or business process perspectives with system-level risk assessments;
-c. Document risk assessment results in [Selection: security and privacy plans; risk assessment report; [Assignment: organization-defined document]];
-d. Review risk assessment results [Assignment: organization-defined frequency];
-e. Disseminate risk assessment results to [Assignment: organization-defined personnel or roles]; and
-f. Update the risk assessment [Assignment: organization-defined frequency] or when there are significant changes to the system, its environment of operation, or other conditions that may impact the security or privacy state of the system.
+b\. Integrate risk assessment results and risk management decisions from the organization and mission or business process perspectives with system-level risk assessments;
+
+c\. Document risk assessment results in \[Selection: security and privacy plans; risk assessment report; \[Assignment: organization-defined document\]\];
+
+d\. Review risk assessment results \[Assignment: organization-defined frequency\];
+
+e\. Disseminate risk assessment results to \[Assignment: organization-defined personnel or roles\]; and
+
+f\. Update the risk assessment \[Assignment: organization-defined frequency\] or when there are significant changes to the system, its environment of operation, or other conditions that may impact the security or privacy state of the system.
 
 CAIQ GRM-08.1 Do risk assessment results include updates to security policies, procedures, standards, and controls to ensure they remain relevant and effective?
 
@@ -986,45 +1008,51 @@ NIST 800-53 r5 CA-2 - CONTROL ASSESSMENTS
 a. Select the appropriate assessor or assessment team for the type of assessment to be conducted;
 b. Develop a control assessment plan that describes the scope of the assessment including:
 
-  1. Controls and control enhancements under assessment;
-  2. Assessment procedures to be used to determine control effectiveness; and
-  3. Assessment environment, assessment team, and assessment roles and responsibilities;
+> 1. Controls and control enhancements under assessment;
+> 2. Assessment procedures to be used to determine control effectiveness; and
+> 3. Assessment environment, assessment team, and assessment roles and responsibilities;
 
-c. Ensure the control assessment plan is reviewed and approved by the authorizing official or designated representative prior to conducting the assessment;
-d. Assess the controls in the system and its environment of operation [Assignment: organization-defined frequency] to determine the extent to which the controls are implemented correctly, operating as intended, and producing the desired outcome with respect to meeting established security and privacy requirements;
-e. Produce a control assessment report that document the results of the assessment; and
-f. Provide the results of the control assessment to [Assignment: organization-defined individuals or roles].
+c\. Ensure the control assessment plan is reviewed and approved by the authorizing official or designated representative prior to conducting the assessment;
+
+d\. Assess the controls in the system and its environment of operation \[Assignment: organization-defined frequency\] to determine the extent to which the controls are implemented correctly, operating as intended, and producing the desired outcome with respect to meeting established security and privacy requirements;
+
+e\. Produce a control assessment report that document the results of the assessment; and
+
+f\. Provide the results of the control assessment to \[Assignment: organization-defined individuals or roles\].
 
 NIST 800-53 r5 CA-5 - PLAN OF ACTION AND MILESTONES
 a. Develop a plan of action and milestones for the system to document the planned remediation actions of the organization to correct weaknesses or deficiencies noted during the assessment of the controls and to reduce or eliminate known vulnerabilities in the system; and
-b. Update existing plan of action and milestones [Assignment: organization-defined frequency] based on the findings from control assessments, independent audits or reviews, and continuous monitoring activities.
+b. Update existing plan of action and milestones \[Assignment: organization-defined frequency\] based on the findings from control assessments, independent audits or reviews, and continuous monitoring activities.
 
 NIST 800-53 r5 CA-6 - AUTHORIZATION
 a. Assign a senior official as the authorizing official for the system;
 b. Assign a senior official as the authorizing official for common controls available for inheritance by organizational systems;
 c. Ensure that the authorizing official for the system, before commencing operations:
 
-  1. Accepts the use of common controls inherited by the system; and
-  2. Authorizes the system to operate;
+> 1. Accepts the use of common controls inherited by the system; and
+> 2. Authorizes the system to operate;
 
-d. Ensure that the authorizing official for common controls authorizes the use of those controls for inheritance by organizational systems;
-e. Update the authorizations [Assignment: organization-defined frequency].
+d\. Ensure that the authorizing official for common controls authorizes the use of those controls for inheritance by organizational systems;
+
+e\. Update the authorizations \[Assignment: organization-defined frequency\].
 
 NIST 800-53 r5 CP-1 - POLICY AND PROCEDURES
-a. Develop, document, and disseminate to [Assignment: organization-defined personnel or roles]:
+a. Develop, document, and disseminate to \[Assignment: organization-defined personnel or roles\]:
 
-  1. [Selection (one or more): Organization-level; Mission/business process-level; System level] contingency planning policy that:
+> 1. \[Selection (one or more): Organization-level; Mission/business process-level; System level\] contingency planning policy that:
+>
+> > a\) Addresses purpose, scope, roles, responsibilities, management commitment, coordination among organizational entities, and compliance; and
+> >
+> > b\) Is consistent with applicable laws, executive orders, directives, regulations, policies, standards, and guidelines; and
+>
+> 2. Procedures to facilitate the implementation of the contingency planning policy and the associated contingency planning controls;
 
-    (a) Addresses purpose, scope, roles, responsibilities, management commitment, coordination among organizational entities, and compliance; and
-    (b) Is consistent with applicable laws, executive orders, directives, regulations, policies, standards, and guidelines; and
+b\. Designate an \[Assignment: organization-defined official\] to manage the development, documentation, and dissemination of the contingency planning policy and procedures; and
 
-  2. Procedures to facilitate the implementation of the contingency planning policy and the associated contingency planning controls;
+c\. Review and update the current contingency planning:
 
-b. Designate an [Assignment: organization-defined official] to manage the development, documentation, and dissemination of the contingency planning policy and procedures; and
-c. Review and update the current contingency planning:
-
-  1. Policy [Assignment: organization-defined frequency] and following [Assignment: organization-defined events]; and
-  2. Procedures [Assignment: organization-defined frequency] and following [Assignment: organization-defined events].
+> 1. Policy \[Assignment: organization-defined frequency\] and following \[Assignment: organization-defined events\]; and
+> 2. Procedures \[Assignment: organization-defined frequency\] and following \[Assignment: organization-defined events\].
 
 CAIQ GRM-04.1 Do you provide tenants with documentation describing your Information Security Management Program (ISMP)?
 
@@ -1058,7 +1086,7 @@ PUB_REFS: >>>
 NIST 800-115 Technical Guide to Information Security Testing and Assessment – All sections
 
 NIST 800-53 r5 CA-8 – PENETRATION TESTING
-Conduct penetration testing [Assignment: organization-defined frequency] on [Assignment: organization-defined systems or system components].
+Conduct penetration testing \[Assignment: organization-defined frequency\] on \[Assignment: organization-defined systems or system components\].
 
 CAIQ AIS-01.5 Do you review your applications for security vulnerabilities and address any issues prior to deployment to production?
 
@@ -1089,7 +1117,7 @@ PUB_REFS: >>>
 NIST 800-53 r5 SA-11 – DEVELOPER TESTING AND EVALUATION
 Require the developer of the system, system component, or system service, at all post design stages of the system development life cycle, to:
 a. Develop and implement a plan for ongoing security and privacy control assessments;
-b. Perform [Selection (one or more): unit; integration; system; regression] testing/evaluation [Assignment: organization-defined frequency] at [Assignment: organization-defined depth and coverage];
+b. Perform \[Selection (one or more): unit; integration; system; regression\] testing/evaluation \[Assignment: organization-defined frequency\] at \[Assignment: organization-defined depth and coverage\];
 c. Produce evidence of the execution of the assessment plan and the results of the testing and
 evaluation;
 d. Implement a verifiable flaw remediation process; and
@@ -1114,7 +1142,7 @@ The vendor shall perform due diligence to ensure its suppliers also meet the ven
 <<<
 PUB_REFS: >>>
 NIST 800-53 r5 SR-6 - SUPPLIER ASSESSMENTS AND REVIEWS
-Assess and review the supply chain-related risks associated with suppliers or contractors and the system, system component, or system service they provide [Assignment: organization-defined frequency].
+Assess and review the supply chain-related risks associated with suppliers or contractors and the system, system component, or system service they provide \[Assignment: organization-defined frequency\].
 
 FMCSA GDL 6 Perform your own security due diligence, which involves but is not limited to ensuring that third-party devices in the supply chain meet your basic security requirements.
 <<<
@@ -1162,7 +1190,7 @@ The default configuration must be secure in order to prevent downgrade attacks.
 <<<
 PUB_REFS: >>>
 NIST 800-53 r5 SC-8 (1) - TRANSMISSION CONFIDENTIALITY AND INTEGRITY | CRYPTOGRAPHIC PROTECTION
-Implement cryptographic mechanisms to [Selection (one or more): prevent unauthorized disclosure of information; detect changes to information] during transmission.
+Implement cryptographic mechanisms to \[Selection (one or more): prevent unauthorized disclosure of information; detect changes to information\] during transmission.
 
 FMCSA GDL 46 Use encryption on all wireless communication interfaces
 
@@ -1226,13 +1254,13 @@ NB: ideally these systems should be designed to minimize the collection of PII.
 <<<
 PUB_REFS: >>>
 NIST 800-53 r5 SC-28 - PROTECTION OF INFORMATION AT REST
-Protect the [Selection (one or more): confidentiality; integrity] of the following information at rest: [Assignment: organization-defined information at rest].
+Protect the \[Selection (one or more): confidentiality; integrity\] of the following information at rest: \[Assignment: organization-defined information at rest\].
 
 NIST 800-53 r5 SC-28 (1) - PROTECTION OF INFORMATION AT REST | CRYPTOGRAPHIC PROTECTION
-Implement cryptographic mechanisms to prevent unauthorized disclosure and modification of the following information at rest on [Assignment: organization-defined system components or media]: [Assignment: organization-defined information].
+Implement cryptographic mechanisms to prevent unauthorized disclosure and modification of the following information at rest on \[Assignment: organization-defined system components or media\]: \[Assignment: organization-defined information\].
 
 NIST 800-53 r5 SC-28 (2) - PROTECTION OF INFORMATION AT REST | OFFLINE STORAGE
-Remove the following information from online storage and store offline in a secure location: [Assignment: organization-defined information].
+Remove the following information from online storage and store offline in a secure location: \[Assignment: organization-defined information\].
 
 OWASP E4 – Securing Sensitive Information
 
@@ -1274,16 +1302,16 @@ Public information is any information that is visible (externally or internally)
 <<<
 PUB_REFS: >>>
 NIST 800-53 r5 SC-12 - CRYPTOGRAPHIC KEY ESTABLISHMENT AND MANAGEMENT
-Establish and manage cryptographic keys when cryptography is employed within the system in accordance with the following key management requirements: [Assignment: organization-defined requirements for key generation, distribution, storage, access, and destruction].
+Establish and manage cryptographic keys when cryptography is employed within the system in accordance with the following key management requirements: \[Assignment: organization-defined requirements for key generation, distribution, storage, access, and destruction\].
 
 NIST 800-53 r5 SC-12 (1) - CRYPTOGRAPHIC KEY ESTABLISHMENT AND MANAGEMENT | AVAILABILITY
 Maintain availability of information in the event of the loss of cryptographic keys by users.
 
 NIST 800-53 r5 SC-12 (2) - CRYPTOGRAPHIC KEY ESTABLISHMENT AND MANAGEMENT | SYMMETRIC KEYS
-Produce, control, and distribute symmetric cryptographic keys using [Selection: NIST FIPSvalidated; NSA-approved] key management technology and processes.
+Produce, control, and distribute symmetric cryptographic keys using \[Selection: NIST FIPSvalidated; NSA-approved\] key management technology and processes.
 
 NIST 800-53 r5 SC-12 (3) - CRYPTOGRAPHIC KEY ESTABLISHMENT AND MANAGEMENT | ASYMMETRIC KEYS
-Produce, control, and distribute asymmetric cryptographic keys using [Selection: NSAapproved key management technology and processes; prepositioned keying material; DoD-approved or DoD-issued Medium Assurance PKI certificates; DoD approved or DoDissued Medium Hardware Assurance PKI certificates and hardware security tokens that protect the user’s private key; certificates issued in accordance with organization-defined requirements].
+Produce, control, and distribute asymmetric cryptographic keys using \[Selection: NSAapproved key management technology and processes; prepositioned keying material; DoD-approved or DoD-issued Medium Assurance PKI certificates; DoD approved or DoDissued Medium Hardware Assurance PKI certificates and hardware security tokens that protect the user’s private key; certificates issued in accordance with organization-defined requirements\].
 
 NIST Special Publication 800-133 - Recommendation for Cryptographic Key Generation
 <<<
@@ -1310,7 +1338,7 @@ NIST 800-53 r5 SC-4 - INFORMATION IN SHARED SYSTEM RESOURCES
 Prevent unauthorized and unintended information transfer via shared system resources.
 
 NIST 800-53 r5 SC-4 (2) - INFORMATION IN SHARED SYSTEM RESOURCES | MULTILEVEL OR PERIODS PROCESSING
-Prevent unauthorized information transfer via shared resources in accordance with [Assignment: organization-defined procedures] when system processing explicitly switches between different information classification levels or security categories.
+Prevent unauthorized information transfer via shared resources in accordance with \[Assignment: organization-defined procedures\] when system processing explicitly switches between different information classification levels or security categories.
 
 CAIQ IVS-09.4 Do you have the ability to logically segment or encrypt customer data such that data may be produced for a single tenant only, without inadvertently accessing another tenant's data?
 <<<
@@ -1334,10 +1362,10 @@ Vehicle network protection is paramount
 <<<
 PUB_REFS: >>>
 NIST 800-53 r5 SI-10 – INFORMATION INPUT VALIDATION
-Check the validity of the following information inputs: [Assignment: organization defined information inputs to the system].
+Check the validity of the following information inputs: \[Assignment: organization defined information inputs to the system\].
 
 NIST 800-53 r5 SC-7 (21) - BOUNDARY PROTECTION | ISOLATION OF SYSTEM COMPONENTS
-Employ boundary protection mechanisms to isolate [Assignment: organization-defined system components] supporting [Assignment: organization-defined missions and/or business functions].
+Employ boundary protection mechanisms to isolate \[Assignment: organization-defined system components\] supporting \[Assignment: organization-defined missions and/or business functions\].
 
 FMCSA GDL 27 Limit telematics units' access to the CAN bus, and whitelist the CAN messages they can send
 
@@ -1379,10 +1407,10 @@ NIST 800-53 r5 SC-23 (1) - SESSION AUTHENTICITY | INVALIDATE SESSION IDENTIFIERS
 Invalidate session identifiers upon user logout or other session termination.
 
 NIST 800-53 r5 SC-23 (3) - SESSION AUTHENTICITY | UNIQUE SYSTEM-GENERATED SESSION IDENTIFIERS
-Generate a unique session identifier for each session with [Assignment: organization defined randomness requirements] and recognize only session identifiers that are system generated.
+Generate a unique session identifier for each session with \[Assignment: organization defined randomness requirements\] and recognize only session identifiers that are system generated.
 
 NIST 800-53 r5 SC-23 (5) - SESSION AUTHENTICITY | ALLOWED CERTIFICATE AUTHORITIES
-Only allow the use of [Assignment: organization-defined certificate authorities] for verification of the establishment of protected sessions.
+Only allow the use of \[Assignment: organization-defined certificate authorities\] for verification of the establishment of protected sessions.
 
 CAIQ DSI-03.2 Do you utilize open encryption methodologies any time your infrastructure components need to communicate with each other via public networks (e.g., Internet-based replication of data from one environment to another)?
 
@@ -1450,7 +1478,7 @@ NIST 800-53 r5 SC-39 - PROCESS ISOLATION
 Maintain a separate execution domain for each executing system process.
 
 NIST 800-53 r5 SC-39 (2) - PROCESS ISOLATION | SEPARATE EXECUTION DOMAIN PER THREAD
-Maintain a separate execution domain for each thread in [Assignment: organization defined multi-threaded processing].
+Maintain a separate execution domain for each thread in \[Assignment: organization defined multi-threaded processing\].
 <<<
 VERIFICATION: >>>
 Inspection of vendor-supplied documentation detailing the software architecture.
@@ -1568,11 +1596,11 @@ PUB_REFS: >>>
 NIST 800-53 r5 SI-2 - FLAW REMEDIATION
 a. Identify, report, and correct system flaws;
 b. Test software and firmware updates related to flaw remediation for effectiveness and potential side effects before installation;
-c. Install security-relevant software and firmware updates within [Assignment: organization defined time period] of the release of the updates; and
+c. Install security-relevant software and firmware updates within \[Assignment: organization defined time period\] of the release of the updates; and
 d. Incorporate flaw remediation into the organizational configuration management process.
 
 NIST 800-53 r5 SI-2 (5) - FLAW REMEDIATION | AUTOMATIC SOFTWARE AND FIRMWARE UPDATES
-Install [Assignment: organization-defined security-relevant software and firmware updates] automatically to [Assignment: organization-defined system components].
+Install \[Assignment: organization-defined security-relevant software and firmware updates\] automatically to \[Assignment: organization-defined system components\].
 <<<
 VERIFICATION: >>>
 Inspection of vendor-supplied documentation detailing their flaw remediation process for backend systems.
@@ -1629,11 +1657,11 @@ PUB_REFS: >>>
 NIST 800-53 r5 SI-2 - FLAW REMEDIATION
 a. Identify, report, and correct system flaws;
 b. Test software and firmware updates related to flaw remediation for effectiveness and potential side effects before installation;
-c. Install security-relevant software and firmware updates within [Assignment: organization defined time period] of the release of the updates; and
+c. Install security-relevant software and firmware updates within \[Assignment: organization defined time period\] of the release of the updates; and
 d. Incorporate flaw remediation into the organizational configuration management process.
 
 NIST 800-53 r5 SI-2 (5) - FLAW REMEDIATION | AUTOMATIC SOFTWARE AND FIRMWARE UPDATES
-Install [Assignment: organization-defined security-relevant software and firmware updates] automatically to [Assignment: organization-defined system components].
+Install \[Assignment: organization-defined security-relevant software and firmware updates\] automatically to \[Assignment: organization-defined system components\].
 
 CAIQ TVM-02.5 Do you have a capability to patch vulnerabilities across all of your computing devices, applications, and systems?
 
@@ -1663,10 +1691,10 @@ Vendors shall provide a document that defines vulnerabilities severities (e.g. C
 PUB_REFS: >>>
 NIST 800-53 r5 SI-2 - FLAW REMEDIATION
 a. Identify, report, and correct system flaws;
-b. [...]
+b. \[...\]
 
 NIST 800-53 r5 SI-2 (5) - FLAW REMEDIATION | AUTOMATIC SOFTWARE AND FIRMWARE UPDATES
-Install [Assignment: organization-defined security-relevant software and firmware updates] automatically to [Assignment: organization-defined system components].
+Install \[Assignment: organization-defined security-relevant software and firmware updates\] automatically to \[Assignment: organization-defined system components\].
 
 CAIQ TVM-02.5 Do you have a capability to patch vulnerabilities across all of your computing devices, applications, and systems?
 
@@ -1700,14 +1728,14 @@ Note may just want to make this one vendor shall utilize digitally signed firmwa
 <<<
 PUB_REFS: >>>
 NIST 800-53 r5 SI-3 - MALICIOUS CODE PROTECTION
-a. Implement [Selection (one or more): signature based; non-signature based] malicious code protection mechanisms at system entry and exit points to detect and eradicate malicious code;
-b. [...]
+a. Implement \[Selection (one or more): signature based; non-signature based\] malicious code protection mechanisms at system entry and exit points to detect and eradicate malicious code;
+b. \[...\]
 
-NIST 800-53 r5 SI-7 (1) - SOFTWARE, FIRMWARE, AND INFORMATION INTEGRITY | INTEGRITY CHECKS [...]
+NIST 800-53 r5 SI-7 (1) - SOFTWARE, FIRMWARE, AND INFORMATION INTEGRITY | INTEGRITY CHECKS \[...\]
 
-NIST 800-53 r5 SI-7 (6) - SOFTWARE, FIRMWARE, AND INFORMATION INTEGRITY | CRYPTOGRAPHIC PROTECTION [...]
+NIST 800-53 r5 SI-7 (6) - SOFTWARE, FIRMWARE, AND INFORMATION INTEGRITY | CRYPTOGRAPHIC PROTECTION \[...\]
 
-NIST 800-53 r5 SI-7 (15) - SOFTWARE, FIRMWARE, AND INFORMATION INTEGRITY | CODE AUTHENTICATION  [...]
+NIST 800-53 r5 SI-7 (15) - SOFTWARE, FIRMWARE, AND INFORMATION INTEGRITY | CODE AUTHENTICATION  \[...\]
 
 CAIQ CCC-04.1 Do you have controls in place to restrict and monitor the installation of unauthorized software onto your systems?
 
@@ -1735,19 +1763,19 @@ Secure boot underpins the access control which protects the vehicle networks
 <<<
 PUB_REFS: >>>
 NIST 800-53 r5 SI-7 (5) - SOFTWARE, FIRMWARE, AND INFORMATION INTEGRITY | AUTOMATED RESPONSE TO INTEGRITY VIOLATIONS
-Automatically [Selection (one or more): shut the system down; restart the system; implement [Assignment: organization-defined controls]] when integrity violations are discovered.
+Automatically \[Selection (one or more): shut the system down; restart the system; implement \[Assignment: organization-defined controls\]\] when integrity violations are discovered.
 
 NIST 800-53 r5 SI-7 (6) - SOFTWARE, FIRMWARE, AND INFORMATION INTEGRITY | CRYPTOGRAPHIC PROTECTION
 Implement cryptographic mechanisms to detect unauthorized changes to software, firmware, and information.
 
 NIST 800-53 r5 SI-7 (9) - SOFTWARE, FIRMWARE, AND INFORMATION INTEGRITY | VERIFY BOOT PROCESS
-Verify the integrity of the boot process of the following system components: [Assignment: organization-defined system components].
+Verify the integrity of the boot process of the following system components: \[Assignment: organization-defined system components\].
 
 NIST 800-53 r5 SI-7 (10) - SOFTWARE, FIRMWARE, AND INFORMATION INTEGRITY | PROTECTION OF BOOT FIRMWARE
-Implement the following mechanisms to protect the integrity of boot firmware in [Assignment: organization-defined system components]: [Assignment: organization defined mechanisms].
+Implement the following mechanisms to protect the integrity of boot firmware in \[Assignment: organization-defined system components\]: \[Assignment: organization defined mechanisms\].
 
 NIST 800-53 r5 SI-7 (15) - SOFTWARE, FIRMWARE, AND INFORMATION INTEGRITY | CODE AUTHENTICATION
-Implement cryptographic mechanisms to authenticate the following software or firmware components prior to installation: [Assignment: organization-defined software or firmware components].
+Implement cryptographic mechanisms to authenticate the following software or firmware components prior to installation: \[Assignment: organization-defined software or firmware components\].
 <<<
 VERIFICATION: >>>
 Inspection of a 3rd party implementation review report or a demonstration by the vendor that asserts the use of cryptographic protections for the integrity of the boot process. The cryptographic protections must employ asymmetric industry standard algorithms. (rationale: cryptography must be validated by experts in the subject)
@@ -1789,10 +1817,10 @@ Is a rare feature to find deployed and is nice-to-have over and above secure boo
 <<<
 PUB_REFS: >>>
 NIST 800-53 r5 SI-7 (12) - SOFTWARE, FIRMWARE, AND INFORMATION INTEGRITY | INTEGRITY VERIFICATION
-Require that the integrity of the following user-installed software be verified prior to execution: [Assignment: organization-defined user-installed software].
+Require that the integrity of the following user-installed software be verified prior to execution: \[Assignment: organization-defined user-installed software\].
 
 NIST 800-53 r5 SI-7 (15) - SOFTWARE, FIRMWARE, AND INFORMATION INTEGRITY | CODE AUTHENTICATION
-Implement cryptographic mechanisms to authenticate the following software or firmware components prior to installation: [Assignment: organization-defined software or firmware components].
+Implement cryptographic mechanisms to authenticate the following software or firmware components prior to installation: \[Assignment: organization-defined software or firmware components\].
 
 NIST 800-53 r5 SC-3 - SECURITY FUNCTION ISOLATION
 Isolate security functions from nonsecurity functions
@@ -1817,7 +1845,7 @@ Without any of these, exploitation is trivial
 <<<
 PUB_REFS: >>>
 NIST 800-53 r5 SI-16 – MEMORY PROTECTION
-Implement the following controls to protect the system memory from unauthorized code execution: [Assignment: organization-defined controls].
+Implement the following controls to protect the system memory from unauthorized code execution: \[Assignment: organization-defined controls\].
 
 Cyber ITL Methodology – Safety Features
 
@@ -1866,10 +1894,10 @@ The vendor shall design security components that fail-secure to protect integrit
 <<<
 PUB_REFS: >>>
 NIST 800-53 r5 SI-17 - FAIL-SAFE PROCEDURES
-Implement the indicated fail-safe procedures when the indicated failures occur: [Assignment: organization-defined list of failure conditions and associated fail-safe procedures].
+Implement the indicated fail-safe procedures when the indicated failures occur: \[Assignment: organization-defined list of failure conditions and associated fail-safe procedures\].
 
 NIST 800-53 r5 SC-24 – FAIL IN KNOWN STATE
-Fail to a [Assignment: organization-defined known system state] for the following failures on the indicated components while preserving [Assignment: organization-defined system state information] in failure: [Assignment: list of organization defined types of system failures on organization-defined system components].
+Fail to a \[Assignment: organization-defined known system state\] for the following failures on the indicated components while preserving \[Assignment: organization-defined system state information\] in failure: \[Assignment: list of organization defined types of system failures on organization-defined system components\].
 
 CTIA CCTPID 5.17 Design-In Features “device was designed to fail secure”
 
@@ -1895,14 +1923,14 @@ Not well defined enough to make this of critical importance to TSPs or carriers
 <<<
 PUB_REFS: >>>
 NIST 800-53 r5 SI-3 - MALICIOUS CODE PROTECTION
-a. Implement [Selection (one or more): signature based; non-signature based] malicious code protection mechanisms at system entry and exit points to detect and eradicate malicious code;
+a. Implement \[Selection (one or more): signature based; non-signature based\] malicious code protection mechanisms at system entry and exit points to detect and eradicate malicious code;
 b. Automatically update malicious code protection mechanisms as new releases are available in accordance with organizational configuration management policy and procedures;
 c. Configure malicious code protection mechanisms to:
 
-  1. Perform periodic scans of the system [Assignment: organization-defined frequency] and real-time scans of files from external sources at [Selection (one or more): endpoint; network entry and exit points] as the files are downloaded, opened, or executed in accordance with organizational policy; and
-  2. [Selection (one or more): block malicious code; quarantine malicious code; take [Assignment: organization-defined action]]; and send alert to [Assignment: organization defined personnel or roles] in response to malicious code detection; and
+> 1. Perform periodic scans of the system \[Assignment: organization-defined frequency\] and real-time scans of files from external sources at \[Selection (one or more): endpoint; network entry and exit points\] as the files are downloaded, opened, or executed in accordance with organizational policy; and
+> 2. \[Selection (one or more): block malicious code; quarantine malicious code; take \[Assignment: organization-defined action\]\]; and send alert to \[Assignment: organization defined personnel or roles\] in response to malicious code detection; and
 
-d. Address the receipt of false positives during malicious code detection and eradication and the resulting potential impact on the availability of the system.
+d\. Address the receipt of false positives during malicious code detection and eradication and the resulting potential impact on the availability of the system.
 <<<
 VERIFICATION: >>>
 Inspection of vendor documentation detailing the operation of software protections for prevent the runtime modification of code.
@@ -1923,8 +1951,8 @@ Vulnerability programs should include sufficient legal provisions to provide for
 <<<
 PUB_REFS: >>>
 NIST 800-53 r5 SI-5 - SECURITY ALERTS, ADVISORIES, AND DIRECTIVES
-a. Receive system security alerts, advisories, and directives from [Assignment: organization defined external organizations] on an ongoing basis;
-[...]
+a. Receive system security alerts, advisories, and directives from \[Assignment: organization defined external organizations\] on an ongoing basis;
+\[...\]
 
 ISA/IEC  29147:2014 (Information technology -- Security techniques -- Vulnerability Disclosure)
 
@@ -1945,7 +1973,7 @@ DHS BOD 20-01 Required Action, Vulnerability Disclosure Handling Procedures
 VERIFICATION: >>>
 Demonstration, by vendor, that disclosure instructions are published on their public website and are readily accessible.
 
-Demonstration, by vendor, of an active security@[vendor domain] email, that will provide a known contact point for disclosure.
+Demonstration, by vendor, of an active security@\[vendor domain\] email, that will provide a known contact point for disclosure.
 <<<
 
 [REQUIREMENT]
@@ -1966,7 +1994,7 @@ e.g. SIEM, IDS, WAF, Application monitoring
 <<<
 PUB_REFS: >>>
 NIST 800-53 r5 SI-4 – SYSTEM MONITORING
-a. Monitor the system to detect: […]
+a. Monitor the system to detect: \[…\]
 
 FMCSA GDL 28 Enable security monitoring of the telematics system(s) using native tools.
 <<<
@@ -1987,17 +2015,20 @@ The vendor conducts regular vulnerability scans of operating environment to veri
 <<<
 PUB_REFS: >>>
 NIST 800-53 r5 RA-5 – VULNERABILITY MONITORING AND SCANNING
-a. Monitor and scan for vulnerabilities in the system and hosted applications [Assignment: organization-defined frequency and/or randomly in accordance with organization-defined process] and when new vulnerabilities potentially affecting the system are identified and reported;
+a. Monitor and scan for vulnerabilities in the system and hosted applications \[Assignment: organization-defined frequency and/or randomly in accordance with organization-defined process\] and when new vulnerabilities potentially affecting the system are identified and reported;
 b. Employ vulnerability monitoring tools and techniques that facilitate interoperability among tools and automate parts of the vulnerability management process by using standards for:
 
-  1. Enumerating platforms, software flaws, and improper configurations;
-  2. Formatting checklists and test procedures; and
-  3. Measuring vulnerability impact;
+> 1. Enumerating platforms, software flaws, and improper configurations;
+> 2. Formatting checklists and test procedures; and
+> 3. Measuring vulnerability impact;
 
-c. Analyze vulnerability scan reports and results from vulnerability monitoring;
-d. Remediate legitimate vulnerabilities [Assignment: organization-defined response times] in accordance with an organizational assessment of risk;
-e. Share information obtained from the vulnerability monitoring process and control assessments with [Assignment: organization-defined personnel or roles] to help eliminate similar vulnerabilities in other systems; and
-f. Employ vulnerability monitoring tools that include the capability to readily update the vulnerabilities to be scanned.
+c\. Analyze vulnerability scan reports and results from vulnerability monitoring;
+
+d\. Remediate legitimate vulnerabilities \[Assignment: organization-defined response times\] in accordance with an organizational assessment of risk;
+
+e\. Share information obtained from the vulnerability monitoring process and control assessments with \[Assignment: organization-defined personnel or roles\] to help eliminate similar vulnerabilities in other systems; and
+
+f\. Employ vulnerability monitoring tools that include the capability to readily update the vulnerabilities to be scanned.
 
 OWASP E10 – Third Party Code and Components
 <<<
@@ -2023,11 +2054,11 @@ PUB_REFS: >>>
 NIST 800-53 r5 SI-2 - FLAW REMEDIATION
 a. Identify, report, and correct system flaws;
 b. Test software and firmware updates related to flaw remediation for effectiveness and potential side effects before installation;
-c. Install security-relevant software and firmware updates within [Assignment: organization defined time period] of the release of the updates; and
+c. Install security-relevant software and firmware updates within \[Assignment: organization defined time period\] of the release of the updates; and
 d. Incorporate flaw remediation into the organizational configuration management process.
 
 NIST 800-53 r5 SI-2 (5) - FLAW REMEDIATION | AUTOMATIC SOFTWARE AND FIRMWARE UPDATES
-Install [Assignment: organization-defined security-relevant software and firmware updates] automatically to [Assignment: organization-defined system components].
+Install \[Assignment: organization-defined security-relevant software and firmware updates\] automatically to \[Assignment: organization-defined system components\].
 
 CAIQ CCC-03.3 Are there policies and procedures in place to triage and remedy reported bugs and security vulnerabilities for product and service offerings?
 
@@ -2057,7 +2088,7 @@ NIST 800-53 r5 SA-11 (1) - DEVELOPER TESTING AND EVALUATION | STATIC CODE ANALYS
 Require the developer of the system, system component, or system service to employ static code analysis tools to identify common flaws and document the results of the analysis.
 
 NIST 800-53 r5 SA-11 (7) - DEVELOPER TESTING AND EVALUATION | VERIFY SCOPE OF TESTING AND EVALUATION
-Require the developer of the system, system component, or system service to verify that the scope of testing and evaluation provides complete coverage of the required controls at the following level of rigor: [Assignment: organization-defined breadth and depth of testing and evaluation].
+Require the developer of the system, system component, or system service to verify that the scope of testing and evaluation provides complete coverage of the required controls at the following level of rigor: \[Assignment: organization-defined breadth and depth of testing and evaluation\].
 
 FMCSA GDL 2 Follow secure coding best practices.
 
@@ -2085,14 +2116,14 @@ e.g. whitelisting, anti-malware scanning, cryptographic protections
 <<<
 PUB_REFS: >>>
 NIST 800-53 r5 SI-3 – MALICIOUS CODE PROTECTION
-a. Implement [Selection (one or more): signature based; non-signature based] malicious code protection mechanisms at system entry and exit points to detect and eradicate malicious code;
+a. Implement \[Selection (one or more): signature based; non-signature based\] malicious code protection mechanisms at system entry and exit points to detect and eradicate malicious code;
 b. Automatically update malicious code protection mechanisms as new releases are available in accordance with organizational configuration management policy and procedures;
 c. Configure malicious code protection mechanisms to:
 
-  1. Perform periodic scans of the system [Assignment: organization-defined frequency] and real-time scans of files from external sources at [Selection (one or more): endpoint; network entry and exit points] as the files are downloaded, opened, or executed in accordance with organizational policy; and
-  2. [Selection (one or more): block malicious code; quarantine malicious code; take [Assignment: organization-defined action]]; and send alert to [Assignment: organization defined personnel or roles] in response to malicious code detection; and
+> 1. Perform periodic scans of the system \[Assignment: organization-defined frequency\] and real-time scans of files from external sources at \[Selection (one or more): endpoint; network entry and exit points\] as the files are downloaded, opened, or executed in accordance with organizational policy; and
+> 2. \[Selection (one or more): block malicious code; quarantine malicious code; take \[Assignment: organization-defined action\]\]; and send alert to \[Assignment: organization defined personnel or roles\] in response to malicious code detection; and
 
-d. Address the receipt of false positives during malicious code detection and eradication and the resulting potential impact on the availability of the system.
+d\. Address the receipt of false positives during malicious code detection and eradication and the resulting potential impact on the availability of the system.
 
 FMCSA GDL 28 Enable security monitoring of the telematics system(s) using native tools
 <<<
@@ -2113,11 +2144,11 @@ The vendor shall verify code according to best-practice coding standards
 <<<
 PUB_REFS: >>>
 NIST 800-53 r5 SA-15 (7) - DEVELOPMENT PROCESS, STANDARDS, AND TOOLS | AUTOMATED VULNERABILITY ANALYSIS
-Require the developer of the system, system component, or system service [Assignment: organization-defined frequency] to:
-(a) Perform an automated vulnerability analysis using [Assignment: organization-defined tools];
+Require the developer of the system, system component, or system service \[Assignment: organization-defined frequency\] to:
+(a) Perform an automated vulnerability analysis using \[Assignment: organization-defined tools\];
 (b) Determine the exploitation potential for discovered vulnerabilities;
 (c) Determine potential risk mitigations for delivered vulnerabilities; and
-(d) Deliver the outputs of the tools and results of the analysis to [Assignment: organization-defined personnel or roles].
+(d) Deliver the outputs of the tools and results of the analysis to \[Assignment: organization-defined personnel or roles\].
 <<<
 VERIFICATION: >>>
 Inspection of vendor-supplied documentation detailing the software development processes of the vendor.
@@ -2138,9 +2169,9 @@ The vendor shall actively monitor resources such as NIST Common Vulnerabilities 
 <<<
 PUB_REFS: >>>
 NIST 800-53 r5 SI-5 - SECURITY ALERTS, ADVISORIES, AND DIRECTIVES
-a. Receive system security alerts, advisories, and directives from [Assignment: organization defined external organizations] on an ongoing basis;
+a. Receive system security alerts, advisories, and directives from \[Assignment: organization defined external organizations\] on an ongoing basis;
 b. Generate internal security alerts, advisories, and directives as deemed necessary;
-c. Disseminate security alerts, advisories, and directives to: [Selection (one or more): [Assignment: organization-defined personnel or roles]; [Assignment: organization-defined elements within the organization]; [Assignment: organization-defined external organizations]]; and
+c. Disseminate security alerts, advisories, and directives to: \[Selection (one or more): \[Assignment: organization-defined personnel or roles\]; \[Assignment: organization-defined elements within the organization\]; \[Assignment: organization-defined external organizations\]\]; and
 d. Implement security directives in accordance with established time frames, or notify the issuing organization of the degree of noncompliance.
 
 FMCSA GDL 8 Decide early who is in charge of creating, implementing, and maintaining software/firmware updates for a device when a vulnerability emerges, and ensure these guidelines are met.
@@ -2162,9 +2193,9 @@ The vendor shall notify their customers of any vulnerabilities discovered in the
 <<<
 PUB_REFS: >>>
 NIST 800-53 r5 SI-5 - SECURITY ALERTS, ADVISORIES, AND DIRECTIVES
-a. Receive system security alerts, advisories, and directives from [Assignment: organization defined external organizations] on an ongoing basis;
+a. Receive system security alerts, advisories, and directives from \[Assignment: organization defined external organizations\] on an ongoing basis;
 b. Generate internal security alerts, advisories, and directives as deemed necessary;
-c. Disseminate security alerts, advisories, and directives to: [Selection (one or more): [Assignment: organization-defined personnel or roles]; [Assignment: organization-defined elements within the organization]; [Assignment: organization-defined external organizations]]; and
+c. Disseminate security alerts, advisories, and directives to: \[Selection (one or more): \[Assignment: organization-defined personnel or roles\]; \[Assignment: organization-defined elements within the organization\]; \[Assignment: organization-defined external organizations\]\]; and
 d. Implement security directives in accordance with established time frames, or notify the issuing organization of the degree of noncompliance.
 <<<
 VERIFICATION: >>>
@@ -2184,33 +2215,33 @@ Remediation SLA or objectives are defined and are adhered to by the security and
 <<<
 PUB_REFS: >>>
 NIST 800-53 r5 SA-3 - SYSTEM DEVELOPMENT LIFE CYCLE
-a. Acquire, develop, and manage the system using [Assignment: organization-defined system development life cycle] that incorporates information security and privacy considerations;
+a. Acquire, develop, and manage the system using \[Assignment: organization-defined system development life cycle\] that incorporates information security and privacy considerations;
 b. Define and document information security and privacy roles and responsibilities throughout the system development life cycle;
 c. Identify individuals having information security and privacy roles and responsibilities; and
 d. Integrate the organizational information security and privacy risk management process into system development life cycle activities
 
 NIST 800-53 r5 SI-2 (3) - FLAW REMEDIATION | TIME TO REMEDIATE FLAWS AND BENCHMARKS FOR CORRECTIVE ACTIONS
 (a) Measure the time between flaw identification and flaw remediation; and
-(b) Establish the following benchmarks for taking corrective actions: [Assignment: organization-defined benchmarks].
+(b) Establish the following benchmarks for taking corrective actions: \[Assignment: organization-defined benchmarks\].
 
-BSIMM [SM1.4: 101] IDENTIFY GATE LOCATIONS, GATHER NECESSARY ARTIFACTS
+BSIMM \[SM1.4: 101\] IDENTIFY GATE LOCATIONS, GATHER NECESSARY ARTIFACTS
 a. Establish security-specific release gates necessary for go/no-go decisions prior to deployment.
 
-BSIMM [SM2.2: 42] ENFORCE GATES WITH MEASUREMENTS AND TRACK EXCEPTIONS
+BSIMM \[SM2.2: 42\] ENFORCE GATES WITH MEASUREMENTS AND TRACK EXCEPTIONS
 a. Deployment package must meet measured acceptance criteria for remediation or obtain a waiver.
 
-BSIMM [SM2.6: 39] REQUIRE SECURITY SIGN-OFF
+BSIMM \[SM2.6: 39\] REQUIRE SECURITY SIGN-OFF
 a. Risk acceptor signs off on release package.
 
-BSIMM [CP1.3: 66] CREATE POLICY
+BSIMM \[CP1.3: 66\] CREATE POLICY
 a. Create a security policy that satisfies internal, regulatory, and customer-driven security requirements.
 
-SAMM [COMPLIANCE MANAGEMENT MATURITY 3]
+SAMM \[COMPLIANCE MANAGEMENT MATURITY 3\]
 a. Develop a program for measuring and reporting on the status of compliance between different applications
 
-b. Compliance should be periodically assessed by the QA, Internal Audit, or Information Security teams through a combination of manual testing and interview
+b\. Compliance should be periodically assessed by the QA, Internal Audit, or Information Security teams through a combination of manual testing and interview
 
-c. Compliance remediation activities should be periodically reviewed to ensure teams are making appropriate progress, as well as assuring remediation strategies will be effective in achieving compliance.
+c\. Compliance remediation activities should be periodically reviewed to ensure teams are making appropriate progress, as well as assuring remediation strategies will be effective in achieving compliance.
 <<<
 VERIFICATION: >>>
 ·         Inspection of vendor documentation detailing:
@@ -2237,7 +2268,7 @@ COMMENT: >>>
 This is a nice-to-have. Mature solutions that process sensitive information in devices that could be in the hands of attackers are expected to have these protections; however, allowances should be made for products to focus on the necessary security controls first, for which these resiliency requirements are not a substitute
 <<<
 PUB_REFS: >>>
-BSIMM [SE3.2: 13] Use Code Protection
+BSIMM \[SE3.2: 13\] Use Code Protection
 a. To protect intellectual property and make exploit development harder, the organization erects barriers to reverse engineering its software (e.g., anti-tamper, debug protection, anti-piracy features, runtime integrity). This is particularly important for widely distributed mobile applications. For some software, obfuscation techniques could be applied as part of the production build and release process. In other cases, these protections could be applied at the software-defined network or software orchestration layer when applications are being dynamically regenerated post-deployment. On some platforms, employing Data Execution Prevention (DEP), Safe Structured Handling (SafeSEH), and Address Space Layout Randomization (ASLR) can be a good start at making exploit development more difficult.
 
 OWASP MASVS MSTG‑RESILIENCE‑1

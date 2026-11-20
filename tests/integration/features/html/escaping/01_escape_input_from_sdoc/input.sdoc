@@ -1,18 +1,20 @@
 [DOCUMENT]
 TITLE: <b>"escaping"&nbsp;'document title'</b>
+OPTIONS:
+  MARKUP: Markdown
 
 [[SECTION]]
 TITLE: <b>"escaping"&nbsp;'section title'</b>
 
 [TEXT]
 STATEMENT: >>>
-<b>"escaping"&nbsp;'text statement'</b>
+\<b>"escaping"&amp;nbsp;'text statement'\</b>
 <<<
 
 [REQUIREMENT]
 UID: REQ-1
 STATEMENT: >>>
-<b>"escaping"&nbsp;'requirement statement'</b>
+\<b>"escaping"&amp;nbsp;'requirement statement'\</b>
 <<<
 
 [[/SECTION]]

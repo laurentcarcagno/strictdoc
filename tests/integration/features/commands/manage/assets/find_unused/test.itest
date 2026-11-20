@@ -2,7 +2,7 @@
 # @relation(SDOC-LLR-217, scope=file)
 #
 
-RUN: cp %S/input_rst.sdoc %T/
+RUN: cp %S/input_sdoc_markdown.sdoc %T/
 RUN: cp %S/input_html.sdoc %T/
 RUN: cp %S/input_markdown.md %T/
 RUN: cp -r %S/_assets %T/_assets

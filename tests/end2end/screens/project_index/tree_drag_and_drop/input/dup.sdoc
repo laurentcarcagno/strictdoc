@@ -1,7 +1,9 @@
 [DOCUMENT]
 TITLE: Dup
+OPTIONS:
+  MARKUP: Markdown
 
 [TEXT]
 STATEMENT: >>>
-D.
+D\.
 <<<
