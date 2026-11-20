@@ -7,6 +7,7 @@ DATE: @GIT_COMMIT_DATETIME
 PREFIX: SDOC-FEAT-
 OPTIONS:
   ENABLE_MID: True
+  MARKUP: Markdown
   VIEW_STYLE: Narrative
 
 [GRAMMAR]
@@ -140,39 +141,39 @@ TITLE: Inspirations
 MID: 104b6ff4623f4ac9a965aa789c4cf001
 STATEMENT: >>>
 The SDoc markup is a hybrid of TOML and YAML with some influence from HTML/XML
-and `ASN.1 <https://en.wikipedia.org/wiki/ASN.1>`_. Using each of these formats
+and [ASN.1](https://en.wikipedia.org/wiki/ASN.1). Using each of these formats
 as-is, and also the JSON format, was considered but discarded during the design.
 
 **TOML: Square bracket syntax**
 
-From TOML, StrictDoc borrowed the ``[]`` bracket syntax to create the
-``[REQUIREMENT]``, ``[SECTION]`` and other blocks but uses the YAML-like syntax
+From TOML, StrictDoc borrowed the `[]` bracket syntax to create the
+`[REQUIREMENT]`, `[SECTION]` and other blocks but uses the YAML-like syntax
 for these blocks' fields, for example:
 
-.. code-block::
-
-    [REQUIREMENT]
-    TITLE: Requirement ABC
-    STATEMENT: The system A shall do B when C.
+```
+[REQUIREMENT]
+TITLE: Requirement ABC
+STATEMENT: The system A shall do B when C.
+```
 
 **TOML/YAML: Arrays/dictionaries**
 
 StrictDoc has a rudimentary support of arrays and dictionaries. For example, the
-syntax for defining the document's ``[GRAMMAR]`` resembles what would look like
+syntax for defining the document's `[GRAMMAR]` resembles what would look like
 an array of records in YAML:
 
-.. code-block::
-
-    [GRAMMAR]
-    ELEMENTS:
-    - TAG: REQUIREMENT
-      FIELDS:
-      - TITLE: UID
-        TYPE: String
-        REQUIRED: True
-      - TITLE: LEVEL
-        TYPE: String
-        REQUIRED: False
+```
+[GRAMMAR]
+ELEMENTS:
+- TAG: REQUIREMENT
+  FIELDS:
+  - TITLE: UID
+    TYPE: String
+    REQUIRED: True
+  - TITLE: LEVEL
+    TYPE: String
+    REQUIRED: False
+```
 
 **Capitalization of reserved keywords from ASN.1**
 
@@ -186,19 +187,19 @@ From HTML, the idea of opening and closing tags is taken to avoid any nesting
 that would otherwise be required to support the deeply nested documents with up
 to 6 or 8 levels, e.g., 1.1.1.1.1.1.1...
 
-.. code-block::
+```
+[[SECTION]]
+TITLE: Section 1
 
-    [[SECTION]]
-    TITLE: Section 1
+[[SECTION]]
+TITLE: Section 1.1
 
-    [[SECTION]]
-    TITLE: Section 1.1
+...
 
-    ...
+[[/SECTION]]
 
-    [[/SECTION]]
-
-    [[/SECTION]]
+[[/SECTION]]
+```
 
 Taking HTML or XML as-is didn't seem like a good option because of the heavy
 visual noise that is produced around the actual content by the surrounding tags.
@@ -210,14 +211,14 @@ avoid any nesting of multiline text as well as to visually indicate the start
 and end parts of the multiline string in a visually unambiguous way. This is how
 the multiline string is declared:
 
-.. code-block::
-
-    [REQUIREMENT]
-    TITLE: Requirement ABC
-    STATEMENT: >>>
-    The multiline requirement statement
-    without any nesting.
-    >>>
+```
+[REQUIREMENT]
+TITLE: Requirement ABC
+STATEMENT: >>>
+The multiline requirement statement
+without any nesting.
+>>>
+```
 
 **Discarded options**
 
@@ -237,10 +238,7 @@ TITLE: Screenshots
 [TEXT]
 MID: f48ae881c5134f77885202b019e124d4
 STATEMENT: >>>
-.. image:: _assets/Feature_Screenshot_SDoc.png
-   :alt: SDoc markup
-   :class: image
-   :width: 100%
+<img src="_assets/Feature_Screenshot_SDoc.png" alt="SDoc markup" width="100%" />
 <<<
 
 [[/SECTION]]
@@ -285,10 +283,7 @@ TITLE: Screenshots
 [TEXT]
 MID: 586f8745588b483b8e027021d90931ac
 STATEMENT: >>>
-.. image:: _assets/Feature_Screenshot_HTMLExport_01_Index.png
-   :alt: StrictDoc HTML export – Project tree
-   :class: image
-   :width: 100%
+<img src="_assets/Feature_Screenshot_HTMLExport_01_Index.png" alt="StrictDoc HTML export – Project tree" width="100%" />
 <<<
 
 [[/SECTION]]
@@ -333,15 +328,9 @@ TITLE: Screenshots
 [TEXT]
 MID: 28ce32fe182c45ce882b65c835620339
 STATEMENT: >>>
-.. image:: _assets/Feature_Screenshot_WebUI.png
-   :alt: StrictDoc web interface
-   :class: image
-   :width: 100%
+<img src="_assets/Feature_Screenshot_WebUI.png" alt="StrictDoc web interface" width="100%" />
 
-.. image:: _assets/Feature_Screenshot_WebUI_2.png
-   :alt: StrictDoc web interface
-   :class: image
-   :width: 100%
+<img src="_assets/Feature_Screenshot_WebUI_2.png" alt="StrictDoc web interface" width="100%" />
 <<<
 
 [[/SECTION]]
@@ -385,15 +374,9 @@ TITLE: Screenshots
 [TEXT]
 MID: 363aae23cbb44f30aff42ef6a430ffdf
 STATEMENT: >>>
-.. image:: _assets/Feature_Screenshot_TraceabilityToSource_1.png
-   :alt: Traceability to source 1
-   :class: image
-   :width: 100%
+<img src="_assets/Feature_Screenshot_TraceabilityToSource_1.png" alt="Traceability to source 1" width="100%" />
 
-.. image:: _assets/Feature_Screenshot_TraceabilityToSource_2.png
-   :alt: Traceability to source 2
-   :class: image
-   :width: 100%
+<img src="_assets/Feature_Screenshot_TraceabilityToSource_2.png" alt="Traceability to source 2" width="100%" />
 <<<
 
 [[/SECTION]]
@@ -418,9 +401,9 @@ specific project needs, particularly useful for industries with specialized
 requirements documentation, such as automotive or aerospace. This feature
 supports defining custom fields like "PRIORITY," "VERIFICATION," or
 domain-specific tags like "ASIL" for automotive safety standards. Custom
-grammars are declared at the document level using the ``[GRAMMAR]`` directive,
+grammars are declared at the document level using the `[GRAMMAR]` directive,
 enabling users to specify custom fields and their data types, such as
-``String``, ``SingleChoice``, ``MultipleChoice``. These fields can be marked as
+`String`, `SingleChoice`, `MultipleChoice`. These fields can be marked as
 mandatory, ensuring consistency across requirements documents.
 <<<
 DOCUMENTATION: >>>
@@ -436,10 +419,7 @@ TITLE: Screenshots
 [TEXT]
 MID: 3d3d3e2c1c974ed4a2382770225212d7
 STATEMENT: >>>
-.. image:: _assets/Feature_Screenshot_Grammar.png
-   :alt: Document grammar
-   :class: image
-   :width: 75%
+<img src="_assets/Feature_Screenshot_Grammar.png" alt="Document grammar" width="75%" />
 <<<
 
 [[/SECTION]]
@@ -531,7 +511,7 @@ syntax to perform complex queries on the document tree, allowing users to find
 specific sections or requirements based on attributes like titles, parent-child
 relationships, or custom fields. The search screen is integrated into the web
 interface, where users can craft queries with logical operators (e.g., AND, OR)
-and attribute filters (e.g., ``node.is_requirement``).
+and attribute filters (e.g., `node.is_requirement`).
 <<<
 DOCUMENTATION: >>>
 - [LINK: SECTION-UG-Search-and-filtering]
@@ -546,10 +526,7 @@ TITLE: Screenshots
 [TEXT]
 MID: 64afc2abdab847439c0c18420db7ba47
 STATEMENT: >>>
-.. image:: _assets/Feature_Screenshot_SearchScreen_01.png
-   :alt: StrictDoc Search Screen
-   :class: image
-   :width: 100%
+<img src="_assets/Feature_Screenshot_SearchScreen_01.png" alt="StrictDoc Search Screen" width="100%" />
 <<<
 
 [[/SECTION]]
@@ -587,16 +564,9 @@ TITLE: Screenshots
 [TEXT]
 MID: bd5a4763e2ca4df497dbaeeff9ffbd71
 STATEMENT: >>>
-.. image:: _assets/Feature_Screenshot_StatisticsScreen_01.png
-   :alt: Project statistics
-   :class: image
-   :width: 100%
+<img src="_assets/Feature_Screenshot_StatisticsScreen_01.png" alt="Project statistics" width="100%" />
 
-
-.. image:: _assets/Feature_Screenshot_StatisticsScreen_02.png
-   :alt: Project statistics
-   :class: image
-   :width: 100%
+<img src="_assets/Feature_Screenshot_StatisticsScreen_02.png" alt="Project statistics" width="100%" />
 <<<
 
 [[/SECTION]]
@@ -635,15 +605,9 @@ TITLE: Screenshots
 [TEXT]
 MID: 1fad67b63724450bb63738cf7e29d051
 STATEMENT: >>>
-.. image:: _assets/Feature_Screenshot_DiffChangelog_1.png
-   :alt: StrictDoc Diff/Changelog 1
-   :class: image
-   :width: 100%
+<img src="_assets/Feature_Screenshot_DiffChangelog_1.png" alt="StrictDoc Diff/Changelog 1" width="100%" />
 
-.. image:: _assets/Feature_Screenshot_DiffChangelog_2.png
-   :alt: StrictDoc Diff/Changelog 2
-   :class: image
-   :width: 100%
+<img src="_assets/Feature_Screenshot_DiffChangelog_2.png" alt="StrictDoc Diff/Changelog 2" width="100%" />
 <<<
 
 [[/SECTION]]
@@ -712,7 +676,7 @@ template. When a Word document is already under review, the export can instead
 update it and write the differences as Word tracked changes.
 
 The web interface offers the same actions as dialogs, with a preview of the
-report, when the ``DOCX`` feature is activated.
+report, when the `DOCX` feature is activated.
 <<<
 DOCUMENTATION: >>>
 - [LINK: SECTION-UG-Word-support]
@@ -768,10 +732,7 @@ TITLE: Screenshots
 [TEXT]
 MID: 100daefc4121415989324de1978d1f59
 STATEMENT: >>>
-.. image:: _assets/Feature_Screenshot_StrictDocTOML.png
-   :alt: StrictDoc config file (legacy strictdoc.toml format, superseded by strictdoc_config.py)
-   :class: image
-   :width: 100%
+<img src="_assets/Feature_Screenshot_StrictDocTOML.png" alt="StrictDoc config file (legacy strictdoc.toml format, superseded by strictdoc_config.py)" width="100%" />
 <<<
 
 [[/SECTION]]

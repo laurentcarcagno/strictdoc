@@ -7,6 +7,7 @@ DATE: @GIT_COMMIT_DATETIME
 PREFIX: SDOC-SRS-
 OPTIONS:
   ENABLE_MID: True
+  MARKUP: Markdown
   VIEW_STYLE: Narrative
   NODE_IN_TOC: True
 
@@ -96,33 +97,19 @@ MID: bae7db5591fe418a857af4fb02ad4fec
 STATEMENT: >>>
 StrictDoc is based on the following open-source libraries and tools:
 
-.. list-table::
-   :header-rows: 1
-   :widths: 15 85
-
-   * - **Library/tool**
-     - **Description**
-
-   * - TextX
-     - Used for StrictDoc grammar definition and parsing of the sdoc files.
-
-   * - Jinja
-     - Rendering HTML templates.
-
-   * - Sphinx and Docutils
-     - - Support of Restructured Text (reST) format
-       - Generation of RST documents into HTML
-       - Generation of RST documents into PDF using LaTeX
-       - Generating documentation websites using Sphinx.
-
-   * - FastAPI
-     - Server used for StrictDoc's Web-based user interface.
-
-   * - Turbo
-     - Javascript library used for StrictDoc's Web-based user interface.
-
-   * - Selenium and SeleniumBase
-     - Used for end-to-end testing of StrictDoc's Web-based user interface.
+<table>
+<thead>
+<tr><th><strong>Library/tool</strong></th><th><strong>Description</strong></th></tr>
+</thead>
+<tbody>
+<tr><td>TextX</td><td>Used for StrictDoc grammar definition and parsing of the sdoc files.</td></tr>
+<tr><td>Jinja</td><td>Rendering HTML templates.</td></tr>
+<tr><td>Sphinx and Docutils</td><td><ul><li>Support of Restructured Text (reST) format</li><li>Generation of RST documents into HTML</li><li>Generation of RST documents into PDF using LaTeX</li><li>Generating documentation websites using Sphinx.</li></ul></td></tr>
+<tr><td>FastAPI</td><td>Server used for StrictDoc's Web-based user interface.</td></tr>
+<tr><td>Turbo</td><td>Javascript library used for StrictDoc's Web-based user interface.</td></tr>
+<tr><td>Selenium and SeleniumBase</td><td>Used for end-to-end testing of StrictDoc's Web-based user interface.</td></tr>
+</tbody>
+</table>
 <<<
 
 [[/SECTION]]
@@ -137,10 +124,7 @@ MID: dcb6369b8d0949f0b06c9ee5b2188b12
 STATEMENT: >>>
 The following diagram captures the high-level architecture of StrictDoc.
 
-.. image:: _assets/StrictDoc_Workspace-Architecture.drawio.png
-   :alt: StrictDoc's architecture diagram
-   :class: image
-   :width: 100%
+<img src="_assets/StrictDoc_Workspace-Architecture.drawio.png" alt="StrictDoc&#x27;s architecture diagram" width="100%" />
 <<<
 
 [[/SECTION]]
@@ -195,7 +179,7 @@ TITLE: The HTML Over the Wire (Hotwire) architecture
 [TEXT]
 MID: 5577da2187294eb986ec84d9fe26bbdf
 STATEMENT: >>>
-StrictDoc uses the `Hotwire architecture <https://hotwired.dev>`_.
+StrictDoc uses the [Hotwire architecture](https://hotwired.dev).
 
 The JavaScript framework used by StrictDoc is minimized to Turbo.js, which
 helps to avoid the complexity of the larger JS frameworks such as React, Vue,
@@ -259,22 +243,24 @@ The following requirements are relevant in the StrictDoc context:
 Several existing solutions, such as Lunr and FlexSearch, were considered, but
 none were found to support all of the above features.
 
-.. note::
+<div class="sdoc-admonition sdoc-note" role="note">
+<p class="sdoc-admonition-title">Note</p>
 
-    **Incremental/decremental** search means that a search index maintains the following additional terms for a word "foo" found in a document node with MID "abc":
+**Incremental/decremental** search means that a search index maintains the following additional terms for a word "foo" found in a document node with MID "abc":
 
-    - "foo" => "abc"
-    - "f" => "abc"
-    - "fo" => "abc"
-    - "o" => "abc"
-    - "oo" => "abc"
+- "foo" => "abc"
+- "f" => "abc"
+- "fo" => "abc"
+- "o" => "abc"
+- "oo" => "abc"
+
+</div>
 
 The current implementation builds per-document indexes immediately after parsing
 the SDoc documents from .sdoc files. The generated index is cached along with
 the overall document content, significantly speeding up tree generation once the
 document caches are available. StrictDoc generates a JSON file containing a
-search index ``{ search term => node MID }`` as well as a map ``{ MID => SDoc
-node }``.
+search index `{ search term => node MID }` as well as a map `{ MID => SDoc node }`.
 
 The corresponding JS file has access to the pre-built search indexes generated
 by Python. The JavaScript algorithms are simple but enable basic search
@@ -300,10 +286,10 @@ TITLE: Parsing SDoc files
 [TEXT]
 MID: 8a926f0a67424a1eb5db73bb5abca0cd
 STATEMENT: >>>
-StrictDoc uses `textX <https://github.com/textX/textX>`_  which is a
-``meta-language for building Domain-Specific Languages (DSLs) in Python``. The
-textX itself is based on `Arpeggio <https://github.com/textX/Arpeggio>`_ which
-is a ``Parser interpreter based on PEG grammars written in Python``.
+StrictDoc uses [textX](https://github.com/textX/textX)  which is a
+`meta-language for building Domain-Specific Languages (DSLs) in Python`. The
+textX itself is based on [Arpeggio](https://github.com/textX/Arpeggio) which
+is a `Parser interpreter based on PEG grammars written in Python`.
 
 StrictDoc relies on both tools to get:
 
@@ -357,33 +343,25 @@ TITLE: HTML escaping
 [TEXT]
 MID: e8a03713c7f644698d9a72cc79b2a299
 STATEMENT: >>>
-StrictDoc uses Jinja2 autoescaping_ for HTML output. `Template.render`_ calls
+StrictDoc uses Jinja2 [autoescaping](https://jinja.palletsprojects.com/en/latest/api/#autoescaping) for HTML output. [Template.render](https://jinja.palletsprojects.com/en/latest/api/#jinja2.Template.render) calls
 will escape any Python object unless it's explicitly marked as safe.
 
 Good to know for a start:
 
 - If a Python object intentionally contains HTML it must be marked as safe
-  to bypass autoescaping. Templates can do this by piping to safe_, or Python code
-  can do it by wrapping an object into `markupsafe.Markup`_.
-- Passing text to the `Markup() <markupsafe.Markup_>`_ constructor marks that text
+  to bypass autoescaping. Templates can do this by piping to [safe](https://jinja.palletsprojects.com/en/latest/templates/#jinja-filters.safe), or Python code
+  can do it by wrapping an object into [markupsafe.Markup](https://markupsafe.palletsprojects.com/en/latest/escaping/#markupsafe.Markup).
+- Passing text to the [Markup()](https://markupsafe.palletsprojects.com/en/latest/escaping/#markupsafe.Markup) constructor marks that text
   as safe, but *does not escape* it.
-- Text can be explicitly escaped with `markupsafe.escape`_. It's similar to
-  `html.escape`_, but the result is immediately marked safe.
-- `markupsafe.Markup`_ is responsible for some "magic". It's a :code:`str` subclass
+- Text can be explicitly escaped with [markupsafe.escape](https://markupsafe.palletsprojects.com/en/latest/escaping/#markupsafe.escape). It's similar to
+  [html.escape](https://docs.python.org/3/library/html.html#html.escape), but the result is immediately marked safe.
+- [markupsafe.Markup](https://markupsafe.palletsprojects.com/en/latest/escaping/#markupsafe.Markup) is responsible for some "magic". It's a `str` subclass
   with the same methods, but escaping arguments. For example,
-  :code:`"> " + Markup("<div>safe</div>")` will turn into :code:`"&gt; <div>safe</div>"`,
-  thanks to :code:`__radd__` in this specific case. To prevent escaping,
-  you would use :code:`Markup("> ") + Markup("<div>safe</div>")`. Basically the
-  same magic happens in templates when using safe_.
-- See also `Working with Automatic Escaping`_.
-
-.. _autoescaping: https://jinja.palletsprojects.com/en/latest/api/#autoescaping
-.. _Working with Automatic Escaping: https://jinja.palletsprojects.com/en/latest/templates/#working-with-automatic-escaping
-.. _markupsafe.Markup: https://markupsafe.palletsprojects.com/en/latest/escaping/#markupsafe.Markup
-.. _markupsafe.escape: https://markupsafe.palletsprojects.com/en/latest/escaping/#markupsafe.escape
-.. _safe: https://jinja.palletsprojects.com/en/latest/templates/#jinja-filters.safe
-.. _Template.render: https://jinja.palletsprojects.com/en/latest/api/#jinja2.Template.render
-.. _html.escape: https://docs.python.org/3/library/html.html#html.escape
+  `"> " + Markup("<div>safe</div>")` will turn into `"&gt; <div>safe</div>"`,
+  thanks to `__radd__` in this specific case. To prevent escaping,
+  you would use `Markup("> ") + Markup("<div>safe</div>")`. Basically the
+  same magic happens in templates when using [safe](https://jinja.palletsprojects.com/en/latest/templates/#jinja-filters.safe).
+- See also [Working with Automatic Escaping](https://jinja.palletsprojects.com/en/latest/templates/#working-with-automatic-escaping).
 <<<
 
 [[/SECTION]]
@@ -402,21 +380,18 @@ converter.
 
 The table below shows how ReqIF elements are mapped to SDoc elements:
 
-.. list-table:: **Table: Mapping between ReqIF elements and SDoc elements**
-    :widths: 50 50
-    :header-rows: 1
+****Table: Mapping between ReqIF elements and SDoc elements****
 
-    * - ReqIF Element
-      - SDoc Element
-
-    * - Specification
-      - Document
-
-    * - Spec Object Type
-      - Grammar Element
-
-    * - Spec Object
-      - Node
+<table>
+<thead>
+<tr><th>ReqIF Element</th><th>SDoc Element</th></tr>
+</thead>
+<tbody>
+<tr><td>Specification</td><td>Document</td></tr>
+<tr><td>Spec Object Type</td><td>Grammar Element</td></tr>
+<tr><td>Spec Object</td><td>Node</td></tr>
+</tbody>
+</table>
 
 Before converting ReqIF elements to SDoc elements, StrictDoc first traverses the
 entire XML file. This is necessary because a single ReqIF file may contain
@@ -433,8 +408,8 @@ that specification will be included in the corresponding SDoc document.
 If ReqIF Specification “A” uses Spec Object Type “X”, and Specification “B” uses
 Spec Relation Type “Y”, the resulting SDoc documents will be:
 
-* SDoc document “A” with a grammar element for type “X”
-* SDoc document “B” with a grammar element for type “Y”
+- SDoc document “A” with a grammar element for type “X”
+- SDoc document “B” with a grammar element for type “Y”
 <<<
 
 [[/SECTION]]

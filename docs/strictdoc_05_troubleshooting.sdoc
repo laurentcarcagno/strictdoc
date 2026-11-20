@@ -6,6 +6,7 @@ VERSION: Git commit: @GIT_VERSION, Git branch: @GIT_BRANCH
 DATE: @GIT_COMMIT_DATETIME
 OPTIONS:
   ENABLE_MID: True
+  MARKUP: Markdown
   VIEW_STYLE: Narrative
 
 [GRAMMAR]
@@ -49,12 +50,15 @@ TITLE: Caching issues
 [TEXT]
 MID: 9a32ac13510d401cbc1a608259652c78
 STATEMENT: >>>
-.. note::
+<div class="sdoc-admonition sdoc-note" role="note">
+<p class="sdoc-admonition-title">Note</p>
 
-    **TL;DR:** If you encounter errors related to reading data, make sure to delete the StrictDoc cache folder located at ``output/_cache`` or in the custom directory if specified by the ``cache_dir`` option in the ``strictdoc_config.py`` configuration file. See [LINK: SECTION-UG-Path-to-cache-dir].
+**TL;DR:** If you encounter errors related to reading data, make sure to delete the StrictDoc cache folder located at `output/_cache` or in the custom directory if specified by the `cache_dir` option in the `strictdoc_config.py` configuration file. See [LINK: SECTION-UG-Path-to-cache-dir].
+
+</div>
 
 StrictDoc caches many artifacts on disk. Some artifacts are cached using
-Python’s `pickle <https://docs.python.org/3/library/pickle.html>`_ module, while
+Python’s [pickle](https://docs.python.org/3/library/pickle.html) module, while
 others are written directly to disk.
 
 The pickle module serializes Python objects to disk. The issue with this

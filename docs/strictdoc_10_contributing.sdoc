@@ -5,6 +5,7 @@ VERSION: Git commit: @GIT_VERSION, Git branch: @GIT_BRANCH
 DATE: @GIT_COMMIT_DATETIME
 OPTIONS:
   ENABLE_MID: True
+  MARKUP: Markdown
 
 [GRAMMAR]
 ELEMENTS:
@@ -57,7 +58,7 @@ STATEMENT: >>>
 Before opening your Pull Request, the contributor is encouraged to do the
 following steps:
 
-1. Run ``invoke check`` tasks locally. This task calls several lint and test
+1. Run `invoke check` tasks locally. This task calls several lint and test
    scripts and it is the very task that is run by the GitHub CI process.
 2. A contribution that contains changes to the StrictDoc's codebase shall also
    include tests that exercise the changed behavior. A contribution without any
@@ -89,7 +90,7 @@ several things you could do besides contributing Pull Requests:
 
 - Star the StrictDoc repository to show your appreciation of the project.
 - Write a blog post or a tutorial about using StrictDoc to achieve some goal.
-- Write an email to strictdoc.project@gmail.com and tell us how
+- Write an email to <strictdoc.project@gmail.com> and tell us how
   you are using StrictDoc and which features you are missing. We somewhat lack
   enough feedback from our users.
 <<<
@@ -111,8 +112,8 @@ specific case.
 
 It is straightforward to create an anonymized version of a ReqIF file. Just
 reduce your file to the section that causes troubles in import or export and
-replace all your business-specific titles/texts to some ``Lorem ipsum...``
-boilerplate, see https://www.loremipsum.de/.
+replace all your business-specific titles/texts to some `Lorem ipsum...`
+boilerplate, see <https://www.loremipsum.de/>.
 <<<
 
 [[/SECTION]]

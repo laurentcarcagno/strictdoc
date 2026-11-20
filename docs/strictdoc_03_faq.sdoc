@@ -6,6 +6,7 @@ VERSION: Git commit: @GIT_VERSION, Git branch: @GIT_BRANCH
 DATE: @GIT_COMMIT_DATETIME
 OPTIONS:
   ENABLE_MID: True
+  MARKUP: Markdown
   VIEW_STYLE: Inline
   NODE_IN_TOC: True
 
@@ -63,7 +64,7 @@ Source community.
 The project exists since mid-2019.
 
 For a quick overview of the project, check out the
-`StrictDoc project <https://github.com/strictdoc-project/strictdoc/blob/main/about/StrictDoc.pdf>`_
+[StrictDoc project](https://github.com/strictdoc-project/strictdoc/blob/main/about/StrictDoc.pdf)
 slide deck.
 <<<
 
@@ -81,32 +82,31 @@ TITLE: Presentations
 MID: 52342105083e4f80884959d4ca7f4dba
 STATEMENT: >>>
 1\)
-`StrictDoc project <https://github.com/strictdoc-project/strictdoc/blob/main/about/StrictDoc.pdf>`_
+[StrictDoc project](https://github.com/strictdoc-project/strictdoc/blob/main/about/StrictDoc.pdf)
 
 This slide deck provides a concise overview of the project, including its goals,
 real-world case studies, the motivation behind its creation, implementation
 details, and the development roadmap.
 
 2\)
-`WHAT-WHY-HOW. A practical model for understanding software requirements <https://github.com/strictdoc-project/strictdoc/blob/main/about/2026_WHAT_WHY_HOW_model.pdf>`_
+[WHAT-WHY-HOW. A practical model for understanding software requirements](https://github.com/strictdoc-project/strictdoc/blob/main/about/2026_WHAT_WHY_HOW_model.pdf)
 
 Training material from a small introductory course on requirements and systems
 engineering, presented as an
-`ELISA webinar <https://elisa.tech/category/seminar-series/>`_. This webinar
+[ELISA webinar](https://elisa.tech/category/seminar-series/). This webinar
 serves as an introduction to the actual requirements engineering training.
 
 Link to the video recording:
-`WHAT-WHY-HOW: A practical model for understanding software requirements | ELISA Seminar
-<https://youtu.be/tLwLxkhWl90?si=JWOTACOTOUi6L9Nr>`_.
+[WHAT-WHY-HOW: A practical model for understanding software requirements | ELISA Seminar](https://youtu.be/tLwLxkhWl90?si=JWOTACOTOUi6L9Nr).
 
 3\)
-`Achieving end-to-end traceability in software projects using open source tools (2025) <https://github.com/strictdoc-project/strictdoc/blob/main/about/2025_ESA_SW_Product_Assurance_Workshop.pdf>`_
+[Achieving end-to-end traceability in software projects using open source tools (2025)](https://github.com/strictdoc-project/strictdoc/blob/main/about/2025_ESA_SW_Product_Assurance_Workshop.pdf)
 
 This is a short presentation about StrictDoc, delivered at the ESA Software
 Product Assurance Workshop 2025.
 
-4\) `Exploring possibilities for integrating StrictDoc and ELISA’s requirements
-template approach for the Linux kernel' <https://lpc.events/event/19/contributions/2198/attachments/1884/4056/Linux%20Requirements%20with%20StrictDoc.pdf>`_
+4\) [Exploring possibilities for integrating StrictDoc and ELISA’s requirements
+template approach for the Linux kernel'](https://lpc.events/event/19/contributions/2198/attachments/1884/4056/Linux%20Requirements%20with%20StrictDoc.pdf)
 
 The talk argues that ELISA's Linux kernel safety documentation model and
 StrictDoc's requirements tooling are largely compatible and could be unified,
@@ -114,7 +114,7 @@ with StrictDoc filling remaining gaps like drift detection and ELISA adopting it
 as a reference tool.
 
 5\)
-`Integrating StrictDoc with ELISA's Linux kernel requirements approach - ELISA Project Workshop 2025 <https://www.youtube.com/watch?v=f5v6q3OFv88>`_
+[Integrating StrictDoc with ELISA's Linux kernel requirements approach - ELISA Project Workshop 2025](https://www.youtube.com/watch?v=f5v6q3OFv88)
 
 The talk introduces the StrictDoc project, demonstrates a traceability use case
 at Linutronix, and provides a hands-on showcase of how StrictDoc could support
@@ -124,7 +124,7 @@ the kernel ecosystem, with an emphasis on improving traceability, documentation
 quality, and alignment with ELISA's requirements template approach.
 
 6\)
-`Application of the SPDX Safety Profile in the Safety Scope of the Zephyr Project (2024) <https://ftp.fau.de/fosdem/2024/k4401/fosdem-2024-3211-application-of-the-spdx-safety-profile-in-the-safety-scope-of-the-zephyr-project.mp4>`_
+[Application of the SPDX Safety Profile in the Safety Scope of the Zephyr Project (2024)](https://ftp.fau.de/fosdem/2024/k4401/fosdem-2024-3211-application-of-the-spdx-safety-profile-in-the-safety-scope-of-the-zephyr-project.mp4)
 
 This presentation introduces the SPDX Safety Profile and details its application
 within the context of the Zephyr Project. There is also a presentation of the
@@ -142,7 +142,7 @@ TITLE: Blog posts
 MID: b2f5aea77e504ee1b64a67be24bd3c58
 STATEMENT: >>>
 1\)
-`From Code to Compliance – Part1: IEC 62443 Certification with Industrial Grade Linux Operating System <https://www.linutronix.de/blog/From-Code-to-Compliance-Part1-IEC-62443-Certification-with>`_
+[From Code to Compliance – Part1: IEC 62443 Certification with Industrial Grade Linux Operating System](https://www.linutronix.de/blog/From-Code-to-Compliance-Part1-IEC-62443-Certification-with)
 by Linutronix.
 
 The blog post outlines how Linutronix achieved security certification for
@@ -150,7 +150,7 @@ Linux-based industrial software, with StrictDoc serving as an important building
 block in their development workflow.
 
 2\)
-`Requirement Traceability with All Substance and No Fuss <https://www.bugseng.com/requirement-traceability-with-all-substance-and-no-fuss/>`_
+[Requirement Traceability with All Substance and No Fuss](https://www.bugseng.com/requirement-traceability-with-all-substance-and-no-fuss/)
 by BUGSENG.
 <<<
 
@@ -163,7 +163,7 @@ TITLE: Screencasts / tutorials
 [TEXT]
 MID: 9d23e77aa7f848cb8efca49f5cf41f77
 STATEMENT: >>>
-`Automotive SPICE in opensource StrictDoc tool, with System Architecure ideas <https://www.youtube.com/watch?v=k2MCFWvCs7E>`_
+[Automotive SPICE in opensource StrictDoc tool, with System Architecure ideas](https://www.youtube.com/watch?v=k2MCFWvCs7E)
 by Lukasz Juranek.
 <<<
 
@@ -179,7 +179,7 @@ TITLE: Which web server is recommended for StrictDoc documentation?
 MID: 966a5c3babf84fc7a1454b2799d13470
 STATEMENT: >>>
 This question can be answered in two ways. First of all, StrictDoc has its own
-web server that can be run with ``strictdoc server ...``. Refer to the User
+web server that can be run with `strictdoc server ...`. Refer to the User
 Guide for further information.
 
 The following suggestions assume that you are looking to using a web server to
@@ -187,18 +187,18 @@ host the StrictDoc's static HTML export, without using StrictDoc's own web
 server.
 
 Is your project public or private? If it is public, you could simply use
-`GitHub pages <https://pages.github.com>`_. See how one user of StrictDoc is
+[GitHub pages](https://pages.github.com). See how one user of StrictDoc is
 doing it here:
-`nmfta-repo/vcr-experiment <https://github.com/nmfta-repo/vcr-experiment>`_ and
+[nmfta-repo/vcr-experiment](https://github.com/nmfta-repo/vcr-experiment) and
 the resulting static website:
-`nmfta-repo.github.io/vcr-experiment <https://nmfta-repo.github.io/vcr-experiment>`_.
+[nmfta-repo.github.io/vcr-experiment](https://nmfta-repo.github.io/vcr-experiment).
 
 A very good alternative to GitHub pages is
-`Read the Docs <https://readthedocs.org>`_.
+[Read the Docs](https://readthedocs.org).
 
 If the project is private, you could use any server that reads HTML files from a
 folder. For example, Python has an embedded Web Server, see
-`this for example <https://pythonbasics.org/webserver>`_. Also you could try any
+[this for example](https://pythonbasics.org/webserver). Also you could try any
 web server based on Node.JS.
 <<<
 
@@ -220,12 +220,12 @@ StrictDoc no longer exports SDoc content to RST, so it no longer feeds a Sphinx
 documentation tree.
 
 There is a GitHub issue
-`Unexpected restriction on specific RST directives / compatibility with Breathe Sphinx Plugin #1093 <https://github.com/strictdoc-project/strictdoc/issues/1093>`_
+[Unexpected restriction on specific RST directives / compatibility with Breathe Sphinx Plugin #1093](https://github.com/strictdoc-project/strictdoc/issues/1093)
 where a closer bridging between StrictDoc and Sphinx was discussed with no
 specific and actionable outcome. This comment is
-`especially relevant <https://github.com/strictdoc-project/strictdoc/issues/1093#issuecomment-1505108384>`_
+[especially relevant](https://github.com/strictdoc-project/strictdoc/issues/1093#issuecomment-1505108384)
 as well as the one about a
-`possible implementation <https://github.com/strictdoc-project/strictdoc/issues/1093#issuecomment-1545599711>`_.
+[possible implementation](https://github.com/strictdoc-project/strictdoc/issues/1093#issuecomment-1545599711).
 <<<
 
 [[/SECTION]]
@@ -262,13 +262,13 @@ TITLE: Doorstop
 MID: d0c305180d8747a1b70254eaf2c4f201
 STATEMENT: >>>
 The StrictDoc project is a close successor of another project called
-`Doorstop <https://github.com/doorstop-dev/doorstop>`_.
+[Doorstop](https://github.com/doorstop-dev/doorstop).
 
-    Doorstop is a requirements management tool that facilitates the storage of
-    textual requirements alongside source code in version control.
+> Doorstop is a requirements management tool that facilitates the storage of
+> textual requirements alongside source code in version control.
 
 The author of Doorstop has published a
-`paper about Doorstop <http://www.scirp.org/journal/PaperInformation.aspx?PaperID=44268#.UzYtfWRdXEZ>`_
+[paper about Doorstop](http://www.scirp.org/journal/PaperInformation.aspx?PaperID=44268#.UzYtfWRdXEZ)
 where the rationale behind text-based requirements management is provided.
 
 The first version of StrictDoc had started as a fork of the Doorstop project.
@@ -286,20 +286,20 @@ StrictDoc still shares with Doorstop their common underlying design principles:
 StrictDoc differs from Doorstop in a number of aspects:
 
 - Doorstop stores requirements in YAML files, one separate file per requirement
-  (`example <https://github.com/doorstop-dev/doorstop/blob/804153c67c7c5466ee94e9553118cc3df03a56f9/reqs/REQ001.yml>`_).
+  ([example](https://github.com/doorstop-dev/doorstop/blob/804153c67c7c5466ee94e9553118cc3df03a56f9/reqs/REQ001.yml)).
   The document in Doorstop is assembled from the requirements files into a
   single logical document during the document generation process.
   StrictDoc's documentation unit is one document stored in an .sdoc file. Such a
   document can have multiple requirements grouped by sections.
 - In YAML files, Doorstop stores requirements properties such as
-  ``normative: true`` or ``level: 2.3`` for which Doorstop provides validations.
+  `normative: true` or `level: 2.3` for which Doorstop provides validations.
   Such a design decision, in fact, assumes an existence of implicitly-defined
   grammar which is encoded "ad-hoc" in the parsing and validation rules of
   Doorstop.
   StrictDoc takes a different approach and defines its grammar explicitly using
-  a tool for creating Domain-Specific Languages called `textX <https://github.com/textX/textX>`_.
+  a tool for creating Domain-Specific Languages called [textX](https://github.com/textX/textX).
   TextX support allows StrictDoc to encode a strict type-safe grammar in a
-  `single grammar file <https://github.com/strictdoc-project/strictdoc/blob/93486a0e9fb30b141187587eae9e995cd86c6cbf/strictdoc/backend/dsl/grammar.py>`_
+  [single grammar file](https://github.com/strictdoc-project/strictdoc/blob/93486a0e9fb30b141187587eae9e995cd86c6cbf/strictdoc/backend/dsl/grammar.py)
   that StrictDoc uses to parse the documentation files
   using the parsing capabilities provided by textX out of the box.
 
@@ -322,7 +322,7 @@ specifications documents. StrictDoc can generate documentation to a number of
 formats including HTML and Markdown.
 
 This documentation itself (the website you may currently be reading at
-https://strictdoc.readthedocs.io) is generated directly by StrictDoc's HTML
+<https://strictdoc.readthedocs.io>) is generated directly by StrictDoc's HTML
 and PDF (HTML2PDF) exports, without going through RST or Sphinx.
 <<<
 
@@ -336,7 +336,7 @@ TITLE: Other tools
 MID: ad24dca8ed9c449ab76c1798f38eb37c
 STATEMENT: >>>
 See also this GitHub gist for an overview of more tools available on GitHub:
-https://gist.github.com/stanislaw/aa40eb7de9f522ad482e5d239c435ff8.
+<https://gist.github.com/stanislaw/aa40eb7de9f522ad482e5d239c435ff8>.
 <<<
 
 [[/SECTION]]
@@ -350,15 +350,18 @@ TITLE: How long has the StrictDoc project been around?
 [TEXT]
 MID: 47d60404cf574aebb8c83795589c4137
 STATEMENT: >>>
-.. note::
+<div class="sdoc-admonition sdoc-note" role="note">
+<p class="sdoc-admonition-title">Note</p>
 
-    The complete list of the project milestones is maintained in the Development Plan: [LINK: SECTION-DP-Project-milestones].
+The complete list of the project milestones is maintained in the Development Plan: [LINK: SECTION-DP-Project-milestones].
+
+</div>
 
 Below is a brief chronology of the early development of StrictDoc.
 
-----
+---
 
-The first StrictDoc commit dates back to ``2019-08-10``.
+The first StrictDoc commit dates back to `2019-08-10`.
 
 **2019 – July – August**
 
@@ -369,7 +372,7 @@ as a separate project.
 
 **2019 – August**
 
-StrictDoc, first generation, the first commit dates to ``2019-08-10``.
+StrictDoc, first generation, the first commit dates to `2019-08-10`.
 Markdown-based C++ program. Custom requirements metadata in YAML.
 
 **2020 – January**
@@ -380,7 +383,7 @@ extensions to manage meta information.
 **2020 – May**
 
 The current StrictDoc repository was created on GitHub: the first commit dates
-back ``2020-05-14``. The code still uses RST for parsing requirements meta
+back `2020-05-14`. The code still uses RST for parsing requirements meta
 information and PySide for GUI.
 
 The result of these efforts was the realization that a text-based requirements
@@ -406,14 +409,11 @@ MID: 730bfedff6b24c34a6d6331051fd76d3
 STATEMENT: >>>
 Most relevant GitHub statistics:
 
-- `StrictDoc contributors <https://github.com/strictdoc-project/strictdoc/graphs/contributors>`_
-
-- The `pip trends <https://piptrends.com>`_ helps to visualize the Pip package
+- [StrictDoc contributors](https://github.com/strictdoc-project/strictdoc/graphs/contributors)
+- The [pip trends](https://piptrends.com) helps to visualize the Pip package
   download stats.
-
-  - The ``reqif`` satellite project is included for comparison as well: `strictdoc vs reqif <https://piptrends.com/compare/strictdoc-vs-reqif>`_.
-
-- `Known StrictDoc issues <https://github.com/strictdoc-project/strictdoc/issues?q=is%3Aissue%20state%3Aopen%20type%3ABug>`_
+  - The `reqif` satellite project is included for comparison as well: [strictdoc vs reqif](https://piptrends.com/compare/strictdoc-vs-reqif).
+- [Known StrictDoc issues](https://github.com/strictdoc-project/strictdoc/issues?q=is%3Aissue%20state%3Aopen%20type%3ABug)
 <<<
 
 [[/SECTION]]

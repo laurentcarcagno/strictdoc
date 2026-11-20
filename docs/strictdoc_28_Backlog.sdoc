@@ -7,6 +7,7 @@ DATE: @GIT_COMMIT_DATETIME
 PREFIX: SDOC-BACKLOG-
 OPTIONS:
   ENABLE_MID: True
+  MARKUP: Markdown
 
 [GRAMMAR]
 ELEMENTS:
@@ -76,7 +77,7 @@ The following items are listed in descending order of priority, with the topmost
 items either currently in progress or scheduled to be implemented next.
 
 While this backlog overlaps with StrictDoc's
-`GitHub issues tracker <https://github.com/strictdoc-project/strictdoc/issues>`_
+[GitHub issues tracker](https://github.com/strictdoc-project/strictdoc/issues)
 by more than 50%, it includes more strategic items compared to the GitHub
 issues, which are primarily focused on actual implementation work.
 <<<
@@ -160,7 +161,7 @@ The Requirements Tool shall provide integration with Capella MBSE tool.
 <<<
 RATIONALE: >>>
 Eclipse Capella is a capable open-source tool for Model-Based Systems
-Engineering, https://www.eclipse.org/capella/. It should be beneficial for the
+Engineering, <https://www.eclipse.org/capella/>. It should be beneficial for the
 requirements tool to interface with the Capella engineering community.
 <<<
 COMMENT: >>>
@@ -431,27 +432,19 @@ TITLE: Backlog: Web-based user interface
 MID: d10cddd846de4961bbb0bc8b8c6550d3
 STATEMENT: >>>
 - Uploading images via Web interface.
-
 - Editing remaining document options: Inline/Table, Requirements in TOC, etc.
-
 - **Integration with Git repository.** Make the server commit changes to .sdoc
   files automatically. To a user, provide visibility to what happens under the
   hood.
-
 - TBL view: Column filters to show/hide columns.
-
 - TBL view: Completely empty columns are hidden by default.
-
 - Contextual help about the RST markup.
 - How to edit tables conveniently?
-
 - What to do with web content going out of sync with the server/file system
   state?
-
 - Issue when adding a child section from a nested section. The child section
   appears right after the nested section, not after its farthest descendant
   child.
-
 - ReqIF: Export complete documentation tree or a single document.
 - ReqIF: Import complete documentation tree or a single document.
 <<<
@@ -467,38 +460,27 @@ TITLE: Backlog: Nice to have
 MID: d02e104a518c4627ac918a33ad165c96
 STATEMENT: >>>
 - Configuration file options:
-
   - CLI command to dump default config file
   - Project prefix?
-
 - **StrictDoc as a Python library**. Such a use allows a more fine-grained
   access to the StrictDoc's modules, such as Grammar, Import, Export classes,
   etc.
-
 - **Data exchange with Capella tool.** The current idea would be to implement
   this using ReqIF export/import features.
-
 - **Language Server Protocol.** The LSP can enable editing of SDoc files in IDEs
   like Eclipse, Visual Studio, PyCharm. A smart LSP can enable features like
   syntax highlighting, autocompletion and easy navigation through requirements.
   The promising base for the implementation:
-  https://github.com/openlawlibrary/pygls.
-
+  <https://github.com/openlawlibrary/pygls>.
 - Support creation of FMEA/FMECA safety analysis documents.
-
 - Calculation of checksums for requirements. This feature is relatively easy to
   implement, but the implementation is postponed until the linking between
   requirements and files is implemented.
-
 - Filtering of requirements by tags.
-
 - Import/export: Confluence, Tex, Doorstop.
-
 - **Partial evaluation of Jinja templates.** Many of the template variables
   could be made to be evaluated once, for example, config object's variables.
-
 - UI version for mobile devices (at least some basic tweaks).
-
 - Similar to the possibility of creating a child requirement to a section, one
   could provide a button for each of the relations defined in the grammar which
   would allow to quickly build a tree structure.
@@ -521,17 +503,17 @@ STATEMENT: >>>
   the cached data for making decisions about what should be regenerated.
 - The "no framework" approach with FastAPI and Turbo/Stimulus allows writing
   almost zero Javascript, however some proto-framework conventions are still
-  needed. Currently, all code is written in the ``main_controller`` which
+  needed. Currently, all code is written in the `main_controller` which
   combines all responsibilities, such as parsing HTTP request fields, accessing
   traceability graph, validations, rendering back the updated AJAX templates. A
   lack of abstraction is better than a poor abstraction, but some solution has
   to be found.
 - Request form object vs Response form object. The workflow of form validations
   is not optimal.
-- For Web development, the responsibilities of the ``TraceabilityIndex`` class
-  compared to the ``ExportAction``, ``MarkupRenderer``, ``LinkRenderer`` classes
+- For Web development, the responsibilities of the `TraceabilityIndex` class
+  compared to the `ExportAction`, `MarkupRenderer`, `LinkRenderer` classes
   are unstable. A more ecological composition of classes has to be found.
-  ``Traceability`` index is rightfully a "god object" because it contains all
+  `Traceability` index is rightfully a "god object" because it contains all
   information about the in-memory documentation graph.
 <<<
 
@@ -552,18 +534,17 @@ MID: b778a18ede89464c936be2b2af492e24
 STATEMENT: >>>
 StrictDoc supports this for HTML already but not for RST.
 
-When passed ``strictdoc export ... /path/to/doctree1, /path/to/doctree2,
-/path/to/doctree3``, the following is generated:
+When passed `strictdoc export ... /path/to/doctree1, /path/to/doctree2, /path/to/doctree3`, the following is generated:
 
-.. code-block:: text
-
-    output folder:
-    - doctree1/
-      - contents
-    - doctree2/
-      - contents
-    - doctree3/
-      - contents
+```text
+output folder:
+- doctree1/
+  - contents
+- doctree2/
+  - contents
+- doctree3/
+  - contents
+```
 
 and all three doctrees' requirements are merged into a single documentation
 space with cross-linking possible.

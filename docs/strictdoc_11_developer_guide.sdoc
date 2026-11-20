@@ -5,6 +5,7 @@ VERSION: Git commit: @GIT_VERSION, Git branch: @GIT_BRANCH
 DATE: @GIT_COMMIT_DATETIME
 OPTIONS:
   ENABLE_MID: True
+  MARKUP: Markdown
 
 [GRAMMAR]
 ELEMENTS:
@@ -70,20 +71,20 @@ STATEMENT: >>>
 StrictDoc itself mostly depends on other Python Pip packages, so there is
 nothing special to be installed.
 
-You may need to install ``libtidy`` if you want to run the integration tests.
+You may need to install `libtidy` if you want to run the integration tests.
 The HTML markup validation tests depend on libtidy.
 
 On Linux Ubuntu:
 
-.. code:: bash
-
-    sudo apt install tidy
+```bash
+sudo apt install tidy
+```
 
 From the core Python packages, StrictDoc needs Invoke, uv and TOML:
 
-.. code:: bash
-
-    pip install invoke uv toml
+```bash
+pip install invoke uv toml
+```
 <<<
 
 [[SECTION]]
@@ -93,11 +94,11 @@ TITLE: Windows-specific: Long Path support
 [TEXT]
 MID: 8591cf6dece04244824c3ac2a8666ba3
 STATEMENT: >>>
-As `reported <https://github.com/strictdoc-project/strictdoc/issues/1118>`_ by a
+As [reported](https://github.com/strictdoc-project/strictdoc/issues/1118) by a
 user, Windows Long Path support has to be enabled on a Windows system.
 
 You can find information on how to enable the long paths support at
-https://pip.pypa.io/warnings/enable-long-paths.
+<https://pip.pypa.io/warnings/enable-long-paths>.
 <<<
 
 [[/SECTION]]
@@ -111,9 +112,13 @@ TITLE: Installing StrictDoc from GitHub (developer mode)
 [TEXT]
 MID: 2407bb186b274a58b97b54b99ba6e86f
 STATEMENT: >>>
-.. note::
-    Use this way of installing StrictDoc only if you want to make changes in StrictDoc's source code.
-    Otherwise, install StrictDoc as a normal Pip package by running ``pip install strictdoc``.
+<div class="sdoc-admonition sdoc-note" role="note">
+<p class="sdoc-admonition-title">Note</p>
+
+Use this way of installing StrictDoc only if you want to make changes in StrictDoc's source code.
+Otherwise, install StrictDoc as a normal Pip package by running `pip install strictdoc`.
+
+</div>
 <<<
 
 [[SECTION]]
@@ -126,22 +131,25 @@ STATEMENT: >>>
 This is the currently recommended approach, for those familiar with
 development in a virtual environment:
 
-.. code:: bash
+```bash
+git clone https://github.com/strictdoc-project/strictdoc.git && cd strictdoc
+python3 -m venv .venv
+. ./.venv/bin/activate
+pip install -r requirements.bootstrap.txt
+uv sync --no-install-project
+python3 strictdoc/cli/main.py
+```
 
-    git clone https://github.com/strictdoc-project/strictdoc.git && cd strictdoc
-    python3 -m venv .venv
-    . ./.venv/bin/activate
-    pip install -r requirements.bootstrap.txt
-    uv sync --no-install-project
-    python3 strictdoc/cli/main.py
+<div class="sdoc-admonition sdoc-note" role="note">
+<p class="sdoc-admonition-title">Note</p>
 
-.. note::
+Windows users, substitute: `.\.venv\Scripts\activate`
 
-    Windows users, substitute: ``.\.venv\Scripts\activate``
+</div>
 
 This installs Invoke, uv and TOML, plus all the default dependencies of
 StrictDoc. Dev-time dependencies (lint, tests, docs, ...) are installed
-automatically per Invoke task, via ``uv sync --group <flavor>``; see the
+automatically per Invoke task, via `uv sync --group <flavor>`; see the
 "Invoke for development tasks" section below.
 <<<
 
@@ -152,14 +160,14 @@ TITLE: Automating the virtual environment with direnv
 [TEXT]
 MID: f954f57ad45e4a7c9c66ce1ffa857edc
 STATEMENT: >>>
-A user can install `direnv <https://direnv.net/>`_ to avoid activating the
-virtual environment by hand. The repository's ``.envrc`` creates and
-activates ``.venv`` automatically whenever you ``cd`` into the project
+A user can install [direnv](https://direnv.net/) to avoid activating the
+virtual environment by hand. The repository's `.envrc` creates and
+activates `.venv` automatically whenever you `cd` into the project
 directory, once you allow it to run:
 
-.. code:: bash
-
-    direnv allow
+```bash
+direnv allow
+```
 <<<
 
 [[/SECTION]]
@@ -173,37 +181,41 @@ TITLE: Development with Nix (experimental)
 [TEXT]
 MID: 26106facb63c4f1581475f297ae763c1
 STATEMENT: >>>
-.. note::
-    This workflow is experimental.
+<div class="sdoc-admonition sdoc-note" role="note">
+<p class="sdoc-admonition-title">Note</p>
 
-For those who have `Nix <https://nixos.org/download/>`_ installed, StrictDoc
-provides a ``flake.nix``-based dev shell as an alternative to the
-``.envrc`` + ``.venv`` + Invoke workflow described above. The two do not
+This workflow is experimental.
+
+</div>
+
+For those who have [Nix](https://nixos.org/download/) installed, StrictDoc
+provides a `flake.nix`-based dev shell as an alternative to the
+`.envrc` + `.venv` + Invoke workflow described above. The two do not
 share a virtual environment.
 
 The Nix dev shell provides a Python interpreter with the runtime
-dependencies of ``pyproject.toml`` and with Invoke and uv already installed,
-plus the tools that are not Python packages: ``libtidy`` (integration
+dependencies of `pyproject.toml` and with Invoke and uv already installed,
+plus the tools that are not Python packages: `libtidy` (integration
 tests), Chromium and a matching driver (end2end and screencast tests), and
-``github_changelog_generator``.
+`github_changelog_generator`.
 
 To enter an interactive dev shell:
 
-.. code:: bash
-
-    ./bootstrap_nix.sh
+```bash
+./bootstrap_nix.sh
+```
 
 To run a single command inside the dev shell without entering it
 interactively:
 
-.. code:: bash
+```bash
+./bootstrap_nix.sh <cmd>
+```
 
-    ./bootstrap_nix.sh <cmd>
-
-Once inside the shell, use Invoke as usual, for example ``invoke check``.
+Once inside the shell, use Invoke as usual, for example `invoke check`.
 Invoke still runs every task through uv, which creates its own virtual
-environments under ``build/uv/<flavor>``; with Nix, the runtime dependencies
-of ``pyproject.toml`` come from the Nix shell, so uv only needs to install
+environments under `build/uv/<flavor>`; with Nix, the runtime dependencies
+of `pyproject.toml` come from the Nix shell, so uv only needs to install
 each flavor's extra dependency group.
 <<<
 
@@ -220,16 +232,16 @@ TITLE: Invoke for development tasks
 [TEXT]
 MID: 452b3c24463446a497ed6b8fcdb31fef
 STATEMENT: >>>
-All development tasks are managed using `Invoke <https://www.pyinvoke.org/>`_ in
-the ``tasks.py`` file. On macOS and Linux, all tasks run in dedicated virtual
+All development tasks are managed using [Invoke](https://www.pyinvoke.org/) in
+the `tasks.py` file. On macOS and Linux, all tasks run in dedicated virtual
 environments. On Windows, invoke uses the parent pip environment, which can be a
 system environment or a user's virtual environment.
 
 Make sure to familiarize yourself with the available developer tasks by running:
 
-.. code-block:: bash
-
-    invoke --list
+```bash
+invoke --list
+```
 <<<
 
 [[/SECTION]]
@@ -241,14 +253,14 @@ TITLE: Main "Check" task
 [TEXT]
 MID: 09258e99cabb4455904b0e2c6687d492
 STATEMENT: >>>
-Before doing anything else, run the main ``check`` command to make sure that
+Before doing anything else, run the main `check` command to make sure that
 StrictDoc passes all tests on your system:
 
-.. code:: bash
+```bash
+invoke check
+```
 
-    invoke check
-
-The ``check`` command runs all StrictDoc lint and test tasks with the only
+The `check` command runs all StrictDoc lint and test tasks with the only
 exception of end-to-end Web tests that are run with a separate task (see below).
 <<<
 
@@ -265,8 +277,8 @@ TITLE: Black for Python code formatting
 [TEXT]
 MID: 0a8c138cb2f2415184007ab20080e9ca
 STATEMENT: >>>
-Formatting is governed by ``black`` which reformats the code automatically when
-the ``invoke lint`` command is run.
+Formatting is governed by `black` which reformats the code automatically when
+the `invoke lint` command is run.
 <<<
 
 [[/SECTION]]
@@ -336,7 +348,7 @@ The order of functions in a Python module or class shall follow the "newspaper
 style":
 
 - Place public functions above all private functions.
-- The private functions shall start with the ``_`` character.
+- The private functions shall start with the `_` character.
 <<<
 
 [[/SECTION]]
@@ -365,7 +377,7 @@ TITLE: Short-lived/temporary variables
 [TEXT]
 MID: 3bc4e3b017374963a75f59458ed43a21
 STATEMENT: >>>
-For lambdas and short for loops, append a trailing underscore (``_``) to
+For lambdas and short for loops, append a trailing underscore (`_`) to
 variable names to visually indicate that they are temporary and intended for use
 only within the local scope of the lambda or loop.
 
@@ -375,10 +387,10 @@ finished.
 
 Example:
 
-.. code-block:: python
-
-    for foo_, bar_ in baz:
-        # Use foo_ and bar_ only within the loop.
+```python
+for foo_, bar_ in baz:
+    # Use foo_ and bar_ only within the loop.
+```
 <<<
 
 [[/SECTION]]
@@ -392,19 +404,17 @@ MID: bdb6039d3ab8439c9474c5b266e6fa0f
 STATEMENT: >>>
 For "element is non-None" checks, always use the full form.
 
-Example: ``if foo is not None`` instead of ``if foo``.
+Example: `if foo is not None` instead of `if foo`.
 
-The non-None and non-empty string check shall be as follows: ``if foo is not
-None and len(foo) > 0``. The explicit check also applies to any other kinds of
-objects besides strings: ``if foo is not None`` instead of ``if foo``.
+The non-None and non-empty string check shall be as follows: `if foo is not None and len(foo) > 0`. The explicit check also applies to any other kinds of
+objects besides strings: `if foo is not None` instead of `if foo`.
 
 **Rationale**:
 
-The use of ``if foo`` makes it unclear whether the intention is to check ``is
-not None`` or also ``len(foo) > 0``.
+The use of `if foo` makes it unclear whether the intention is to check `is not None` or also `len(foo) > 0`.
 
 This helps to avoid any confusion with all sorts of strings (empty or non-empty
-``str``, ``Optional[str]``) that are used extensively in StrictDoc's codebase.
+`str`, `Optional[str]`) that are used extensively in StrictDoc's codebase.
 <<<
 
 [[/SECTION]]
@@ -416,8 +426,8 @@ TITLE: Opening files
 [TEXT]
 MID: 4e05d9b1a86b4b8bb0c4b6adb9933e86
 STATEMENT: >>>
-For opening files, use the helpers ``file_open_read_utf8`` and
-``file_open_read_bytes``.
+For opening files, use the helpers `file_open_read_utf8` and
+`file_open_read_bytes`.
 
 These helpers perform normal file opening but also strip the UTF-8 BOM
 character, which is added by some Windows tools.
@@ -442,21 +452,21 @@ STATEMENT: >>>
 For smaller pull requests, the preferred Git workflow is "1 commit per 1 PR".
 
 If the work truly deserves a sequence of commits, each commit shall be
-self-contained and pass all checks from the ``invoke check`` command.
+self-contained and pass all checks from the `invoke check` command.
 
 For larger pull requests involving too many changes, the preferred approach:
 split the work into several independent PRs to simplify the work of the
 reviewer.
 
 When resolving conflicts, the development branch should be always rebased
-against the main branch. Merging ``main`` into development branches shall be
+against the main branch. Merging `main` into development branches shall be
 avoided, i.e.,
 
-**Preferred**: ``git fetch && git rebase origin/main``
+**Preferred**: `git fetch && git rebase origin/main`
 
-**Avoid**: ``git fetch && git merge main``
+**Avoid**: `git fetch && git merge main`
 
-Contributors are encouraged to proactively use ``git rebase --interactive`` to
+Contributors are encouraged to proactively use `git rebase --interactive` to
 refine their commit history into self-contained commits before opening a GitHub
 pull request.
 <<<
@@ -472,37 +482,40 @@ TITLE: Git commit message
 MID: abd7a4dc753142928e9a2d31251fb2e9
 STATEMENT: >>>
 The Git commit message should follow the format of
-`Conventional Commits <https://www.conventionalcommits.org/en/v1.0.0/>`_:
+[Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/):
 
-.. code-block::
+```
+<type>(<optional scope>): <description>
+```
 
-    <type>(<optional scope>): <description>
+where the `scope` can be a major feature being added or a folder.
 
-where the ``scope`` can be a major feature being added or a folder.
-
-A form of ``<type>(scope): <subscope>: <description>`` is also an option.
+A form of `<type>(scope): <subscope>: <description>` is also an option.
 
 Examples:
 
-.. code-block::
-
-    feat(html2pdf): add a new option to force page breaks
-    fix(backend/sdoc_source_code): add Rust support
-    refactor(cli): migrate "import excel" to command pattern
-    chore(cli): rename shared.py -> _shared.py
-    chore(.github): switch the macOS tests to macos-latest
-    docs: update release notes
+```
+feat(html2pdf): add a new option to force page breaks
+fix(backend/sdoc_source_code): add Rust support
+refactor(cli): migrate "import excel" to command pattern
+chore(cli): rename shared.py -> _shared.py
+chore(.github): switch the macOS tests to macos-latest
+docs: update release notes
+```
 
 If the committed work is dedicated to more than one topic, use comma-separated
 scopes. Example:
 
-.. code-block::
+```
+refactor(server, UI): update to new requirement styles
+```
 
-    refactor(server, UI): update to new requirement styles
+<div class="sdoc-admonition sdoc-note" role="note">
+<p class="sdoc-admonition-title">Note</p>
 
-.. note::
+The Conventional Commits specification lists `scope` as optional. However, most StrictDoc commits do have a scope. Most of the time, there is a specific feature or area being worked on, so it should be straightforward to identify the right scope.
 
-    The Conventional Commits specification lists ``scope`` as optional. However, most StrictDoc commits do have a scope. Most of the time, there is a specific feature or area being worked on, so it should be straightforward to identify the right scope.
+</div>
 <<<
 
 [[/SECTION]]
@@ -518,9 +531,9 @@ MID: d818aad87db54985b8933f98528808ab
 STATEMENT: >>>
 The shortest path to run the server when the StrictDoc's source code is cloned:
 
-.. code-block:: bash
-
-    invoke server
+```bash
+invoke server
+```
 <<<
 
 [[/SECTION]]
@@ -539,7 +552,7 @@ exercise the new behavior.
 
 If the contributed code needs a fine-grained control over the added behavior,
 adding both unit and integration tests is preferred. The only exception where a
-contribution can contain no tests is ``refactoring`` or ``chore`` (code climate)
+contribution can contain no tests is `refactoring` or `chore` (code climate)
 work which is work that introduces changes in code but no change to the
 functionality.
 <<<
@@ -553,19 +566,19 @@ MID: 4e307b3b950840bbbe455c1ae3238a6e
 STATEMENT: >>>
 The integration tests are run using Invoke:
 
-.. code-block:: bash
+```bash
+invoke test-integration
+```
 
-    invoke test-integration
-
-The ``--focus`` parameter can be used to run only selected tests that match a
+The `--focus` parameter can be used to run only selected tests that match a
 given substring. This helps to avoid running all tests all the time.
 
-.. code-block:: bash
-
-    invoke test-integration --focus <keyword>
+```bash
+invoke test-integration --focus <keyword>
+```
 
 See
-`How to test command-line programs with Python tools: LIT and FileCheck <https://stanislaw.github.io/2020-11-20-how-to-test-command-line-programs-with-python.html>`_
+[How to test command-line programs with Python tools: LIT and FileCheck](https://stanislaw.github.io/2020-11-20-how-to-test-command-line-programs-with-python.html)
 to learn more about LIT and FileCheck, which enable the StrictDoc integration
 tests.
 <<<
@@ -579,9 +592,9 @@ TITLE: Running End-to-End Web tests
 [TEXT]
 MID: da3cbcd69b0545988daeb0f42098830d
 STATEMENT: >>>
-.. code:: bash
-
-    invoke test-end2end
+```bash
+invoke test-end2end
+```
 <<<
 
 [[/SECTION]]
@@ -601,7 +614,7 @@ STATEMENT: >>>
   given to 80 characters per line. Unfortunately, until there is automatic
   support for mixed SDoc/RST content, all long lines shall be edited and
   split by a contributor manually.
-- The ``invoke docs`` task should be used for re-generating documentation on a
+- The `invoke docs` task should be used for re-generating documentation on a
   developer machine.
 <<<
 
@@ -632,11 +645,10 @@ MID: 4902476cf7ef47568e3e38c4341cd9cf
 STATEMENT: >>>
 **1. Use sentence case.**
 
-Use ``Sentence case``, not ``Title Case``, for headings, titles, and similar
+Use `Sentence case`, not `Title Case`, for headings, titles, and similar
 text. Capitalize only the first word and any proper nouns.
 
-Example: write ``Managing dependencies with Python``, not ``Managing
-Dependencies With Python``.
+Example: write `Managing dependencies with Python`, not `Managing Dependencies With Python`.
 <<<
 
 [[/SECTION]]
@@ -778,10 +790,9 @@ TITLE: Conventions
 [TEXT]
 MID: 49b7349a3bee478cbe81d8ef25f6245c
 STATEMENT: >>>
-- ``snake_case`` everywhere, no ``kebab-case``.
-
+- `snake_case` everywhere, no `kebab-case`.
   - This rule applies everywhere where applicable: file and folder names, HTML attributes.
-  - Exception: HTML data-attributes and ``testid`` identifiers.
+  - Exception: HTML data-attributes and `testid` identifiers.
 <<<
 
 [[/SECTION]]
@@ -798,8 +809,8 @@ TITLE: Software development
 MID: ee60e2514d664e3db2dc7a1a79e0e84f
 STATEMENT: >>>
 - Use this Dev Guide to perform any software development.
-- Use ``invoke lint`` for linting.
-- Use ``invoke test-*`` tasks with ``--focus`` argument when iterating on new or
+- Use `invoke lint` for linting.
+- Use `invoke test-*` tasks with `--focus` argument when iterating on new or
   existing features.
 - For features and bugfixes, generate release notes.
 <<<
@@ -818,38 +829,38 @@ levels correspond to WHY-WHAT-HOW.
 
 Level 1 (WHY):
 
-* Captures requirements towards "a requirements tool".
-* These requirements can be seen as stakeholder requirements in the sense of
+- Captures requirements towards "a requirements tool".
+- These requirements can be seen as stakeholder requirements in the sense of
   general systems engineering.
-* Does not contain any StrictDoc-specific requirements.
-* Does not contain any StrictDoc-specific artifacts, such as references to code,
+- Does not contain any StrictDoc-specific requirements.
+- Does not contain any StrictDoc-specific artifacts, such as references to code,
   classes, folder structure, Git repositories, etc.
-* The L1 document structure is organized according to broad feature clusters
+- The L1 document structure is organized according to broad feature clusters
   expected from a requirements tool.
-* The L1 content assumes that multiple tools could be implemented based on L1.
+- The L1 content assumes that multiple tools could be implemented based on L1.
   It shall not be hard-coded to StrictDoc.
 
 Level 2 (WHAT):
 
-* Captures high-level requirements (HLR) towards StrictDoc as a concrete
+- Captures high-level requirements (HLR) towards StrictDoc as a concrete
   requirements tool.
-* The requirements at this level describe WHAT before design, meaning that they
+- The requirements at this level describe WHAT before design, meaning that they
   do not touch implementation details.
-* The L2 requirements shall not dictate the underlying design or implementation
+- The L2 requirements shall not dictate the underlying design or implementation
   too much. Specific implementation details are delegated to L3.
-* The L2 document's table of contents is organized according to StrictDoc
+- The L2 document's table of contents is organized according to StrictDoc
   Features at the top level and Capabilities at the next levels of nesting.
 
 Level 3 (HOW):
 
-* Captures low-level requirements (LLR) towards specific StrictDoc software
+- Captures low-level requirements (LLR) towards specific StrictDoc software
   components and implementation details.
-* The low-level requirements describe the HOW of StrictDoc.
-* The low-level requirements are written during or after design.
-* The low-level requirements are the lowest and final requirements level before
+- The low-level requirements describe the HOW of StrictDoc.
+- The low-level requirements are written during or after design.
+- The low-level requirements are the lowest and final requirements level before
   the actual implementation.
-* The low-level requirements are still testable "shall" statements.
-* The L3 requirements document's table of contents is organized according to
+- The low-level requirements are still testable "shall" statements.
+- The L3 requirements document's table of contents is organized according to
   StrictDoc Features. Each Feature is further structured according to the
   contributing software components, with section titles corresponding to folders
   and files.
@@ -866,7 +877,7 @@ StrictDoc's development uses two concepts, "Feature" and "Capability", to better
 structure requirements and other documentation.
 
 A Feature is a major slice of StrictDoc's functionality. Features are controlled
-in StrictDoc's configuration via the `project_features` property.
+in StrictDoc's configuration via the *project_features* property.
 
 A Capability can be seen as a smaller Feature. One Feature can contain multiple
 Capabilities. A Capability can also span multiple Features.
@@ -877,7 +888,12 @@ Examples of Capabilities: automatic generation of requirement identifiers,
 customized HTML2PDF template, parsing @relation markers as part of the
 requirement-to-source traceability feature.
 
-.. note:: When structuring L2 documents, if a Feature contains multiple functionally related requirements, this could indicate that these requirements should be maintained as part of a Capability.
+<div class="sdoc-admonition sdoc-note" role="note">
+<p class="sdoc-admonition-title">Note</p>
+
+When structuring L2 documents, if a Feature contains multiple functionally related requirements, this could indicate that these requirements should be maintained as part of a Capability.
+
+</div>
 <<<
 
 [[/SECTION]]
@@ -894,15 +910,15 @@ traceability between all levels.
 
 The requirements are as follows:
 
-* Each L1 requirement must have at least one L2 requirement that references it
+- Each L1 requirement must have at least one L2 requirement that references it
   as a parent.
-* Each L2 requirement must have at least one L3 requirement that references it
+- Each L2 requirement must have at least one L3 requirement that references it
   as a parent.
-* The levels must not be skipped. L3 must not reference L1 directly, and L1 must
+- The levels must not be skipped. L3 must not reference L1 directly, and L1 must
   not reference L3.
-* Source code and tests can reference both L2 and L3 requirements via @relation
+- Source code and tests can reference both L2 and L3 requirements via @relation
   markers.
-* As a general soft guideline, L2 requirements are referenced by higher-level
+- As a general soft guideline, L2 requirements are referenced by higher-level
   implementation code and tests, while L3 requirements are referenced by
   specific implementation snippets or lower levels of testing, such as unit
   tests.
@@ -922,20 +938,25 @@ templates for writing "shall" requirement statements unambiguously. Each
 template combines a trigger/condition clause with a system response clause,
 for example:
 
-* Ubiquitous: ``The <system> shall <response>.``
-* Event-driven: ``When <trigger>, the <system> shall <response>.``
-* State-driven: ``While <state>, the <system> shall <response>.``
-* Unwanted behavior: ``If <trigger>, then the <system> shall <response>.``
-* Optional feature: ``Where <feature>, the <system> shall <response>.``
+- Ubiquitous: `The <system> shall <response>.`
+- Event-driven: `When <trigger>, the <system> shall <response>.`
+- State-driven: `While <state>, the <system> shall <response>.`
+- Unwanted behavior: `If <trigger>, then the <system> shall <response>.`
+- Optional feature: `Where <feature>, the <system> shall <response>.`
 
 EARS shall be used for writing requirement statements at all levels (L1, L2,
 L3). It keeps requirements testable and reduces ambiguity for both human
 developers and AI.
 
-See `the original EARS page <https://alistairmavin.com/ears/>`_ for more
+See [the original EARS page](https://alistairmavin.com/ears/) for more
 details.
 
-.. note:: EARS is the default, but exceptions are allowed. In some cases, StrictDoc's requirements writing allows "hybrid" requirements with more than one shall statement per requirement, or shall statements complemented by additional content that explains or expands on the requirement's applicability or scope.
+<div class="sdoc-admonition sdoc-note" role="note">
+<p class="sdoc-admonition-title">Note</p>
+
+EARS is the default, but exceptions are allowed. In some cases, StrictDoc's requirements writing allows "hybrid" requirements with more than one shall statement per requirement, or shall statements complemented by additional content that explains or expands on the requirement's applicability or scope.
+
+</div>
 <<<
 
 [[/SECTION]]
@@ -950,19 +971,19 @@ STATEMENT: >>>
 The StrictDoc requirements documentation is an evolving process. The following
 aspects are continuously reworked and still need improvement:
 
-* The requirements writing shall follow the technical writing guidelines and the EARS syntax described in this developer guide.
-* StrictDoc's development relies on AI-assisted work. Due to the limited
+- The requirements writing shall follow the technical writing guidelines and the EARS syntax described in this developer guide.
+- StrictDoc's development relies on AI-assisted work. Due to the limited
   development resources of the core team, the development process relies more
   strongly on L2 than on L3. The first priority is to maintain a strong L2/HLR
   baseline, while L3/LLR can have gaps in documenting the implementation.
   Nevertheless, the L3 level is gradually being built up with HOW requirements
   that govern important implementation details that must be respected by both
   human developers and AI.
-* Do not be surprised if some legacy L2 requirements match the L3 definition.
+- Do not be surprised if some legacy L2 requirements match the L3 definition.
   These requirements shall be gradually relocated from L2 to L3.
-* The traceability links shall be established between all requirements. If a
+- The traceability links shall be established between all requirements. If a
   link is missing, it has to be fixed eventually.
-* The conceptual split between Feature and Capability is relatively new and has
+- The conceptual split between Feature and Capability is relatively new and has
   not yet been applied consistently across the L2 and L3 documents. New
   requirements development will use this concept for both newly developed
   requirements and the gradual migration of existing requirements.
@@ -979,18 +1000,17 @@ TITLE: How to update release notes
 [TEXT]
 MID: e06a9159c4be4555acd67d77f445c968
 STATEMENT: >>>
-- Add to the release notes (``docs/strictdoc_04_release_notes.sdoc``) a
+- Add to the release notes (`docs/strictdoc_04_release_notes.sdoc`) a
   high-level, human-readable summary of all work since the latest Git tag.
 - Summarize all changes under the top section called "Unreleased". If that
   section does not exist yet, create it. It is this section that will later be
   turned into the actual release notes.
-- The section shall start with ``This release contains the following
-  enhancements:<full empty line break>``.
+- The section shall start with `This release contains the following enhancements:<full empty line break>`.
 - Follow the example of the existing Release Notes.
 - Do not summarize each and every commit. Only include the most important
-  user-facing changes that are implemented with ``feat:`` and ``fix:`` commits.
+  user-facing changes that are implemented with `feat:` and `fix:` commits.
   Don't consider commits with any other prefix.
-- Ignore the changelog file ``CHANGELOG.md`` completely. It is an outdated
+- Ignore the changelog file `CHANGELOG.md` completely. It is an outdated
   auto-generated file that is going to be removed in the future.
 - Do not try to create a new version yourself. This is handled with another
   playbook (TBD).

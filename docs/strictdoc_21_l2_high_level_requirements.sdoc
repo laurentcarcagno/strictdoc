@@ -6,6 +6,7 @@ DATE: @GIT_COMMIT_DATETIME
 PREFIX: SDOC-SRS-
 OPTIONS:
   ENABLE_MID: True
+  MARKUP: Markdown
 
 [GRAMMAR]
 ELEMENTS:
@@ -466,7 +467,7 @@ The SDoc markup content shall be stored in files with .sdoc extension.
 <<<
 RATIONALE: >>>
 Given that the name of the model is S-Doc (strict-doc), it is reasonable to make
-the document files have the ``.sdoc`` extension. This helps to identify the
+the document files have the `.sdoc` extension. This helps to identify the
 document files.
 <<<
 RELATIONS:
@@ -575,7 +576,7 @@ STATUS: Active
 TITLE: UID identifier format
 STATEMENT: >>>
 The SDoc markup shall only accept UID identifiers that consist of alphanumeric
-characters separated by a limited set of ("_", "-", ".") characters (TBD).
+characters separated by a limited set of ("\_", "-", ".") characters (TBD).
 <<<
 RATIONALE: >>>
 A standardized UID format supports easier unique identification of requirements.
@@ -771,14 +772,14 @@ and display both requirement's parent and child relations.
 <<<
 COMMENT: >>>
 Example: If a child requirement REQ-002 has a parent requirement REQ-001, the
-graph database first reads the link ``REQ-002 -Parent> REQ-001``, then it
-creates a corresponding ``REQ-001 -Child> REQ-002`` on the go. Both relations
+graph database first reads the link `REQ-002 -Parent> REQ-001`, then it
+creates a corresponding `REQ-001 -Child> REQ-002` on the go. Both relations
 can be queried as follows, in pseudocode:
 
-.. code-block::
-
-    get_parent_requirements(REQ-002) == [REQ-001]
-    get_children_requirements(REQ-001) == [REQ-002]
+```
+get_parent_requirements(REQ-002) == [REQ-001]
+get_children_requirements(REQ-001) == [REQ-002]
+```
 <<<
 RELATIONS:
 - TYPE: Parent

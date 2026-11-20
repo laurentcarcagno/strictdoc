@@ -6,6 +6,7 @@ DATE: @GIT_COMMIT_DATETIME
 PREFIX: SDOC-LLR-
 OPTIONS:
   ENABLE_MID: True
+  MARKUP: Markdown
 
 [GRAMMAR]
 ELEMENTS:
@@ -115,7 +116,7 @@ UID: SDOC-LLR-192
 STATUS: Active
 TITLE: Markdown files discovery
 STATEMENT: >>>
-StrictDoc shall discover Markdown files ``*.md`` and ``*.markdown`` using the
+StrictDoc shall discover Markdown files `*.md` and `*.markdown` using the
 same mechanism as used for SDoc files.
 <<<
 RELATIONS:
@@ -137,7 +138,7 @@ The following aspects shall additionally apply:
 
 - For MVP, line-endings should support both LF (Linux/macOS-style) and CRLF
   (Windows-style).
-- The ``export --formats=markdown`` shall work for any format readable by
+- The `export --formats=markdown` shall work for any format readable by
   StrictDoc, including Markdown itself, SDoc, RDF (future growth), ReqIF, etc.
 
 NOTE: The write-back to Markdown file must happen through proper AST
@@ -190,10 +191,10 @@ the default SDoc grammar according to the following rules:
   node, not as a normative SDoc node. The TEXT node's statement shall contain
   the Markdown node's body.
 - All field names shall be capitalized when created to SDoc field objects. For
-  example, ``Statement`` becomes ``STATEMENT``. At the same time, the original
+  example, `Statement` becomes `STATEMENT`. At the same time, the original
   field names must be written to the document's grammar as-is. For example, a
-  ``**Rationale**:`` becomes ``RATIONALE`` in the SDoc field name and
-  ``Rationale`` in the human title.
+  `**Rationale**:` becomes `RATIONALE` in the SDoc field name and
+  `Rationale` in the human title.
 - StrictDoc shall defer the validation of MID/UID uniqueness across nodes to the
   TraceabilityIndexBuilder class.
 - If a given field name appears more than once in a node, StrictDoc shall raise
@@ -215,27 +216,22 @@ When writing an SDoc document to a markdown file, StrictDoc shall generate the
 Markdown markup according to the following rules:
 
 - The meta fields shall be written:
-
   - Using the format #2 for new documents not coming from file system (using backslashes for all meta-field lines but last one).
   - Using the format that was auto-detected during reading a Markdown file in case the file is already on the disk and follows a certain convention. The detection shall be detected at a file level and memorized individually by each SDoc document.
-
 - The content fields shall be written using formats #1 (Explicit field name) for
   single-paragraph fields and #2 (Explicit field name with a line break) for
   multi-paragraph fields. A multi-paragraph field is one that results in
   multiple markdown paragraphs/blocks each separated visually by a full empty
   line.
-
 - StrictDoc shall write the SDoc fields as Markdown fields based on SDoc human
   title as recorded in the document grammar element field human title. If a
   human title is missing in the grammar, the field name shall be used.
-
 - All fields shall be printed in the same order like they are stored in an SDoc
   node. Meta vs content decision shall be based on a standard
   SDocNode/GrammarElement decision for multiline index.
-
 - The node level shall be used for defining the Markdown node level. The
   document title becomes the top-level section level 1. SDoc node level 1
-  becomes ``##``, level 2 becomes ``###``, etc.
+  becomes `##`, level 2 becomes `###`, etc.
 <<<
 
 [REQUIREMENT]
@@ -301,12 +297,11 @@ to the following rule:
 
 - The Chrome Driver resolves the relative links to other documents with full
   paths, e.g.,
-  ``file:///<full-path-to-another-SDoc-document>-PDF.html#<anchor>``.
-- The PDF postprocessing step shall convert these absolute ``file:///...` links
-  to just relative paths: ``<relative-path-to-another-SDoc-document>.pdf``
+  `file:///<full-path-to-another-SDoc-document>-PDF.html#<anchor>`.
+- The PDF postprocessing step shall convert these absolute ```file:///...` links to just relative paths: ``<relative-path-to-another-SDoc-document>.pdf```
   without the leading slash character.
 - If one PDF is in a nested folder compared to another PDF, the link to this PDF
-  anchor shall have relative ``../`` path components.
+  anchor shall have relative `../` path components.
 <<<
 RATIONALE: >>>
 Allows a reader to navigate between PDF documents of the same project as
@@ -336,35 +331,30 @@ MID: d83cab2dcd014d328b348acc37c6f4a6
 UID: SDOC-LLR-164
 TITLE: Auto-scoped relation markers in Rust docs
 STATEMENT: >>>
-If a StrictDoc relation marker is inside a `Rust doc comment`_, the marker scope
+If a StrictDoc relation marker is inside a [Rust doc comment](https://doc.rust-lang.org/rust-by-example/meta/doc.html#doc-comments), the marker scope
 shall be set to exact the item the Rust language defines as target of the
-containing doc comment. The :code:`@relation(scope=...)` parameter shall
+containing doc comment. The `@relation(scope=...)` parameter shall
 therefore be optional and shall be ignored if provided.
 
-.. code-block:: rust
-   :number-lines:
+```rust
+1 /// @relation(REQ-1)
+2 impl Foo {
+3 
+4     /// @relation(REQ-2)
+5     fn foo() {
+6     }
+7 }
+```
 
-   /// @relation(REQ-1)
-   impl Foo {
-
-       /// @relation(REQ-2)
-       fn foo() {
-       }
-   }
-
-In the given example, the first marker shall link REQ-1 to the :code:`impl Foo`
+In the given example, the first marker shall link REQ-1 to the `impl Foo`
 implementation, highlighting lines 1 to 7. The second marker shall link REQ-2 to
-the :code:`fn foo()` function, highlighting lines 4 to 6.
-
-.. _Rust doc comment: https://doc.rust-lang.org/rust-by-example/meta/doc.html#doc-comments
+the `fn foo()` function, highlighting lines 4 to 6.
 <<<
 COMMENT: >>>
-Note that doc comments are syntactic sugar for `doc attribute`_ s, which shall
+Note that doc comments are syntactic sugar for [doc attribute](https://doc.rust-lang.org/rustdoc/write-documentation/the-doc-attribute.html) s, which shall
 also be supported. To figure detailed doc comment rules from the rust-lang
 specification it's sometimes useful to check for general attribute rules, if
 explicit doc comment rules are missing.
-
-.. _doc attribute: https://doc.rust-lang.org/rustdoc/write-documentation/the-doc-attribute.html
 <<<
 RELATIONS:
 - TYPE: Parent
@@ -380,10 +370,7 @@ UID: SDOC-LLR-165
 STATUS: Active
 TITLE: Inner doc attributes
 STATEMENT: >>>
-StrictDoc shall support relation markers in inner_ `doc attribute`_ s.
-
-.. _inner: https://doc.rust-lang.org/reference/attributes.html#r-attributes.inner
-.. _doc attribute: https://doc.rust-lang.org/rustdoc/write-documentation/the-doc-attribute.html#the-doc-attribute
+StrictDoc shall support relation markers in [inner](https://doc.rust-lang.org/reference/attributes.html#r-attributes.inner) [doc attribute](https://doc.rust-lang.org/rustdoc/write-documentation/the-doc-attribute.html#the-doc-attribute) s.
 <<<
 RELATIONS:
 - TYPE: Parent
@@ -395,10 +382,8 @@ UID: SDOC-LLR-166
 STATUS: Active
 TITLE: Inner line docs
 STATEMENT: >>>
-StrictDoc shall support auto-scoped relation relation markers in `inner line
-docs`_.
-
-.. _inner line docs: https://doc.rust-lang.org/reference/comments.html#grammar-INNER_LINE_DOC
+StrictDoc shall support auto-scoped relation relation markers in [inner line
+docs](https://doc.rust-lang.org/reference/comments.html#grammar-INNER_LINE_DOC).
 <<<
 RELATIONS:
 - TYPE: Parent
@@ -410,10 +395,8 @@ UID: SDOC-LLR-167
 STATUS: Active
 TITLE: Inner block docs
 STATEMENT: >>>
-StrictDoc shall support auto-scoped relation relation markers in `inner block
-docs`_.
-
-.. _inner block docs: https://doc.rust-lang.org/reference/comments.html#grammar-INNER_BLOCK_DOC
+StrictDoc shall support auto-scoped relation relation markers in [inner block
+docs](https://doc.rust-lang.org/reference/comments.html#grammar-INNER_BLOCK_DOC).
 <<<
 RELATIONS:
 - TYPE: Parent
@@ -425,11 +408,8 @@ UID: SDOC-LLR-168
 STATUS: Active
 TITLE: Outer doc attributes
 STATEMENT: >>>
-StrictDoc shall support auto-scoped relation markers in outer_ `doc attribute`_
+StrictDoc shall support auto-scoped relation markers in [outer](https://doc.rust-lang.org/reference/attributes.html#r-attributes.outer) [doc attribute](https://doc.rust-lang.org/rustdoc/write-documentation/the-doc-attribute.html#the-doc-attribute)
 s.
-
-.. _outer: https://doc.rust-lang.org/reference/attributes.html#r-attributes.outer
-.. _doc attribute: https://doc.rust-lang.org/rustdoc/write-documentation/the-doc-attribute.html#the-doc-attribute
 <<<
 RELATIONS:
 - TYPE: Parent
@@ -441,9 +421,7 @@ UID: SDOC-LLR-169
 STATUS: Active
 TITLE: Outer line docs
 STATEMENT: >>>
-StrictDoc shall support auto-scoped relation markers in `outer line docs`_.
-
-.. _outer line docs: https://doc.rust-lang.org/reference/comments.html#grammar-OUTER_LINE_DOC
+StrictDoc shall support auto-scoped relation markers in [outer line docs](https://doc.rust-lang.org/reference/comments.html#grammar-OUTER_LINE_DOC).
 <<<
 RELATIONS:
 - TYPE: Parent
@@ -455,9 +433,7 @@ UID: SDOC-LLR-170
 STATUS: Active
 TITLE: Outer block docs
 STATEMENT: >>>
-StrictDoc shall support auto-scoped relation markers in `outer block docs`_.
-
-.. _outer block docs: https://doc.rust-lang.org/reference/comments.html#railroad-OUTER_BLOCK_DOC
+StrictDoc shall support auto-scoped relation markers in [outer block docs](https://doc.rust-lang.org/reference/comments.html#railroad-OUTER_BLOCK_DOC).
 <<<
 RELATIONS:
 - TYPE: Parent
@@ -470,13 +446,11 @@ STATUS: Active
 TITLE: File, line and range markers
 STATEMENT: >>>
 StrictDoc shall point to lines and line ranges of Rust code by using file, line
-and range markers. These marker types shall be parsed from `regular line and
-block comments`_.
+and range markers. These marker types shall be parsed from [regular line and
+block comments](https://doc.rust-lang.org/rust-by-example/hello/comment.html#comments).
 
 Note: File markers may also result from the inner doc comments of the top-level
 module.
-
-.. _regular line and block comments: https://doc.rust-lang.org/rust-by-example/hello/comment.html#comments
 <<<
 RELATIONS:
 - TYPE: Parent
@@ -512,21 +486,19 @@ STATUS: Active
 TITLE: Forward relations to Rust items
 STATEMENT: >>>
 StrictDoc shall support linking from a requirement in SDoc to a language item in
-Rust code by using a :code:`FILE` relation of type :code:`FUNCTION`. For example
+Rust code by using a `FILE` relation of type `FUNCTION`. For example
 
-.. code-block:: strictdoc
+```strictdoc
+[REQUIREMENT]
+UID: REQ-1
+RELATIONS:
+- TYPE: File
+  VALUE: file.rs
+  FUNCTION: file::foo
+```
 
-   [REQUIREMENT]
-   UID: REQ-1
-   RELATIONS:
-   - TYPE: File
-     VALUE: file.rs
-     FUNCTION: file::foo
-
-This shall work for all kinds of Rust items that have a `canonical path`_,
+This shall work for all kinds of Rust items that have a [canonical path](https://doc.rust-lang.org/reference/paths.html#canonical-paths),
 including const, enum, fn, mod, static, struct, trait, type, union.
-
-.. _canonical path: https://doc.rust-lang.org/reference/paths.html#canonical-paths
 <<<
 RELATIONS:
 - TYPE: Parent
@@ -538,56 +510,52 @@ UID: SDOC-LLR-174
 STATUS: Active
 TITLE: Forward relation by canonical path
 STATEMENT: >>>
-The identifier for forward relations shall be the `canonical path`_ as the rustc
+The identifier for forward relations shall be the [canonical path](https://doc.rust-lang.org/reference/paths.html#canonical-paths) as the rustc
 compiler would set it when invoked for a single file like
 
-.. code-block:: shell
+```shell
+rustc --crate-type rlib --emit=obj src/lib.rs
+```
 
-   rustc --crate-type rlib --emit=obj src/lib.rs
-
-Note: :code:`cargo build` usually result in a different canonical path, since it
+Note: `cargo build` usually result in a different canonical path, since it
 considers the file position relative to the crate root. Using a single file as
 root is a simplification, needed because StrictDoc is unaware of the Rust file
 and directory-based module hierarchy.
-
-.. _canonical path: https://doc.rust-lang.org/reference/paths.html#canonical-paths
 <<<
 COMMENT: >>>
-The canonical path of an item can be observed with :code:`objdump -t lib.o
---demangle=rust`. For example, given this source file
+The canonical path of an item can be observed with `objdump -t lib.o --demangle=rust`. For example, given this source file
 
-.. code-block:: rust
-   :number-lines:
+```rust
+ 1 pub mod foo {
+ 2 
+ 3     pub trait Foo {
+ 4         fn foo(&self) {}
+ 5     }
+ 6 
+ 7     pub struct Bar(i32);
+ 8 
+ 9     impl Foo for Bar {
+10         fn foo(&self) {}
+11     }
+12 }
+```
 
-   pub mod foo {
+`objdump` will show
 
-       pub trait Foo {
-           fn foo(&self) {}
-       }
-
-       pub struct Bar(i32);
-
-       impl Foo for Bar {
-           fn foo(&self) {}
-       }
-   }
-
-:code:`objdump` will show
-
-.. code-block:: shell
-
-   <lib::foo::Bar as lib::foo::Foo>::foo
+```shell
+<lib::foo::Bar as lib::foo::Foo>::foo
+```
 
 Alas, a forward relation would be
 
-.. code-block:: strictdoc
-
-   [REQUIREMENT]
-   UID: REQ-1
-   RELATIONS:
-   - TYPE: File
-     VALUE: file.rs
-     FUNCTION: <lib::foo::Bar as lib::foo::Foo>::foo
+```strictdoc
+[REQUIREMENT]
+UID: REQ-1
+RELATIONS:
+- TYPE: File
+  VALUE: file.rs
+  FUNCTION: <lib::foo::Bar as lib::foo::Foo>::foo
+```
 <<<
 RELATIONS:
 - TYPE: Parent
@@ -599,36 +567,33 @@ UID: SDOC-LLR-175
 STATUS: Active
 TITLE: Collapse doc comments
 STATEMENT: >>>
-Multiple scattered doc comments shall be collapsed as done by the rustdoc_ tool
+Multiple scattered doc comments shall be collapsed as done by the [rustdoc](https://github.com/rust-lang/rust/tree/main/src/tools/rustdoc) tool
 when using the collapse-docs option to determine the highlight range(s).
 
 For example, rustdoc would collapse alle these comments into the description of
-:code:`fn foo()`
+`fn foo()`
 
-.. code-block:: rust
-   :number-lines:
-
-   /// Some
-   /// line
-
-   /// doc,
-
-   /**
-     * and some
-     * block dock,
-     */
-
-   #[doc = "and some"]
-
-   #[doc = "doc attr."]
-
-   fn foo() {
-   }
+```rust
+ 1 /// Some
+ 2 /// line
+ 3 
+ 4 /// doc,
+ 5 
+ 6 /**
+ 7   * and some
+ 8   * block dock,
+ 9   */
+10 
+11 #[doc = "and some"]
+12 
+13 #[doc = "doc attr."]
+14 
+15 fn foo() {
+16 }
+```
 
 In the given example, the StrictDoc highlight range for the relation marker
 shall be from line 1 to line 16.
-
-.. _rustdoc: https://github.com/rust-lang/rust/tree/main/src/tools/rustdoc
 <<<
 RELATIONS:
 - TYPE: Parent
@@ -640,10 +605,8 @@ UID: SDOC-LLR-176
 STATUS: Active
 TITLE: Rust marker descriptions
 STATEMENT: >>>
-StrictDoc should use the marker labels as rustdoc_ would set them in the
+StrictDoc should use the marker labels as [rustdoc](https://doc.rust-lang.org/stable/rustdoc/) would set them in the
 description of a documented node.
-
-.. _rustdoc: https://doc.rust-lang.org/stable/rustdoc/
 <<<
 RELATIONS:
 - TYPE: Parent
@@ -655,10 +618,8 @@ UID: SDOC-LLR-177
 STATUS: Active
 TITLE: Valid positions of doc comments
 STATEMENT: >>>
-StrictDoc shall find doc comments where the language allows_ them and ignore
+StrictDoc shall find doc comments where the language [allows](https://doc.rust-lang.org/reference/attributes.html#r-attributes.allowed-position) them and ignore
 those in other positions.
-
-.. _allows: https://doc.rust-lang.org/reference/attributes.html#r-attributes.allowed-position
 <<<
 COMMENT: >>>
 Since doc comments are syntactic sugar for doc attributes, allowed position
@@ -722,10 +683,10 @@ UID: SDOC-LLR-182
 STATUS: Active
 TITLE: Allowed position for outer docs
 STATEMENT: >>>
-StrictDoc shall find outer doc comments in `allowed positions`_ as specified by
+StrictDoc shall find outer doc comments in [allowed positions](https://doc.rust-lang.org/reference/attributes.html#r-attributes.allowed-position) as specified by
 the Rust language:
 
-- All item_ declarations
+- All [item](https://doc.rust-lang.org/reference/items.html#r-items.syntax) declarations
 - Most statements
 - Block expressions, but only when they are the outer expression of an
   expression statement or the final expression of another block expression.
@@ -733,9 +694,6 @@ the Rust language:
 - Generic lifetime or type parameter
 - Expressions in limited situations
 - Function, closure and function pointer parameters
-
-.. _allowed positions: https://doc.rust-lang.org/reference/attributes.html#r-attributes.allowed-position
-.. _item: https://doc.rust-lang.org/reference/items.html#r-items.syntax
 <<<
 RELATIONS:
 - TYPE: Parent
@@ -759,28 +717,26 @@ Special macro definitions:
 
 1) The following Zephyr test macro:
 
-.. code:: c
+```c
+ZTEST_USER(semaphore, test_sem_take_multiple) {
 
-    ZTEST_USER(semaphore, test_sem_take_multiple) {
+}
+```
 
-    }
-
-shall be recognized as a function with a title ``ZTEST_USER(semaphore,
-test_sem_take_multiple)``.
+shall be recognized as a function with a title `ZTEST_USER(semaphore, test_sem_take_multiple)`.
 
 2) The following Linux syscall macro:
 
-.. code:: c
+```c
+SYSCALL_DEFINE2(clock_gettime, const clockid_t, which_clock,
+                struct __kernel_timespec __user *, tp)
+{
+    // ...
+    return error;
+}
+```
 
-    SYSCALL_DEFINE2(clock_gettime, const clockid_t, which_clock,
-                    struct __kernel_timespec __user *, tp)
-    {
-        // ...
-        return error;
-    }
-
-shall be recognized as a function with a title ``SYSCALL_DEFINE2(clock_gettime,
-const clockid_t, which_clock, struct __kernel_timespec __user *, tp)`` with all
+shall be recognized as a function with a title `SYSCALL_DEFINE2(clock_gettime, const clockid_t, which_clock, struct __kernel_timespec __user *, tp)` with all
 newlines character replaced with a space character each but all content and
 punctuation preserved otherwise.
 <<<
@@ -796,23 +752,23 @@ follows:
 
 1) The forward link:
 
-.. code:: strictdoc
-
-    [REQUIREMENT]
-    UID: ...
-    STATEMENT: ...
-    RELATIONS:
-    - TYPE: File
-      VALUE: tests/kernel/semaphore/semaphore/src/main.c
-      FUNCTION: /ZTEST_USER.*semaphore.*test_k_sem_correct_count_limit/
+```strictdoc
+[REQUIREMENT]
+UID: ...
+STATEMENT: ...
+RELATIONS:
+- TYPE: File
+  VALUE: tests/kernel/semaphore/semaphore/src/main.c
+  FUNCTION: /ZTEST_USER.*semaphore.*test_k_sem_correct_count_limit/
+```
 
 shall match the following C source code macro definition:
 
-.. code:: c
-
-    ZTEST_USER(semaphore, test_sem_take_multiple) {
-      // Some code
-    }
+```c
+ZTEST_USER(semaphore, test_sem_take_multiple) {
+  // Some code
+}
+```
 <<<
 
 [[/SECTION]]
@@ -836,27 +792,23 @@ STATEMENT: >>>
 The "new" StrictDoc CLI command shall generate a documentation skeleton that
 consists of the following artifacts in the provided input directory:
 
-- ``docs/`` folder with the following content:
-
-  - ``high_level_requirements.sdoc`` that contains a dummy document with a requirement prefix ``HLR-`` and one high-level requirement with identifier ``HLR-1``.
-  - ``low_level_requirements.sdoc`` that contains a dummy document with a requirement prefix ``LLR-`` and one low-level requirement with identifier ``LLR-1`` that has a Parent relation to the requirement ``HLR-1``.
-
-- ``src/`` folder with the following content:
-
-  - A source file ``main.c`` that contains a C hello world program that is annotated with a C comment that has a ``@relation`` to the ``LLR-1`` requirement.
-
-- ``strictdoc_config.py`` that is configured to read SDoc documents from the
-  ``docs/`` folder and source files from the ``src/`` folder.
-- All documents must be configured with ``ENABLE_MID: True``. All nodes must
+- `docs/` folder with the following content:
+  - `high_level_requirements.sdoc` that contains a dummy document with a requirement prefix `HLR-` and one high-level requirement with identifier `HLR-1`.
+  - `low_level_requirements.sdoc` that contains a dummy document with a requirement prefix `LLR-` and one low-level requirement with identifier `LLR-1` that has a Parent relation to the requirement `HLR-1`.
+- `src/` folder with the following content:
+  - A source file `main.c` that contains a C hello world program that is annotated with a C comment that has a `@relation` to the `LLR-1` requirement.
+- `strictdoc_config.py` that is configured to read SDoc documents from the
+  `docs/` folder and source files from the `src/` folder.
+- All documents must be configured with `ENABLE_MID: True`. All nodes must
   have valid unique MID identifiers.
-- At the end of the execution, the ``new`` command shall print the instructions
+- At the end of the execution, the `new` command shall print the instructions
   for running: 1) StrictDoc's static HTML export and 2) web server.
 
 Example of the "new" command usage:
 
-.. code:: bash
-
-    strictdoc new .
+```bash
+strictdoc new .
+```
 <<<
 
 [[/SECTION]]
@@ -887,19 +839,19 @@ The return value of the function shall be a prefix string.
 A user shall be able to optionally revert to the default behavior in the
 function implementation. Example:
 
-.. code-block:: py
-
-    def custom_node_prefix(
-        node,
-        grammar_element,
-        document,
-        traceability_index,
-        project_config
-    ):
-        if document.reserved_uid == "MY_UID":
-            return "MY_UID_PREFIX"
-        # Default prefix.
-        return None
+```py
+def custom_node_prefix(
+    node,
+    grammar_element,
+    document,
+    traceability_index,
+    project_config
+):
+    if document.reserved_uid == "MY_UID":
+        return "MY_UID_PREFIX"
+    # Default prefix.
+    return None
+```
 <<<
 
 [REQUIREMENT]
@@ -917,23 +869,23 @@ traceability_index, project_config).
 The return value of the function shall be a UID string.
 
 A user shall be able to optionally revert to the default behavior
-(``f"{prefix}{next_number}"``) in the function implementation. Example:
+(`f"{prefix}{next_number}"`) in the function implementation. Example:
 
-.. code-block:: py
-
-    def custom_node_uid(
-        prefix,
-        next_number,
-        node,
-        grammar_element,
-        document,
-        traceability_index,
-        project_config
-    ):
-        if document.reserved_uid == "MY_UID":
-            return f"{prefix}{next_number:04d}"
-        # Default UID.
-        return None
+```py
+def custom_node_uid(
+    prefix,
+    next_number,
+    node,
+    grammar_element,
+    document,
+    traceability_index,
+    project_config
+):
+    if document.reserved_uid == "MY_UID":
+        return f"{prefix}{next_number:04d}"
+    # Default UID.
+    return None
+```
 <<<
 
 [[/SECTION]]
@@ -949,7 +901,7 @@ STATUS: Active
 TITLE: strictdoc_config.py config file
 STATEMENT: >>>
 StrictDoc shall support a configuration of project-level options through a
-Python file named ``strictdoc_config.py``.
+Python file named `strictdoc_config.py`.
 <<<
 RELATIONS:
 - TYPE: File
@@ -971,7 +923,7 @@ MID: 992a734673884c4a89ada5cb1fd640c4
 UID: SDOC-LLR-211
 TITLE: Asset directory resolution
 STATEMENT: >>>
-StrictDoc shall associate a local _assets directory with every document to store assets.
+StrictDoc shall associate a local \_assets directory with every document to store assets.
 
 Documents shall reference assets via relative paths.
 <<<
@@ -1001,12 +953,12 @@ TITLE: Supported image formats
 STATEMENT: >>>
 StrictDoc shall support the following image formats:
 
-- SVG (``.svg``, ``image/svg+xml``)
-- PNG (``.png``, ``image/png``)
-- GIF (``.gif``, ``image/gif``)
-- JPG and JPEG (``.jpg`` and ``.jpeg``, ``image/jpeg``)
-- WebP (``.webp``, ``image/webp``)
-- AVIF (``.avif``, ``image/avif``)
+- SVG (`.svg`, `image/svg+xml`)
+- PNG (`.png`, `image/png`)
+- GIF (`.gif`, `image/gif`)
+- JPG and JPEG (`.jpg` and `.jpeg`, `image/jpeg`)
+- WebP (`.webp`, `image/webp`)
+- AVIF (`.avif`, `image/avif`)
 
 SVG is a vector format. PNG, GIF, JPG, JPEG, WebP and AVIF are raster formats.
 <<<
@@ -1019,17 +971,21 @@ TITLE: Image upload
 STATEMENT: >>>
 The Web Editor shall support image upload in multi-line text fields via paste and drag-and-drop:
 
-1. Intercept `drop` and `paste` events and prevent default browser behaviour.
+1. Intercept *drop* and *paste* events and prevent default browser behaviour.
+
 2. Accept the supported image formats defined in [LINK: SDOC-LLR-218]. Validate both the filename extension and MIME type before starting the upload.
    For every unsupported file, do not create an upload placeholder or send the file to the endpoint. Show a notification that identifies the unsupported file and lists the supported formats.
    The user shall be able to dismiss the notification with its close control or by clicking outside it.
-3. Upload images asynchronously to the backend ``/actions/document/upload_asset`` endpoint, passing the current requirement MID and the active document MID along.
+
+3. Upload images asynchronously to the backend `/actions/document/upload_asset` endpoint, passing the current requirement MID and the active document MID along.
+
 4. Indicate upload progress via a temporary placeholder text.
+
 5. On success, insert an image reference at the original cursor position, following the document's markup:
 
-   - RST: ``.. image:: ./_assets/<node_specific_subfolder>/<filename>``
-   - HTML: ``<img src="./_assets/<node_specific_subfolder>/<filename>" />``
-   - Markdown: ``![](./_assets/<node_specific_subfolder>/<filename>)``
+   - RST: `.. image:: ./_assets/<node_specific_subfolder>/<filename>`
+   - HTML: `<img src="./_assets/<node_specific_subfolder>/<filename>" />`
+   - Markdown: `![](./_assets/<node_specific_subfolder>/<filename>)`
 
    For documents configured to use RST markup, when the upload creates a vector
    and raster pair, use the wildcard filename defined in
@@ -1040,6 +996,7 @@ The Web Editor shall support image upload in multi-line text fields via paste an
    direct reference to each uploaded file.
 
 6. On failure, remove the upload placeholder and show a dismissible notification that identifies the affected files and reports the error.
+
 7. When an upload overwrites an image already referenced in the edited field, do not insert another image reference. Show a dismissible notification that identifies the updated file.
 <<<
 RATIONALE: >>>
@@ -1051,14 +1008,14 @@ MID: 7cdd7a0838fc4212a43b336eba5ccde8
 UID: SDOC-LLR-215
 TITLE: Asset upload endpoint
 STATEMENT: >>>
-The StrictDoc web server shall provide an ``/actions/document/upload_asset`` endpoint that accepts image uploads and stores them in a node-specific subfolder.
+The StrictDoc web server shall provide an `/actions/document/upload_asset` endpoint that accepts image uploads and stores them in a node-specific subfolder.
 
 The endpoint shall:
 
 1. Accept only the supported image formats defined in [LINK: SDOC-LLR-218], and reject unsupported files before creating directories or writing file contents. Reject uploads for read-only nodes (i.e. autogen).
 2. Sanitize the filename by replacing spaces with underscores.
 3. Validate the requirement MIDs formally
-4. Use the provided Document MID to resolve the correct document relative ``_assets`` directory.
+4. Use the provided Document MID to resolve the correct document relative `_assets` directory.
 5. Determine the exact target subfolder based on the Asset Path Resolution Strategy (see [LINK: SDOC-LLR-213]).
 6. Store the file in the target folder, and overwrite any existing image file with the same name.
 7. Sync the assets to the web server so it can be served immediately.
@@ -1078,21 +1035,17 @@ MID: 27981746203042b299b216295b6a7588
 UID: SDOC-LLR-213
 TITLE: Asset path resolution strategy
 STATEMENT: >>>
-When storing an uploaded asset, the system shall determine the correct node-specific subfolder within the document local ``_assets`` directory based on the following strategy:
+When storing an uploaded asset, the system shall determine the correct node-specific subfolder within the document local `_assets` directory based on the following strategy:
 
-- If the node has a permanent MID, or if MIDs are explicitly enabled in the document options, the subfolder shall be ``_assets/<MID>/``. (This allows uploads for not-yet-existing requirements when MIDs are enabled).
-
-- Otherwise, if the node exists and has a UID, the subfolder shall be ``_assets/<UID>/``.
-
-- Otherwise, if the node exists but lacks both a permanent MID and UID, the asset shall be stored in the document local ``_assets/`` directory.
-
+- If the node has a permanent MID, or if MIDs are explicitly enabled in the document options, the subfolder shall be `_assets/<MID>/`. (This allows uploads for not-yet-existing requirements when MIDs are enabled).
+- Otherwise, if the node exists and has a UID, the subfolder shall be `_assets/<UID>/`.
+- Otherwise, if the node exists but lacks both a permanent MID and UID, the asset shall be stored in the document local `_assets/` directory.
 - If the node does not yet exist and MIDs are disabled, the upload shall be rejected.
 <<<
 RATIONALE: >>>
 Defines a consistent storage model that prevents image filename collisions between requirements.
 
 - Prioritizing the MID over the UID ensures asset paths remain stable even if a requirement's human-readable UID is changed later.
-
 - When MIDs are disabled, the asset storage path depends entirely on the node's UID, which is only established after the node is created. Therefore, image upload attempts at node creation time must be rejected to prevent orphaned files.
 <<<
 
@@ -1101,18 +1054,17 @@ MID: 3157ce3de267437c8e083455fc2b1b87
 UID: SDOC-LLR-216
 TITLE: Support for wildcard image directive generation
 STATEMENT: >>>
-The ``/actions/document/upload_asset`` endpoint shall detect pairs of files that share the same filename stem and differ only by file extension. The files may be uploaded in a single operation or in separate operations to the same node-specific assets location.
+The `/actions/document/upload_asset` endpoint shall detect pairs of files that share the same filename stem and differ only by file extension. The files may be uploaded in a single operation or in separate operations to the same node-specific assets location.
 
 If such a pair consists of one raster image and one vector image, as classified in [LINK: SDOC-LLR-218], the system shall:
 
 - Store both files in the requirement-specific assets location.
 - Return the wildcard filename
-  ``./_assets/<node_specific_subfolder>/<stem>.*`` for the detected pair. The
+  `./_assets/<node_specific_subfolder>/<stem>.*` for the detected pair. The
   Web Editor shall interpret this result according to the configured document
   markup as defined in [LINK: SDOC-LLR-214].
 
 If no such pair is detected, the system shall treat each file independently.
-
 <<<
 RATIONALE: >>>
 The wildcard lets Sphinx select the vector image for HTML output and the raster
@@ -1125,7 +1077,7 @@ MID: 82dd31e22ccf44bd8b6b924ae9591b0c
 UID: SDOC-LLR-217
 TITLE: Orphaned asset cleanup
 STATEMENT: >>>
-StrictDoc shall provide a CLI command ``strictdoc manage assets`` to identify and remove orphaned assets.
+StrictDoc shall provide a CLI command `strictdoc manage assets` to identify and remove orphaned assets.
 
 An asset file shall be considered orphaned if it is an image file, and not referenced by any requirement.
 
@@ -1137,11 +1089,11 @@ The command shall:
 - When removing files, also remove empty asset folders.
 
 The command shall inspect only asset directories discovered by
-``DocumentFinder`` for the configured project input paths. Asset discovery
-shall respect ``include_doc_paths`` and ``exclude_doc_paths``.
+`DocumentFinder` for the configured project input paths. Asset discovery
+shall respect `include_doc_paths` and `exclude_doc_paths`.
 
-The command shall recognize ``_assets`` references with no path prefix or a
-``./`` prefix.
+The command shall recognize `_assets` references with no path prefix or a
+`./` prefix.
 <<<
 RATIONALE: >>>
 Prevents accumulation of orphaned assets. This would for instance happen if requirement creation is aborted after already having uploaded images.

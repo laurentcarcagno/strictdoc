@@ -7,6 +7,7 @@ PREFIX: SDOC-SSS-
 ROOT: True
 OPTIONS:
   ENABLE_MID: True
+  MARKUP: Markdown
 
 [GRAMMAR]
 ELEMENTS:
@@ -173,21 +174,19 @@ STATEMENT: >>>
 The table below summarizes various differences observed across industry
 documents.
 
-.. list-table:: Table: Requirements and specification document
-   :widths: 20 80
-   :header-rows: 1
+**Table: Requirements and specification document**
 
-   * - Criteria
-     - Comments
-
-   * - Structure
-     - Non-nested, nested, deeply nested. A structure of a deeply nested specification document can reach 8-10 levels (e.g., Section 1.2.3.4.5.6.7.8 "ABC").
-   * - Requirements visual presentation
-     - Requirements are often presented as table cells. The cells can be standalone or a whole section or a document can be a structured as a long table with cells. Alternatively, requirements are rather presented as a section header + text.
-   * - Unique requirement identifiers (UID)
-     - Some documents provide UIDs for all requirements, some do not. Where the UIDs are missing, the section header numbers are used instead for unique identification. Often, a combination "Number + Title" becomes a reference-able identifier.
-   * - Requirement titles
-     - Not all documents provide requirement titles. When the requirement titles are missing, the grouping is may be provided by sections/chapters. When the titles are present, the requirement titles can also be section titles.
+<table>
+<thead>
+<tr><th>Criteria</th><th>Comments</th></tr>
+</thead>
+<tbody>
+<tr><td>Structure</td><td>Non-nested, nested, deeply nested. A structure of a deeply nested specification document can reach 8-10 levels (e.g., Section 1.2.3.4.5.6.7.8 "ABC").</td></tr>
+<tr><td>Requirements visual presentation</td><td>Requirements are often presented as table cells. The cells can be standalone or a whole section or a document can be a structured as a long table with cells. Alternatively, requirements are rather presented as a section header + text.</td></tr>
+<tr><td>Unique requirement identifiers (UID)</td><td>Some documents provide UIDs for all requirements, some do not. Where the UIDs are missing, the section header numbers are used instead for unique identification. Often, a combination "Number + Title" becomes a reference-able identifier.</td></tr>
+<tr><td>Requirement titles</td><td>Not all documents provide requirement titles. When the requirement titles are missing, the grouping is may be provided by sections/chapters. When the titles are present, the requirement titles can also be section titles.</td></tr>
+</tbody>
+</table>
 <<<
 
 [[/SECTION]]
@@ -208,33 +207,23 @@ management workflows.
 
 At least the following workflows have been identified to be relevant:
 
-.. list-table::
-   :header-rows: 1
-   :widths: 25 75
-
-   * - **Workflow**
-     - **Description**
-
-   * - Requirements analysis and prototyping
-     - Early phases of the project. Requirements are drafted out quickly. The higher-level picture and coverage of all topics may be more important than specific details.
-   * - Requirements compliance, traceability and justification
-     - Demonstrating the correctness of specification, also for contractual purposes. Every aspect shall be traceable.
-   * - Requirements implementation
-     - Assisting software engineers in implementing requirements in source code. Making links between requirements and source code implementation units, e.g., files, functions, code fragments. Linking source code implementation units to requirements using special markers left in source code.
-   * - Requirements validation/verification workflow (RAIT)
-     - Verifying the correctness of requirements themselves and the validity of the information they communicate.
-   * - Configuration management, change management
-     - Time machine and Diff functions. Maintaining requirements baselines (v1, v1.1, v2, etc.).
-   * - Reporting
-     - Progress reports, statistics, metrication.
-   * - Collaboration on requirements
-     - Supporting multiple users to collaborate on a documentation tree.
-   * - Requirements exchange
-     - Integration between distinct projects requirements trees. Example: An embedded software project has its own requirements. The developers want to integrate a requirements subtree of another product that is integrated to the parent project as an off-the-shelf solution.
-   * - Formal reviews
-     - Formal review of documentation. Walkthroughs, inspections. Version control of delivered documentation packages. Assessment of progress reports achieved.
-   * - Interoperability with industry standards.
-     - Supporting seamless integration between a project documentation tree and applicable standards.
+<table>
+<thead>
+<tr><th><strong>Workflow</strong></th><th><strong>Description</strong></th></tr>
+</thead>
+<tbody>
+<tr><td>Requirements analysis and prototyping</td><td>Early phases of the project. Requirements are drafted out quickly. The higher-level picture and coverage of all topics may be more important than specific details.</td></tr>
+<tr><td>Requirements compliance, traceability and justification</td><td>Demonstrating the correctness of specification, also for contractual purposes. Every aspect shall be traceable.</td></tr>
+<tr><td>Requirements implementation</td><td>Assisting software engineers in implementing requirements in source code. Making links between requirements and source code implementation units, e.g., files, functions, code fragments. Linking source code implementation units to requirements using special markers left in source code.</td></tr>
+<tr><td>Requirements validation/verification workflow (RAIT)</td><td>Verifying the correctness of requirements themselves and the validity of the information they communicate.</td></tr>
+<tr><td>Configuration management, change management</td><td>Time machine and Diff functions. Maintaining requirements baselines (v1, v1.1, v2, etc.).</td></tr>
+<tr><td>Reporting</td><td>Progress reports, statistics, metrication.</td></tr>
+<tr><td>Collaboration on requirements</td><td>Supporting multiple users to collaborate on a documentation tree.</td></tr>
+<tr><td>Requirements exchange</td><td>Integration between distinct projects requirements trees. Example: An embedded software project has its own requirements. The developers want to integrate a requirements subtree of another product that is integrated to the parent project as an off-the-shelf solution.</td></tr>
+<tr><td>Formal reviews</td><td>Formal review of documentation. Walkthroughs, inspections. Version control of delivered documentation packages. Assessment of progress reports achieved.</td></tr>
+<tr><td>Interoperability with industry standards.</td><td>Supporting seamless integration between a project documentation tree and applicable standards.</td></tr>
+</tbody>
+</table>
 
 The section [LINK: SECTION-SSSS-Existing-workflows] contains the
 workflow-related requirements for a Requirements Tool.
@@ -645,7 +634,6 @@ The requirement ensures a classic capability of a requirement tool:
 
 1) The unique identifiers help the users in identifying the requirements, both
    when reading a requirements document and when discussing requirements.
-
 2) The unique identifiers are used for linking requirements together. The
    requirements tool stores the identifiers in a global database and can resolve
    the links, following the unique identifiers they point to.

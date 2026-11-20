@@ -8,6 +8,7 @@ PREFIX: DO178-
 ROOT: True
 OPTIONS:
   ENABLE_MID: True
+  MARKUP: Markdown
 
 [GRAMMAR]
 ELEMENTS:
@@ -88,7 +89,7 @@ implementation plan within the upcoming 2023-2024 StrictDoc roadmap.
 These requirements are recommended by engineers who adhere to the DO-178B and
 DO-178C standards of the aviation industry. For a visual summary of the DO-178
 standard, please refer to this link:
-https://upload.wikimedia.org/wikipedia/commons/4/4f/DO-178B_Process_Visual_Summary_Rev_A.pdf.
+<https://upload.wikimedia.org/wikipedia/commons/4/4f/DO-178B_Process_Visual_Summary_Rev_A.pdf>.
 <<<
 
 [[SECTION]]
@@ -269,8 +270,8 @@ reduces the effort needed to create identical grammars all the time.
 <<<
 COMMENT: >>>
 S: This feature is easy to implement. The easiest implementation path is to
-include a config parameter, such as ``project_grammar`` in the already-existing
-``strictdoc_config.py`` file. At startup, StrictDoc recognizes the parameter and
+include a config parameter, such as `project_grammar` in the already-existing
+`strictdoc_config.py` file. At startup, StrictDoc recognizes the parameter and
 reads the grammar from a separate file. The project grammar becomes a single
 source of truth for all documents in the project tree but the option to override
 a grammar for a given document is still preserved.
@@ -326,7 +327,7 @@ published in HTML/PDF.
 COMMENT: >>>
 S: This feature, especially a very basic initial one, is very easy to implement,
 and it is already on the nearest roadmap, see
-https://github.com/strictdoc-project/strictdoc/issues/964#issuecomment-1497900436>.
+<https://github.com/strictdoc-project/strictdoc/issues/964#issuecomment-1497900436>>.
 We only need to agree on if we are on the same page about how the produced
 matrices look like.
 <<<
@@ -406,14 +407,14 @@ extensions nice.
 COMMENT: >>>
 S: It should be possible to achieve the goal 1 by implementing a complete or
 limited behavior of each Sphinx plugin feature like I already suggested
-`here <https://github.com/strictdoc-project/strictdoc/issues/1093#issuecomment-1505108384>`_.
+[here](https://github.com/strictdoc-project/strictdoc/issues/1093#issuecomment-1505108384).
 For each needed plugin, we can implement a simulative directive using Docutils,
 and I expected that for many plugins we can achieve a good compatible behavior.
 The goal 2 needs a special R&D activity where it has to be decided what would be
 the interface between StrictDoc and Sphinx.
 <<<
 COMMENT: >>>
-N: ``image.*`` is MTH to enable both HTML and pdf. breathe is required for the
+N: `image.*` is MTH to enable both HTML and pdf. breathe is required for the
 Software Design Description document which defines software architecture, low
 level requirements and code component interfaces. But it could be Split in 2
 separate documents. LLR in .sdoc and code component interface with
@@ -445,7 +446,7 @@ COMMENT: >>>
 N: I would mention another important feature related to DO178. The requirement
 which have not parent are "derived" and shall be assessed by safety.
 
-Two issues when a parent ref is set to ``REQUIRED: True`` in grammar:
+Two issues when a parent ref is set to `REQUIRED: True` in grammar:
 
 1. I cannot specify derived requirements.
 2. Top reqs do not have parents by définition.
