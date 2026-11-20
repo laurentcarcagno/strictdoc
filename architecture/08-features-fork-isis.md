@@ -1,6 +1,6 @@
 # 08 - Features ajoutées par le fork ISIS
 
-Le fork (StrictDoc 0.30.2, branche `feature/isis-release`) est déployé pour un
+Le fork (StrictDoc 0.30.2, branche `develop`) est déployé pour un
 pilote de gestion d'exigences. Chaque feature a un plan dans
 `developer/design/plan_*.md` ; le plan d'ensemble est `master_plan.md`. Ce
 document décrit le code livré. L'assistant LLM et la base de connaissances sont

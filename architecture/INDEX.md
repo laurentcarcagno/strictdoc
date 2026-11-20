@@ -4,9 +4,9 @@ Point d'entrée. Lire ce fichier, puis **un seul** document selon la question. L
 documents renvoient les uns aux autres par numéro. Les chemins sont relatifs à la
 racine du dépôt.
 
-Produit à partir du code au commit `5198d0f1a` (branche `feature/isis-release`,
-StrictDoc 0.30.2 plus le fork ISIS), puis mis à jour pour la branche
-`feature/refactor-ui` jusqu'au commit `0c4566ad6` (page d'un item, versions d'un
+Produit à partir du code au commit `5198d0f1a` (alors la branche
+`feature/isis-release`, supprimée depuis ; StrictDoc 0.30.2 plus le fork ISIS),
+puis mis à jour pour la branche `feature/refactor-ui` jusqu'au commit `0c4566ad6` (page d'un item, versions d'un
 document, barre latérale en groupes, petit écran). Si le code a beaucoup changé
 depuis, vérifier les chemins cités avant de s'y fier.
 

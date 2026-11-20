@@ -12,7 +12,7 @@ source), construit en mémoire un graphe de traçabilité, puis soit l'exporte
 application web éditable.
 
 Ce dépôt est un fork de StrictDoc 0.30.2 (`strictdoc/__init__.py`) pour le pilote
-ISIS. Branche déployée : `feature/isis-release`. Remotes : `origin` (GitLab
+ISIS. Branche de référence : `develop` (elle suit `fork/develop`). Remotes : `origin` (GitLab
 interne) et `fork` (GitHub). Le fork part du commit amont `cc8be7913` (2026-10-09)
 et ajoute des fonctions absentes de l'amont : import et export Word, éditeur
 Markdown Milkdown, rôles et identité, commentaires de relecture, hiérarchie

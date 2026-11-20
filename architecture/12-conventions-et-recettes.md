@@ -56,8 +56,11 @@ Sources : `CLAUDE.md`, `AGENTS.md`, `docs/strictdoc_11_developer_guide.sdoc` (SD
   `test` (vérifié par `invoke lint-commit`). Portée : dossier ou fonction
   (`feat(html2pdf):`, `fix(backend/docx):`). Plusieurs portées séparées par une
   virgule.
-- Fork : travailler sur `feature/isis-release` ; pousser sur `origin` et `fork`,
-  jamais sur l'amont ; `feature/isis-integration` est le retour arrière ; le
+- Fork : `develop` est la branche de référence (elle suit `fork/develop`) ; les
+  travaux se font sur des branches `feature/<sujet>` créées depuis elle ; pousser
+  sur `origin` et `fork`, jamais sur l'amont, et garder les deux remotes dans le
+  même état ; les branches `feature/isis-release` et `feature/isis-integration`
+  ont été supprimées le 2026-11-20 (leur contenu est dans `develop`) ; le
   clone ne doit pas être superficiel (GitLab refuse) ; auteur unique des
   commits, sans ligne `Co-Authored-By` (règles de `HISTORY.md`).
 
