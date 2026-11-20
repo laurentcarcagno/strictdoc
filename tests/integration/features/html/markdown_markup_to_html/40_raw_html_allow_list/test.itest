@@ -1,0 +1,17 @@
+RUN: %strictdoc export %S --formats=html --output-dir %T | filecheck %s --dump-input=fail
+CHECK: Export completed.
+
+RUN: %cat %T/html/40_raw_html_allow_list/input.html | filecheck %s --dump-input=fail --check-prefix CHECK-HTML-FILE
+# The allowed HTML is kept, with the Markdown inside it.
+CHECK-HTML-FILE: <div class="sdoc-admonition sdoc-note" role="note">
+CHECK-HTML-FILE: <p class="sdoc-admonition-title">Note</p>
+CHECK-HTML-FILE: Text in <strong>Markdown</strong>.
+CHECK-HTML-FILE: H<sub>2</sub>O.
+# A script is shown as text, an event attribute and a javascript: link are removed.
+CHECK-HTML-FILE: &lt;script&gt;alert("x")&lt;/script&gt;
+CHECK-HTML-FILE: An <img src="a.png"> and <a>a link</a>.
+
+RUN: %cat %T/html/40_raw_html_allow_list/input.html | filecheck %s --dump-input=fail --check-prefix CHECK-NOT-FILE
+CHECK-NOT-FILE-NOT: <script>alert
+CHECK-NOT-FILE-NOT: onerror
+CHECK-NOT-FILE-NOT: javascript:

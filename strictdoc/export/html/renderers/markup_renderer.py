@@ -1,3 +1,4 @@
+import secrets
 from typing import Dict, Optional, Tuple, Union
 
 from markupsafe import Markup
@@ -190,6 +191,14 @@ class MarkupRenderer:
 
         prev_part = None
         parts_output = ""
+        # The HTML that StrictDoc writes itself (the anchors) goes through the
+        # Markdown writer as a comment and is put back afterwards, so that the
+        # allow-list of the raw HTML of the author does not touch it.
+        trusted_html: Dict[str, str] = {}
+        nonce = secrets.token_hex(8)
+        keep_trusted_html = isinstance(
+            fragment_writer, MarkdownToHtmlFragmentWriter
+        )
         for part in node_field.parts:
             if isinstance(part, str):
                 if isinstance(prev_part, InlineLink) and isinstance(
@@ -209,17 +218,35 @@ class MarkupRenderer:
                     linkable_node.get_display_title(), href
                 )
             elif isinstance(part, Anchor):
-                parts_output += self.template_anchor.render(
+                anchor_html = self.template_anchor.render(
                     anchor=part,
                     traceability_index=self.traceability_index,
                     link_renderer=self.link_renderer,
                     document_type=DocumentType.DOCUMENT,
                 )
+                if keep_trusted_html:
+                    placeholder = (
+                        f"<!--sdoc-trusted-{nonce}-{len(trusted_html)}-->"
+                    )
+                    # The blank lines around the anchor stay where they are:
+                    # they end the HTML block that the anchor opens.
+                    stripped_html = anchor_html.strip()
+                    leading = anchor_html[: anchor_html.index(stripped_html)]
+                    trailing = anchor_html[len(leading) + len(stripped_html) :]
+                    trusted_html[placeholder] = stripped_html
+                    parts_output += leading + placeholder + trailing
+                else:
+                    parts_output += anchor_html
             else:
                 raise NotImplementedError
             prev_part = part
 
         output = fragment_writer.write(parts_output)
+        if len(trusted_html) > 0:
+            text = str(output)
+            for placeholder, html in trusted_html.items():
+                text = text.replace(placeholder, html)
+            output = Markup(text)
         self.cache[(document_type, node_field)] = output
 
         return output

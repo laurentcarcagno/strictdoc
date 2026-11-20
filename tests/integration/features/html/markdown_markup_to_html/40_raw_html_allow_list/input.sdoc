@@ -1,0 +1,20 @@
+[DOCUMENT]
+TITLE: Raw HTML in a Markdown field
+OPTIONS:
+  MARKUP: Markdown
+
+[TEXT]
+STATEMENT: >>>
+<div class="sdoc-admonition sdoc-note" role="note">
+<p class="sdoc-admonition-title">Note</p>
+
+Text in **Markdown**.
+
+</div>
+
+Water is H<sub>2</sub>O.
+
+<script>alert("x")</script>
+
+An <img src="a.png" onerror="alert(1)"> and <a href="javascript:alert(1)">a link</a>.
+<<<

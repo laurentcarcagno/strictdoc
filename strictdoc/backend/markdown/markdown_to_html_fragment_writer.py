@@ -18,6 +18,8 @@ from pygments.formatters import HtmlFormatter
 from pygments.lexers import get_lexer_by_name
 from pygments.util import ClassNotFound
 
+from strictdoc.backend.markdown.html_sanitizer import sanitize_html_fragment
+
 # This mirrors RstToHtmlFragmentWriter.BASE_SETTINGS' "syntax_highlight":
 # "short", so that Markdown and RST code blocks emit the same short Pygments
 # CSS classes and share strictdoc/export/html/_static/pygments.css.
@@ -144,6 +146,24 @@ def _render_math_inline_double(
     return f'<div class="math notranslate nohighlight">\\[ {tokens[idx].content} \\]</div>'
 
 
+def _render_html_block(
+    tokens: Sequence[Token],
+    idx: int,
+    _options: OptionsDict,
+    _env: EnvType,
+) -> str:
+    return sanitize_html_fragment(tokens[idx].content)
+
+
+def _render_html_inline(
+    tokens: Sequence[Token],
+    idx: int,
+    _options: OptionsDict,
+    _env: EnvType,
+) -> str:
+    return sanitize_html_fragment(tokens[idx].content)
+
+
 def _strip_dotdot_from_img_src(html: str) -> str:
     def _rebase(m: "re.Match[str]") -> str:
         src = m.group(1)
@@ -164,6 +184,9 @@ class MarkdownToHtmlFragmentWriter:
     )
     _MARKDOWN_RENDERER_RULES["math_inline"] = _render_math_inline
     _MARKDOWN_RENDERER_RULES["math_inline_double"] = _render_math_inline_double
+    # The raw HTML of an author keeps only the allowed elements and attributes.
+    _MARKDOWN_RENDERER_RULES["html_block"] = _render_html_block
+    _MARKDOWN_RENDERER_RULES["html_inline"] = _render_html_inline
 
     def __init__(self, flat_assets: bool = False) -> None:
         self.flat_assets: bool = flat_assets
