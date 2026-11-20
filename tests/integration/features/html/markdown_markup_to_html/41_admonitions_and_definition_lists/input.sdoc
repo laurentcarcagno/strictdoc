@@ -1,0 +1,23 @@
+[DOCUMENT]
+TITLE: Admonitions and definition lists
+OPTIONS:
+  MARKUP: Markdown
+
+[TEXT]
+STATEMENT: >>>
+<div class="sdoc-admonition sdoc-note" role="note">
+<p class="sdoc-admonition-title">Note</p>
+
+Text in **Markdown**.
+
+</div>
+
+<div class="sdoc-admonition sdoc-warning" role="note">
+<p class="sdoc-admonition-title">Warning</p>
+
+Careful.
+
+</div>
+
+<dl><dt>Term</dt><dd>Definition</dd></dl>
+<<<

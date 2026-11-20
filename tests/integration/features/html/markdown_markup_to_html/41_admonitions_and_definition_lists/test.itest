@@ -1,0 +1,14 @@
+RUN: %strictdoc export %S --formats=html --output-dir %T | filecheck %s --dump-input=fail
+CHECK: Export completed.
+
+RUN: %cat %T/html/41_admonitions_and_definition_lists/input.html | filecheck %s --dump-input=fail --check-prefix CHECK-HTML-FILE
+CHECK-HTML-FILE: _static/sdoc-markup.css
+CHECK-HTML-FILE: <div class="sdoc-admonition sdoc-note" role="note">
+CHECK-HTML-FILE: <p class="sdoc-admonition-title">Note</p>
+CHECK-HTML-FILE: <p>Text in <strong>Markdown</strong>.</p>
+CHECK-HTML-FILE: <div class="sdoc-admonition sdoc-warning" role="note">
+CHECK-HTML-FILE: <p class="sdoc-admonition-title">Warning</p>
+CHECK-HTML-FILE: <dl><dt>Term</dt><dd>Definition</dd></dl>
+
+RUN: %cat %T/html/_static/sdoc-markup.css | filecheck %s --dump-input=fail --check-prefix CHECK-CSS
+CHECK-CSS: .sdoc-admonition
