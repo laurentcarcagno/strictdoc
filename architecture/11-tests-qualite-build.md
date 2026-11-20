@@ -34,20 +34,11 @@ Sous Windows, les tests passent par Docker (`developer/docker_tests/run_tests.ps
 invoke test-unit`) car les outils de protection du poste prennent Chrome et les
 centaines de processus Python pour une attaque. Le conteneur est construit par
 `developer/docker_tests/Dockerfile` (Python 3.10, git, libtidy, gcc, navigateur,
-certificats d'un proxy TLS). Détails de la branche `feature/refactor-ui` :
-
-- `run_tests.ps1` demande à Docker l'architecture de son moteur et construit
-  l'image pour elle (image native, pas émulée). Chaque architecture a son volume
-  d'environnements uv : `strictdoc-tests-build-amd64` ou `-arm64`.
-- Google ne publie Chrome pour Linux qu'en amd64. Ailleurs l'image installe
-  Chromium et son pilote depuis Debian ; l'`entrypoint.sh` fournit ce pilote aux
-  tests HTML2PDF. Comme SeleniumBase télécharge sinon le pilote amd64,
-  `test_end2end` (`tasks.py`) place le pilote nommé par la variable
-  `STRICTDOC_SELENIUM_CHROMEDRIVER` dans le dossier `drivers` de SeleniumBase
-  (lien symbolique) avant de lancer pytest.
-- Docker Desktop sous WSL 2 ne monte pas un disque amovible : le script monte le
-  disque de l'arbre de travail dans la distribution `docker-desktop` s'il
-  manque.
+certificats d'un proxy TLS). L'image est construite pour amd64 seulement ;
+`run_tests.ps1` garde les environnements uv dans le volume Docker
+`strictdoc-tests-build`. La prise en charge d'arm64 et le montage d'un disque
+amovible ont été retirés (annulation du commit `e45fcba42`) : l'arbre de
+travail doit se trouver sur un disque fixe.
 
 ## Les quatre niveaux de test
 

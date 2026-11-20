@@ -53,7 +53,7 @@ depuis, vérifier les chemins cités avant de s'y fier.
 | Recherche par UID exact, facettes | 07 « search » | `features/search/facets.py` |
 | Action grisée selon le rôle, page 403 | 08 « Rôles et identité » | `features/roles/assets/roles/role_gating.js`, `enforcement.py` |
 | Affichage sur téléphone | 06 « Petit écran » | `export/html/_static/responsive.css`, `mobile_nav.js` |
-| Tests dans Docker (Windows, arm64) | 11 « Invoke » | `developer/docker_tests/`, `tasks.py` |
+| Tests dans Docker (Windows) | 11 « Invoke » | `developer/docker_tests/`, `tasks.py` |
 | Modifier un écran ou un formulaire | 06 « Où modifier quoi » | `export/html/templates/`, `export/html/form_objects/`, `generators/view_objects/` |
 | Un script JS ou un style | 06 « Turbo et JavaScript » | `export/html/_static/`, `features/<x>/assets/` |
 | L'éditeur Markdown | 06 « Milkdown » | `developer/milkdown/`, `features/milkdown/assets/milkdown/` |
