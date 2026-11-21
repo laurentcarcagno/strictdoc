@@ -80,6 +80,24 @@ titre H1, chaque titre inférieur est un nœud, les champs s'écrivent
 Un nœud de document Markdown est tout de même un `SDocNode` : les deux formats
 sont interchangeables pour tout ce qui est en aval.
 
+Règles du lecteur et du rédacteur à connaître (`spec/Markdown.md`) :
+
+- plusieurs `**Type**: TEXT` dans un même corps de titre ou à la racine donnent
+  plusieurs TEXT ; le rédacteur écrit le marqueur devant chaque TEXT qui en suit
+  un autre (MD-36) ;
+- une SECTION qui contient un TEXT est écrite avec `**Type**: SECTION` dès que le
+  document a une grammaire propre (MD-37) ;
+- après la résolution de la grammaire, `SDMarkdownReader.fixup_field_order`
+  remet les champs de chaque nœud dans l'ordre de leur élément de grammaire
+  (MD-38) ; `fixup_composite_nodes` marque les nœuds composites ; les deux sont
+  appelés par `traceability_index_builder.py` avant la validation.
+
+Le passage d'un projet `.sdoc` au `.md` se fait avec
+`developer/tools/sdoc_to_markdown.py` (`--check`, `--rename-only`,
+`--baseline`) ; le plan est dans `developer/design/plan_markdown_natif.md`. Ce qui
+suppose encore `.sdoc` : la fusion de conflits nœud par nœud
+(`features/git_sync/blocks.py`, `merge3.py`) et l'import Word.
+
 ## RST retiré
 
 Le paquet `backend/rst` n'existe plus : ni export RST, ni rendu RST, ni docutils.
@@ -123,7 +141,7 @@ Pas de python-docx : le fichier Word est un zip de WordprocessingML écrit et lu
 |---|---|---|
 | profil | `docx_profile.py` | `DocxProfile` : styles de titres, `DocxRequirementTable` (tableau d'une exigence : style de l'identifiant, lignes meta, note, champs de relation). Un profil est un fichier Python avec `create_profile()` |
 | import | `import_/docx_reader.py`, `docx_to_sdoc_converter.py`, `sdoc_requirement_blocks.py` | lecture des paragraphes et tableaux, modes `TrackedChangesMode` (accepter ou rejeter les modifications suivies), fusion par UID dans un `.sdoc` existant, rapport `DocxImportReport` |
-| export neuf | `export/sdoc_to_docx_generator.py`, `docx_template.py`, `markdown_to_paragraphs.py`, `rst_to_paragraphs.py`, `text_to_paragraphs.py`, `docx_xml.py`, `docx_images.py` | génération à partir d'un modèle Word (PNG, JPEG, GIF, SVG avec repli PNG via `features/svg/rasterizer.py`) |
+| export neuf | `export/sdoc_to_docx_generator.py`, `docx_template.py`, `markdown_to_paragraphs.py`, `text_to_paragraphs.py`, `docx_xml.py`, `docx_images.py` | génération à partir d'un modèle Word (PNG, JPEG, GIF, SVG avec repli PNG via `features/svg/rasterizer.py`) |
 | export mise à jour | `export/docx_tracked_update.py` | met à jour un Word existant en modifications suivies (`DocxUpdater`, `DocxUpdateReport`) |
 | commentaires | `export/docx_comments.py` | commentaires de relecture vers Word |
 | web | `docx_web_service.py`, routeur `server/routers/docx_router.py`, templates `features/docx/templates` | formulaires d'import et d'export avec aperçu |

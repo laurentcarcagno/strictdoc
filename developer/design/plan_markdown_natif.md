@@ -166,8 +166,11 @@ Prises sur mes recommandations de la section 3.3, puisque vous avez demandé de 
 | N-03 | fait | sans objet pour le writer (E-03 n'est pas une erreur) ; un test garde `**Prefix**: None` |
 | N-04 | fait | plusieurs TEXT par corps (E-05, SDOC-MD-36), marqueur SECTION (E-04, SDOC-MD-37), un `**Type**: TEXT` du corps n'est plus le type du titre, champs remis dans l'ordre de la grammaire (E-07, SDOC-MD-38). Tests unitaires et d'intégration |
 | N-05 | fait | voir ci-dessous |
-| N-06 | en cours | comparaison automatique faite sur REQ_02 (voir ci-dessous) ; reste l'édition dans le serveur |
-| N-07 à N-10 | à faire | |
+| N-06 | fait | comparaison automatique et édition dans le serveur sur une copie de REQ_02 (voir ci-dessous) |
+| N-07 | en attente de votre accord | modifie vos données (`~/strictdoc-data`) |
+| N-08 | fait en partie | profil Word : rien à changer ; import Word : arrêt si un `.md` du même nom existe ; `kb-platform` : non modifié (hors dépôt) |
+| N-09 | fait | section du guide utilisateur, entrée 13 des notes de version, `architecture/03` |
+| N-10 | à décider | documentation de StrictDoc en `.md` : le guide utilisateur et son fragment ne peuvent pas être convertis tant que E-08 n'est pas réglé |
 
 ### N-05 : code du fork qui suppose `.sdoc`
 
@@ -190,7 +193,14 @@ Copie de `~/strictdoc-data` convertie avec le convertisseur, puis exportée en H
 - les 2 129 paragraphes de l'export Word sont identiques ;
 - `--check` ne signale aucune différence de nœud : 131 exigences, 56 sections, 23 textes.
 
-Non fait : l'ouverture du `.docx` dans Word, l'édition dans le serveur (Milkdown, enregistrement, commentaires), le test des liens suspects.
+Édition dans le serveur réel (Chromium, Playwright) sur une copie convertie :
+
+- un texte de la page de garde et l'exigence PUS18-SRV-0010, modifiés avec l'éditeur Milkdown puis enregistrés : le fichier `.md` change aux seules lignes du nœud modifié (le tableau de la page de garde est réécrit en tableau à barres alignées, comme décidé en F-01 ; `[DA1]` devient `\[DA1]`, comme dans un document `.sdoc`) ; relu avec StrictDoc, seul ce nœud diffère dans l'arbre (210 nœuds sur 210) ;
+- le commentaire de relecture est lu et affiché (le texte visible est identique) ; l'ajout d'un commentaire par l'interface n'a pas été essayé.
+
+Liens suspects : sur REQ_02, 35 des 131 exigences changent de hash à la conversion (une fin de ligne en plus ou en moins). Sans recalcul, les liens vers elles deviendraient suspects : c'est le rôle de `--baseline`, testé par des tests unitaires (REQ_02 n'a pas de ligne de base).
+
+Non fait : l'ouverture du `.docx` dans Word, la création d'un commentaire par l'interface, `--baseline` sur un vrai projet.
 
 ### Résultats de l'essai avec le convertisseur
 

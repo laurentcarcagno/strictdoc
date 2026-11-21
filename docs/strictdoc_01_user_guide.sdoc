@@ -6417,6 +6417,60 @@ other, forming a meta information block.
 <<<
 
 [[SECTION]]
+MID: 1ddd60ba487b473297cf32f27f21c965
+UID: SECTION-UG-SDoc-to-Markdown-files
+TITLE: Moving SDoc documents to Markdown files
+
+[TEXT]
+MID: f182d59397b54149a7668e8b3251ef30
+STATEMENT: >>>
+The fields of a document are in Markdown since the RST markup was removed. The
+container can be Markdown too: a `.sdoc` document becomes a `.md` file, and the
+grammar written inside the document becomes a `.gra.md` file. The script
+`developer/tools/sdoc_to_markdown.py` of the StrictDoc sources does the
+conversion. It is not part of the installed package.
+
+```text
+python developer/tools/sdoc_to_markdown.py PATH --output-dir DIR --check
+python developer/tools/sdoc_to_markdown.py PATH --in-place --rename-only
+python developer/tools/sdoc_to_markdown.py PATH --in-place --check
+```
+
+- `--check` converts into a staging folder, reads the source tree and the
+  converted tree with StrictDoc and compares them node by node: the documents,
+  the nodes, their fields and their relations. Nothing is written when they
+  differ, unless `--force` is given.
+- `--rename-only` runs `git mv x.sdoc x.md` and nothing else. Commit the rename
+  first, then the conversion, so that `git log --follow` follows the file.
+- `--baseline FILE` (or a `trace_baseline.json` in the folder) gives the links
+  that were reviewed the hash of the converted parent. A field has not exactly
+  the same text in Markdown (a line end more or less), so without this every
+  link to a converted requirement would turn suspect.
+
+What the conversion does not carry over, and says so:
+
+- The options of the document other than the markup (`ENABLE_MID`, `VIEW_STYLE`,
+  `NODE_IN_TOC`, `ROOT`, `AUTO_LEVELS`, `LAYOUT`, `DEFAULT_VIEW`,
+  `REQUIREMENT_STYLE`) and the MID of the document. The MID of the nodes stay
+  when the grammar has a `MID` field.
+- A document that includes another one (`DOCUMENT_FROM_FILE`), the documents it
+  includes, and a document whose grammar is in an `.sgra` file. They stay as
+  they are.
+
+A Markdown document is a file for Git and for the tools around it:
+
+- Two conflicting changes in a `.md` file are merged by Git by lines. The merge
+  node by node of the synchronization screen works for `.sdoc` files only.
+- The Word import writes `.sdoc` files. It stops when a `.md` file of the same
+  name exists in the folder.
+- Several TEXT nodes in a row are written with a `**Type**: TEXT` line before
+  each one after the first, so that they are read back as separate nodes. See
+  [LINK: SDOC_MARKDOWN_SPEC].
+<<<
+
+[[/SECTION]]
+
+[[SECTION]]
 MID: d2877cc4f1ae4edb88d2fc995dba85de
 UID: SECTION-UG-Markdown-HTML-elements
 TITLE: HTML elements in a Markdown field

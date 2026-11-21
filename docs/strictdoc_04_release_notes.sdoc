@@ -107,11 +107,12 @@ markup characters in multiline fields. Before, a `<` or `&` in a
 multiline field made the ReqIF file not well-formed XML. As a result,
 `reqif validate` and the ReqIF import of StrictDoc rejected the file.
 
-11\) Breaking change: the RST export is removed. `strictdoc export --formats=rst` now stops with the error "the 'rst' format has been removed".
-The `RSTFormat` class and the RST templates are gone. The sections of the
-user guide about the export through Sphinx and about wildcard image paths for
-Sphinx are removed with it. The RST markup of the fields (`MARKUP: RST`) is
-not affected by this change.
+11\) Breaking change: the RST export is removed. `strictdoc export
+--formats=rst` now stops with the error "the 'rst' format has been removed". The
+`RSTFormat` class and the RST templates are gone. The sections of the user guide
+about the export through Sphinx and about wildcard image paths for Sphinx are
+removed with it. The RST markup of the fields (`MARKUP: RST`) is not affected by
+this change.
 
 12\) Breaking change: StrictDoc reads Markdown and HTML only. The RST and Text
 markups are removed, and docutils is no longer a dependency.
@@ -138,6 +139,25 @@ markups are removed, and docutils is no longer a dependency.
   interface, and the wildcard image path (`image.*`) is gone.
 - The HTML of a Markdown field goes through an allow-list of elements and
   attributes: scripts and event attributes are shown as text or removed.
+
+13\) Native Markdown documents: the `.md` format is usable for whole projects.
+
+- Several TEXT nodes in a row, under a heading or at the root of a document,
+  are read and written as separate nodes (`**Type**: TEXT`, SDOC-MD-36). Before,
+  the second marker stayed in the text of the first.
+- A SECTION that holds text is written with `**Type**: SECTION` under a grammar
+  of the document (SDOC-MD-37). Before, the reader turned the heading into a
+  node and lost its subsections.
+- The fields of a node follow the order of its grammar element, so a grammar
+  may declare `TITLE` anywhere (SDOC-MD-38).
+- `manage auto-uid`, the versions of a document, the rename and the move of a
+  document in the tree (the `**Grammar**:` path follows), the project map and
+  the diff of two trees work with `.md` documents.
+- `developer/tools/sdoc_to_markdown.py` converts `.sdoc` documents to `.md`,
+  checks that the converted tree reads as the same tree, and rehashes the
+  suspect links. See the user guide, "Moving SDoc documents to Markdown files".
+- Not done: the node-by-node merge of a synchronization conflict is for `.sdoc`
+  files only, and the Word import writes `.sdoc` files.
 <<<
 
 [[/SECTION]]
@@ -502,8 +522,11 @@ blocks (document tree, traceability index, HTML templates, project
 statistics, and more) as a stable import surface for Python scripts and
 plugins, replacing direct imports from internal modules.
 
-2\) The `strictdoc import` command has been replaced by `strictdoc convert`. `strictdoc import reqif sdoc input.reqif output.sdoc` is now
-`strictdoc convert input.reqif output.sdoc`, and `strictdoc import excel basic input.xls output.sdoc` is now `strictdoc convert input.xls output.sdoc --input-format=excel`.
+2\) The `strictdoc import` command has been replaced by `strictdoc convert`.
+`strictdoc import reqif sdoc input.reqif output.sdoc` is now `strictdoc convert
+input.reqif output.sdoc`, and `strictdoc import excel basic input.xls
+output.sdoc` is now `strictdoc convert input.xls output.sdoc
+--input-format=excel`.
 
 3\) Search queries (`--filter-nodes` and the Query screen) gained
 quantified list membership checks: `any([...]) in node["FIELD"]`,
@@ -1204,8 +1227,9 @@ MID: a14fc4cd52d648eab3c42a43df0cc352
 STATEMENT: >>>
 This release contains the following enhancements:
 
-1\) The code block syntax highlighting has been enabled for all RST `.. code::` blocks. The code blocks that have been tested already include C, TOML,
-and Python.
+1\) The code block syntax highlighting has been enabled for all RST `.. code::`
+blocks. The code blocks that have been tested already include C, TOML, and
+Python.
 
 Also, a Pygments lexer for the SDoc markup has been added to the StrictDoc
 source code. From now on, `.. code:: strictdoc` blocks are recognized and
@@ -1402,8 +1426,8 @@ provides more flexibility for users who need to:
 See [LINK: SECTION-UG-MIGRATE-CONFIG-2025-Q4] for migration instructions.
 
 2\) **Parsing SDoc nodes from source files:** The feature for parsing SDoc files
-from source code has been extended to support the SPDX-\* syntax. This means that
-SDoc nodes can now be parsed not only from test files but also from source
+from source code has been extended to support the SPDX-\* syntax. This means
+that SDoc nodes can now be parsed not only from test files but also from source
 files.
 
 3\) **Removal of legacy Section/\[SECTION\]:** The legacy `Section/[SECTION]`
@@ -1505,7 +1529,8 @@ any layout errors, even minor ones. If `html2pdf_strict` is set to `false`,
 the validation message is still printed, but it does not cause StrictDoc to
 terminate with a non-zero exit code.
 
-2\) Parsing of SDoc nodes from source files was adjusted so that the `manage auto-uid` command no longer causes auto-generated content to be written back to
+2\) Parsing of SDoc nodes from source files was adjusted so that the `manage
+auto-uid` command no longer causes auto-generated content to be written back to
 the template SDoc files. Thanks to @johanenglund for reporting this issue.
 <<<
 
@@ -1825,7 +1850,8 @@ switching between them.
 <div class="sdoc-admonition sdoc-note" role="note">
 <p class="sdoc-admonition-title">Note</p>
 
-For example, for StrictDoc version 0.9.1, the default cache folder will be: `output/_cache/0.9.1`.
+For example, for StrictDoc version 0.9.1, the default cache folder will be:
+`output/_cache/0.9.1`.
 
 </div>
 <<<
@@ -2344,8 +2370,10 @@ StrictDoc will auto-detect two more alternative fields if they are present:
 explaining the use case.
 
 [pyproject.toml: update python-datauri (#1820)](https://github.com/strictdoc-project/strictdoc/issues/1820)
-@DomenicP reported an issue to `python-datauri` which StrictDoc depends on.
-They `ran into an integration issue with the datauri library installing tests to the virtual environment. The library maintainer was kind enough to quickly resolve the issue in fcurella/python-datauri#14.` Thanks @DomenicP!
+@DomenicP reported an issue to `python-datauri` which StrictDoc depends on. They
+`ran into an integration issue with the datauri library installing tests to the
+virtual environment. The library maintainer was kind enough to quickly resolve
+the issue in fcurella/python-datauri#14.` Thanks @DomenicP!
 <<<
 
 [[/SECTION]]
