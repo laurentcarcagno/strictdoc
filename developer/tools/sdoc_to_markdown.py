@@ -5,7 +5,7 @@ developer/design/plan_markdown_natif.md.
 
     python developer/tools/sdoc_to_markdown.py PATH [PATH ...]
         [--output-dir DIR | --in-place] [--rename-only] [--check]
-        [--strict] [--dry-run]
+        [--strict] [--dry-run] [--baseline FILE] [--suspect-fields A,B]
 
 PATH is an .sdoc file or a folder. A file with the extension .md that still
 holds SDoc syntax (a first line [DOCUMENT]) is converted too: that is what
@@ -24,6 +24,14 @@ holds SDoc syntax (a first line [DOCUMENT]) is converted too: that is what
 --strict      exit with code 1 when a document is skipped, a warning is
               raised or --check finds differences
 --dry-run     write nothing, only report
+--baseline    the trace_baseline.json of the project (suspect links). The text
+              of a field is not the same string in Markdown, so every parent
+              would look changed: the entries of the links that were reviewed
+              take the hash of the converted parent. A link that was already
+              suspect stays suspect. A trace_baseline.json in the given folder
+              is used without this option.
+--suspect-fields  the fields of the hash, as the suspect_fields option of the
+              project (default TITLE,STATEMENT)
 
 Not converted, and left as they are: a document that includes another one
 (DOCUMENT_FROM_FILE) and the documents it includes, a document with a grammar
@@ -46,13 +54,22 @@ import subprocess
 import sys
 import tempfile
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any, Dict, List, Optional, Sequence, Set, Tuple
 
+from strictdoc.backend.markdown.reader import SDMarkdownReader
 from strictdoc.backend.markdown.writer import (
     MarkdownGrammarWriter,
     SDMarkdownWriter,
 )
+from strictdoc.backend.sdoc.models.node import SDocNode
 from strictdoc.backend.sdoc.reader import SDReader
+from strictdoc.core.document_iterator import SDocDocumentIterator
+from strictdoc.features.hierarchy.suspect import (
+    BASELINE_FILE_NAME,
+    DEFAULT_SUSPECT_FIELDS,
+    Baseline,
+    content_hash,
+)
 
 _INCLUDE_PATTERN = re.compile(
     r"^\[DOCUMENT_FROM_FILE\]\s*\nFILE:\s*(.+?)\s*$", re.MULTILINE
@@ -71,10 +88,21 @@ class Conversion:
     warnings: List[str] = field(default_factory=list)
     skipped_reason: Optional[str] = None
     title: Optional[str] = None
+    # The hash of the reviewed content of each node with a UID, by UID, before
+    # and after the conversion (see --baseline).
+    old_hashes: Dict[str, str] = field(default_factory=dict)
+    new_hashes: Dict[str, str] = field(default_factory=dict)
 
 
-def convert_text(text: str, source: str) -> Conversion:
-    """Converts the text of one SDoc document."""
+def convert_text(
+    text: str,
+    source: str,
+    suspect_fields: Optional[Sequence[str]] = None,
+) -> Conversion:
+    """
+    Converts the text of one SDoc document. With `suspect_fields`, the hashes
+    of the reviewed content of its nodes are computed before and after.
+    """
     conversion = Conversion(source=source)
     stem = os.path.splitext(os.path.basename(source))[0]
 
@@ -102,9 +130,55 @@ def convert_text(text: str, source: str) -> Conversion:
 
     conversion.warnings.extend(_lost_options(document))
 
+    if suspect_fields is not None:
+        conversion.old_hashes = _node_hashes(document, suspect_fields)
+
     markdown = SDMarkdownWriter.write(document)
     conversion.document_markdown = collapse_blank_lines(markdown)
+
+    if suspect_fields is not None:
+        converted = SDMarkdownReader().read(
+            conversion.document_markdown, file_path=source
+        )
+        conversion.new_hashes = _node_hashes(converted, suspect_fields)
     return conversion
+
+
+def _node_hashes(document: Any, fields: Sequence[str]) -> Dict[str, str]:
+    hashes: Dict[str, str] = {}
+    iterator = SDocDocumentIterator(document=document, node_filter=None)
+    for node_, _ in iterator.all_content(print_fragments=False):
+        if isinstance(node_, SDocNode) and node_.reserved_uid:
+            hashes[node_.reserved_uid] = content_hash(node_, fields)
+    return hashes
+
+
+def rebaseline(
+    baseline: Baseline,
+    old_hashes: Dict[str, str],
+    new_hashes: Dict[str, str],
+) -> Tuple[int, int]:
+    """
+    The text of a field is not the same string in Markdown (a line end more or
+    less), so the hash of every converted parent changes and every reviewed
+    link would turn suspect. The entries of the links that were reviewed take
+    the hash of the converted parent. Returns the number of entries updated
+    and the number of links that stay suspect because they were suspect
+    before.
+    """
+    updated = 0
+    suspect = 0
+    for key_, reviewed_ in list(baseline.entries.items()):
+        parent = key_.rsplit(" < ", 1)[-1]
+        if parent not in old_hashes or parent not in new_hashes:
+            continue
+        if reviewed_ == old_hashes[parent]:
+            if new_hashes[parent] != reviewed_:
+                baseline.entries[key_] = new_hashes[parent]
+                updated += 1
+        else:
+            suspect += 1
+    return updated, suspect
 
 
 def collapse_blank_lines(markdown: str) -> str:
@@ -414,6 +488,10 @@ def main(argv: Optional[List[str]] = None) -> int:
     parser.add_argument("--force", action="store_true")
     parser.add_argument("--strict", action="store_true")
     parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument("--baseline")
+    parser.add_argument(
+        "--suspect-fields", default=",".join(DEFAULT_SUSPECT_FIELDS)
+    )
     arguments = parser.parse_args(argv)
 
     if arguments.rename_only and not arguments.in_place:
@@ -440,6 +518,15 @@ def main(argv: Optional[List[str]] = None) -> int:
                     _move(source, target)
         return 0
 
+    suspect_fields = [
+        name_.strip() for name_ in arguments.suspect_fields.split(",")
+    ]
+    baseline_path: Optional[str] = arguments.baseline
+    if baseline_path is None:
+        candidate = os.path.join(source_root, BASELINE_FILE_NAME)
+        if os.path.isfile(candidate):
+            baseline_path = candidate
+
     included = _included_documents(documents)
     problems = 0
     converted: List[Tuple[str, Conversion]] = []
@@ -450,7 +537,11 @@ def main(argv: Optional[List[str]] = None) -> int:
             problems += 1
             continue
         with open(source, encoding="utf8") as file_:
-            conversion = convert_text(file_.read(), source)
+            conversion = convert_text(
+                file_.read(),
+                source,
+                suspect_fields if baseline_path is not None else None,
+            )
         if conversion.skipped_reason is not None:
             print(f"skip {relative}: {conversion.skipped_reason}")  # noqa: T201
             problems += 1
@@ -531,7 +622,41 @@ def main(argv: Optional[List[str]] = None) -> int:
                 _remove(source)
             print(f"converted {relative}")  # noqa: T201
 
+        if baseline_path is not None:
+            target_baseline = (
+                baseline_path
+                if arguments.in_place
+                else os.path.join(
+                    arguments.output_dir,
+                    os.path.relpath(baseline_path, source_root),
+                )
+            )
+            _rebaseline_file(baseline_path, target_baseline, converted)
+
     return 1 if arguments.strict and problems > 0 else 0
+
+
+def _rebaseline_file(
+    baseline_path: str,
+    target_path: str,
+    converted: List[Tuple[str, Conversion]],
+) -> None:
+    old_hashes: Dict[str, str] = {}
+    new_hashes: Dict[str, str] = {}
+    for _, conversion in converted:
+        old_hashes.update(conversion.old_hashes)
+        new_hashes.update(conversion.new_hashes)
+    baseline = Baseline.load(baseline_path)
+    updated, suspect = rebaseline(baseline, old_hashes, new_hashes)
+    if updated > 0 or target_path != baseline_path:
+        os.makedirs(
+            os.path.dirname(os.path.abspath(target_path)), exist_ok=True
+        )
+        baseline.save(target_path)
+    print(  # noqa: T201
+        f"Baseline {target_path}: {updated} links reviewed again, "
+        f"{suspect} links that were suspect stay suspect."
+    )
 
 
 def _reading_root(

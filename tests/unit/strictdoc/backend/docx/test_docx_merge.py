@@ -1,6 +1,12 @@
 import os
 from typing import List, Optional, Tuple
 
+import pytest
+
+from strictdoc.backend.docx.docx_import import (
+    DocxImport,
+    DocxImportOptions,
+)
 from strictdoc.backend.docx.docx_profile import (
     DocxProfile,
     DocxRequirementTable,
@@ -16,6 +22,7 @@ from strictdoc.backend.docx.import_.docx_to_sdoc_converter import (
 from strictdoc.backend.docx.import_.sdoc_requirement_blocks import (
     build_carry_over,
 )
+from strictdoc.helpers.exception import StrictDocException
 from tests.unit.strictdoc.backend.docx.docx_builder import (
     cell,
     paragraph,
@@ -171,3 +178,21 @@ def test_009_parent_relations_follow_word_not_the_old_file(tmp_path):
         tmp_path, [_requirement("R-1"), _requirement("R-2", linked="-")], first
     )
     assert "VALUE: R-1" not in second
+
+
+def test_010_a_markdown_document_of_the_same_name_stops_the_import(tmp_path):
+    docx_path = os.path.join(str(tmp_path), "Doc.docx")
+    write_docx(docx_path, [_requirement("REQ-1")])
+    (tmp_path / "Doc.md").write_text("# Doc\n", encoding="utf8")
+
+    with pytest.raises(StrictDocException, match="Doc.md"):
+        DocxImport.import_from_file(
+            DocxImportOptions(
+                input_path=docx_path,
+                profile_path=None,
+                tracked_changes=TrackedChangesMode.ACCEPT,
+                dry_run=True,
+                output_path=str(tmp_path),
+                overwrite=False,
+            )
+        )

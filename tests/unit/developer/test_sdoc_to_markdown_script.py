@@ -202,3 +202,85 @@ def test_010_a_document_that_does_not_read_back_the_same_writes_nothing(
 
     assert exit_code == 1
     assert not output.exists()
+
+
+LINKED_DOCUMENT = """\
+[DOCUMENT]
+TITLE: Linked
+
+[REQUIREMENT]
+UID: PARENT-1
+TITLE: Parent
+STATEMENT: >>>
+The system shall do X.
+<<<
+
+[REQUIREMENT]
+UID: PARENT-2
+TITLE: Other parent
+STATEMENT: >>>
+The system shall do Y.
+<<<
+
+[REQUIREMENT]
+UID: CHILD-1
+TITLE: Child
+STATEMENT: >>>
+The software shall do X.
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: PARENT-1
+- TYPE: Parent
+  VALUE: PARENT-2
+"""
+
+
+def test_011_the_reviewed_links_take_the_hash_of_the_converted_parent(
+    tmp_path,
+):
+    (tmp_path / "linked.sdoc").write_text(LINKED_DOCUMENT, encoding="utf8")
+    fields = ["TITLE", "STATEMENT"]
+    old = script.convert_text(
+        LINKED_DOCUMENT, str(tmp_path / "linked.sdoc"), fields
+    )
+    # The text of a Markdown field has not the line end of an SDoc field.
+    assert old.old_hashes["PARENT-1"] != old.new_hashes["PARENT-1"]
+    baseline = script.Baseline(
+        {
+            "CHILD-1 < PARENT-1": old.old_hashes["PARENT-1"],
+            # The link to PARENT-2 was suspect before the conversion.
+            "CHILD-1 < PARENT-2": "0" * 40,
+        }
+    )
+
+    updated, suspect = script.rebaseline(
+        baseline, old.old_hashes, old.new_hashes
+    )
+
+    assert (updated, suspect) == (1, 1)
+    assert baseline.entries["CHILD-1 < PARENT-1"] == old.new_hashes["PARENT-1"]
+    assert baseline.entries["CHILD-1 < PARENT-2"] == "0" * 40
+
+
+def test_012_main_rewrites_the_baseline_next_to_the_converted_documents(
+    tmp_path,
+):
+    source = tmp_path / "source"
+    source.mkdir()
+    (source / "linked.sdoc").write_text(LINKED_DOCUMENT, encoding="utf8")
+    old = script.convert_text(
+        LINKED_DOCUMENT, "linked.sdoc", ["TITLE", "STATEMENT"]
+    )
+    baseline = script.Baseline(
+        {"CHILD-1 < PARENT-1": old.old_hashes["PARENT-1"]}
+    )
+    baseline.save(str(source / "trace_baseline.json"))
+    output = tmp_path / "output"
+
+    assert script.main([str(source), "--output-dir", str(output)]) == 0
+
+    converted = script.Baseline.load(str(output / "trace_baseline.json"))
+    assert converted.entries == {
+        "CHILD-1 < PARENT-1": old.new_hashes["PARENT-1"]
+    }

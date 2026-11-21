@@ -1,0 +1,1504 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>
+:root { color-scheme: light; }
+body { margin: 0; }
+[hidden] { display: none !important; }
+</style>
+<title>Plan Markdown seul</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: a sticky frame (title, progress, tabs) above one panel of decision cards per theme. */
+:root {
+  --bg: #f4f6f8;
+  --surface: #ffffff;
+  --surface-2: #eaeff3;
+  --ink: #15212b;
+  --muted: #566574;
+  --line: #d3dce3;
+  --accent: #0a6a8a;
+  --accent-ink: #ffffff;
+  --ok: #17703f;
+  --ok-bg: #e0f3e8;
+  --talk: #8a5200;
+  --talk-bg: #fcefd2;
+  --ko: #a82a22;
+  --ko-bg: #fae1de;
+  --code-bg: #e6ecf0;
+  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1820;
+    --surface: #17222b;
+    --surface-2: #1e2c37;
+    --ink: #e6edf2;
+    --muted: #9db0bf;
+    --line: #2d3c48;
+    --accent: #52bde0;
+    --accent-ink: #052330;
+    --ok: #5cc790;
+    --ok-bg: #12301f;
+    --talk: #e6ad4f;
+    --talk-bg: #33260c;
+    --ko: #f2918a;
+    --ko-bg: #3b1916;
+    --code-bg: #223340;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1820;
+  --surface: #17222b;
+  --surface-2: #1e2c37;
+  --ink: #e6edf2;
+  --muted: #9db0bf;
+  --line: #2d3c48;
+  --accent: #52bde0;
+  --accent-ink: #052330;
+  --ok: #5cc790;
+  --ok-bg: #12301f;
+  --talk: #e6ad4f;
+  --talk-bg: #33260c;
+  --ko: #f2918a;
+  --ko-bg: #3b1916;
+  --code-bg: #223340;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.55;
+  padding-block: 0 4rem;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0 0 auto;
+  height: env(safe-area-inset-top, 0px);
+  z-index: 30;
+  background: var(--surface);
+}
+code, pre, .mono { font-family: var(--font-mono); font-size: 0.9em; }
+code { background: var(--code-bg); padding: 0.05em 0.35em; border-radius: 3px; }
+pre { background: var(--code-bg); padding: 0.7rem 0.9rem; border-radius: 4px; overflow-x: auto; margin: 0.6rem 0; }
+pre code { background: none; padding: 0; }
+a { color: var(--accent); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.frame {
+  position: sticky;
+  top: env(safe-area-inset-top, 0px);
+  z-index: 20;
+  margin-inline: calc(-1 * max(16px, env(safe-area-inset-left, 0px)));
+  padding-inline: max(16px, env(safe-area-inset-left, 0px));
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+}
+.frame__top {
+  max-width: 1080px;
+  margin-inline: auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1.5rem;
+  padding-block: 0.7rem 0.5rem;
+}
+.frame h1 {
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin: 0;
+  letter-spacing: 0.005em;
+  text-wrap: balance;
+}
+.progress {
+  flex: 1 1 260px;
+  min-width: 0;
+  display: grid;
+  gap: 0.25rem;
+}
+.progress__bar {
+  height: 8px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  display: flex;
+  overflow: hidden;
+}
+.progress__bar span { display: block; height: 100%; }
+.progress__bar .p-ok { background: var(--ok); }
+.progress__bar .p-talk { background: var(--talk); }
+.progress__bar .p-ko { background: var(--ko); }
+.progress__text { font-size: 0.8rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.savestate { font-size: 0.8rem; color: var(--muted); white-space: nowrap; }
+.savestate[data-s="error"] { color: var(--ko); }
+
+.tabs-wrap { max-width: 1080px; margin-inline: auto; overflow-x: auto; }
+.tabs { display: flex; gap: 0.15rem; min-width: max-content; padding-bottom: 0; }
+.tab {
+  appearance: none;
+  background: none;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  color: var(--muted);
+  font: inherit;
+  font-weight: 500;
+  padding: 0.55rem 0.8rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  white-space: nowrap;
+}
+.tab:hover { color: var(--ink); }
+.tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
+.tab__count {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  min-width: 1.6rem;
+  text-align: center;
+  padding: 0.05rem 0.35rem;
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--muted);
+  border: 1px solid var(--line);
+}
+.tab__count[data-done="true"] { background: var(--ok-bg); color: var(--ok); border-color: transparent; }
+
+main { max-width: 1080px; margin-inline: auto; padding-top: 1.2rem; }
+.panel[hidden] { display: none; }
+.panel__intro { max-width: 70ch; margin-bottom: 1rem; }
+.panel__intro h2 { font-size: 1.35rem; margin: 0 0 0.3rem; text-wrap: balance; }
+.panel__intro p { margin: 0.4rem 0; color: var(--muted); }
+.panel__intro p strong { color: var(--ink); font-weight: 600; }
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  align-items: center;
+  margin: 0.6rem 0 1rem;
+  font-size: 0.85rem;
+}
+.toolbar__label { color: var(--muted); }
+.chips { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+.chip {
+  appearance: none;
+  font: inherit;
+  font-size: 0.82rem;
+  background: var(--surface);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0.2rem 0.7rem;
+  cursor: pointer;
+}
+.chip[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.btn {
+  appearance: none;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 500;
+  background: var(--surface);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 0.35rem 0.8rem;
+  cursor: pointer;
+}
+.btn:hover { border-color: var(--accent); }
+.btn--primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.btn--danger { color: var(--ko); }
+.btn[disabled] { opacity: 0.5; cursor: default; }
+
+.cards { display: grid; gap: 0.9rem; }
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 0.9rem 1rem 1rem;
+  min-width: 0;
+  display: grid;
+  gap: 0.6rem;
+  scroll-margin-top: 9rem;
+}
+.card[hidden] { display: none; }
+.card[data-state="ok"] { border-color: var(--ok); }
+.card[data-state="talk"] { border-color: var(--talk); }
+.card[data-state="ko"] { border-color: var(--ko); }
+.card__head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.3rem 0.7rem; }
+.card__id { font-family: var(--font-mono); font-size: 0.8rem; color: var(--muted); }
+.card__title { font-size: 1.02rem; font-weight: 600; margin: 0; flex: 1 1 240px; min-width: 0; text-wrap: balance; }
+.pill {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  padding: 0.12rem 0.5rem;
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--muted);
+  border: 1px solid var(--line);
+  white-space: nowrap;
+}
+.card[data-state="ok"] .pill--state { background: var(--ok-bg); color: var(--ok); border-color: transparent; }
+.card[data-state="talk"] .pill--state { background: var(--talk-bg); color: var(--talk); border-color: transparent; }
+.card[data-state="ko"] .pill--state { background: var(--ko-bg); color: var(--ko); border-color: transparent; }
+.card__meta { display: flex; flex-wrap: wrap; gap: 0.35rem; font-size: 0.78rem; }
+.meta {
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  padding: 0.1rem 0.5rem;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  color: var(--muted);
+  background: var(--surface-2);
+}
+.meta--risk-e { color: var(--ko); }
+.meta--risk-m { color: var(--talk); }
+.meta--risk-f { color: var(--ok); }
+.meta a { color: inherit; }
+.card__body { max-width: 74ch; }
+.card__body p { margin: 0.35rem 0; }
+.card__body ul, .card__body ol { margin: 0.35rem 0; padding-left: 1.25rem; }
+.card__body li { margin: 0.15rem 0; }
+.card__files summary { cursor: pointer; font-size: 0.82rem; color: var(--muted); }
+.card__files ul { margin: 0.35rem 0 0; padding-left: 1.1rem; font-family: var(--font-mono); font-size: 0.78rem; overflow-wrap: anywhere; }
+.options {
+  border: 1px dashed var(--line);
+  border-radius: 4px;
+  padding: 0.55rem 0.8rem 0.65rem;
+  margin: 0;
+  min-width: 0;
+}
+.options legend { font-size: 0.8rem; font-weight: 600; padding-inline: 0.3rem; color: var(--muted); }
+.opt { display: grid; grid-template-columns: auto 1fr; gap: 0.1rem 0.55rem; padding: 0.3rem 0; align-items: start; }
+.opt input { margin-top: 0.3rem; }
+.opt__label { font-weight: 500; }
+.opt__x { grid-column: 2; color: var(--muted); font-size: 0.88rem; }
+.opt__x code { font-size: 0.82em; }
+.rec { font-size: 0.68rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--accent); border: 1px solid var(--accent); border-radius: 3px; padding: 0 0.3rem; margin-left: 0.4rem; }
+.decide { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 0.9rem; }
+.seg { display: inline-flex; flex-wrap: wrap; border: 0; padding: 0; margin: 0; gap: 0.35rem; }
+.seg label { cursor: pointer; position: relative; }
+.seg input { position: absolute; opacity: 0; pointer-events: none; }
+.seg span {
+  display: inline-block;
+  padding: 0.3rem 0.85rem;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--surface);
+  font-size: 0.88rem;
+  font-weight: 500;
+  user-select: none;
+}
+.seg label:hover span { border-color: var(--accent); }
+.seg input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
+.seg input[value="ok"]:checked + span { background: var(--ok); color: var(--surface); border-color: var(--ok); }
+.seg input[value="talk"]:checked + span { background: var(--talk); color: var(--surface); border-color: var(--talk); }
+.seg input[value="ko"]:checked + span { background: var(--ko); color: var(--surface); border-color: var(--ko); }
+.clear { font-size: 0.78rem; color: var(--muted); background: none; border: 0; cursor: pointer; text-decoration: underline; padding: 0; font: inherit; font-size: 0.78rem; }
+.clear[hidden] { display: none; }
+.comment { display: grid; gap: 0.2rem; font-size: 0.8rem; color: var(--muted); }
+.comment textarea {
+  width: 100%;
+  font: inherit;
+  font-size: 0.92rem;
+  color: var(--ink);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 0.45rem 0.6rem;
+  resize: vertical;
+  min-height: 2.8rem;
+}
+
+.card[data-state="stale"] { border-style: dashed; border-color: var(--accent); }
+.card[data-state="stale"] .pill--state { background: var(--accent); color: var(--accent-ink); border-color: transparent; }
+.pill--new { background: var(--accent); color: var(--accent-ink); border-color: transparent; }
+.pill--mod { color: var(--accent); border-color: var(--accent); background: var(--surface); }
+.dec, .stale-note {
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  border-radius: 4px;
+  padding: 0.4rem 0.7rem;
+  font-size: 0.88rem;
+  max-width: 74ch;
+}
+.dec p { margin: 0.25rem 0; }
+.dec__label { font-size: 0.68rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); display: block; }
+.stale-note { border-color: var(--accent); }
+.stale-note[hidden] { display: none; }
+.group-title { font-size: 0.78rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin: 1.4rem 0 0.2rem; }
+.legend { font-size: 0.82rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: 0.3rem 1.2rem; margin-top: 0.5rem; }
+
+table.sum { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; font-size: 0.9rem; }
+.table-scroll { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; }
+table.sum th, table.sum td { padding: 0.5rem 0.8rem; text-align: right; border-bottom: 1px solid var(--line); white-space: nowrap; }
+table.sum th:first-child, table.sum td:first-child { text-align: left; white-space: normal; }
+table.sum thead th { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
+table.sum tfoot td { font-weight: 600; border-bottom: 0; }
+.commentlist { display: grid; gap: 0.5rem; margin: 0.6rem 0 0; padding: 0; list-style: none; }
+.commentlist li { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 0.55rem 0.8rem; }
+.commentlist .mono { color: var(--muted); font-size: 0.78rem; }
+.exportbox { width: 100%; min-height: 12rem; font-family: var(--font-mono); font-size: 0.8rem; background: var(--surface); color: var(--ink); border: 1px solid var(--line); border-radius: 4px; padding: 0.6rem; }
+.row { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0.6rem 0; align-items: center; }
+.note { font-size: 0.85rem; color: var(--muted); max-width: 70ch; }
+@media (prefers-reduced-motion: no-preference) {
+  .progress__bar span { transition: width 0.25s ease; }
+}
+@media (max-width: 560px) {
+  .card { padding: 0.75rem 0.8rem 0.85rem; }
+  .tab { padding-inline: 0.6rem; }
+}
+</style>
+</head>
+<body>
+<div class="frame">
+  <div class="frame__top">
+    <h1>Retrait de RST : plan à valider · révision 2</h1>
+    <div class="progress" aria-live="polite">
+      <div class="progress__bar" aria-hidden="true"><span class="p-ok" id="bar-ok"></span><span class="p-talk" id="bar-talk"></span><span class="p-ko" id="bar-ko"></span></div>
+      <div class="progress__text" id="progress-text"></div>
+    </div>
+    <div class="savestate" id="savestate" data-s="init">Chargement des réponses…</div>
+  </div>
+  <div class="tabs-wrap"><div class="tabs" role="tablist" aria-label="Thèmes du plan" id="tabs"></div></div>
+</div>
+
+<main id="main"></main>
+
+<script>
+"use strict";
+
+/* ------------------------------------------------------------------ *
+ * Plan data. e: effort S (0,5 j), M (1 à 2 j), L (3 à 5 j).
+ * r: risk f (faible), m (moyen), e (élevé). o: choices; "rec" marks the
+ * recommended one. A task validated with no choice means "recommended".
+ * ------------------------------------------------------------------ */
+const TABS = [
+  { id: "cadrage", label: "Cadrage",
+    title: "Cadrage et décisions préalables",
+    intro: `<p><strong>Comment lire ce plan.</strong> Chaque carte est une tâche. Choisissez Valider, À discuter ou Invalider, puis ajoutez un commentaire. Quand une tâche propose des variantes, cochez celle que vous voulez ; sans choix, j'applique la variante recommandée.</p>
+    <p><strong>Ordre.</strong> J'ai lu « commencer par 1 » comme le cas A : retirer d'abord l'export RST. Puis les alternatives HTML pour ce que Markdown ne sait pas faire, puis le convertisseur RST vers Markdown, puis le retrait du balisage RST.</p>
+    <p><strong>Hors alternatives HTML</strong> (selon votre consigne) : tableaux, images, csv-table. Ils ne sont pas traités comme fonctions à remplacer en HTML, mais le convertisseur doit bien les transformer (onglet Convertisseur).</p>`,
+    tasks: [
+      { id: "C-01", t: "Ordre des phases", e: "S", r: "f",
+        d: `<p>Phase 1 : retrait de l'export RST. Phase 2 : alternatives HTML. Phase 3 : convertisseur. Migration des contenus. Phase 4 : retrait du balisage RST du code. Le balisage RST n'est supprimé qu'après la migration complète, pour ne jamais casser un document existant.</p>`,
+        o: [ { k: "a", l: "Export RST d'abord, balisage ensuite (ordre ci-dessus)", rec: 1 },
+             { k: "b", l: "Les deux en même temps", x: "Un seul gros lot : moins de commits, mais impossible de revenir sur l'un sans l'autre." },
+             { k: "c", l: "Balisage RST d'abord", x: "Pas recommandé : l'export RST réutilise le rendu RST." } ] },
+      { id: "C-02", t: "Constat sur vos données réelles", e: "S", r: "f",
+        d: `<p>Dans <code>~/strictdoc-data</code> le document REQ_02 est déjà en <code>MARKUP: Markdown</code> : 131 exigences, 23 textes, aucune directive RST, aucun tableau RST. Son profil Word déclare déjà <code>markup="Markdown"</code>. Un fichier <code>.rst.bak</code> traîne à côté (sauvegarde d'un ancien import).</p>
+        <p>Le poids du retrait se trouve donc surtout dans StrictDoc lui-même : 15 documents de <code>docs/</code> en RST implicite, 94 fichiers <code>.sdoc</code> avec directives RST, environ 1 770 <code>.sdoc</code> de tests sans balisage déclaré (donc RST par défaut).</p>
+        <p>Y a-t-il d'autres projets ISIS que REQ_02 écrits en RST ? Dites-le en commentaire ; la tâche M-01 les inventorie.</p>`,
+        u: "REQ_02 : 0 directive RST" },
+      { id: "C-03", t: "Balisages conservés", e: "S", r: "m",
+        d: `<p>« Ne conserver que Markdown » peut vouloir dire Markdown seul, ou Markdown plus les deux balisages simples déjà présents. <code>HTML</code> sert à l'import ReqIF XHTML (<code>--reqif-import-markup HTML</code>) et <code>Text</code> à des rendus internes ; 14 <code>.sdoc</code> de tests les utilisent.</p>`,
+        o: [ { k: "a", l: "Markdown, HTML et Text", rec: 1, x: "Seul RST disparaît. Coût minimal, aucun import ReqIF cassé." },
+             { k: "b", l: "Markdown et HTML", x: "Supprime Text ; les rendus internes passent en Markdown." },
+             { k: "c", l: "Markdown seul", x: "Plus propre mais casse l'import ReqIF XHTML et ajoute du travail de conversion." } ] },
+      { id: "C-04", t: "Conteneur des documents", e: "S", r: "f",
+        d: `<p>Le formulaire d'édition riche (Milkdown) ne s'applique qu'aux champs de contenu d'un document dont le balisage est Markdown. Deux façons de « garder Markdown » : le conteneur <code>.sdoc</code> avec <code>MARKUP: Markdown</code>, ou des fichiers <code>.md</code> natifs. Les deux existent déjà.</p>`,
+        o: [ { k: "a", l: "Garder .sdoc avec MARKUP: Markdown", rec: 1, x: "Grammaire riche, relations, ROLE, champs personnalisés conservés." },
+             { k: "b", l: "Passer les documents en .md natifs", x: "Chantier distinct, plus lourd ; à planifier à part." } ] },
+      { id: "C-05", t: "Balisage par défaut après retrait", e: "M", r: "e",
+        d: `<p>Aujourd'hui <code>DocumentConfig.get_markup()</code> renvoie RST quand rien n'est écrit. Après le retrait, un document sans <code>MARKUP</code> serait lu en Markdown : un ancien contenu RST s'afficherait faux, sans erreur.</p>`,
+        o: [ { k: "a", l: "Markdown par défaut, et la migration écrit MARKUP: Markdown partout", rec: 1, x: "Ajoute un avertissement si un champ ressemble à du RST (directive, double accent grave)." },
+             { k: "b", l: "Balisage obligatoire", x: "Erreur de lecture si MARKUP est absent. Sûr mais rompt tous les documents existants." },
+             { k: "c", l: "Garder RST comme défaut implicite, avec avertissement", x: "Ne supprime pas vraiment RST." } ] },
+      { id: "C-06", t: "Période de dépréciation", e: "S", r: "m",
+        d: `<p>Vous êtes seul utilisateur de ce fork. Une dépréciation en deux versions protège pourtant le temps de convertir et de relire.</p>`,
+        o: [ { k: "a", l: "Deux étapes : avertissement et lecture RST, puis retrait", rec: 1 },
+             { k: "b", l: "Retrait direct", x: "Plus court, pas de filet de sécurité." } ] },
+      { id: "C-07", t: "Politique vis-à-vis de l'amont", e: "M", r: "e",
+        d: `<p>L'amont continue à développer RST : alignement des tableaux en grille, liens dans les tableaux RST, widgets de champ pour RST. Supprimer RST rend ce travail inutile et fait entrer chaque fusion en conflit avec le code retiré.</p>`,
+        o: [ { k: "a", l: "Divergence assumée : plus de fusion globale, cherry-pick des correctifs utiles", rec: 1, x: "Avant le retrait : reprendre les correctifs ciblés (cycles avec rôle, commentaires multiples en Markdown, restriction du clone, ReqIF et Excel)." },
+             { k: "b", l: "Rester aligné sur l'amont", x: "Incompatible avec la suppression de RST." } ] },
+      { id: "C-08", t: "Branche, étiquette et rythme de livraison", e: "S", r: "f",
+        d: `<p>Branche <code>feature/markdown-only</code> depuis <code>develop</code>, une demande de fusion par phase (P1, P2, P3, migration, P4). Étiquette Git <code>pre-markdown-only</code> sur <code>develop</code> avant la première phase, car la conversion RST vers Markdown est irréversible. Chaque commit passe <code>invoke check</code> (règle du guide du développeur).</p>` },
+      { id: "C-09", t: "Critères de fin", e: "S", r: "f",
+        d: `<ul><li>Suites unitaires, d'intégration et end2end vertes.</li><li><code>invoke docs</code> produit le site de documentation.</li><li>L'export HTML de REQ_02 est identique, au texte près, avant et après.</li><li>Plus aucun <code>MARKUP: RST</code> dans le dépôt, plus de <code>docutils</code> à l'exécution.</li><li>Aucune régression de performance sur l'export de <code>docs/</code>.</li></ul>` }
+    ] },
+
+  { id: "p1", label: "1 · Export RST",
+    title: "Phase 1 : retirer l'export RST (cas A)",
+    intro: `<p>L'export RST (<code>--formats=rst</code>) produit des fichiers pour Sphinx. Aucune autre fonction n'en dépend. Le rendu RST des champs (docutils) reste en place jusqu'à la phase 4.</p>`,
+    tasks: [
+      { id: "P1-01", t: "Retirer le format rst de la CLI et de la configuration", e: "S", r: "f",
+        d: `<p>Enlever <code>"rst"</code> de <code>EXPORT_FORMATS</code>, <code>RSTFormat()</code> de <code>ProjectConfig.default_formats()</code>, et vérifier que le lanceur graphique (qui importe <code>EXPORT_FORMATS</code>) ne propose plus le format.</p>`,
+        f: ["strictdoc/commands/export.py", "strictdoc/core/project_config.py", "strictdoc/features/launcher/launcher_frame.py"],
+        o: [ { k: "a", l: "Erreur claire : « le format rst a été retiré »", rec: 1 },
+             { k: "b", l: "Avertissement pendant une version, puis erreur", x: "Suit l'option C-06 b." } ] },
+      { id: "P1-02", t: "Supprimer le code de l'export RST", e: "S", r: "f",
+        d: `<p>Supprimer <code>RSTFormat</code>, <code>DocumentRSTGenerator</code>, <code>RSTWriter</code>, <code>RSTTemplates</code> et le template <code>requirement.jinja.rst</code>. Garder pour l'instant <code>formatter.py</code> (utilisé par l'écriture des <code>.sdoc</code>), le rendu HTML RST, le lexeur et les directives : ils partent en phase 4.</p>`,
+        f: ["strictdoc/backend/rst/rst_format.py", "strictdoc/backend/rst/document_rst_generator.py", "strictdoc/backend/rst/writer.py", "strictdoc/backend/rst/rst_templates.py", "strictdoc/backend/rst/templates/requirement.jinja.rst"] },
+      { id: "P1-03", t: "Nettoyer les chemins de gabarits et le packaging", e: "S", r: "f",
+        d: `<p>Retirer <code>get_path_to_rst_templates()</code> de l'environnement et les références aux gabarits RST dans les options de données PyInstaller et Nuitka, si elles existent. À vérifier avec une recherche <code>git grep</code> avant de supprimer.</p>`,
+        f: ["strictdoc/core/environment.py", "tasks.py"] },
+      { id: "P1-04", t: "Supprimer ou adapter les tests de l'export RST", e: "M", r: "f",
+        d: `<p>Supprimer <code>tests/integration/features/rst/</code> (17 tests d'intégration). Trois autres tests utilisent <code>--formats=rst</code> et sont à adapter : <code>html/rst_markup_to_html/20_csv_table</code>, <code>html/utf8/01_utf8_in_sdoc</code> et <code>tests/unit/strictdoc/cli/test_cli_arg_parser.py</code>.</p>`,
+        f: ["tests/integration/features/rst/", "tests/integration/features/html/rst_markup_to_html/20_csv_table/test.itest", "tests/integration/features/html/utf8/01_utf8_in_sdoc/test.itest", "tests/unit/strictdoc/cli/test_cli_arg_parser.py"] },
+      { id: "P1-05", t: "Mettre à jour le guide utilisateur et les exigences", e: "M", r: "f",
+        d: `<p>Retirer les sections « HTML export via Sphinx » et « Wildcard image paths for RST/Sphinx export », la ligne de la carte des fonctions, les exigences SDOC-SRS de l'export RST, et les marqueurs <code>@relation</code> des fichiers supprimés pour garder la traçabilité propre.</p>`,
+        f: ["docs/strictdoc_01_user_guide.sdoc", "docs/strictdoc_02_feature_map.sdoc", "docs/strictdoc_21_l2_high_level_requirements.sdoc", "docs/strictdoc_22_l3_low_level_requirements.sdoc"] },
+      { id: "P1-06", t: "Alternative pour qui utilisait Sphinx", e: "S", r: "f",
+        d: `<p>Documenter ce que l'on fait à la place : l'export Markdown existe déjà. Une page « Migrer de Sphinx » dirait comment passer par <code>--formats=markdown</code> puis un outil externe. Si vous n'utilisez pas Sphinx, cette tâche est inutile.</p>`,
+        o: [ { k: "a", l: "Page de migration courte", rec: 1 }, { k: "b", l: "Aucune documentation", x: "Vous n'avez pas de flux Sphinx." } ] },
+      { id: "P1-07", t: "Notes de version et commit de rupture", e: "S", r: "f",
+        d: `<p>Entrée dans « Unreleased » des notes de version, et message de commit <code>feat!(export): remove the RST export</code>.</p>`,
+        f: ["docs/strictdoc_04_release_notes.sdoc"] }
+    ] },
+
+  { id: "p2", label: "2 · Alternatives HTML",
+    title: "Phase 2 : alternatives HTML pour les fonctions RST perdues",
+    intro: `<p>Le rendu Markdown de StrictDoc accepte le HTML brut (<code>html: True</code>). Quand Markdown n'a pas l'équivalent d'une fonction RST, la phase 2 définit un HTML standard, un style, et la façon dont l'éditeur, le PDF et Word le traitent. Une ligne vide dans un bloc HTML redonne la main à Markdown : on garde donc du Markdown dans les encadrés.</p>
+    <p><strong>Hors périmètre ici :</strong> tableaux, images, csv-table (voir le convertisseur). La ligne « Usage » donne le nombre d'occurrences dans tous les <code>.sdoc</code> du dépôt, pour fixer les priorités.</p>`,
+    tasks: [
+      { id: "P2-00", t: "Étude préalable : l'éditeur Milkdown garde-t-il le HTML ?", e: "M", r: "e",
+        d: `<p>Tout le plan suppose qu'un document Markdown contenant un encadré HTML survit à une édition dans Milkdown. Aujourd'hui seuls les tableaux HTML aux balises connues sont relus comme tableaux ; le HTML inconnu est peut-être perdu ou enveloppé.</p>
+        <p>Livrable : un rapport sur des échantillons (<code>div</code> avec classe, <code>dl</code>, <code>sup</code>, <code>sub</code>, <code>aside</code>, commentaires HTML) et, si besoin, une extension de l'éditeur qui les conserve octet pour octet.</p>`,
+        f: ["developer/milkdown/src/", "developer/milkdown/playwright/", "strictdoc/features/milkdown/assets/milkdown/"],
+        o: [ { k: "a", l: "Faire l'étude avant toute autre tâche de cette phase", rec: 1 }, { k: "b", l: "Supposer que c'est bon et tester à la fin", x: "Risque de refaire tout le format." } ] },
+      { id: "P2-01", t: "Politique de sécurité du HTML brut", e: "M", r: "e",
+        d: `<p>Le rendu Markdown actuel laisse passer n'importe quel HTML, scripts compris. Des relecteurs ne modifient pas le texte, mais des auteurs et des imports Word ou ReqIF peuvent en écrire. En s'appuyant davantage sur le HTML, il faut décider de ce qui est permis.</p>
+        <p>Cette faille existe déjà aujourd'hui pour les documents Markdown ; le retrait de RST la rend plus visible, il ne la crée pas.</p>`,
+        f: ["strictdoc/backend/markdown/markdown_to_html_fragment_writer.py", "strictdoc/features/svg/sanitizer.py (modèle à suivre)"],
+        o: [ { k: "a", l: "Liste blanche de balises et d'attributs, comme pour les SVG", rec: 1, x: "div, p, span, aside, dl, dt, dd, sup, sub, table et ses cellules, class et role autorisés, scripts et gestionnaires d'événements refusés." },
+             { k: "b", l: "Ne rien changer", x: "On fait confiance aux auteurs." },
+             { k: "c", l: "Interdire le HTML brut, fournir des syntaxes dédiées", x: "Demande des extensions du parseur Markdown pour chaque fonction." } ] },
+      { id: "P2-02", t: "Feuille de style commune des éléments de remplacement", e: "M", r: "m",
+        d: `<p>Un fichier CSS <code>sdoc-markup.css</code> : encadrés (une couleur et une icône par type), listes de définitions, notes de bas de page, thème clair et sombre, styles d'impression pour le PDF. Classes préfixées <code>sdoc-</code> pour ne pas entrer en conflit.</p>
+        <p><strong>Accord requis :</strong> ce fichier est chargé par <code>base.jinja.html</code>, un composant partagé. Les règles du dépôt demandent votre accord avant de le toucher.</p>`,
+        f: ["strictdoc/export/html/_static/", "strictdoc/export/html/templates/base.jinja.html", "strictdoc/core/environment.py"] },
+      { id: "P2-10", t: "Encadrés : note, warning, tip, important, caution, danger, attention, hint, error, admonition", e: "M", r: "m", u: "51 note, 8 warning, 5 admonition",
+        d: `<p>Équivalent des directives RST <code>.. note::</code> et voisines. Forme recommandée :</p>
+        <pre><code>&lt;div class="sdoc-admonition sdoc-note" role="note"&gt;
+&lt;p class="sdoc-admonition-title"&gt;Note&lt;/p&gt;
+
+Texte en **Markdown**.
+
+&lt;/div&gt;</code></pre>
+        <p>Les lignes vides laissent Markdown fonctionner à l'intérieur. Le titre est écrit dans le document, donc dans la langue du document ; il est exportable et indexé.</p>`,
+        o: [ { k: "a", l: "Bloc HTML avec classes sdoc-admonition", rec: 1, x: "Le titre est dans le HTML. Rendu identique en HTML, PDF, recherche." },
+             { k: "b", l: "Citation GitHub (> [!NOTE]) avec une extension du rendu Markdown", x: "Syntaxe plus courte, mais ce n'est plus du HTML et il faut une extension du parseur et de l'éditeur." },
+             { k: "c", l: "Citation Markdown avec mot en gras (> **Note.** texte)", x: "Aucune extension, pas de couleur par type sans CSS sur blockquote." } ] },
+      { id: "P2-11", t: "Notes de bas de page et citations", e: "S", r: "f", u: "0 occurrence",
+        d: `<p>Aucun usage dans le dépôt. Si on garde une alternative : ancres StrictDoc natives, qui sont vérifiées par l'index et donnent des liens entrants.</p>`,
+        o: [ { k: "a", l: "Ancre [ANCHOR: fn-1, \"1\"] et lien [LINK: fn-1]", rec: 1 },
+             { k: "b", l: "HTML : sup avec lien vers un aside", x: "Autonome mais non vérifié par l'index." },
+             { k: "c", l: "Ne pas remplacer : perte assumée", x: "Convertir en texte entre parenthèses, avec avertissement." } ] },
+      { id: "P2-12", t: "Listes de définitions", e: "S", r: "f", u: "non mesuré",
+        d: `<p>HTML : <code>&lt;dl&gt;&lt;dt&gt;Terme&lt;/dt&gt;&lt;dd&gt;Définition&lt;/dd&gt;&lt;/dl&gt;</code>. Le convertisseur compte les occurrences réelles dans son rapport ; si elles sont rares, on les convertit en liste à puces avec le terme en gras.</p>`,
+        o: [ { k: "a", l: "Balises dl, dt, dd", rec: 1 }, { k: "b", l: "Liste à puces avec terme en gras", x: "Aucun HTML." } ] },
+      { id: "P2-13", t: "Rôles RST en ligne", e: "S", r: "f", u: "14 :code:, 7 :eq:, 5 :math:",
+        d: `<ul><li><code>:code:</code> devient des apostrophes inverses ; <code>:math:</code> devient <code>$…$</code>.</li>
+        <li><code>:sup:</code> et <code>:sub:</code> deviennent <code>&lt;sup&gt;</code> et <code>&lt;sub&gt;</code>.</li>
+        <li><code>:rawhtml:</code> (rôle maison) devient le HTML brut.</li>
+        <li><code>:ref:</code> et <code>:doc:</code> (Sphinx) deviennent <code>[LINK: uid]</code> quand la cible est un nœud, sinon un lien Markdown.</li>
+        <li><code>:eq:</code> renvoie à une équation numérotée par <code>.. math:: :label:</code>. Markdown n'a pas d'étiquettes.</li></ul>`,
+        o: [ { k: "a", l: "Équation numérotée écrite \\tag{n} dans $$…$$, renvoi remplacé par le numéro en texte", rec: 1 },
+             { k: "b", l: "Supprimer la numérotation, garder les formules", x: "Les 7 renvois :eq: deviennent du texte simple." } ] },
+      { id: "P2-14", t: "Numéros de ligne dans les blocs de code", e: "S", r: "f", u: "249 blocs de code, 1 seul fichier avec :number-lines:",
+        d: `<p>Vérifié avec docutils 0.23 : le réglage <code>syntax_highlight_opts = {linenos: inline}</code> de StrictDoc n'a aucun effet. Un bloc de code RST n'a de numéros de ligne que si l'on écrit <code>:number-lines:</code>. Seul un fichier du dépôt le fait (<code>docs/strictdoc_22_l3_low_level_requirements.sdoc</code>, 3 blocs). Ce que Markdown perd est donc minime.</p>`,
+        o: [ { k: "a", l: "Accepter la perte (Markdown n'en a pas)", rec: 1 },
+             { k: "b", l: "Indice dans la clôture (```python linenos), géré par le rendu Markdown", x: "Extension du rendu, pas du HTML pur." },
+             { k: "c", l: "Bloc HTML pre avec classe sdoc-linenos et compteur CSS", x: "Du HTML, mais le code n'est plus un bloc Markdown, donc pas de coloration par l'éditeur." } ] },
+      { id: "P2-15", t: "Blocs raw, HTML et autres cibles", e: "S", r: "f", u: "16 .. raw::",
+        d: `<p><code>.. raw:: html</code> devient du HTML brut : équivalent natif. Les autres cibles (<code>latex</code>, <code>pdf</code>, ...) n'ont pas de sens dans un nœud : supprimées avec un avertissement dans le rapport. À vérifier sur les 16 occurrences du dépôt avant de trancher.</p>` },
+      { id: "P2-16", t: "Blocs de mise en page : epigraph, pull-quote, rubric, sidebar, topic, container, compound", e: "S", r: "f", u: "0 occurrence",
+        d: `<p>Correspondance minimale : <code>blockquote</code> pour les citations, <code>aside class="sdoc-sidebar"</code> pour les encadrés latéraux, <code>div class="…"</code> pour <code>container</code>. Aucun usage dans le dépôt.</p>`,
+        o: [ { k: "a", l: "Correspondance minimale par classes", rec: 1 }, { k: "b", l: "Avertissement et texte brut, sans HTML", x: "Moins de CSS à maintenir." } ] },
+      { id: "P2-17", t: "Listes de champs, blocs de lignes, listes d'options", e: "S", r: "f", u: "non mesuré",
+        d: `<p>Blocs de lignes (<code>| ligne</code>) : lignes séparées par deux espaces ou <code>&lt;br&gt;</code>. Listes de champs (<code>:Auteur: x</code>) : liste à puces « Auteur : x ». Listes d'options : liste à puces.</p>` },
+      { id: "P2-18", t: "Directives de structure sans équivalent", e: "S", r: "f", u: "non mesuré",
+        d: `<p><code>.. contents::</code>, <code>.. sectnum::</code>, <code>.. header::</code>, <code>.. footer::</code>, <code>.. include::</code>, <code>.. only::</code>, <code>.. toctree::</code> n'ont pas de sens dans un nœud : retirées avec avertissement. Dites si vous voulez une liste précise de ce que le rapport doit signaler en erreur plutôt qu'en avertissement.</p>` },
+      { id: "P2-20", t: "Export Word des éléments HTML", e: "L", r: "m",
+        d: `<p>L'export Word lit le Markdown puis traite surtout paragraphes, tableaux et images ; les alignements HTML sont déjà gérés. Il faut décider ce que devient un encadré dans Word : paragraphe encadré ou style « Note », liste de définitions, exposant et indice.</p>
+        <p>C'est la tâche qui compte le plus pour un livrable contractuel Word.</p>`,
+        f: ["strictdoc/backend/docx/export/markdown_to_paragraphs.py", "strictdoc/backend/docx/export/docx_template.py", "strictdoc/backend/docx/export/sdoc_to_docx_generator.py"],
+        o: [ { k: "a", l: "Encadré = paragraphe avec style Word « Note » ou « Avertissement » du modèle", rec: 1 },
+             { k: "b", l: "Encadré = tableau à une cellule colorée", x: "Visuel proche du HTML mais fragile pour les modifications suivies." } ] },
+      { id: "P2-21", t: "Export PDF et impression", e: "S", r: "f",
+        d: `<p>Styles <code>@media print</code> et règles d'éclatement de page pour les encadrés, vérifiés avec l'export html2pdf (Chrome).</p>`,
+        f: ["strictdoc/features/html2pdf/templates/", "strictdoc/export/html/_static/"] },
+      { id: "P2-22", t: "Éditeur Milkdown : insertion d'un encadré", e: "M", r: "m",
+        d: `<p>Selon l'étude P2-00. Variante simple : entrée « Encadré » du menu d'insertion qui écrit le bloc HTML choisi. Variante riche : un nœud d'éditeur qui rend l'encadré en WYSIWYG et se sérialise vers ce HTML.</p>`,
+        dep: ["P2-00"],
+        o: [ { k: "a", l: "Insertion simple du bloc HTML", rec: 1 }, { k: "b", l: "Nœud WYSIWYG", x: "Chantier de plusieurs jours, avec reconstruction du bundle." }, { k: "c", l: "Pas d'aide à l'insertion", x: "On écrit le HTML à la main." } ] },
+      { id: "P2-23", t: "Recherche, page d'un item, versions et assistant LLM", e: "S", r: "f",
+        d: `<p>Vérifier que le texte des blocs HTML entre dans l'index de recherche, s'affiche sur la page d'un item et dans la comparaison de versions, et que l'assistant ne reçoit pas de balises en vrac (nettoyage dans <code>features/llm/context.py</code>).</p>`,
+        f: ["strictdoc/backend/sdoc/models/document.py (build_search_index)", "strictdoc/features/item_page/", "strictdoc/features/llm/context.py"] }
+    ] },
+
+  { id: "p3", label: "3 · Convertisseur",
+    title: "Phase 3 : convertisseur RST vers Markdown",
+    intro: `<p>Un outil qui lit chaque <code>.sdoc</code> dont le balisage est RST (ou absent), convertit les champs multilignes, écrit <code>MARKUP: Markdown</code> et produit un rapport. Il s'appuie sur la phase 2 pour les constructions sans équivalent Markdown. L'analyse de docutils se fait sur le même arbre que le rendu actuel, donc avec les mêmes directives StrictDoc.</p>`,
+    tasks: [
+      { id: "P3-01", t: "Forme de l'outil", e: "S", r: "f",
+        d: `<p>Une sous-commande de la famille <code>manage</code> : <code>strictdoc manage markup --to Markdown &lt;chemin&gt;</code>, avec <code>--dry-run</code>, <code>--report</code>, <code>--strict</code>, <code>--force</code>. Elle suit le modèle des commandes existantes (<code>manage_new_command.py</code> et son fichier de configuration).</p>`,
+        f: ["strictdoc/commands/manage_markup_command.py (nouveau)", "strictdoc/commands/manage_markup_config.py (nouveau)", "strictdoc/cli/main.py"],
+        o: [ { k: "a", l: "Commande manage dans le produit", rec: 1 }, { k: "b", l: "Script jetable dans developer/tools", x: "Moins d'effort, non couvert par les tests de la CLI." }, { k: "c", l: "Bouton web par document", x: "Demande des routes, des rôles et des tests end2end." } ] },
+      { id: "P3-02", t: "Moteur de conversion", e: "L", r: "e",
+        d: `<p>Parcourir l'arbre docutils (déjà utilisé pour le rendu) avec un visiteur qui écrit du Markdown. Les directives et rôles propres à StrictDoc sont enregistrés comme aujourd'hui (image avec joker, mathématiques, <code>rawhtml</code>).</p>`,
+        f: ["strictdoc/backend/rst/rst_to_markdown.py (nouveau)"],
+        o: [ { k: "a", l: "Visiteur docutils maison", rec: 1, x: "Fidèle à ce que StrictDoc affiche aujourd'hui, contrôle total du repli en HTML." },
+             { k: "b", l: "Pandoc externe (-f rst -t gfm)", x: "Binaire à installer, ne connaît pas les directives StrictDoc, tableaux et encadrés imprévisibles." },
+             { k: "c", l: "Expressions régulières", x: "Fragile : à écarter." } ] },
+      { id: "P3-03", t: "Dépendance docutils pendant et après la migration", e: "S", r: "m",
+        d: `<p>Le convertisseur a besoin de docutils, que la phase 4 retire de l'exécution. Il faut donc décider où docutils vit.</p>`,
+        dep: ["P3-02"],
+        o: [ { k: "a", l: "Groupe de dépendances optionnel « migration », retiré de l'exécution en phase 4", rec: 1, x: "Le convertisseur reste disponible, installé à la demande." },
+             { k: "b", l: "Convertisseur supprimé avec docutils après la migration", x: "Plus simple, mais plus d'outil si un ancien projet réapparaît." } ] },
+      { id: "P3-04", t: "Pipeline de lecture et d'écriture d'un document", e: "M", r: "m",
+        d: `<p>Lire avec <code>SDReader</code>, convertir chaque champ multiligne (<code>STATEMENT</code>, <code>RATIONALE</code>, <code>COMMENT</code>, champs personnalisés multilignes, nœuds <code>TEXT</code>), mettre <code>MARKUP: Markdown</code>, réécrire avec <code>SDWriter</code>. Traiter aussi les fragments inclus par <code>DOCUMENT_FROM_FILE</code>. Objectif : un diff Git où seuls ces champs et la ligne <code>MARKUP</code> changent.</p>`,
+        f: ["strictdoc/backend/sdoc/reader.py", "strictdoc/backend/sdoc/writer.py (wrap_rst_text)", "strictdoc/backend/sdoc/models/document_config.py"] },
+      { id: "P3-05", t: "Règles : texte en ligne", e: "M", r: "m",
+        d: `<ul><li>Emphase, gras, littéral (le double accent grave devient un seul, avec échappement si le texte contient un accent grave).</li>
+        <li>Liens <code>texte &lt;url&gt;_</code>, liens anonymes, références nommées, substitutions <code>|nom|</code> résolues à la conversion.</li>
+        <li>Échapper les caractères spéciaux Markdown (<code>* _ # &lt; | [ ]</code>) dans le texte normal.</li>
+        <li><strong>Ne jamais échapper</strong> <code>[LINK: UID]</code> ni <code>[ANCHOR: id, "titre"]</code>.</li></ul>` },
+      { id: "P3-06", t: "Règles : blocs", e: "M", r: "m",
+        d: `<ul><li>Paragraphes, listes à puces et numérotées imbriquées, citations, blocs littéraux <code>::</code>.</li>
+        <li><code>.. code::</code> et <code>.. code-block::</code> (249 occurrences) : clôtures avec langage.</li>
+        <li><code>.. math::</code> (24) : <code>$$…$$</code>.</li>
+        <li>Titres de section dans un champ : <code>#</code> ; transitions : <code>---</code> ; commentaires RST : commentaires HTML.</li>
+        <li>Encadrés et rôles : selon les choix de la phase 2.</li></ul>` },
+      { id: "P3-07", t: "Règles : tableaux", e: "L", r: "e", u: "23 list-table dans 9 fichiers",
+        d: `<p>Les tableaux ne sont pas dans la phase 2, mais la conversion doit les traiter : <code>list-table</code>, tableaux en grille, tableaux simples.</p>
+        <p>Format cible : tableau à barres verticales quand toutes les cellules tiennent sur une ligne, sans fusion ni bloc ; sinon tableau HTML (que l'éditeur sait relire quand toutes les balises et attributs sont connus). Gérer <code>:header-rows:</code>, <code>:widths:</code>, <code>:align:</code> et le titre (<code>caption</code>).</p>`,
+        o: [ { k: "a", l: "Barres verticales si simple, HTML sinon", rec: 1 }, { k: "b", l: "Toujours en HTML", x: "Uniforme, plus lourd à lire dans le fichier." } ] },
+      { id: "P3-08", t: "Règles : csv-table", e: "S", r: "f", u: "2 occurrences",
+        d: `<p>Lire le CSV à la conversion (contenu en ligne ou fichier relatif aux ressources), appliquer <code>:header:</code>, <code>:delim:</code>, <code>:widths:</code>, puis écrire comme un tableau (tâche précédente). Le fichier CSV d'origine n'est plus nécessaire : le supprimer ou le garder.</p>`,
+        o: [ { k: "a", l: "Garder le CSV dans les ressources", rec: 1 }, { k: "b", l: "Supprimer le CSV converti", x: "Nettoie, mais perd la source." } ] },
+      { id: "P3-09", t: "Règles : images", e: "M", r: "m", u: "98 .. image::, 14 avec joker",
+        d: `<p><code>.. image::</code> et <code>.. figure::</code> deviennent <code>![alt](chemin)</code>. Avec <code>:width:</code> ou <code>:align:</code>, écrire le HTML que l'éditeur sait relire (il gère l'alignement des images). Une légende de figure devient une ligne en italique ou <code>figcaption</code>.</p>
+        <p>Les chemins avec joker (<code>schema.*</code>) n'existent pas en Markdown.</p>`,
+        o: [ { k: "a", l: "Résoudre le joker vers l'extension réelle trouvée dans _assets (SVG, sinon PNG)", rec: 1 },
+             { k: "b", l: "Conserver le joker tel quel", x: "L'image ne s'affichera plus en HTML." } ] },
+      { id: "P3-10", t: "Commentaires de relecture", e: "S", r: "m",
+        d: `<p>L'en-tête RST <code>.. sdoc-comment: …</code> devient <code>&lt;!-- sdoc-comment … --&gt;</code>. Les champs <code>anchor</code> et <code>anchor_n</code> désignent des mots du texte : vérifier qu'ils sont encore retrouvés après conversion, sinon avertir.</p>`,
+        f: ["strictdoc/features/comments/model.py"] },
+      { id: "P3-11", t: "Que faire d'une construction non convertible", e: "S", r: "m",
+        d: `<p>Chaque construction qui ne se traduit pas fidèlement est signalée dans le rapport avec le document, le nœud, le champ et la ligne.</p>`,
+        o: [ { k: "a", l: "Repli HTML sinon commentaire, avec avertissement ; --strict fait échouer", rec: 1 },
+             { k: "b", l: "Toujours échouer", x: "Le document n'est pas écrit tant que tout n'est pas résolu." },
+             { k: "c", l: "Laisser le texte RST tel quel avec une marque TODO", x: "Rendu faux visible en relecture." } ] },
+      { id: "P3-12", t: "Rapport de conversion", e: "S", r: "f",
+        d: `<p>Rapport Markdown et JSON : champs convertis ou inchangés, histogramme des constructions rencontrées, avertissements, échecs. <code>--dry-run</code> n'écrit rien.</p>` },
+      { id: "P3-13", t: "Vérification sémantique automatique", e: "L", r: "e",
+        d: `<p>Pour chaque champ : rendre l'ancien RST avec docutils, rendre le Markdown converti, normaliser les deux (texte, titres, listes, tableaux, liens, images) et comparer. Les écarts sont listés. Sert de test sur tout le corpus (<code>docs/</code> et tests).</p>`,
+        dep: ["P3-02"] },
+      { id: "P3-14", t: "Sécurité d'exécution", e: "S", r: "f",
+        d: `<p>Ne convertit que les documents en RST ou sans balisage ; une seconde exécution ne change rien (idempotente) ; refuse un arbre Git non propre sauf <code>--force</code> ; un commit par document ou par projet.</p>` },
+      { id: "P3-15", t: "Effets de la conversion sur les liens suspects, les PDF et les comparaisons", e: "M", r: "e",
+        d: `<p>La conversion change le texte de <code>STATEMENT</code> : l'empreinte des liens suspects change, donc tous les liens deviennent suspects. Les barres de changement du PDF et l'écran de versions montrent tout comme modifié.</p>`,
+        o: [ { k: "a", l: "Étiquette de version avant ; recalcul de la ligne de base juste après la conversion", rec: 1, x: "La conversion est vue comme un changement technique, pas une relecture à refaire." },
+             { k: "b", l: "Empreinte calculée sur le texte rendu normalisé", x: "Évite le problème pour toutes les futures conversions, mais change un mécanisme existant." } ] },
+      { id: "P3-16", t: "Tests du convertisseur", e: "L", r: "m",
+        d: `<p>Tests unitaires par construction (cas d'or), tests d'intégration de la commande (<code>tests/integration/features/commands/manage/markup/</code>), exécution sur tout le corpus des <code>.sdoc</code> du dépôt avec la vérification sémantique.</p>` },
+      { id: "P3-17", t: "Guide de migration", e: "S", r: "f",
+        d: `<p>Page du guide utilisateur : table de correspondance RST vers Markdown, limites, comment lire le rapport, comment relancer.</p>` }
+    ] },
+
+  { id: "p4", label: "4 · Retrait du balisage",
+    title: "Phase 4 : retirer le balisage RST du code (cas B)",
+    intro: `<p>À ne lancer qu'après la migration des contenus. La liste suit le code actuel : chaque ligne cite un endroit où RST est en dur.</p>`,
+    tasks: [
+      { id: "P4-01", t: "Avertissement de dépréciation (étape 1)", e: "S", r: "f",
+        d: `<p>Si C-06 retient deux étapes : à la lecture d'un document RST ou sans balisage, message via <code>DEPRECATION_ENGINE</code> qui renvoie vers la commande de conversion.</p>`,
+        f: ["strictdoc/helpers/deprecation_engine.py", "strictdoc/core/traceability_index_builder.py"] },
+      { id: "P4-02", t: "Grammaire : retirer RST de MARKUP", e: "S", r: "m",
+        d: `<p>Enlever <code>'RST'</code> de <code>MarkupChoice</code> et <code>SDocMarkup.RST</code> ; un document avec <code>MARKUP: RST</code> donne une erreur explicite qui cite la commande de conversion.</p>`,
+        f: ["strictdoc/backend/sdoc/grammar/grammar.py", "strictdoc/backend/sdoc/constants.py"] },
+      { id: "P4-03", t: "Valeurs par défaut en dur", e: "M", r: "e",
+        d: `<p>Remplacer le repli RST dans <code>DocumentConfig.get_markup()</code>, dans <code>MarkupRenderer</code> (3 endroits), dans <code>RequirementFormObject</code> (3 endroits) et dans <code>editable_field.js</code> (défaut 'RST', syntaxe d'insertion d'image).</p>`,
+        f: ["strictdoc/backend/sdoc/models/document_config.py", "strictdoc/export/html/renderers/markup_renderer.py", "strictdoc/export/html/form_objects/requirement_form_object.py", "strictdoc/export/html/_static/editable_field.js"],
+        dep: ["C-05"] },
+      { id: "P4-04", t: "Rendus internes qui passent markup=\"RST\"", e: "S", r: "m",
+        d: `<p>Ce sont des titres et noms générés par StrictDoc, pas du RST rédigé. À passer en Texte ou en Markdown selon le cas.</p>`,
+        f: ["strictdoc/features/traceability_matrix/generator.py", "strictdoc/features/source_file_view/generator.py", "strictdoc/features/source_file_view/view_object.py", "strictdoc/features/nestor/view_object.py", "strictdoc/features/search/view_object.py"] },
+      { id: "P4-05", t: "Supprimer le paquet backend/rst", e: "M", r: "m",
+        d: `<p>Rendu HTML RST, directives (image avec joker, mathématiques, <code>rawhtml</code>), <code>formatter.py</code> et son utilisation dans <code>sdoc/writer.py</code>, <code>helpers/rst.py</code>, gabarit <code>rst/anchor.jinja</code>, branche RST de <code>MarkupRenderer</code>.</p>
+        <p><strong>Attention :</strong> <code>strictdoc_lexer.py</code> colore la syntaxe <code>sdoc</code> dans les blocs de code. Le déplacer (par exemple dans <code>backend/sdoc/</code>) et l'enregistrer pour les clôtures <code>sdoc</code> en Markdown (trois apostrophes inverses suivies de sdoc), sinon la coloration disparaît.</p>`,
+        f: ["strictdoc/backend/rst/", "strictdoc/helpers/rst.py", "strictdoc/export/html/templates/rst/anchor.jinja", "strictdoc/backend/sdoc/writer.py"] },
+      { id: "P4-06", t: "Gestion des images", e: "S", r: "m",
+        d: `<p><code>manage assets --clean-unused-images</code> lit les directives RST des images. Il ne doit plus lire que les images Markdown et HTML. Adapter aussi le commentaire de <code>core/image_formats.py</code>.</p>`,
+        f: ["strictdoc/commands/manage_assets_command.py", "strictdoc/core/image_formats.py"] },
+      { id: "P4-07", t: "Validation à l'enregistrement", e: "S", r: "m",
+        d: `<p>Le serveur valide aujourd'hui la syntaxe RST avant d'enregistrer un nœud (<code>RstToHtmlFragmentWriter</code> dans <code>update_requirement.py</code> et <code>requirement_form_object.py</code>). À remplacer : Markdown n'a pas d'erreur de syntaxe fatale.</p>`,
+        o: [ { k: "a", l: "Aucune validation de syntaxe", rec: 1 }, { k: "b", l: "Valider le HTML autorisé (liste blanche P2-01)", x: "Refuse l'enregistrement d'un HTML interdit." } ],
+        f: ["strictdoc/core/transforms/update_requirement.py", "strictdoc/export/html/form_objects/requirement_form_object.py"] },
+      { id: "P4-08", t: "Fonction MATHJAX", e: "S", r: "f",
+        d: `<p>La fonction MATHJAX enregistre aujourd'hui des rôles et directives RST. En Markdown, <code>$…$</code> est déjà rendu. Simplifier le code et décider si le drapeau reste (l'amont a ouvert un chantier de dépréciation de MathJax et Mermaid).</p>`,
+        o: [ { k: "a", l: "Garder le drapeau, retirer le code RST", rec: 1 }, { k: "b", l: "Supprimer le drapeau", x: "Rupture pour les configurations qui l'activent." } ] },
+      { id: "P4-09", t: "Importeurs et exporteurs : balisage par défaut", e: "M", r: "m",
+        d: `<p>Profil Word par défaut (<code>MARKUP_RST</code> devient Markdown), <code>docx_comments.py</code> (<code>markup = "RST"</code>), suppression de <code>rst_to_paragraphs.py</code> et de ses branches dans l'import et l'export, option <code>--reqif-import-markup</code> (la liste vient de <code>SDocMarkup.ALL</code>), valeur par défaut des importeurs Excel et ReqIF, <code>strictdoc new</code> et ses gabarits.</p>`,
+        f: ["strictdoc/backend/docx/docx_profile.py", "strictdoc/backend/docx/export/docx_comments.py", "strictdoc/backend/docx/export/rst_to_paragraphs.py", "strictdoc/backend/docx/import_/docx_to_sdoc_converter.py", "strictdoc/commands/_shared.py", "strictdoc/commands/new_command.py"] },
+      { id: "P4-10", t: "Cache et version", e: "S", r: "f",
+        d: `<p>Supprimer le sous-dossier <code>&lt;cache&gt;/rst</code>. Les classes de modèle changent (constante supprimée) : la version du cache augmente pour invalider les fichiers pickle.</p>` },
+      { id: "P4-11", t: "Dépendances et packaging", e: "S", r: "f",
+        d: `<p>Retirer <code>docutils</code> de <code>pyproject.toml</code> à l'exécution (voir P3-03), régénérer <code>uv.lock</code>, supprimer <code>[mypy-docutils.*]</code> de <code>mypy.ini</code>, vérifier les hooks PyInstaller, <code>Dockerfile</code> et <code>flake.nix</code>.</p>`,
+        f: ["pyproject.toml", "uv.lock", "mypy.ini", "developer/pyinstaller_hooks/", "Dockerfile", "flake.nix"] },
+      { id: "P4-12", t: "Erreur ou avertissement final", e: "S", r: "f",
+        d: `<p>Fin de l'étape 2 de C-06 : l'avertissement P4-01 devient l'erreur de P4-02 pour les documents sans balisage déclaré, selon le choix C-05.</p>`,
+        dep: ["C-05", "C-06"] }
+    ] },
+
+  { id: "migration", label: "Migration des contenus",
+    title: "Migration des contenus",
+    intro: `<p>La conversion s'applique à trois ensembles : les données de production (déjà en Markdown pour REQ_02), la documentation de StrictDoc et les tests. L'ordre compte : aucune suppression de RST avant que tout soit migré.</p>`,
+    tasks: [
+      { id: "M-01", t: "Inventaire des projets réels (lecture seule)", e: "S", r: "f",
+        d: `<p>Scanner <code>~/strictdoc-data</code>, <code>~/strictdoc-projects</code> et les dépôts GitLab de documents (<code>kb-isis</code>, projets créés par le portail) : nombre de <code>.sdoc</code> sans <code>MARKUP: Markdown</code>, directives RST, tableaux, images avec joker. Livrable : un rapport que vous validez avant toute conversion.</p>` },
+      { id: "M-02", t: "Convertir la documentation de StrictDoc", e: "L", r: "m",
+        d: `<p>15 documents dans <code>docs/</code>, tous en RST implicite : guide utilisateur (254 lignes de directives), notes de version, exigences L1 à L3, guide du développeur... Conversion par l'outil, relecture à la main, comparaison avant et après du site (<code>invoke docs</code>).</p>
+        <p>Ces fichiers sont aussi modifiés par l'amont : conflits garantis en cas de fusion ultérieure.</p>`,
+        dep: ["P3-13"],
+        o: [ { k: "a", l: "Convertir sur place", rec: 1 }, { k: "b", l: "Garder une copie RST du guide hors du produit", x: "Garde la mémoire de l'ancien rendu." } ] },
+      { id: "M-03", t: "Corpus de tests", e: "L", r: "e", u: "~1 770 .sdoc sans balisage, 94 avec directives",
+        d: `<p>Ces fichiers sont des entrées de tests d'intégration et end2end ; la plupart contiennent du texte brut sans mise en forme.</p>`,
+        o: [ { k: "a", l: "Ajouter MARKUP: Markdown aux fichiers sans mise en forme, convertir les 94 avec directives", rec: 1, x: "Évite de réécrire des centaines de résultats attendus qui ne dépendent pas du balisage." },
+             { k: "b", l: "Tout convertir par l'outil, régénérer tous les résultats attendus", x: "Plus uniforme, très long à relire." },
+             { k: "c", l: "Réécrire à la main les cas importants seulement", x: "Couverture inégale." } ] },
+      { id: "M-04", t: "Tests propres à RST", e: "M", r: "f",
+        d: `<p>Supprimer ou porter vers Markdown : <code>tests/integration/features/html/rst_markup_to_html/</code>, les tests unitaires de <code>tests/unit/strictdoc/export/rst/</code> (writer, lexeur, rôle <code>rawhtml</code>) et <code>test_rst_to_paragraphs.py</code>. Pour chaque test, un équivalent Markdown quand la fonction existe encore (code, mathématiques, images, tableaux).</p>` },
+      { id: "M-05", t: "Données de production", e: "M", r: "m",
+        d: `<p>REQ_02 est déjà en Markdown : vérifier seulement. Pour tout autre document RST trouvé en M-01 : étiquette de version avant, conversion, vérification de l'export Word avec le profil, recalcul de la ligne de base des liens suspects, reconstruction de l'index de la base de connaissances (<code>kb-isis</code>, hors dépôt) si le texte indexé change.</p>`,
+        dep: ["M-01", "P3-15"] },
+      { id: "M-06", t: "Ordre de bascule", e: "S", r: "f",
+        d: `<p>Livrer P3 ; convertir <code>docs/</code> et les tests dans des commits séparés ; vérifier ; seulement alors lancer P4. Aucun commit de P4 ne doit entrer avant que le dépôt ne contienne plus aucun <code>MARKUP: RST</code>.</p>` }
+    ] },
+
+  { id: "fork", label: "Fonctions du fork",
+    title: "Effets sur les fonctions du fork ISIS",
+    intro: `<p>Points que vous n'aviez pas listés et que le retrait touche : éditeur, commentaires, Word, assistant, i18n, base de connaissances, documentation.</p>`,
+    tasks: [
+      { id: "F-01", t: "Contrat de format entre convertisseur et éditeur Milkdown", e: "M", r: "e",
+        d: `<p>Le convertisseur écrit du Markdown, des tableaux HTML et des blocs HTML ; l'éditeur doit les relire sans les altérer, et écrire le même format quand un auteur modifie le champ. Un test automatique charge un document converti dans l'éditeur, enregistre sans modification, et compare le texte.</p>`,
+        dep: ["P2-00"], f: ["developer/milkdown/src/tables.js", "developer/milkdown/src/sdoc_markers.js", "developer/milkdown/playwright/"] },
+      { id: "F-02", t: "Commentaires de relecture", e: "S", r: "f",
+        d: `<p>Retirer la variante RST de l'en-tête de commentaire (<code>_RST_HEADER</code>) quand la migration est finie ; garder la lecture tolérante pendant la dépréciation.</p>`,
+        f: ["strictdoc/features/comments/model.py", "strictdoc/features/comments/assets/comments/comments.js"] },
+      { id: "F-03", t: "Word : import, export et mise à jour", e: "M", r: "m",
+        d: `<p>Le profil Word passe en Markdown par défaut. Vérifier la mise à jour d'un Word existant avec modifications suivies (<code>docx_tracked_update.py</code>) : elle compare du texte ; après conversion, les textes diffèrent sans que le fond change. Prévoir un cas de test avec REQ_02.</p>`,
+        f: ["strictdoc/backend/docx/export/docx_tracked_update.py", "strictdoc/backend/docx/docx_profile.py"] },
+      { id: "F-04", t: "Assistant LLM", e: "S", r: "f",
+        d: `<p>Les prompts ne parlent pas de RST (recherche faite dans le code Python ; les 23 fichiers de prompts restent à relire). L'assistant écrit dans le balisage du document : vérifier <code>create_text_node</code>, <code>/glossary</code>, <code>/translate</code> sur un document Markdown, et les cas du jeu d'évaluation.</p>`,
+        f: ["strictdoc/features/llm/service.py", "strictdoc/features/llm/prompts/", "strictdoc/features/llm/golden/"] },
+      { id: "F-05", t: "Interface en français", e: "S", r: "f",
+        d: `<p>Nouveaux textes (rapport du convertisseur, messages de dépréciation, aides d'insertion d'encadré) ajoutés au catalogue français ; textes devenus inutiles retirés. Mise à jour par <code>developer/i18n/update_catalogs.py</code>.</p>` },
+      { id: "F-06", t: "Rôles et routes", e: "S", r: "f",
+        d: `<p>La commande est en ligne de commande : aucune route. Si le bouton web de P3-01 est retenu, chaque nouvelle route doit figurer dans <code>ROUTE_ROLES</code> (rôle administrateur) sinon le serveur ne démarre pas.</p>`,
+        f: ["strictdoc/features/roles/route_roles.py"] },
+      { id: "F-07", t: "Base de connaissances (kb-platform)", e: "S", r: "m",
+        d: `<p>L'indexeur de la base de connaissances lit des <code>.sdoc</code> ; je ne peux pas voir s'il suppose du RST (dépôt hors de celui-ci). À vérifier avant de convertir des documents de mission.</p>` },
+      { id: "F-08", t: "Écrans qui rendent des champs", e: "S", r: "f",
+        d: `<p>Page d'un item, vue en pages, comparaison de versions, page des liens suspects et des commentaires : tous passent par <code>MarkupRenderer</code>. Test de bout en bout après P4.</p>` },
+      { id: "F-09", t: "Documentation d'architecture", e: "S", r: "f",
+        d: `<p>Mettre à jour <code>architecture/</code> (documents 02, 03, 04, 06, 08, 11, 12 et l'index) : retirer RST, ajouter le convertisseur et les éléments HTML.</p>`,
+        f: ["architecture/"] },
+      { id: "F-10", t: "CLAUDE.md et AGENTS.md", e: "S", r: "f",
+        d: `<p>CLAUDE.md décrit les lectures « .sdoc, Markdown, RST, ReqIF » : retirer RST. Rien à changer dans AGENTS.md à part vérifier la mention des formats.</p>`,
+        f: ["CLAUDE.md", "AGENTS.md"] }
+    ] },
+
+  { id: "qualite", label: "Tests, docs, CI",
+    title: "Tests, documentation, packaging et CI",
+    intro: `<p>Mesures transversales qui valident chaque phase.</p>`,
+    tasks: [
+      { id: "Q-01", t: "Stratégie de test par phase", e: "M", r: "f",
+        d: `<p>P1 : tests d'intégration de la CLI. P2 : tests de rendu des éléments HTML, tests Milkdown, tests d'export Word et PDF. P3 : corpus et vérification sémantique. P4 : suite complète (<code>invoke check</code>, puis end2end avec <code>--headless</code>).</p>` },
+      { id: "Q-02", t: "Référence de rendu avant et après", e: "S", r: "f",
+        d: `<p>Exporter REQ_02 et <code>docs/</code> en HTML avant la phase 1 ; comparer le texte visible après chaque phase. C'est le test le plus parlant pour vous.</p>`,
+        o: [ { k: "a", l: "Comparaison automatique du texte visible", rec: 1 }, { k: "b", l: "Relecture visuelle par captures d'écran", x: "Meilleure pour les encadrés, plus lente." } ] },
+      { id: "Q-03", t: "Exigences et traçabilité", e: "M", r: "m",
+        d: `<p>Nouvelles exigences (convertisseur, éléments HTML, retrait de RST), marqueurs <code>@relation</code>, retrait des exigences RST. Les numéros SDOC-SRS-208 à 216 du fork entrent en collision avec ceux de l'amont : à renuméroter avant toute fusion de l'amont.</p>`,
+        f: ["docs/strictdoc_21_l2_high_level_requirements.sdoc", "docs/strictdoc_22_l3_low_level_requirements.sdoc"] },
+      { id: "Q-04", t: "Guide utilisateur et FAQ", e: "M", r: "f",
+        d: `<p>Section « Markdown » complétée (HTML autorisé, éléments de remplacement), section « Migrer de RST », retrait des sections RST (directives, rôles, Sphinx).</p>` },
+      { id: "Q-05", t: "Notes de version et ruptures", e: "S", r: "f",
+        d: `<p>Ruptures à lister : <code>MARKUP: RST</code>, <code>--formats=rst</code>, balisage par défaut, <code>--reqif-import-markup RST</code>, profil Word par défaut, API Python (vérifier si <code>strictdoc.api</code> exporte des classes RST).</p>`,
+        f: ["docs/strictdoc_04_release_notes.sdoc", "strictdoc/api/__init__.py"] },
+      { id: "Q-06", t: "CI, packaging et durée", e: "S", r: "f",
+        d: `<p>Options de données PyInstaller et Nuitka, <code>Dockerfile</code>, environnement de test Docker (arm64 inclus), durée de la suite. Le retrait doit raccourcir la suite : plus de tests RST, un cache en moins.</p>`,
+        f: ["tasks.py", "Dockerfile", "developer/docker_tests/"] },
+      { id: "Q-07", t: "Mesure de performance", e: "S", r: "f",
+        d: `<p>Temps d'export de <code>docs/</code> et d'un gros document, avant et après (docutils et son cache disparaissent). Critère : aucune régression.</p>` }
+    ] },
+
+  { id: "risques", label: "Risques et livraison",
+    title: "Risques, livraison et ce qui reste hors périmètre",
+    intro: `<p>Chaque risque a une parade et un propriétaire. Dites si l'une d'elles vous paraît insuffisante.</p>`,
+    tasks: [
+      { id: "R-01", t: "Contenu RST lu comme du Markdown, sans erreur", e: "M", r: "e",
+        d: `<p>Le plus grave : un ancien document sans <code>MARKUP</code> s'afficherait faux. Parades : migration complète avant P4 (M-06), erreur sur <code>MARKUP: RST</code> (P4-02), avertissement sur tout champ qui contient une directive ou un double accent grave.</p>` },
+      { id: "R-02", t: "Dérive de rendu", e: "M", r: "m",
+        d: `<p>Parade : vérification sémantique automatique (P3-13) et comparaison avant et après (Q-02).</p>` },
+      { id: "R-03", t: "Conflits avec l'amont", e: "M", r: "m",
+        d: `<p>Parade : cherry-pick des correctifs utiles avant P4 ; liste des fichiers supprimés pour les fusions futures ; renumérotation des exigences (Q-03).</p>`,
+        dep: ["C-07"] },
+      { id: "R-04", t: "Irréversibilité", e: "S", r: "f",
+        d: `<p>Il n'y a pas de conversion Markdown vers RST. Parade : étiquette <code>pre-markdown-only</code>, branche dédiée, sauvegarde des projets de production avant conversion.</p>` },
+      { id: "R-05", t: "Arrêt et retour en arrière", e: "S", r: "f",
+        d: `<p>Critère proposé : si la vérification sémantique signale plus de 5 % de champs divergents sur le corpus, on ne lance pas P4 et on corrige le convertisseur. Précisez le seuil.</p>`,
+        o: [ { k: "a", l: "Seuil de 5 %", rec: 1 }, { k: "b", l: "Zéro divergence non expliquée", x: "Plus strict, plus long." } ] },
+      { id: "R-06", t: "Hors périmètre déclaré", e: "S", r: "f",
+        d: `<ul><li>L'affichage des fichiers <code>.rst</code> du code source dans l'écran « fichier source » (coloration Pygments) reste : c'est la lecture d'un fichier, pas le balisage d'un nœud.</li><li>Le format de document <code>.md</code> natif n'est pas touché (C-04).</li><li>Les balisages <code>HTML</code> et <code>Text</code> restent (C-03).</li></ul>` },
+      { id: "R-07", t: "Estimation globale", e: "S", r: "f",
+        d: `<p>La page Synthèse additionne les charges des tâches validées (S 0,5 j ; M 1,5 j ; L 4 j). Ce sont des ordres de grandeur pour une personne, pas des engagements.</p>` }
+    ] }
+];
+
+
+/* ------------------------------------------------------------------ *
+ * Révision 2 : ce qui change après les réponses. v: numéro de version
+ * de la tâche (une réponse donnée à une version plus ancienne devient
+ * « à revoir »). ch: ce qui a changé. dec: ce qui a été retenu.
+ * ------------------------------------------------------------------ */
+const CHANGES_HTML = `<p><strong>Révision 2.</strong> Vos 91 réponses sont conservées. Une tâche marquée <em>Modifiée</em> demande une nouvelle réponse (l'ancienne est rappelée). Une tâche <em>Nouvelle</em> est à décider. Le filtre « À revoir » les rassemble.</p>
+<ul>
+<li><strong>Text retiré avec RST</strong> (votre choix C-03) : nouvelles tâches P3-18, P4-14 et M-07.</li>
+<li><strong>MARKUP devient facultatif</strong> (votre question sur C-05) : C-05, P4-02 et M-03 modifiées, détecteur de contenu RST résiduel P4-13.</li>
+<li><strong>Retrait direct</strong> (C-06) : P4-01 et P4-12 n'ont plus d'objet ; F-02 modifiée.</li>
+<li><strong>Script jetable</strong> (P3-01) : P3-01 et P3-16 modifiées ; P4-11 supprime le script avec docutils.</li>
+<li><strong>Tableaux toujours en HTML</strong> (P3-07) : F-01 modifiée.</li>
+<li><strong>Nœud WYSIWYG</strong> pour les encadrés (P2-22) : effort relevé à L.</li>
+<li><strong>Drapeau MATHJAX</strong> (P4-08) : correction, il n'a déjà plus d'effet.</li>
+<li><strong>arm64</strong> : Q-06 modifiée, Q-08 nouvelle.</li>
+<li><strong>Passage au Markdown natif</strong> (C-04) : nouvel onglet 5 et tâche P5-01.</li>
+</ul>`;
+
+const DECISIONS_TAKEN = {
+  "C-03": "Markdown et HTML. Le balisage Text est donc retiré avec RST.",
+  "C-04": "Garder .sdoc avec MARKUP. Votre commentaire : ajouter en fin de plan une tâche pour le passage au Markdown natif, avec des conseils (P5-01).",
+  "C-06": "Retrait direct, sans période d'avertissement.",
+  "P1-06": "Aucune documentation de migration depuis Sphinx.",
+  "P2-22": "Nœud WYSIWYG dans l'éditeur.",
+  "P3-01": "Script jetable dans developer/tools, pas de commande manage.",
+  "P3-03": "Le convertisseur est supprimé avec docutils après la migration ; l'étiquette pre-markdown-only le garde.",
+  "P3-07": "Tableaux toujours en HTML.",
+  "P3-08": "Le CSV converti est supprimé.",
+  "P4-07": "Aucune validation de syntaxe à l'enregistrement.",
+  "P4-08": "Supprimer le drapeau MATHJAX.",
+  "Q-06": "Votre commentaire : supprimer la version arm64."
+};
+
+const REVISIONS = {
+  "C-05": { v: 2, t: "Balisage par défaut après retrait, et utilité de l'option MARKUP",
+    ch: "Vous demandez si cette fonction est encore utile. Presque plus : voir ci-dessous.",
+    d: `<p>Une fois RST et Text retirés, il reste deux balisages : Markdown et HTML (choix C-03). L'option <code>MARKUP</code> ne sert plus qu'à dire « ce document est en HTML », utile à l'import ReqIF XHTML. Écrire <code>MARKUP: Markdown</code> dans chaque document n'apporte rien et ajoute du bruit dans environ 1 800 fichiers.</p>
+    <p>Contrepartie : sans cette ligne, un ancien document RST implicite ne se distingue plus d'un document Markdown. Les parades sont la conversion complète avant le retrait (M-06) et un détecteur de contenu RST résiduel (nouvelle tâche P4-13).</p>`,
+    o: [ { k: "a", l: "MARKUP facultatif, Markdown implicite. La clé ne sert que pour HTML ; MARKUP: Markdown reste accepté et ignoré ; le script ne l'écrit pas", rec: 1 },
+         { k: "b", l: "Supprimer la clé MARKUP", x: "Contredit C-03 : l'import ReqIF XHTML perdrait son balisage." },
+         { k: "c", l: "Garder la décision précédente : MARKUP: Markdown écrit partout", x: "Marque les documents migrés, mais ajoute environ 1 800 diffs." } ] },
+  "P2-22": { v: 2, e: "L", r: "e",
+    ch: "Variante retenue : nœud WYSIWYG. Effort relevé de M à L, risque relevé à élevé.",
+    d: `<p>Un nœud de l'éditeur qui affiche l'encadré et s'écrit exactement comme le HTML de P2-10. Il faut un test d'aller-retour sur les 10 types d'encadré, la reconstruction du bundle (<code>developer/milkdown</code>) et le commit des fichiers générés (<code>milkdown.js</code>, <code>milkdown.css</code>, mentions légales).</p>`,
+    o: null },
+  "P3-01": { v: 2, t: "Forme de l'outil : script jetable",
+    ch: "Variante retenue : script jetable dans developer/tools, pas de commande manage.",
+    d: `<p>Un script <code>developer/tools/rst_to_markdown.py</code>, hors du paquet StrictDoc. Il tourne dans l'environnement du dépôt (il importe StrictDoc et docutils). Arguments : chemin, <code>--dry-run</code>, <code>--report</code>, <code>--strict</code>, <code>--force</code>.</p>
+    <p>Ce n'est pas une commande de la CLI : pas de test d'intégration de CLI, pas de documentation de commande. Il est supprimé en phase 4 avec docutils (P4-11) ; l'étiquette <code>pre-markdown-only</code> le garde.</p>`,
+    f: ["developer/tools/rst_to_markdown.py (nouveau)", "tests/unit/developer/ (nouveaux tests)"], o: null },
+  "P3-16": { v: 2,
+    ch: "Le convertisseur est un script : tests unitaires et contrôle du corpus, pas de test de CLI.",
+    d: `<p>Tests unitaires par construction (cas d'or) dans <code>tests/unit/developer/</code>, qui existe déjà (<code>git/</code>). Un contrôle sur tout le corpus de <code>.sdoc</code> du dépôt avec la vérification sémantique (P3-13). Pas de test d'intégration de CLI, puisque le script n'est pas une commande.</p>` },
+  "F-01": { v: 2,
+    ch: "Les tableaux convertis sont toujours en HTML (P3-07).",
+    d: `<p>Le script écrit du Markdown, des tableaux HTML et des blocs HTML ; l'éditeur doit les relire sans les altérer. Un test automatique charge un document converti dans l'éditeur, enregistre sans modification, et compare le texte, avec au moins un tableau HTML aux balises connues.</p>
+    <p>Point à décider : l'éditeur écrit un tableau simple en tableau à barres. À la première édition d'un tableau converti, il le réécrirait donc en barres, ce qui fait un diff Git.</p>`,
+    o: [ { k: "a", l: "Accepter la réécriture en tableau à barres à la première édition", rec: 1 },
+         { k: "b", l: "Faire écrire du HTML par l'éditeur pour les tableaux qui étaient déjà en HTML", x: "Changement de tables.js et reconstruction du bundle." } ] },
+  "F-02": { v: 2,
+    ch: "Retrait direct : pas de lecture tolérante pendant une dépréciation.",
+    d: `<p>Le script réécrit les en-têtes <code>.. sdoc-comment: …</code> en <code>&lt;!-- sdoc-comment … --&gt;</code>. Sans période de dépréciation (C-06), la variante RST (<code>_RST_HEADER</code>) est retirée dans la phase 4 sans lecture tolérante.</p>` },
+  "P4-01": { v: 2, t: "Avertissement de dépréciation : sans objet depuis C-06",
+    ch: "Avec le retrait direct (C-06), il n'y a plus d'étape d'avertissement.",
+    d: `<p>Proposition : supprimer cette tâche. Le contenu RST résiduel est couvert par l'erreur de P4-02 et le détecteur P4-13.</p>`,
+    o: [ { k: "a", l: "Supprimer la tâche (sans objet)", rec: 1 }, { k: "b", l: "Garder un avertissement quand même" } ] },
+  "P4-12": { v: 2, t: "Erreur ou avertissement final : sans objet depuis C-06",
+    ch: "Il n'y a plus deux étapes, donc plus de transition à faire.",
+    d: `<p>Proposition : supprimer cette tâche.</p>`,
+    o: [ { k: "a", l: "Supprimer la tâche (sans objet)", rec: 1 }, { k: "b", l: "La garder" } ] },
+  "P4-02": { v: 2,
+    ch: "MARKUP devient facultatif (C-05) et Text est retiré (C-03).",
+    d: `<p><code>MarkupChoice</code> devient <code>'Markdown' | 'HTML'</code> et <code>SDocMarkup.RST</code> et <code>SDocMarkup.TEXT</code> disparaissent. Une ligne <code>MARKUP: Markdown</code> reste acceptée et ignorée. <code>MARKUP: RST</code> et <code>MARKUP: Text</code> donnent une erreur claire qui cite le script de conversion et l'étiquette <code>pre-markdown-only</code>.</p>` },
+  "P4-08": { v: 2,
+    ch: "Correction de ma description : le drapeau n'a déjà plus d'effet.",
+    d: `<p>Le drapeau <code>MATHJAX</code> est déjà inutile : MathJax est toujours chargé (<code>is_activated_mathjax()</code> renvoie toujours vrai) et la configuration ne fait qu'afficher un avertissement de dépréciation. Supprimer le drapeau veut dire : retirer <code>ProjectFeature.MATHJAX</code>, l'avertissement, l'option <code>--enable-mathjax</code> de <code>export</code>, <code>is_activated_mathjax()</code> et ses conditions dans les gabarits, et le commentaire de <code>new_command.py</code>. Le chargement de MathJax ne change pas.</p>
+    <p>Une configuration qui liste encore <code>"MATHJAX"</code> échouerait (valeur inconnue).</p>`,
+    f: ["strictdoc/core/project_config.py", "strictdoc/commands/export_config.py", "strictdoc/commands/export.py", "strictdoc/commands/new_command.py", "strictdoc/export/html/templates/screens/document/document/index.jinja", "strictdoc/export/html/templates/screens/document/table/index.jinja"],
+    o: [ { k: "a", l: "Retrait net : une configuration qui liste MATHJAX échoue", rec: 1, x: "Cohérent avec le retrait direct (C-06). Le dépôt n'en a plus besoin." },
+         { k: "b", l: "Accepter et ignorer la valeur MATHJAX dans project_features", x: "Évite une rupture de configuration, garde un résidu." } ] },
+  "P4-09": { v: 2,
+    ch: "Text est retiré aussi (C-03) ; les valeurs de --reqif-import-markup suivent.",
+    d: `<p>Profil Word par défaut (<code>MARKUP_RST</code> devient Markdown), <code>docx_comments.py</code> (<code>markup = "RST"</code>), suppression de <code>rst_to_paragraphs.py</code> et de ses branches, option <code>--reqif-import-markup</code> (valeurs possibles : <code>Markdown</code> et <code>HTML</code> ; la liste vient de <code>SDocMarkup.ALL</code>), défaut des importeurs Excel et ReqIF, <code>strictdoc new</code> et ses gabarits.</p>` },
+  "P4-11": { v: 2,
+    ch: "Variante P3-03 retenue : docutils et le script disparaissent ensemble.",
+    d: `<p>Retirer <code>docutils</code> de <code>pyproject.toml</code> sans groupe de remplacement, supprimer <code>developer/tools/rst_to_markdown.py</code> (il reste dans l'étiquette <code>pre-markdown-only</code>), régénérer <code>uv.lock</code>, supprimer <code>[mypy-docutils.*]</code> de <code>mypy.ini</code>, vérifier les hooks PyInstaller, <code>Dockerfile</code> et <code>flake.nix</code>.</p>` },
+  "M-03": { v: 2,
+    ch: "Plus de ligne MARKUP ajoutée (C-05, option a).",
+    d: `<p>Appliquer le script à tous les <code>.sdoc</code> de tests. Un fichier sans mise en forme ne change pas (aucun diff, pas de ligne <code>MARKUP</code> ajoutée). Les 94 fichiers avec directives sont convertis et relus. Les résultats attendus qui changent sont régénérés.</p>
+    <p>Risque : un texte brut qui contient <code>*</code>, <code>_</code>, <code>#</code>, <code>[</code>, <code>&lt;</code>, <code>|</code> peut changer d'aspect en Markdown. Le script échappe ces caractères et la vérification sémantique le confirme.</p>`,
+    o: null },
+  "Q-06": { v: 2, t: "CI, packaging et durée (arm64 retiré)",
+    ch: "Votre commentaire : supprimer la version arm64. La tâche Q-08 le fait.",
+    d: `<p>Options de données PyInstaller et Nuitka, <code>Dockerfile</code>, durée de la suite. Le retrait doit raccourcir la suite : plus de tests RST, un cache en moins. La prise en charge d'arm64 des tests Docker est retirée (Q-08).</p>` },
+  "R-06": { v: 2,
+    ch: "Text est retiré, pas conservé (C-03).",
+    d: `<ul><li>L'affichage des fichiers <code>.rst</code> du code source dans l'écran « fichier source » (coloration Pygments) reste : c'est la lecture d'un fichier, pas le balisage d'un nœud.</li><li>Le format de document <code>.md</code> natif n'est pas touché : voir P5-01.</li><li>Le balisage <code>HTML</code> reste ; <code>Text</code> part avec RST (C-03).</li></ul>` }
+};
+
+const ADDED = [
+  { after: "P3-17", task: { id: "P3-18", t: "Conversion des documents Text vers Markdown", e: "S", r: "m", n: 1, v: 2, dep: ["P3-02"],
+    d: `<p>Trois fichiers de test sont en <code>MARKUP: Text</code> : <code>options_per_document/MARKUP/02_options_markup_is_text</code> et les deux fichiers de <code>10_linux_spdx_req_id_autogen</code>. Le rendu Text échappe le HTML et transforme chaque retour à la ligne en <code>&lt;br/&gt;</code>.</p>
+    <p>Le script les convertit : échapper les caractères spéciaux de Markdown, garder les retours à la ligne (deux espaces ou barre oblique inverse en fin de ligne), puis vérifier le rendu.</p>` } },
+  { after: "P4-12", task: { id: "P4-13", t: "Détecteur de contenu RST résiduel", e: "S", r: "m", n: 1, v: 2, dep: ["C-05"],
+    d: `<p>Sans ligne <code>MARKUP</code> obligatoire, un ancien document RST ne se distingue plus d'un document Markdown. À la lecture, un avertissement signale un champ qui contient une ligne <code>.. directive::</code>, un double accent grave, un titre souligné ou un tableau en grille. Les blocs de code sont ignorés pour limiter les faux positifs. C'est un avertissement, jamais une erreur.</p>`,
+    f: ["strictdoc/backend/sdoc/processor.py", "strictdoc/helpers/deprecation_engine.py"],
+    o: [ { k: "a", l: "Avertissement à la lecture", rec: 1 }, { k: "b", l: "Seulement dans un rapport de vérification", x: "Rien à l'ouverture d'un document." }, { k: "c", l: "Aucun détecteur", x: "Le risque R-01 repose alors sur la seule migration." } ] } },
+  { after: "P4-13", task: { id: "P4-14", t: "Retirer le balisage Text", e: "S", r: "f", n: 1, v: 2, dep: ["C-03", "P3-18"],
+    d: `<p>Retirer <code>TextToHtmlWriter</code> (<code>text_to_html_writer.py</code>) et ses deux usages dans <code>MarkupRenderer</code>, la valeur <code>Text</code> de la grammaire, et le test <code>02_options_markup_is_text</code> (il teste l'option elle-même). Un <code>MARKUP: Text</code> donne l'erreur de P4-02.</p>`,
+    f: ["strictdoc/export/html/renderers/text_to_html_writer.py", "strictdoc/export/html/renderers/markup_renderer.py", "strictdoc/backend/sdoc/constants.py", "tests/integration/features/options/options_per_document/MARKUP/02_options_markup_is_text/"] } },
+  { after: "M-06", task: { id: "M-07", t: "Documents de test en Text et en HTML", e: "S", r: "f", n: 1, v: 2, dep: ["P3-18"],
+    d: `<p>Trois documents en <code>MARKUP: Text</code> sont convertis (P3-18). Onze documents en <code>MARKUP: HTML</code> restent : vérifier leurs résultats attendus après les changements de <code>MarkupRenderer</code>.</p>` } },
+  { after: "Q-07", task: { id: "Q-08", t: "Retirer la prise en charge d'arm64 des tests Docker", e: "S", r: "f", n: 1, v: 2,
+    d: `<p>Le commit <code>e45fcba42</code> a ajouté arm64 : image construite pour l'architecture du moteur (<code>TARGETARCH</code>), Chromium et pilote Debian hors amd64, variable <code>STRICTDOC_SELENIUM_CHROMEDRIVER</code>, volumes par architecture, lien symbolique du pilote dans <code>test_end2end</code> (<code>tasks.py</code>). Le même commit corrige aussi le montage d'un disque amovible sous WSL 2, sans lien avec arm64.</p>
+    <p>Ce retrait enlève aussi le bloc de <code>tasks.py</code> qui entrerait en conflit avec l'amont.</p>`,
+    f: ["developer/docker_tests/Dockerfile", "developer/docker_tests/entrypoint.sh", "developer/docker_tests/run_tests.ps1", "tasks.py", "architecture/11-tests-qualite-build.md"],
+    o: [ { k: "a", l: "Retirer arm64, garder le montage du disque amovible", rec: 1 },
+         { k: "b", l: "Annuler tout le commit e45fcba42", x: "Retire aussi la correction du disque amovible." } ] } }
+];
+
+const NEW_TABS = [
+  { id: "natif", label: "5 · Markdown natif",
+    title: "Plan de passage au Markdown natif (livrable de fin de projet)",
+    intro: `<p>Vous gardez le conteneur <code>.sdoc</code> pour l'instant (C-04). Cette tâche produit un plan écrit, pas du code. Elle vient en dernier parce qu'elle s'appuie sur ce que la phase 4 aura rendu simple.</p>`,
+    tasks: [
+      { id: "P5-01", t: "Écrire le plan de passage du .sdoc au .md natif, avec des conseils", e: "M", r: "m", n: 1, v: 2,
+        d: `<p>Livrable : <code>developer/design/plan_markdown_natif.md</code>, écrit après la phase 4, pour faire passer les documents <code>.sdoc</code> au format <code>.md</code> décrit par <code>spec/Markdown.md</code>.</p>
+        <p>Contenu prévu :</p>
+        <ul><li>État des lieux : ce que le format <code>.md</code> exprime déjà (titre, métadonnées, préfixe, grammaire <code>.gra.md</code>, nœuds par titres, nœuds composites, MID, type de nœud, étiquettes LINK et ANCHOR) et ce qui reste à vérifier (relations avec rôle, fragments <code>DOCUMENT_FROM_FILE</code>, métadonnées du fork comme <code>KIND</code> et <code>REVIEWERS</code>, en-têtes de commentaires).</li>
+        <li>Convertisseur : l'export <code>--formats=markdown</code> écrit déjà des fichiers <code>.md</code> depuis les <code>.sdoc</code>. À valider comme base de départ, sinon un second script jetable.</li>
+        <li>Essai sur REQ_02 d'abord, avec comparaison du rendu, de l'export Word et des liens.</li>
+        <li>Étapes, estimations, risques, critères de fin.</li></ul>
+        <p>Premiers conseils :</p>
+        <ul><li>Migrer un document pilote (REQ_02) avant les autres, en gardant les MID : ils servent de clés aux liens, aux commentaires et à la base de connaissances.</li>
+        <li>Deux commits Git : le renommage (<code>git mv x.sdoc x.md</code>), puis la conversion du contenu, pour que l'historique suive.</li>
+        <li>Étiquette de version avant, recalcul de la ligne de base des liens suspects après (comme P3-15).</li>
+        <li>Le serveur sait déjà écrire un <code>.md</code> (<code>SDMarkdownWriter</code> dans <code>ProjectContext.write_document_to_file</code>) et liste les extensions modifiables avec <code>get_editable_document_extensions()</code>.</li>
+        <li>Vérifier le profil Word et la base de connaissances (<code>kb-platform</code>, hors dépôt) : les chemins de fichiers changent.</li>
+        <li>Test d'aller-retour : <code>.sdoc</code> vers <code>.md</code>, relecture, comparaison des deux arbres (UID, relations, champs).</li></ul>`,
+        f: ["spec/Markdown.md", "spec/Markdown.gra.md", "strictdoc/backend/markdown/", "strictdoc/server/project_context.py", "strictdoc/core/project_config.py"] }
+    ] }
+];
+
+(function applyRevision() {
+  const find = (id) => { for (const tab of TABS) { const t = tab.tasks.find((x) => x.id === id); if (t) return t; } return null; };
+  Object.entries(REVISIONS).forEach(([id, patch]) => {
+    const task = find(id);
+    if (!task) throw new Error("revision: " + id);
+    task.oldO = task.o;
+    Object.assign(task, patch);
+  });
+  Object.entries(DECISIONS_TAKEN).forEach(([id, text]) => { const task = find(id); if (task) task.dec = text; });
+  ADDED.forEach((add) => {
+    const tab = TABS.find((x) => x.tasks.some((t) => t.id === add.after));
+    const index = tab.tasks.findIndex((t) => t.id === add.after);
+    tab.tasks.splice(index + 1, 0, add.task);
+  });
+  NEW_TABS.forEach((tab) => TABS.push(tab));
+  TABS[0].intro = CHANGES_HTML + TABS[0].intro;
+})();
+
+const EFFORT = { S: 0.5, M: 1.5, L: 4 };
+const PLAN_VERSION = 2;
+
+/* Réponses de la révision 1 (retrait-rst-decisions.md). Utilisées seulement si ce navigateur n'a rien
+   enregistré, pour ne pas perdre vos réponses. */
+const SEED_ANSWERS = [{"id": "C-01", "d": "ok", "vl": "Export RST d'abord, balisage ensuite (ordre ci-dessus)", "c": ""}, {"id": "C-02", "d": "ok", "vl": "", "c": ""}, {"id": "C-03", "d": "ok", "vl": "Markdown et HTML", "c": ""}, {"id": "C-04", "d": "ok", "vl": "Garder .sdoc avec MARKUP: Markdown", "c": "On commence par garder .SDOC avec MARKUP mais tu ajouteras à la fin du plan un tache pour ecrire un plan de  passage au markdown natif avec des conseils pour le faire."}, {"id": "C-05", "d": "ok", "vl": "Markdown par défaut, et la migration écrit MARKUP: Markdown partout", "c": "Il n'y aura plus d'autre format que matkdown, cette fonction teste-t'elle utile ?"}, {"id": "C-06", "d": "ok", "vl": "Retrait direct", "c": ""}, {"id": "C-07", "d": "ok", "vl": "Divergence assumée : plus de fusion globale, cherry-pick des correctifs utiles", "c": ""}, {"id": "C-08", "d": "ok", "vl": "", "c": ""}, {"id": "C-09", "d": "ok", "vl": "", "c": ""}, {"id": "P1-01", "d": "ok", "vl": "Erreur claire : « le format rst a été retiré »", "c": ""}, {"id": "P1-02", "d": "ok", "vl": "", "c": ""}, {"id": "P1-03", "d": "ok", "vl": "", "c": ""}, {"id": "P1-04", "d": "ok", "vl": "", "c": ""}, {"id": "P1-05", "d": "ok", "vl": "", "c": ""}, {"id": "P1-06", "d": "ok", "vl": "Aucune documentation", "c": ""}, {"id": "P1-07", "d": "ok", "vl": "", "c": ""}, {"id": "P2-00", "d": "ok", "vl": "Faire l'étude avant toute autre tâche de cette phase", "c": ""}, {"id": "P2-01", "d": "ok", "vl": "Liste blanche de balises et d'attributs, comme pour les SVG", "c": ""}, {"id": "P2-02", "d": "ok", "vl": "", "c": ""}, {"id": "P2-10", "d": "ok", "vl": "Bloc HTML avec classes sdoc-admonition", "c": ""}, {"id": "P2-11", "d": "ok", "vl": "Ancre [ANCHOR: fn-1, \"1\"] et lien [LINK: fn-1]", "c": ""}, {"id": "P2-12", "d": "ok", "vl": "Balises dl, dt, dd", "c": ""}, {"id": "P2-13", "d": "ok", "vl": "Équation numérotée écrite \\tag{n} dans $$…$$, renvoi remplacé par le numéro en texte", "c": ""}, {"id": "P2-14", "d": "ok", "vl": "Accepter la perte (Markdown n'en a pas)", "c": ""}, {"id": "P2-15", "d": "ok", "vl": "", "c": ""}, {"id": "P2-16", "d": "ok", "vl": "Correspondance minimale par classes", "c": ""}, {"id": "P2-17", "d": "ok", "vl": "", "c": ""}, {"id": "P2-18", "d": "ok", "vl": "", "c": ""}, {"id": "P2-20", "d": "ok", "vl": "Encadré = paragraphe avec style Word « Note » ou « Avertissement » du modèle", "c": ""}, {"id": "P2-21", "d": "ok", "vl": "", "c": ""}, {"id": "P2-22", "d": "ok", "vl": "Nœud WYSIWYG", "c": ""}, {"id": "P2-23", "d": "ok", "vl": "", "c": ""}, {"id": "P3-01", "d": "ok", "vl": "Script jetable dans developer/tools", "c": ""}, {"id": "P3-02", "d": "ok", "vl": "Visiteur docutils maison", "c": ""}, {"id": "P3-03", "d": "ok", "vl": "Convertisseur supprimé avec docutils après la migration", "c": ""}, {"id": "P3-04", "d": "ok", "vl": "", "c": ""}, {"id": "P3-05", "d": "ok", "vl": "", "c": ""}, {"id": "P3-06", "d": "ok", "vl": "", "c": ""}, {"id": "P3-07", "d": "ok", "vl": "Toujours en HTML", "c": ""}, {"id": "P3-08", "d": "ok", "vl": "Supprimer le CSV converti", "c": ""}, {"id": "P3-09", "d": "ok", "vl": "Résoudre le joker vers l'extension réelle trouvée dans _assets (SVG, sinon PNG)", "c": ""}, {"id": "P3-10", "d": "ok", "vl": "", "c": ""}, {"id": "P3-11", "d": "ok", "vl": "Repli HTML sinon commentaire, avec avertissement ; --strict fait échouer", "c": ""}, {"id": "P3-12", "d": "ok", "vl": "", "c": ""}, {"id": "P3-13", "d": "ok", "vl": "", "c": ""}, {"id": "P3-14", "d": "ok", "vl": "", "c": ""}, {"id": "P3-15", "d": "ok", "vl": "Étiquette de version avant ; recalcul de la ligne de base juste après la conversion", "c": ""}, {"id": "P3-16", "d": "ok", "vl": "", "c": ""}, {"id": "P3-17", "d": "ok", "vl": "", "c": ""}, {"id": "P4-01", "d": "ok", "vl": "", "c": ""}, {"id": "P4-02", "d": "ok", "vl": "", "c": ""}, {"id": "P4-03", "d": "ok", "vl": "", "c": ""}, {"id": "P4-04", "d": "ok", "vl": "", "c": ""}, {"id": "P4-05", "d": "ok", "vl": "", "c": ""}, {"id": "P4-06", "d": "ok", "vl": "", "c": ""}, {"id": "P4-07", "d": "ok", "vl": "Aucune validation de syntaxe", "c": ""}, {"id": "P4-08", "d": "ok", "vl": "Supprimer le drapeau", "c": ""}, {"id": "P4-09", "d": "ok", "vl": "", "c": ""}, {"id": "P4-10", "d": "ok", "vl": "", "c": ""}, {"id": "P4-11", "d": "ok", "vl": "", "c": ""}, {"id": "P4-12", "d": "ok", "vl": "", "c": ""}, {"id": "M-01", "d": "ok", "vl": "", "c": ""}, {"id": "M-02", "d": "ok", "vl": "Convertir sur place", "c": ""}, {"id": "M-03", "d": "ok", "vl": "Ajouter MARKUP: Markdown aux fichiers sans mise en forme, convertir les 94 avec directives", "c": ""}, {"id": "M-04", "d": "ok", "vl": "", "c": ""}, {"id": "M-05", "d": "ok", "vl": "", "c": ""}, {"id": "M-06", "d": "ok", "vl": "", "c": ""}, {"id": "F-01", "d": "ok", "vl": "", "c": ""}, {"id": "F-02", "d": "ok", "vl": "", "c": ""}, {"id": "F-03", "d": "ok", "vl": "", "c": ""}, {"id": "F-04", "d": "ok", "vl": "", "c": ""}, {"id": "F-05", "d": "ok", "vl": "", "c": ""}, {"id": "F-06", "d": "ok", "vl": "", "c": ""}, {"id": "F-07", "d": "ok", "vl": "", "c": ""}, {"id": "F-08", "d": "ok", "vl": "", "c": ""}, {"id": "F-09", "d": "ok", "vl": "", "c": ""}, {"id": "F-10", "d": "ok", "vl": "", "c": ""}, {"id": "Q-01", "d": "ok", "vl": "", "c": ""}, {"id": "Q-02", "d": "ok", "vl": "Comparaison automatique du texte visible", "c": ""}, {"id": "Q-03", "d": "ok", "vl": "", "c": ""}, {"id": "Q-04", "d": "ok", "vl": "", "c": ""}, {"id": "Q-05", "d": "ok", "vl": "", "c": ""}, {"id": "Q-06", "d": "ok", "vl": "", "c": "Supprimer la version arm64"}, {"id": "Q-07", "d": "ok", "vl": "", "c": ""}, {"id": "R-01", "d": "ok", "vl": "", "c": ""}, {"id": "R-02", "d": "ok", "vl": "", "c": ""}, {"id": "R-03", "d": "ok", "vl": "", "c": ""}, {"id": "R-04", "d": "ok", "vl": "", "c": ""}, {"id": "R-05", "d": "ok", "vl": "Seuil de 5 %", "c": ""}, {"id": "R-06", "d": "ok", "vl": "", "c": ""}, {"id": "R-07", "d": "ok", "vl": "", "c": ""}];
+function seedIfEmpty() {
+  if (Object.keys(answers).length > 0) return;
+  SEED_ANSWERS.forEach((seed) => {
+    const task = TASK_BY_ID[seed.id];
+    if (!task || !seed.d) return;
+    const options = task.oldO || task.o || [];
+    const hit = seed.vl ? options.find((opt) => opt.l.replace(/<[^>]+>/g, "") === seed.vl) : null;
+    answers[seed.id] = { d: seed.d, o: hit ? hit.k : "", c: seed.c || "", v: 1 };
+  });
+  localSave();
+}
+const EFFORT_LABEL = { S: "Effort S ≈ ½ j", M: "Effort M ≈ 1 à 2 j", L: "Effort L ≈ 3 à 5 j" };
+const RISK_LABEL = { f: "Risque faible", m: "Risque moyen", e: "Risque élevé" };
+const DEC_LABEL = { ok: "Validée", talk: "À discuter", ko: "Invalidée", stale: "À revoir" };
+
+const ALL_TASKS = [];
+TABS.forEach((tab) => tab.tasks.forEach((task) => { task.tab = tab.id; ALL_TASKS.push(task); }));
+const TASK_BY_ID = Object.fromEntries(ALL_TASKS.map((task) => [task.id, task]));
+
+/* ------------------------------ state ------------------------------ */
+const answers = {};          // id -> { d, o, c }
+const dirty = new Set();     // ids with a local edit not yet confirmed by the store
+const timers = {};           // id -> debounce timer
+const chains = {};           // id -> promise (one write at a time per document)
+let db = null;
+let downloads = null;
+let filter = "all";
+let activeTab = "cadrage";
+const LS_KEY = "plan-markdown-seul-v1";
+
+function esc(text) {
+  return String(text).replace(/[&<>"]/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[ch]));
+}
+function answerOf(id) { return answers[id] || { d: "", o: "", c: "" }; }
+function setStatus(state, text) {
+  const node = document.getElementById("savestate");
+  node.dataset.s = state;
+  node.textContent = text;
+}
+
+/* ----------------------------- rendering ---------------------------- */
+function cardHTML(task) {
+  const meta = [
+    `<span class="meta">${EFFORT_LABEL[task.e]}</span>`,
+    `<span class="meta meta--risk-${task.r}">${RISK_LABEL[task.r]}</span>`
+  ];
+  if (task.u) meta.push(`<span class="meta">Usage : ${esc(task.u)}</span>`);
+  (task.dep || []).forEach((dep) => meta.push(`<span class="meta">Dépend de <a href="#" data-goto="${dep}">${dep}</a></span>`));
+  const files = task.f && task.f.length
+    ? `<details class="card__files"><summary>Fichiers concernés (${task.f.length})</summary><ul>${task.f.map((f) => `<li>${esc(f)}</li>`).join("")}</ul></details>`
+    : "";
+  const options = task.o && task.o.length
+    ? `<fieldset class="options"><legend>Variante (sans choix : la recommandée)</legend>${task.o.map((opt) => `
+        <label class="opt"><input type="radio" name="o-${task.id}" value="${opt.k}">
+          <span class="opt__label">${opt.l}${opt.rec ? '<span class="rec">Recommandé</span>' : ""}</span>
+          ${opt.x ? `<span class="opt__x">${opt.x}</span>` : ""}
+        </label>`).join("")}</fieldset>`
+    : "";
+  return `<article class="card" id="task-${task.id}" data-id="${task.id}" data-state="">
+    <header class="card__head">
+      <span class="card__id">${task.id}</span>
+      <h3 class="card__title">${task.t}</h3>
+      ${task.n ? '<span class="pill pill--new">Nouvelle</span>' : (task.v > 1 ? '<span class="pill pill--mod">Modifiée</span>' : "")}
+      <span class="pill pill--state" data-role="state">Sans décision</span>
+    </header>
+    <div class="card__meta">${meta.join("")}</div>
+    <div class="stale-note" data-role="stale" hidden></div>
+    ${task.ch ? `<div class="dec"><span class="dec__label">Ce qui a changé</span>${task.ch}</div>` : ""}
+    ${task.dec ? `<div class="dec"><span class="dec__label">Pris en compte</span>${task.dec}</div>` : ""}
+    <div class="card__body">${task.d}</div>
+    ${files}
+    ${options}
+    <div class="decide">
+      <fieldset class="seg" aria-label="Décision pour ${task.id}">
+        ${["ok", "talk", "ko"].map((k) => `<label><input type="radio" name="d-${task.id}" value="${k}"><span>${k === "ok" ? "Valider" : k === "talk" ? "À discuter" : "Invalider"}</span></label>`).join("")}
+      </fieldset>
+      <button type="button" class="clear" data-clear="${task.id}" hidden>Effacer</button>
+    </div>
+    <label class="comment"><span>Commentaire</span><textarea id="c-${task.id}" rows="2" placeholder="Votre remarque, une condition, une alternative…"></textarea></label>
+  </article>`;
+}
+
+function buildPage() {
+  const tabs = document.getElementById("tabs");
+  const main = document.getElementById("main");
+  TABS.forEach((tab) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "tab";
+    button.id = `tab-${tab.id}`;
+    button.setAttribute("role", "tab");
+    button.setAttribute("aria-controls", `panel-${tab.id}`);
+    button.dataset.tab = tab.id;
+    button.innerHTML = `<span>${tab.label}</span><span class="tab__count" data-count="${tab.id}"></span>`;
+    tabs.appendChild(button);
+  });
+  const syn = document.createElement("button");
+  syn.type = "button";
+  syn.className = "tab";
+  syn.id = "tab-synthese";
+  syn.setAttribute("role", "tab");
+  syn.setAttribute("aria-controls", "panel-synthese");
+  syn.dataset.tab = "synthese";
+  syn.innerHTML = `<span>Synthèse</span>`;
+  tabs.appendChild(syn);
+
+  TABS.forEach((tab) => {
+    const section = document.createElement("section");
+    section.className = "panel";
+    section.id = `panel-${tab.id}`;
+    section.setAttribute("role", "tabpanel");
+    section.setAttribute("aria-labelledby", `tab-${tab.id}`);
+    section.hidden = true;
+    const showGroups = tab.id === "p2";
+    let cards = "";
+    tab.tasks.forEach((task) => {
+      if (showGroups && task.id === "P2-00") cards += `<div class="group-title">Prérequis</div>`;
+      if (showGroups && task.id === "P2-10") cards += `<div class="group-title">Fonctions à remplacer, par priorité d'usage</div>`;
+      if (showGroups && task.id === "P2-20") cards += `<div class="group-title">Chaîne de production : Word, PDF, éditeur, recherche</div>`;
+      cards += cardHTML(task);
+    });
+    section.innerHTML = `
+      <div class="panel__intro"><h2>${tab.title}</h2>${tab.intro}</div>
+      <div class="toolbar">
+        <span class="toolbar__label">Afficher</span>
+        <div class="chips" role="group" aria-label="Filtre">
+          <button type="button" class="chip" data-filter="all" aria-pressed="true">Toutes</button>
+          <button type="button" class="chip" data-filter="none" aria-pressed="false">Sans décision</button>
+          <button type="button" class="chip" data-filter="stale" aria-pressed="false">À revoir</button>
+          <button type="button" class="chip" data-filter="talk" aria-pressed="false">À discuter</button>
+          <button type="button" class="chip" data-filter="ko" aria-pressed="false">Invalidées</button>
+          <button type="button" class="chip" data-filter="ok" aria-pressed="false">Validées</button>
+        </div>
+        <button type="button" class="btn" data-validate-rest="${tab.id}">Valider les tâches sans décision de cet onglet (hors tâches à revoir)</button>
+      </div>
+      <div class="cards">${cards}</div>
+      <div class="legend"><span>Effort : S ≈ ½ j, M ≈ 1 à 2 j, L ≈ 3 à 5 j (ordres de grandeur, une personne)</span><span>Sans choix de variante : la variante recommandée</span></div>`;
+    main.appendChild(section);
+  });
+
+  const summary = document.createElement("section");
+  summary.className = "panel";
+  summary.id = "panel-synthese";
+  summary.setAttribute("role", "tabpanel");
+  summary.setAttribute("aria-labelledby", "tab-synthese");
+  summary.hidden = true;
+  summary.innerHTML = `
+    <div class="panel__intro"><h2>Synthèse de vos décisions</h2>
+      <p>Cette page se met à jour toute seule. Vos réponses sont enregistrées avec la page : je les relis à ma prochaine réponse et j'ajuste le plan.</p></div>
+    <div id="summary-table"></div>
+    <h3 class="group-title">Variantes choisies</h3>
+    <div id="summary-options"></div>
+    <h3 class="group-title">Commentaires</h3>
+    <ul class="commentlist" id="summary-comments"></ul>
+    <h3 class="group-title">Exporter</h3>
+    <p class="note">Le texte ci-dessous reprend toutes les décisions. Copiez-le dans la conversation, ou enregistrez-le dans un fichier.</p>
+    <div class="row">
+      <button type="button" class="btn btn--primary" id="btn-copy">Copier la synthèse</button>
+      <button type="button" class="btn" id="btn-save">Enregistrer un fichier .md</button>
+      <button type="button" class="btn btn--danger" id="btn-reset">Effacer toutes les réponses</button>
+      <span class="note" id="export-note"></span>
+    </div>
+    <textarea class="exportbox" id="exportbox" readonly aria-label="Synthèse au format Markdown"></textarea>`;
+  main.appendChild(summary);
+}
+
+function refreshCard(id) {
+  const card = document.getElementById(`task-${id}`);
+  if (!card) return;
+  const a = answerOf(id);
+  const stale = !a.d && a.p;
+  card.dataset.state = a.d || (stale ? "stale" : "");
+  card.querySelector('[data-role="state"]').textContent = a.d ? DEC_LABEL[a.d] : (stale ? "À revoir" : "Sans décision");
+  const note = card.querySelector('[data-role="stale"]');
+  if (stale) {
+    const task = TASK_BY_ID[id];
+    const before = a.p.d ? DEC_LABEL[a.p.d] : "sans décision";
+    const label = a.p.o ? oldOptionLabel(task, a.p.o) : "";
+    note.textContent = "La tâche a changé depuis votre réponse (« " + before + " »" + (label ? ", variante : " + label : "") + "). Merci de la revoir.";
+    note.hidden = false;
+  } else {
+    note.hidden = true;
+  }
+  card.querySelectorAll(`input[name="d-${id}"]`).forEach((input) => { input.checked = input.value === a.d; });
+  card.querySelectorAll(`input[name="o-${id}"]`).forEach((input) => { input.checked = input.value === a.o; });
+  card.querySelector("[data-clear]").hidden = !(a.d || a.o);
+  const area = card.querySelector("textarea");
+  if (document.activeElement !== area && area.value !== a.c) area.value = a.c;
+  applyFilterToCard(card);
+}
+
+function visibleFor(state) {
+  const s = state || "";
+  if (filter === "all") return true;
+  if (filter === "none") return s === "" || s === "stale";
+  return filter === s;
+}
+function applyFilterToCard(card) {
+  card.hidden = !visibleFor(card.dataset.state);
+}
+function oldOptionLabel(task, key) {
+  const opt = (task.oldO || task.o || []).find((o) => o.k === key);
+  return opt ? opt.l.replace(/<[^>]+>/g, "") : "";
+}
+function applyFilter() {
+  document.querySelectorAll(".card").forEach((card) => {
+    if (!card.dataset.state) card.dataset.state = "";
+    card.hidden = !visibleFor(card.dataset.state);
+  });
+  document.querySelectorAll(".chip").forEach((chip) => chip.setAttribute("aria-pressed", String(chip.dataset.filter === filter)));
+}
+
+function counts(tasks) {
+  const c = { ok: 0, talk: 0, ko: 0, none: 0, total: tasks.length };
+  tasks.forEach((task) => { c[answerOf(task.id).d || "none"] += 1; });
+  return c;
+}
+
+function updateCounts() {
+  const all = counts(ALL_TASKS);
+  const decided = all.ok + all.talk + all.ko;
+  document.getElementById("bar-ok").style.width = `${(all.ok / all.total) * 100}%`;
+  document.getElementById("bar-talk").style.width = `${(all.talk / all.total) * 100}%`;
+  document.getElementById("bar-ko").style.width = `${(all.ko / all.total) * 100}%`;
+  document.getElementById("progress-text").textContent =
+    `${decided} sur ${all.total} décidées · ${all.ok} validées · ${all.talk} à discuter · ${all.ko} invalidées`;
+  TABS.forEach((tab) => {
+    const c = counts(tab.tasks);
+    const badge = document.querySelector(`[data-count="${tab.id}"]`);
+    badge.textContent = c.none === 0 ? "OK" : `${c.none}`;
+    badge.dataset.done = String(c.none === 0);
+    badge.title = c.none === 0 ? "Toutes les tâches ont une décision" : `${c.none} sans décision`;
+  });
+  if (activeTab === "synthese") renderSummary();
+}
+
+/* ------------------------------ summary ----------------------------- */
+function optionLabel(task, key) {
+  const opt = (task.o || []).find((o) => o.k === key);
+  return opt ? opt.l.replace(/<[^>]+>/g, "") : "";
+}
+function days(tasks) {
+  return tasks.reduce((sum, task) => sum + EFFORT[task.e], 0);
+}
+function fmtDays(n) { return (Math.round(n * 2) / 2).toString().replace(".", ","); }
+
+function buildExport() {
+  const lines = [];
+  const date = new Date().toISOString().slice(0, 10);
+  lines.push(`# Retrait de RST : décisions sur le plan, révision ${PLAN_VERSION} (${date})`, "");
+  const all = counts(ALL_TASKS);
+  lines.push(`${all.ok} validées, ${all.talk} à discuter, ${all.ko} invalidées, ${all.none} sans décision sur ${all.total}.`, "");
+  TABS.forEach((tab) => {
+    lines.push(`## ${tab.title}`, "");
+    tab.tasks.forEach((task) => {
+      const a = answerOf(task.id);
+      const state = a.d ? DEC_LABEL[a.d] : (a.p ? "À revoir" : "Sans décision");
+      let line = `- ${task.id} ${task.t.replace(/<[^>]+>/g, "")} : ${state}`;
+      if (a.o) line += ` ; variante : ${optionLabel(task, a.o)}`;
+      lines.push(line);
+      if (a.c && a.c.trim()) a.c.trim().split("\n").forEach((row) => lines.push(`  > ${row}`));
+    });
+    lines.push("");
+  });
+  return lines.join("\n");
+}
+
+function renderSummary() {
+  const rows = TABS.map((tab) => {
+    const c = counts(tab.tasks);
+    return `<tr><td>${tab.label}</td><td>${c.ok}</td><td>${c.talk}</td><td>${c.ko}</td><td>${c.none}</td><td>${c.total}</td></tr>`;
+  }).join("");
+  const all = counts(ALL_TASKS);
+  const okTasks = ALL_TASKS.filter((task) => answerOf(task.id).d === "ok");
+  const talkTasks = ALL_TASKS.filter((task) => answerOf(task.id).d === "talk");
+  const noneTasks = ALL_TASKS.filter((task) => !answerOf(task.id).d);
+  const staleCount = ALL_TASKS.filter((task) => !answerOf(task.id).d && answerOf(task.id).p).length;
+  document.getElementById("summary-table").innerHTML = `
+    <div class="table-scroll"><table class="sum">
+      <thead><tr><th>Thème</th><th>Validées</th><th>À discuter</th><th>Invalidées</th><th>Sans décision</th><th>Total</th></tr></thead>
+      <tbody>${rows}</tbody>
+      <tfoot><tr><td>Tous les thèmes</td><td>${all.ok}</td><td>${all.talk}</td><td>${all.ko}</td><td>${all.none}</td><td>${all.total}</td></tr></tfoot>
+    </table></div>
+    <p class="note">Charge estimée : ${fmtDays(days(okTasks))} jours pour les tâches validées, ${fmtDays(days(talkTasks))} jours de plus si les tâches à discuter sont retenues, ${fmtDays(days(noneTasks))} jours sans décision (dont ${staleCount} tâche(s) à revoir). Ordres de grandeur pour une personne.</p>`;
+
+  const chosen = ALL_TASKS.filter((task) => answerOf(task.id).o);
+  document.getElementById("summary-options").innerHTML = chosen.length
+    ? `<ul class="commentlist">${chosen.map((task) => `<li><span class="mono">${task.id}</span> ${optionLabel(task, answerOf(task.id).o)}</li>`).join("")}</ul>`
+    : `<p class="note">Aucune variante choisie pour l'instant.</p>`;
+
+  const withComment = ALL_TASKS.filter((task) => (answerOf(task.id).c || "").trim());
+  const list = document.getElementById("summary-comments");
+  list.innerHTML = "";
+  if (!withComment.length) {
+    const li = document.createElement("li");
+    li.textContent = "Aucun commentaire pour l'instant.";
+    list.appendChild(li);
+  }
+  withComment.forEach((task) => {
+    const li = document.createElement("li");
+    const head = document.createElement("div");
+    head.className = "mono";
+    head.textContent = `${task.id} · ${answerOf(task.id).d ? DEC_LABEL[answerOf(task.id).d] : "Sans décision"}`;
+    const body = document.createElement("div");
+    body.textContent = answerOf(task.id).c;
+    body.style.whiteSpace = "pre-wrap";
+    li.append(head, body);
+    list.appendChild(li);
+  });
+  document.getElementById("exportbox").value = buildExport();
+}
+
+/* ----------------------------- persistence -------------------------- */
+function localSave() {
+  try { localStorage.setItem(LS_KEY, JSON.stringify(answers)); } catch (e) { /* storage unavailable */ }
+}
+function localLoad() {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (raw) Object.assign(answers, JSON.parse(raw));
+  } catch (e) { /* storage unavailable */ }
+}
+
+function queueWrite(id, delay) {
+  dirty.add(id);
+  clearTimeout(timers[id]);
+  timers[id] = setTimeout(() => flush(id), delay);
+  setStatus("saving", "Enregistrement…");
+}
+
+function flush(id) {
+  const a = answerOf(id);
+  if (!db) {
+    localSave();
+    dirty.delete(id);
+    setStatus("local", "Enregistré dans ce navigateur seulement");
+    return Promise.resolve();
+  }
+  const previous = chains[id] || Promise.resolve();
+  chains[id] = previous.then(async () => {
+    const ref = db.doc(`answers/${id}`);
+    try {
+      if (!a.d && !a.o && !(a.c || "").trim()) await ref.delete();
+      else await ref.set({ d: a.d, o: a.o, c: a.c, v: a.v || 1, p: a.p || null, at: Date.now() });
+      dirty.delete(id);
+      setStatus("saved", "Enregistré");
+    } catch (error) {
+      setStatus("error", "Enregistrement refusé : réessayez ou utilisez la synthèse");
+      localSave();
+    }
+  });
+  return chains[id];
+}
+
+function normalizeOne(task) {
+  const a = answers[task.id];
+  if (!a) return false;
+  if ((a.v || 1) < (task.v || 1)) {
+    if (a.d || a.o) a.p = { d: a.d, o: a.o };
+    a.d = "";
+    a.o = "";
+    a.v = task.v || 1;
+    return true;
+  }
+  return false;
+}
+function normalizeAnswers() {
+  let changed = false;
+  ALL_TASKS.forEach((task) => { if (normalizeOne(task)) changed = true; });
+  if (changed) localSave();
+}
+
+function update(id, patch) {
+  const task = TASK_BY_ID[id];
+  answers[id] = Object.assign({ d: "", o: "", c: "" }, answers[id] || {}, patch, { v: task.v || 1 });
+  if (answers[id].d) delete answers[id].p;
+  refreshCard(id);
+  updateCounts();
+}
+
+async function connect() {
+  localLoad();
+  seedIfEmpty();
+  normalizeAnswers();
+  Object.keys(answers).forEach(refreshCard);
+  updateCounts();
+  try { downloads = window.claude && window.claude.use ? await window.claude.use("downloads") : null; } catch (e) { downloads = null; }
+  try { db = window.claude && window.claude.use ? await window.claude.use("db") : null; } catch (e) { db = null; }
+  if (!db) {
+    setStatus("local", "Enregistré dans ce navigateur seulement");
+    return;
+  }
+  setStatus("init", "Chargement des réponses…");
+  const slow = setTimeout(() => setStatus("error", "Le stockage met du temps à répondre : vos réponses restent saisies ici"), 10000);
+  db.collection("answers").onSnapshot((snap) => {
+    if (!snap.metadata.fromCache) clearTimeout(slow);
+    snap.docChanges().forEach((change) => {
+      const id = change.doc.id;
+      if (!TASK_BY_ID[id] || dirty.has(id)) return;
+      if (change.type === "removed") { delete answers[id]; }
+      else {
+        const v = change.doc.data() || {};
+        answers[id] = { d: v.d || "", o: v.o || "", c: v.c || "", v: v.v || 1, p: v.p };
+        normalizeOne(TASK_BY_ID[id]);
+      }
+      refreshCard(id);
+    });
+    updateCounts();
+    if (!snap.metadata.fromCache && !dirty.size) setStatus("saved", "Enregistré");
+  }, () => {
+    clearTimeout(slow);
+    db = null;
+    setStatus("local", "Stockage indisponible : enregistré dans ce navigateur seulement");
+  });
+}
+
+/* ------------------------------- events ----------------------------- */
+function showTab(id, focus) {
+  activeTab = id;
+  document.querySelectorAll(".tab").forEach((tab) => {
+    const on = tab.dataset.tab === id;
+    tab.setAttribute("aria-selected", String(on));
+    tab.tabIndex = on ? 0 : -1;
+    if (on && focus) tab.focus();
+  });
+  document.querySelectorAll(".panel").forEach((panel) => { panel.hidden = panel.id !== `panel-${id}`; });
+  if (id === "synthese") renderSummary();
+  try {
+    if (location.hash.slice(1) !== `tab-${id}`) history.replaceState(null, "", `#tab-${id}`);
+  } catch (e) { /* the frame may refuse history changes */ }
+  window.scrollTo({ top: 0 });
+}
+
+document.addEventListener("click", (event) => {
+  const tab = event.target.closest(".tab");
+  if (tab) { showTab(tab.dataset.tab); return; }
+  const chip = event.target.closest(".chip");
+  if (chip) { filter = chip.dataset.filter; applyFilter(); return; }
+  const go = event.target.closest("[data-goto]");
+  if (go) {
+    event.preventDefault();
+    const task = TASK_BY_ID[go.dataset.goto];
+    if (task) {
+      showTab(task.tab);
+      filter = "all"; applyFilter();
+      const card = document.getElementById(`task-${task.id}`);
+      if (card) card.scrollIntoView({ block: "start" });
+    }
+    return;
+  }
+  const clear = event.target.closest("[data-clear]");
+  if (clear) {
+    const id = clear.dataset.clear;
+    update(id, { d: "", o: "" });
+    queueWrite(id, 0);
+    return;
+  }
+  const rest = event.target.closest("[data-validate-rest]");
+  if (rest) {
+    const tab = TABS.find((t) => t.id === rest.dataset.validateRest);
+    tab.tasks.forEach((task) => {
+      if (!answerOf(task.id).d && !answerOf(task.id).p) { update(task.id, { d: "ok" }); queueWrite(task.id, 0); }
+    });
+    return;
+  }
+  if (event.target.closest("#btn-copy")) copyExport();
+  if (event.target.closest("#btn-save")) saveExport();
+  if (event.target.closest("#btn-reset")) resetAll();
+});
+
+document.addEventListener("change", (event) => {
+  const input = event.target;
+  if (input.matches('input[type="radio"]')) {
+    const card = input.closest(".card");
+    if (!card) return;
+    const id = card.dataset.id;
+    if (input.name === `d-${id}`) update(id, { d: input.value });
+    if (input.name === `o-${id}`) update(id, { o: input.value });
+    queueWrite(id, 0);
+  }
+});
+
+document.addEventListener("input", (event) => {
+  const area = event.target;
+  if (area.matches(".card textarea")) {
+    const id = area.closest(".card").dataset.id;
+    answers[id] = Object.assign({ d: "", o: "", c: "" }, answers[id] || {}, { c: area.value }, { v: TASK_BY_ID[id].v || 1 });
+    updateCounts();
+    queueWrite(id, 700);
+  }
+});
+
+document.getElementById("tabs").addEventListener("keydown", (event) => {
+  const order = TABS.map((t) => t.id).concat("synthese");
+  const index = order.indexOf(activeTab);
+  let next = -1;
+  if (event.key === "ArrowRight") next = (index + 1) % order.length;
+  if (event.key === "ArrowLeft") next = (index - 1 + order.length) % order.length;
+  if (event.key === "Home") next = 0;
+  if (event.key === "End") next = order.length - 1;
+  if (next >= 0) { event.preventDefault(); showTab(order[next], true); }
+});
+
+async function copyExport() {
+  const text = buildExport();
+  const note = document.getElementById("export-note");
+  try {
+    await navigator.clipboard.writeText(text);
+    note.textContent = "Synthèse copiée.";
+  } catch (e) {
+    const box = document.getElementById("exportbox");
+    box.focus(); box.select();
+    note.textContent = "Copie refusée : le texte est sélectionné, copiez-le avec Ctrl+C.";
+  }
+}
+async function saveExport() {
+  const note = document.getElementById("export-note");
+  const filename = "retrait-rst-decisions.md";
+  const text = buildExport();
+  if (downloads) {
+    try {
+      await downloads.save({ filename, data: text });
+      note.textContent = "Fichier enregistré.";
+    } catch (e) {
+      note.textContent = e && e.code === "declined" ? "Enregistrement annulé." : "Enregistrement impossible : utilisez la copie.";
+    }
+    return;
+  }
+  try {
+    const url = URL.createObjectURL(new Blob([text], { type: "text/markdown;charset=utf-8" }));
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+    note.textContent = "Fichier " + filename + " envoyé vers le dossier de téléchargements.";
+  } catch (e) {
+    note.textContent = "Enregistrement impossible : utilisez la copie.";
+  }
+}
+async function resetAll() {
+  const button = document.getElementById("btn-reset");
+  if (button.dataset.armed !== "1") {
+    button.dataset.armed = "1";
+    button.textContent = "Confirmer l'effacement";
+    setTimeout(() => { button.dataset.armed = ""; button.textContent = "Effacer toutes les réponses"; }, 5000);
+    return;
+  }
+  button.dataset.armed = "";
+  button.textContent = "Effacer toutes les réponses";
+  const ids = Object.keys(answers);
+  ids.forEach((id) => { delete answers[id]; refreshCard(id); });
+  localSave();
+  updateCounts();
+  if (db) {
+    for (const id of ids) { try { await db.doc(`answers/${id}`).delete(); } catch (e) { /* ignore */ } }
+  }
+  document.getElementById("export-note").textContent = "Réponses effacées.";
+}
+
+/* -------------------------------- boot ------------------------------ */
+buildPage();
+const initial = location.hash.replace(/^#tab-/, "");
+showTab(TABS.concat([{ id: "synthese" }]).some((t) => t.id === initial) ? initial : "cadrage");
+window.addEventListener("hashchange", () => {
+  const id = location.hash.replace(/^#tab-/, "");
+  if (id !== activeTab && TABS.concat([{ id: "synthese" }]).some((t) => t.id === id)) showTab(id);
+});
+applyFilter();
+updateCounts();
+connect();
+</script>
+</body>
+</html>

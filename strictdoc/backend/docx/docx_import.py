@@ -17,6 +17,7 @@ from strictdoc.backend.docx.import_.sdoc_requirement_blocks import (
 )
 from strictdoc.backend.sdoc.models.document import SDocDocument
 from strictdoc.features.hierarchy.references import ResolverFunction
+from strictdoc.helpers.exception import StrictDocException
 from strictdoc.helpers.file_system import file_open_read_utf8
 
 
@@ -67,6 +68,16 @@ def _read_existing_file(
     profile: DocxProfile,
     stem: str,
 ) -> Optional[CarryOver]:
+    markdown_path = os.path.join(import_options.output_path, stem + ".md")
+    if os.path.isfile(markdown_path):
+        # The import writes an .sdoc file: next to a Markdown document of the
+        # same name it would make two documents with the same content.
+        raise StrictDocException(
+            f"The document '{stem}.md' exists in the Markdown format: the "
+            "Word import writes SDoc files and cannot merge into it. Import "
+            "into another folder, or convert the result with "
+            "developer/tools/sdoc_to_markdown.py."
+        )
     if import_options.overwrite or profile.requirement_table is None:
         return None
     existing_path = os.path.join(import_options.output_path, stem + ".sdoc")
