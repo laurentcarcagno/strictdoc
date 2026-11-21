@@ -17,7 +17,7 @@ depuis, vérifier les chemins cités avant de s'y fier.
 | 00 | [00-vue-ensemble.md](00-vue-ensemble.md) | produit, pipeline, carte du dépôt, pile, règles | première fois, ou pour situer un fichier |
 | 01 | [01-cli-et-commandes.md](01-cli-et-commandes.md) | CLI, commandes, export, convert | ajouter ou modifier une commande ou une option |
 | 02 | [02-modele-sdoc-et-grammaire.md](02-modele-sdoc-et-grammaire.md) | format `.sdoc`, grammaire textX, modèle objet, lecture, écriture | toucher au modèle de données ou à la syntaxe |
-| 03 | [03-formats-et-backends.md](03-formats-et-backends.md) | classe `Format`, Markdown, RST, ReqIF, Excel, DOCX, JSON, SPDX, code source | un format d'import ou d'export, les marqueurs `@relation` |
+| 03 | [03-formats-et-backends.md](03-formats-et-backends.md) | classe `Format`, Markdown, ReqIF, Excel, DOCX, JSON, SPDX, code source | un format d'import ou d'export, les marqueurs `@relation` |
 | 04 | [04-core-index-et-tracabilite.md](04-core-index-et-tracabilite.md) | `ProjectConfig`, découverte des fichiers, index, graphe, requêtes, transformations | configuration, traçabilité, droits d'édition |
 | 05 | [05-serveur-web.md](05-serveur-web.md) | FastAPI, middlewares, `ProjectContext`, verrous, routes | une route, un problème de concurrence, un écran serveur |
 | 06 | [06-frontend-et-export-html.md](06-frontend-et-export-html.md) | Jinja, objets vue, objets de formulaire, Turbo, JS/CSS, Milkdown, i18n | tout ce qui s'affiche |

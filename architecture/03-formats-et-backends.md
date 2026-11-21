@@ -36,7 +36,6 @@ et un utilisateur peut y ajouter les siennes dans `strictdoc_config.py`.
 | `ReqIFFormat` | `reqif-sdoc`, `reqifz-sdoc` | `.reqif`, `.reqifz` | oui (`.reqif`) | non | oui | oui |
 | `ExcelFormat` | `excel` | `.xlsx` | non | non | oui | oui |
 | `DocxFormat` | `docx` | `.docx` | non | non | oui | oui |
-| `RSTFormat` | `rst` | `.rst` | non | non | oui | non |
 | `HTMLFormat` | `html` | `.html` | non | non | oui | non |
 | `HTML2PDFFormat` | `html2pdf` | `.pdf` | non | non | oui | non |
 | `JSONFormat` | `json` | `.json` | non | non | oui | non |
@@ -81,13 +80,16 @@ titre H1, chaque titre inférieur est un nœud, les champs s'écrivent
 Un nœud de document Markdown est tout de même un `SDocNode` : les deux formats
 sont interchangeables pour tout ce qui est en aval.
 
-## Backend `rst` (`backend/rst`)
+## RST retiré
 
-Export RST (`RSTFormat`, `writer.py`, templates `requirement.jinja.rst`) et rendu
-RST vers HTML (`rst_to_html_fragment_writer.py`, docutils). Directives et rôles
-maison : `directives/wildcard_enhanced_image.py` (images par motif),
-`directives/sphinx_style_math.py`, `directives/raw_html_role.py`.
-`strictdoc_lexer.py` est le lexeur Pygments du format `.sdoc`.
+Le paquet `backend/rst` n'existe plus : ni export RST, ni rendu RST, ni docutils.
+Les champs sont du Markdown (`backend/markdown/markdown_to_html_fragment_writer.py`)
+ou du HTML. Le HTML brut d'un champ Markdown passe par une liste blanche
+(`backend/markdown/html_sanitizer.py`, `strip_html_tags` pour la recherche et les
+prompts). `backend/markdown/strictdoc_lexer.py` est le lexeur Pygments du format
+`.sdoc`. `MARKUP: RST` ou `Text` arrête la lecture (`backend/sdoc/processor.py`) ;
+`backend/sdoc/residual_rst.py` signale le RST resté dans un champ Markdown.
+Le convertisseur est dans l'étiquette Git `rst-to-markdown-converter`.
 
 ## Backend `reqif` (`backend/reqif`)
 

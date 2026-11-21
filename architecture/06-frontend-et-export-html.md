@@ -122,7 +122,7 @@ Organisation de `export/html/templates/` :
 | `components/` | composants réutilisables : `node`, `node_content`, `node_field`, `form` (champs, lignes), `modal`, `field`, `button`, `badge`, `confirm`, `header`, `section`, `text_node`, `grammar_form`, `static_search`, `switch`, ... |
 | `actions/` | réponses Turbo : `document/*` (créer, éditer, déplacer, supprimer un nœud ; config ; grammaire), `table/*` (édition de cellule), `node/show_full_node`, `project_index/*` |
 | `_shared/` | navigation latérale (`nav.jinja.html`), arbre, favicon, étiquettes |
-| `autocomplete`, `error`, `markup`, `rst`, `website`, `websocket.jinja.html` | divers |
+| `autocomplete`, `error`, `markup`, `website`, `websocket.jinja.html` | divers |
 
 Les noms `stream_*.jinja.html` contiennent des `<turbo-stream>`. Les éléments
 HTML personnalisés (`<sdoc-node>`, `<sdoc-form>`, `<sdoc-form-row>`,

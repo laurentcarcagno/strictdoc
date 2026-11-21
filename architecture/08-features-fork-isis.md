@@ -46,8 +46,7 @@ ProjectConfig(auth_mode="proxy", trusted_proxies=["10.89.0.0/24"],
 Pas de changement de grammaire : un commentaire est un champ `COMMENT` dont la
 première ligne est un en-tête qui ne s'affiche pas.
 
-- RST : `.. sdoc-comment: id=c7f3a9 author=anna date=... status=open`
-- Markdown : `<!-- sdoc-comment id=... author=... date=... status=open -->`
+- `<!-- sdoc-comment id=c7f3a9 author=anna date=... status=open -->` (l'ancien en-tête RST n'est plus lu)
 
 Un `COMMENT` sans en-tête est un commentaire « ancien » (sans auteur ni date,
 ouvert). Clés d'en-tête (`model.py`) : `id`, `author`, `date`, `status`

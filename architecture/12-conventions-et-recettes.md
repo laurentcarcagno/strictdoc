@@ -141,7 +141,7 @@ Voir [03](03-formats-et-backends.md) : sous-classe de `Format`, ajout à
 2. Validation (`validations/sdoc_validator.py`), écriture (`writer.py`).
 3. Formulaire (`RequirementFormObject`, `GrammarElementFormObject`) et templates
    `components/form/field/*`.
-4. Autres writers : Markdown, RST, ReqIF, Excel, DOCX, JSON.
+4. Autres writers : Markdown, ReqIF, Excel, DOCX, JSON.
 5. Tests : unitaires du backend et intégration d'export.
 
 ### Ajouter une feature (écran ou action)

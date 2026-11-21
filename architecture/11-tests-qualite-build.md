@@ -71,7 +71,7 @@ dossier de sortie, `%cat`, `%cp`, `%mkdir`, `%rm`, `%touch`, `%diff`,
 de LIT (lit 18.1.8) est utilisée. Un test de l'export HTML valide aussi la
 conformité avec `pytidylib`. Les tests PDF demandent Chrome (`--html2pdf`).
 Arborescence : tout est sous `tests/integration/features/<sujet>/` (html, markdown, reqif, excel, docx, json,
-spdx, rst, source_code_traceability, ...), dont `commands/<commande>/`, `deprecations` et `options` ;
+spdx, source_code_traceability, ...), dont `commands/<commande>/`, `deprecations` et `options` ;
 `tests/integration/self_testing` est à côté.
 
 ### End2end (Selenium)

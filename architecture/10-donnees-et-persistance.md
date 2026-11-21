@@ -24,7 +24,7 @@ HTML, caches) se recalcule. Ce document dit où chaque chose vit.
 | Templates compilés | `<cache>/jinja/<hash>/` | jusqu'à mise à jour du code | oui |
 | Pages HTML | `output/html/` (export) ou `output/server/html/` (serveur) | | oui |
 | PDF | `output/html2pdf/{html,pdf}/` | | oui |
-| Autres exports | `output/<format>/` (`sdoc`, `rst`, `excel`, `reqif`, `json`, `spdx`, `markdown`...) | | oui |
+| Autres exports | `output/<format>/` (`sdoc`, `excel`, `reqif`, `json`, `spdx`, `markdown`...) | | oui |
 | Jobs de l'assistant, résultats récents, compteurs de révision, limites de débit | mémoire | processus (jobs : 1 h après la fin) | oui |
 | Index de recherche statique | `static_html_search_index.js`, copie en IndexedDB du navigateur | | oui |
 

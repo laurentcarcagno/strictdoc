@@ -41,7 +41,7 @@ Do not write throw-away smoke tests. A new feature needs at least one integratio
 
 Detailed architecture documents (in French) are in `architecture/`. Start with `architecture/INDEX.md`: its lookup table sends each question to one document and the first source files to open. Read one document at a time.
 
-StrictDoc is a requirements and documentation tool. It reads `.sdoc` files (plus Markdown, RST, ReqIF and source-code annotations), builds an in-memory traceability graph, and either exports it (HTML, PDF, DOCX, Excel, ReqIF, JSON, SPDX) or serves it as an editable web app.
+StrictDoc is a requirements and documentation tool. It reads `.sdoc` files (plus Markdown, ReqIF and source-code annotations), builds an in-memory traceability graph, and either exports it (HTML, PDF, DOCX, Excel, ReqIF, JSON, SPDX) or serves it as an editable web app.
 
 Pipeline, in order:
 

@@ -71,9 +71,9 @@ plusieurs dossiers), `--output-dir`, `--formats` (liste séparée par des virgul
 `--filter-nodes`, `--view`, `--generate-diff-git "A..B"`, `--generate-diff-dirs`,
 options ReqIF (`--reqif-profile`, `--reqif-multiline-is-xhtml`, `--reqif-enable-mid`),
 options html2pdf (`--chromedriver`, `--chrome-binary`, `--disable-ssl-check`),
-`--no-parallelization`, `--enable-mathjax` (déprécié).
+`--no-parallelization`.
 
-Formats acceptés : `html`, `html2pdf`, `markdown`, `rst`, `json`, `excel`,
+Formats acceptés : `html`, `html2pdf`, `markdown`, `json`, `excel`,
 `reqif-sdoc`, `reqifz-sdoc`, `sdoc`, `doxygen`, `spdx`, plus les poignées des
 `Format` personnalisés déclarés dans la configuration. Comme la validation
 d'`--formats` se fait pendant le parsing argparse, avant le chargement de la

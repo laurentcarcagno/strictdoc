@@ -14,7 +14,7 @@ MID: 5a2c...                    # optionnel, identifiant stable (hex 32)
 TITLE: Exigences système
 UID: SYS                        # le bloc DocumentConfig est optionnel
 OPTIONS:
-  MARKUP: Markdown              # RST | Text | HTML | Markdown
+  MARKUP: Markdown              # facultatif ; Markdown | HTML (RST et Text : erreur)
   ENABLE_MID: True
 
 [GRAMMAR]                       # optionnel

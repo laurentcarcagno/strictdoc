@@ -277,7 +277,7 @@ les objets et sur l'index.
 | `textx.py` | `drop_textx_meta`, `preserve_source_location_data` |
 | `cast.py`, `string.py`, `list.py`, `sorting.py`, `ordered_set.py`, `md5.py`, `sha256.py`, `lxml.py`, `net.py`, `shard.py`, `path_filter.py` | petits utilitaires |
 | `auto_described.py` | décorateur `__repr__` automatique |
-| `cargo_nextest.py`, `google_test.py`, `file_stats.py`, `diff.py`, `math.py`, `rst.py`, `coverage.py` | rapports de test, statistiques de fichiers, diff, hook de couverture |
+| `cargo_nextest.py`, `google_test.py`, `file_stats.py`, `diff.py`, `math.py`, `html_table.py`, `coverage.py` | rapports de test, statistiques de fichiers, diff, hook de couverture |
 
 ## Environnement (`core/environment.py`)
 

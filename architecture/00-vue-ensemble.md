@@ -6,9 +6,9 @@ Lire d'abord. Les autres documents détaillent chaque couche. L'index est dans
 ## Ce que fait le logiciel
 
 StrictDoc gère des exigences et de la documentation technique. Il lit des
-fichiers texte (`.sdoc`, Markdown, RST, ReqIF, Excel, annotations dans le code
+fichiers texte (`.sdoc`, Markdown, ReqIF, Excel, annotations dans le code
 source), construit en mémoire un graphe de traçabilité, puis soit l'exporte
-(HTML, PDF, DOCX, Excel, ReqIF, JSON, SPDX, RST, Markdown), soit le sert comme
+(HTML, PDF, DOCX, Excel, ReqIF, JSON, SPDX, Markdown), soit le sert comme
 application web éditable.
 
 Ce dépôt est un fork de StrictDoc 0.30.2 (`strictdoc/__init__.py`) pour le pilote
@@ -26,7 +26,7 @@ pour petit écran, assistant LLM et base de connaissances. Voir
 
 ```
 fichiers du projet                      strictdoc_config.py / strictdoc.toml
-  .sdoc .md .rst .reqif                           |
+  .sdoc .md .reqif                            |
   sources annotées @relation                      v
         |                                 ProjectConfig  (core/project_config.py)
         v                                         |
@@ -92,7 +92,6 @@ end2end, 161 fichiers de test unitaires et 41 de test serveur.
 | Parseur du format `.sdoc` | textX 4 (grammaire en chaînes Python) |
 | Parseur des commentaires de code (marqueurs) | lark, tree-sitter (C, C++, Python, Rust) |
 | Markdown | markdown-it-py (CommonMark) |
-| RST | docutils |
 | Templates | Jinja2 (compilés et mis en cache hors petits projets) |
 | Serveur web | FastAPI, uvicorn, WebSockets |
 | Interface | HTML rendu côté serveur, Turbo (`turbo.min.js`), JS simple sans framework |
