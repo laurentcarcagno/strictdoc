@@ -23,6 +23,7 @@ SETTINGS_FILE_NAME = "settings.json"
 SETTINGS_SCHEMA_VERSION = 1
 DEFAULT_CATALOG_PROVIDER = "gitlab"
 DEFAULT_KEPT_SERVERS = 3
+DEFAULT_GITLAB_PROJECTS_ROOT = "HERMES/DOCUMENTATION/PROJETS"
 
 _INVALID_FILE_SUFFIX = ".invalid"
 _AI_SECRET_PREFIX = "ai/"
@@ -51,6 +52,10 @@ class DesktopSettings:
     schema_version: int = SETTINGS_SCHEMA_VERSION
     catalog_provider: str = DEFAULT_CATALOG_PROVIDER
     gitlab_url: str = ""
+    # The GitLab group whose projects, sub-groups included, form the catalog.
+    gitlab_projects_root: str = DEFAULT_GITLAB_PROJECTS_ROOT
+    # The JSON file of the "fake" catalog provider. Empty: none.
+    fake_catalog_path: str = ""
     # How many project servers stay open at the same time.
     kept_servers: int = DEFAULT_KEPT_SERVERS
     # Identifier of a project -> the folder of the project on the disk.
@@ -143,6 +148,8 @@ def _settings_to_dict(settings: DesktopSettings) -> Dict[str, Any]:
         "schema_version": settings.schema_version,
         "catalog_provider": settings.catalog_provider,
         "gitlab_url": settings.gitlab_url,
+        "gitlab_projects_root": settings.gitlab_projects_root,
+        "fake_catalog_path": settings.fake_catalog_path,
         "kept_servers": settings.kept_servers,
         "project_folders": dict(settings.project_folders),
         "ai_servers": [
@@ -169,6 +176,12 @@ def _settings_from_dict(content: Dict[str, Any]) -> DesktopSettings:
             content, "catalog_provider", defaults.catalog_provider
         ),
         gitlab_url=_get_str(content, "gitlab_url", defaults.gitlab_url),
+        gitlab_projects_root=_get_str(
+            content, "gitlab_projects_root", defaults.gitlab_projects_root
+        ),
+        fake_catalog_path=_get_str(
+            content, "fake_catalog_path", defaults.fake_catalog_path
+        ),
         kept_servers=(
             kept_servers
             if isinstance(kept_servers, int)

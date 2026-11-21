@@ -1,0 +1,18 @@
+[
+  {
+    "identifier": "demo/isis",
+    "title": "ISIS",
+    "display_path": "Satellites/ISIS",
+    "description": "Instrument de bord",
+    "clone_url": "file:///data/isis.git",
+    "role": "administrator"
+  },
+  {
+    "identifier": "demo/ariane",
+    "title": "Ariane",
+    "display_path": "Lanceurs/Ariane",
+    "description": "",
+    "clone_url": "file:///data/ariane.git",
+    "role": "reader"
+  }
+]

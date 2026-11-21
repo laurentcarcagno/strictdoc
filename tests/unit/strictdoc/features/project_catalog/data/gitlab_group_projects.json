@@ -1,0 +1,271 @@
+[
+  {
+    "id": 101,
+    "description": "Instrument de bord ISIS",
+    "name": "ISIS",
+    "name_with_namespace": "HERMES / DOCUMENTATION / PROJETS / Satellites / ISIS",
+    "path": "ISIS",
+    "path_with_namespace": "HERMES/DOCUMENTATION/PROJETS/Satellites/ISIS",
+    "created_at": "2026-03-02T09:14:07.512Z",
+    "default_branch": "main",
+    "tag_list": [],
+    "topics": [],
+    "ssh_url_to_repo": "git@gitlab.example.org:HERMES/DOCUMENTATION/PROJETS/Satellites/ISIS.git",
+    "http_url_to_repo": "https://gitlab.example.org/HERMES/DOCUMENTATION/PROJETS/Satellites/ISIS.git",
+    "web_url": "https://gitlab.example.org/HERMES/DOCUMENTATION/PROJETS/Satellites/ISIS",
+    "readme_url": "https://gitlab.example.org/HERMES/DOCUMENTATION/PROJETS/Satellites/ISIS/-/blob/main/README.md",
+    "forks_count": 0,
+    "star_count": 0,
+    "last_activity_at": "2026-11-18T16:40:21.087Z",
+    "namespace": {
+      "id": 21,
+      "name": "Satellites",
+      "path": "Satellites",
+      "kind": "group",
+      "full_path": "HERMES/DOCUMENTATION/PROJETS/Satellites",
+      "parent_id": 20,
+      "avatar_url": null,
+      "web_url": "https://gitlab.example.org/groups/HERMES/DOCUMENTATION/PROJETS/Satellites"
+    },
+    "archived": false,
+    "visibility": "private",
+    "permissions": {
+      "project_access": null,
+      "group_access": {
+        "access_level": 50,
+        "notification_level": 3
+      }
+    }
+  },
+  {
+    "id": 102,
+    "description": "Segment sol",
+    "name": "Pleiades",
+    "name_with_namespace": "HERMES / DOCUMENTATION / PROJETS / Satellites / Pleiades",
+    "path": "Pleiades",
+    "path_with_namespace": "HERMES/DOCUMENTATION/PROJETS/Satellites/Pleiades",
+    "created_at": "2026-03-02T09:14:07.512Z",
+    "default_branch": "main",
+    "tag_list": [],
+    "topics": [],
+    "ssh_url_to_repo": "git@gitlab.example.org:HERMES/DOCUMENTATION/PROJETS/Satellites/Pleiades.git",
+    "http_url_to_repo": "https://gitlab.example.org/HERMES/DOCUMENTATION/PROJETS/Satellites/Pleiades.git",
+    "web_url": "https://gitlab.example.org/HERMES/DOCUMENTATION/PROJETS/Satellites/Pleiades",
+    "readme_url": "https://gitlab.example.org/HERMES/DOCUMENTATION/PROJETS/Satellites/Pleiades/-/blob/main/README.md",
+    "forks_count": 0,
+    "star_count": 0,
+    "last_activity_at": "2026-11-18T16:40:21.087Z",
+    "namespace": {
+      "id": 21,
+      "name": "Satellites",
+      "path": "Satellites",
+      "kind": "group",
+      "full_path": "HERMES/DOCUMENTATION/PROJETS/Satellites",
+      "parent_id": 20,
+      "avatar_url": null,
+      "web_url": "https://gitlab.example.org/groups/HERMES/DOCUMENTATION/PROJETS/Satellites"
+    },
+    "archived": false,
+    "visibility": "private",
+    "permissions": {
+      "project_access": {
+        "access_level": 40,
+        "notification_level": 3
+      },
+      "group_access": {
+        "access_level": 30,
+        "notification_level": 3
+      }
+    }
+  },
+  {
+    "id": 103,
+    "description": "Charge utile",
+    "name": "Payload",
+    "name_with_namespace": "HERMES / DOCUMENTATION / PROJETS / Satellites / Orion / Payload",
+    "path": "Payload",
+    "path_with_namespace": "HERMES/DOCUMENTATION/PROJETS/Satellites/Orion/Payload",
+    "created_at": "2026-03-02T09:14:07.512Z",
+    "default_branch": "main",
+    "tag_list": [],
+    "topics": [],
+    "ssh_url_to_repo": "git@gitlab.example.org:HERMES/DOCUMENTATION/PROJETS/Satellites/Orion/Payload.git",
+    "http_url_to_repo": "https://gitlab.example.org/HERMES/DOCUMENTATION/PROJETS/Satellites/Orion/Payload.git",
+    "web_url": "https://gitlab.example.org/HERMES/DOCUMENTATION/PROJETS/Satellites/Orion/Payload",
+    "readme_url": "https://gitlab.example.org/HERMES/DOCUMENTATION/PROJETS/Satellites/Orion/Payload/-/blob/main/README.md",
+    "forks_count": 0,
+    "star_count": 0,
+    "last_activity_at": "2026-11-18T16:40:21.087Z",
+    "namespace": {
+      "id": 22,
+      "name": "Orion",
+      "path": "Orion",
+      "kind": "group",
+      "full_path": "HERMES/DOCUMENTATION/PROJETS/Satellites/Orion",
+      "parent_id": 21,
+      "avatar_url": null,
+      "web_url": "https://gitlab.example.org/groups/HERMES/DOCUMENTATION/PROJETS/Satellites/Orion"
+    },
+    "archived": false,
+    "visibility": "private",
+    "permissions": {
+      "project_access": {
+        "access_level": 30,
+        "notification_level": 3
+      },
+      "group_access": null
+    }
+  },
+  {
+    "id": 104,
+    "description": "Lanceur lourd",
+    "name": "Ariane",
+    "name_with_namespace": "HERMES / DOCUMENTATION / PROJETS / Lanceurs / Ariane",
+    "path": "Ariane",
+    "path_with_namespace": "HERMES/DOCUMENTATION/PROJETS/Lanceurs/Ariane",
+    "created_at": "2026-03-02T09:14:07.512Z",
+    "default_branch": "main",
+    "tag_list": [],
+    "topics": [],
+    "ssh_url_to_repo": "git@gitlab.example.org:HERMES/DOCUMENTATION/PROJETS/Lanceurs/Ariane.git",
+    "http_url_to_repo": "https://gitlab.example.org/HERMES/DOCUMENTATION/PROJETS/Lanceurs/Ariane.git",
+    "web_url": "https://gitlab.example.org/HERMES/DOCUMENTATION/PROJETS/Lanceurs/Ariane",
+    "readme_url": "https://gitlab.example.org/HERMES/DOCUMENTATION/PROJETS/Lanceurs/Ariane/-/blob/main/README.md",
+    "forks_count": 0,
+    "star_count": 0,
+    "last_activity_at": "2026-11-18T16:40:21.087Z",
+    "namespace": {
+      "id": 23,
+      "name": "Lanceurs",
+      "path": "Lanceurs",
+      "kind": "group",
+      "full_path": "HERMES/DOCUMENTATION/PROJETS/Lanceurs",
+      "parent_id": 20,
+      "avatar_url": null,
+      "web_url": "https://gitlab.example.org/groups/HERMES/DOCUMENTATION/PROJETS/Lanceurs"
+    },
+    "archived": false,
+    "visibility": "private",
+    "permissions": {
+      "project_access": {
+        "access_level": 20,
+        "notification_level": 3
+      },
+      "group_access": null
+    }
+  },
+  {
+    "id": 105,
+    "description": "Visible pour un Guest seulement",
+    "name": "Secret",
+    "name_with_namespace": "HERMES / DOCUMENTATION / PROJETS / Lanceurs / Secret",
+    "path": "Secret",
+    "path_with_namespace": "HERMES/DOCUMENTATION/PROJETS/Lanceurs/Secret",
+    "created_at": "2026-03-02T09:14:07.512Z",
+    "default_branch": "main",
+    "tag_list": [],
+    "topics": [],
+    "ssh_url_to_repo": "git@gitlab.example.org:HERMES/DOCUMENTATION/PROJETS/Lanceurs/Secret.git",
+    "http_url_to_repo": "https://gitlab.example.org/HERMES/DOCUMENTATION/PROJETS/Lanceurs/Secret.git",
+    "web_url": "https://gitlab.example.org/HERMES/DOCUMENTATION/PROJETS/Lanceurs/Secret",
+    "readme_url": "https://gitlab.example.org/HERMES/DOCUMENTATION/PROJETS/Lanceurs/Secret/-/blob/main/README.md",
+    "forks_count": 0,
+    "star_count": 0,
+    "last_activity_at": "2026-11-18T16:40:21.087Z",
+    "namespace": {
+      "id": 23,
+      "name": "Lanceurs",
+      "path": "Lanceurs",
+      "kind": "group",
+      "full_path": "HERMES/DOCUMENTATION/PROJETS/Lanceurs",
+      "parent_id": 20,
+      "avatar_url": null,
+      "web_url": "https://gitlab.example.org/groups/HERMES/DOCUMENTATION/PROJETS/Lanceurs"
+    },
+    "archived": false,
+    "visibility": "private",
+    "permissions": {
+      "project_access": {
+        "access_level": 10,
+        "notification_level": 3
+      },
+      "group_access": null
+    }
+  },
+  {
+    "id": 106,
+    "description": "Ancien projet",
+    "name": "Legacy",
+    "name_with_namespace": "HERMES / DOCUMENTATION / PROJETS / Satellites / Legacy",
+    "path": "Legacy",
+    "path_with_namespace": "HERMES/DOCUMENTATION/PROJETS/Satellites/Legacy",
+    "created_at": "2026-03-02T09:14:07.512Z",
+    "default_branch": "main",
+    "tag_list": [],
+    "topics": [],
+    "ssh_url_to_repo": "git@gitlab.example.org:HERMES/DOCUMENTATION/PROJETS/Satellites/Legacy.git",
+    "http_url_to_repo": "https://gitlab.example.org/HERMES/DOCUMENTATION/PROJETS/Satellites/Legacy.git",
+    "web_url": "https://gitlab.example.org/HERMES/DOCUMENTATION/PROJETS/Satellites/Legacy",
+    "readme_url": "https://gitlab.example.org/HERMES/DOCUMENTATION/PROJETS/Satellites/Legacy/-/blob/main/README.md",
+    "forks_count": 0,
+    "star_count": 0,
+    "last_activity_at": "2026-11-18T16:40:21.087Z",
+    "namespace": {
+      "id": 21,
+      "name": "Satellites",
+      "path": "Satellites",
+      "kind": "group",
+      "full_path": "HERMES/DOCUMENTATION/PROJETS/Satellites",
+      "parent_id": 20,
+      "avatar_url": null,
+      "web_url": "https://gitlab.example.org/groups/HERMES/DOCUMENTATION/PROJETS/Satellites"
+    },
+    "archived": true,
+    "visibility": "private",
+    "permissions": {
+      "project_access": {
+        "access_level": 40,
+        "notification_level": 3
+      },
+      "group_access": null
+    }
+  },
+  {
+    "id": 107,
+    "description": null,
+    "name": "Outils",
+    "name_with_namespace": "HERMES / DOCUMENTATION / PROJETS / Outils",
+    "path": "Outils",
+    "path_with_namespace": "HERMES/DOCUMENTATION/PROJETS/Outils",
+    "created_at": "2026-03-02T09:14:07.512Z",
+    "default_branch": "main",
+    "tag_list": [],
+    "topics": [],
+    "ssh_url_to_repo": "git@gitlab.example.org:HERMES/DOCUMENTATION/PROJETS/Outils.git",
+    "http_url_to_repo": "https://gitlab.example.org/HERMES/DOCUMENTATION/PROJETS/Outils.git",
+    "web_url": "https://gitlab.example.org/HERMES/DOCUMENTATION/PROJETS/Outils",
+    "readme_url": "https://gitlab.example.org/HERMES/DOCUMENTATION/PROJETS/Outils/-/blob/main/README.md",
+    "forks_count": 0,
+    "star_count": 0,
+    "last_activity_at": "2026-11-18T16:40:21.087Z",
+    "namespace": {
+      "id": 20,
+      "name": "PROJETS",
+      "path": "PROJETS",
+      "kind": "group",
+      "full_path": "HERMES/DOCUMENTATION/PROJETS",
+      "parent_id": 19,
+      "avatar_url": null,
+      "web_url": "https://gitlab.example.org/groups/HERMES/DOCUMENTATION/PROJETS"
+    },
+    "archived": false,
+    "visibility": "private",
+    "permissions": {
+      "project_access": {
+        "access_level": 30,
+        "notification_level": 3
+      },
+      "group_access": null
+    }
+  }
+]
