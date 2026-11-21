@@ -301,3 +301,39 @@ def test_027_a_document_rename_refuses_a_clash_or_a_non_document(tmp_path):
         rename_document(str(tmp_path), "one.sdoc", "one.sdoc")
     with pytest.raises(StrictDocException, match="document"):
         rename_document(str(tmp_path), "notes.txt", "x")
+
+
+MARKDOWN_DOCUMENT = (
+    "# Document\n\n**Grammar**: rules.gra.md\n\n## Section\n\nText.\n"
+)
+
+
+def test_028_a_markdown_document_is_renamed_and_keeps_its_extension(tmp_path):
+    (tmp_path / "one.md").write_text(MARKDOWN_DOCUMENT)
+
+    assert rename_document(str(tmp_path), "one.md", "two") == "two.md"
+    assert (tmp_path / "two.md").is_file()
+    assert rename_document(str(tmp_path), "two.md", "three.md") == "three.md"
+
+
+def test_029_a_markdown_grammar_is_not_a_document(tmp_path):
+    (tmp_path / "rules.gra.md").write_text("# StrictDoc Markdown Grammar\n")
+
+    with pytest.raises(StrictDocException, match="not a document"):
+        rename_document(str(tmp_path), "rules.gra.md", "other")
+    with pytest.raises(StrictDocException, match="not a document"):
+        move_document(str(tmp_path), "rules.gra.md", "")
+
+
+def test_030_a_markdown_document_that_moves_keeps_the_path_of_its_grammar(
+    tmp_path,
+):
+    (tmp_path / "rules.gra.md").write_text("# StrictDoc Markdown Grammar\n")
+    (tmp_path / "one.md").write_text(MARKDOWN_DOCUMENT)
+    create_folder(str(tmp_path), "sub")
+
+    assert move_document(str(tmp_path), "one.md", "sub") == "sub/one.md"
+
+    moved = (tmp_path / "sub" / "one.md").read_text()
+    assert "**Grammar**: ../rules.gra.md" in moved
+    assert "## Section\n\nText.\n" in moved

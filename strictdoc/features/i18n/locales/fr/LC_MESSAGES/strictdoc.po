@@ -2854,8 +2854,12 @@ msgid "Changed"
 msgstr "Modifiés"
 
 #: strictdoc/features/document_versions
-msgid "Only the documents in the SDoc format can be shown at a version."
-msgstr "Seuls les documents au format SDoc peuvent être affichés à une version."
+msgid ""
+"Only the documents in the SDoc or Markdown format can be shown at a "
+"version."
+msgstr ""
+"Seuls les documents au format SDoc ou Markdown peuvent être affichés à une "
+"version."
 
 #: strictdoc/features/document_versions
 msgid "The document does not exist at this version."

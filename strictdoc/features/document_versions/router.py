@@ -81,12 +81,13 @@ def create_document_versions_router(*, context: ProjectContext) -> APIRouter:
     def snapshots_at(document: SDocDocument, tag: str) -> Dict[str, Any]:
         """The items at a tag, or the reason why they cannot be shown."""
         path = path_of(document)
-        if not path.endswith(".sdoc"):
+        is_markdown = path.endswith(".md") and not path.endswith(".gra.md")
+        if not path.endswith(".sdoc") and not is_markdown:
             return {
                 "items": {},
                 "error": gettext(
-                    "Only the documents in the SDoc format can be shown at a "
-                    "version."
+                    "Only the documents in the SDoc or Markdown format can be "
+                    "shown at a version."
                 ),
             }
         try:
@@ -101,7 +102,10 @@ def create_document_versions_router(*, context: ProjectContext) -> APIRouter:
                 ),
             }
         try:
-            return {"items": read_snapshots(text), "error": ""}
+            return {
+                "items": read_snapshots(text, markdown=is_markdown),
+                "error": "",
+            }
         except StrictDocException as error:
             return {"items": {}, "error": str(error)}
 

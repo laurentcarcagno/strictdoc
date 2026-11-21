@@ -10,7 +10,7 @@
             data-testid="tree-folder-item"
           >{% include "icons/_separator.svg" %}{{ folder_or_file.rel_path }}</div>
         {% endif %}
-      {% elif folder_or_file.has_extension(".sdoc") %}
+      {% elif folder_or_file.has_extension(".sdoc") or (folder_or_file.has_extension(".md") and not folder_or_file.has_extension(".gra.md")) %}
         {%- set document = document_tree.get_document_by_path(folder_or_file.full_path) %}
         {% if not document.document_is_included() %}
         {% set document_md5 = self_stats.get_md5_by_node(document) %}

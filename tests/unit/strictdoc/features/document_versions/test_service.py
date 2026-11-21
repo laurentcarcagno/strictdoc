@@ -80,3 +80,39 @@ def test_003_the_same_text_has_no_difference() -> None:
     assert comparison.removed == []
     assert comparison.changed == []
     assert comparison.unchanged == 3
+
+
+MARKDOWN_BEFORE = """# Versions
+
+## First
+
+**UID**: REQ-1
+
+**Statement**: Alpha.
+
+## Second
+
+**UID**: REQ-2
+
+**Statement**: Beta.
+"""
+
+MARKDOWN_AFTER = MARKDOWN_BEFORE.replace("Alpha.", "Alpha, reworded.")
+
+
+def test_004_a_markdown_document_is_read_at_a_version() -> None:
+    snapshots = read_snapshots(MARKDOWN_BEFORE, markdown=True)
+
+    assert list(snapshots) == ["REQ-1", "REQ-2"]
+    assert snapshots["REQ-1"].title == "First"
+    assert snapshots["REQ-1"].fields["STATEMENT"] == "Alpha."
+
+
+def test_005_two_versions_of_a_markdown_document_are_compared() -> None:
+    comparison = compare_snapshots(
+        read_snapshots(MARKDOWN_BEFORE, markdown=True),
+        read_snapshots(MARKDOWN_AFTER, markdown=True),
+    )
+
+    assert [change_.key for change_ in comparison.changed] == ["REQ-1"]
+    assert comparison.unchanged == 1

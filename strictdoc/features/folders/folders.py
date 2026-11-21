@@ -123,7 +123,24 @@ _INCLUDE = re.compile(
     r"^(\[DOCUMENT_FROM_FILE\]\s*\nFILE: *)(.+?)(\s*)$", re.MULTILINE
 )
 _IMPORT = re.compile(r"^(IMPORT_FROM_FILE: *)([^@\s].*?)(\s*)$", re.MULTILINE)
-DOCUMENT_EXTENSION = ".sdoc"
+# The grammar of a Markdown document is a path in its metadata block:
+# **Grammar**: grammar.gra.md
+_MARKDOWN_GRAMMAR = re.compile(
+    r"^(\*\*Grammar\*\*: *`?)([^`\s\\]+)(`?[ \t]*\\?[ \t]*)$", re.MULTILINE
+)
+DOCUMENT_EXTENSIONS = (".sdoc", ".md")
+
+
+def is_document_file(name: str) -> bool:
+    """A document is an .sdoc or an .md file, not a .gra.md grammar."""
+    return name.endswith(".sdoc") or (
+        name.endswith(".md") and not name.endswith(".gra.md")
+    )
+
+
+def _extension_of(name: str) -> str:
+    return ".sdoc" if name.endswith(".sdoc") else ".md"
+
 
 Moves = List[Tuple[str, str]]
 
@@ -219,7 +236,7 @@ def _documents_under(base: str) -> List[str]:
             if dir_ not in _RESERVED and not dir_.startswith((".", "_"))
         ]
         for file_ in files_:
-            if file_.endswith(DOCUMENT_EXTENSION):
+            if is_document_file(file_):
                 found.append(os.path.join(folder_, file_))
     return sorted(found)
 
@@ -256,7 +273,10 @@ def _rewritten(text: str, document: str, moves: Moves) -> str:
             return match.group(0)
         return match.group(1) + new_path + match.group(3)
 
-    return _IMPORT.sub(rewrite, _INCLUDE.sub(rewrite, text))
+    rewritten = _IMPORT.sub(rewrite, _INCLUDE.sub(rewrite, text))
+    if document.endswith(".md"):
+        rewritten = _MARKDOWN_GRAMMAR.sub(rewrite, rewritten)
+    return rewritten
 
 
 def _plan_rewrites(roots: Roots, moves: Moves) -> List[Tuple[str, str]]:
@@ -351,21 +371,23 @@ def rename_folder(roots: Roots, relative_path: str, new_name: str) -> str:
 
 def rename_document(roots: Roots, relative_path: str, new_name: str) -> str:
     """
-    Gives a document file a new name (".sdoc" is added when missing); returns
-    its new path. The title of the document does not change.
+    Gives a document file a new name (the extension of the document, ".sdoc"
+    or ".md", is added when missing); returns its new path. The title of the
+    document does not change.
     """
     old = relative_path.strip("/")
     source = locate(roots, old, "document")
-    if not os.path.isfile(source) or not old.endswith(DOCUMENT_EXTENSION):
+    if not os.path.isfile(source) or not is_document_file(old):
         raise StrictDocException(f"'{old}' is not a document.")
+    extension = _extension_of(old)
     name = new_name.strip()
     if "/" in name or "\\" in name:
         raise StrictDocException(
             "A file name has no '/': use the move to change its place."
         )
-    if not name.endswith(DOCUMENT_EXTENSION):
-        name += DOCUMENT_EXTENSION
-    stem = name[: -len(DOCUMENT_EXTENSION)]
+    if not name.endswith(extension):
+        name += extension
+    stem = name[: -len(extension)]
     if (
         _FILE_NAME.match(name) is None
         or stem == ""
@@ -410,7 +432,7 @@ def move_document(roots: Roots, relative_path: str, destination: str) -> str:
     """Moves a document into a folder."""
     old = relative_path.strip("/")
     source = locate(roots, old, "document")
-    if not os.path.isfile(source) or not old.endswith(DOCUMENT_EXTENSION):
+    if not os.path.isfile(source) or not is_document_file(old):
         raise StrictDocException(f"'{old}' is not a document.")
     target = _destination(roots, destination, os.path.basename(source))
     if os.path.dirname(target) == os.path.dirname(source):

@@ -45,23 +45,59 @@ TITLE: Third
 STATEMENT: Gamma.
 """
 
+MARKDOWN_A1 = """# Versions
+
+## First
+
+**UID**: REQ-1
+
+**Statement**: Alpha.
+
+## Second
+
+**UID**: REQ-2
+
+**Statement**: Beta.
+"""
+
+MARKDOWN_A2 = """# Versions
+
+## First
+
+**UID**: REQ-1
+
+**Statement**: Alpha, reworded.
+
+## Third
+
+**UID**: REQ-3
+
+**Statement**: Gamma.
+"""
+
 
 def _git(cwd: Path, *args: str) -> None:
     subprocess.run(["git", *args], cwd=cwd, check=True, capture_output=True)
 
 
-def _client(root: Path, feature: bool = True) -> Tuple[TestClient, str]:
+def _client(
+    root: Path, feature: bool = True, markdown: bool = False
+) -> Tuple[TestClient, str]:
     input_path = root / "input"
     input_path.mkdir()
-    document = input_path / "doc.sdoc"
+    document = input_path / ("doc.md" if markdown else "doc.sdoc")
     _git(root, "init", "-q", "-b", "master")
     _git(root, "config", "user.name", "i")
     _git(root, "config", "user.email", "i@e")
-    document.write_text(VERSION_A1, encoding="utf8")
+    document.write_text(
+        MARKDOWN_A1 if markdown else VERSION_A1, encoding="utf8"
+    )
     _git(root, "add", "-A")
     _git(root, "commit", "-q", "-m", "first version")
     _git(root, "tag", "A1")
-    document.write_text(VERSION_A2, encoding="utf8")
+    document.write_text(
+        MARKDOWN_A2 if markdown else VERSION_A2, encoding="utf8"
+    )
     _git(root, "commit", "-q", "-am", "second version")
     _git(root, "tag", "A2")
     config: ProjectConfig = ProjectConfigLoader.load_using_server_config(
@@ -149,3 +185,20 @@ def test_006_a_missing_tag_says_so_instead_of_failing(tmp_path: Path) -> None:
     page = client.get(f"/versions/{document_mid}/B9").text
 
     assert 'data-testid="version-error"' in page
+
+
+def test_007_a_markdown_document_is_shown_and_compared(tmp_path: Path) -> None:
+    client, document_mid = _client(tmp_path, markdown=True)
+
+    page = client.get(f"/versions/{document_mid}/A1").text
+    assert 'data-testid="version-error"' not in page
+    assert "REQ-2" in page
+    assert "Alpha." in page
+
+    page = client.get(
+        f"/versions/{document_mid}/compare?from_tag=A1&to_tag=A2"
+    ).text
+    assert "1 added, 1 removed, 1 changed, 0 unchanged" in " ".join(
+        page.split()
+    )
+    assert "REQ-3" in page.split('data-testid="compare-added"')[1]

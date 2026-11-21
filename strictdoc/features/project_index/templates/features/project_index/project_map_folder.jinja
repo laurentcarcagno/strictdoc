@@ -7,7 +7,7 @@
   {%- endif %}
 {%- endfor %}
 {%- for file_ in folder.files %}
-  {%- if file_.has_extension(".sdoc") %}
+  {%- if file_.has_extension(".sdoc") or (file_.has_extension(".md") and not file_.has_extension(".gra.md")) %}
     {%- with file = file_ %}
       {%- include "features/project_index/project_map_file.jinja" %}
     {%- endwith %}

@@ -8,6 +8,7 @@ between two versions: the items that were added, removed or changed.
 from dataclasses import dataclass, field
 from typing import Dict, List
 
+from strictdoc.backend.markdown.reader import SDMarkdownReader
 from strictdoc.backend.sdoc.models.node import SDocNode
 from strictdoc.backend.sdoc.reader import SDReader
 from strictdoc.core.document_iterator import SDocDocumentIterator
@@ -42,7 +43,9 @@ class VersionComparison:
     unchanged: int
 
 
-def read_snapshots(text: str) -> Dict[str, ItemSnapshot]:
+def read_snapshots(
+    text: str, markdown: bool = False
+) -> Dict[str, ItemSnapshot]:
     """
     The items of a document text by key (the UID, else the MID), in the order
     of the document. An item with neither is not followed. The text is
@@ -50,7 +53,11 @@ def read_snapshots(text: str) -> Dict[str, ItemSnapshot]:
     included items as they are in the working tree of the includer only if
     the parser can read them: the caller shows the error when it cannot.
     """
-    document = SDReader.read(text)
+    document = (
+        SDMarkdownReader().read(text, file_path=None)
+        if markdown
+        else SDReader.read(text)
+    )
     snapshots: Dict[str, ItemSnapshot] = {}
     iterator = SDocDocumentIterator(document)
     for node_, _ in iterator.all_content(print_fragments=False):

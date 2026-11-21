@@ -180,9 +180,10 @@ class SyncService:
             if loaded is None:
                 self.service.abort_merge(self.root)
                 raise GitServiceError(
-                    f"{relative_} cannot be merged here (it is not a "
-                    "document, or one side removed it): resolve it with "
-                    "Git. The synchronization was abandoned."
+                    f"{relative_} cannot be merged here (it is not an "
+                    "SDoc document, or one side removed it; documents in the "
+                    "Markdown format are merged by Git by lines only): "
+                    "resolve it with Git. The synchronization was abandoned."
                 )
             if loaded.conflict_indexes:
                 remaining.append(relative_)

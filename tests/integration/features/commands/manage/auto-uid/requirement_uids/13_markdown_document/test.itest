@@ -1,0 +1,10 @@
+#
+# Verify that `manage auto-uid` writes the UIDs back into a Markdown document
+# and keeps the UID that a requirement has already.
+#
+# @relation(SDOC-SRS-85, scope=file)
+#
+
+RUN: cp %S/input.md %S/rules.gra.md %T/
+RUN: %strictdoc manage auto-uid %T/
+RUN: %diff %S/input.expected.md %T/input.md

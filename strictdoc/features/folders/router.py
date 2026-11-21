@@ -16,6 +16,7 @@ from strictdoc.features.folders.folders import (
     create_folder,
     delete_folder,
     folder_paths,
+    is_document_file,
     locate,
     move_document,
     move_folder,
@@ -204,7 +205,7 @@ def create_folders_routers(
         """A document or a folder dragged to a folder of the tree."""
         try:
             stale = output_files_under(source.strip("/"))
-            if source.strip("/").endswith(".sdoc"):
+            if is_document_file(source.strip("/")):
                 new_path = move_document(roots(), source, destination)
             else:
                 new_path = move_folder(roots(), source, destination)
