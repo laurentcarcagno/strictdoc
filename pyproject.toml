@@ -214,6 +214,13 @@ check = [
     "requests>=2.27.1",
 ]
 documentation = []
+# The desktop application (strictdoc desktop): a window around the local web
+# server, the folders of the user and the keyring of the system.
+desktop = [
+    "pywebview[qt]",
+    "platformdirs",
+    "keyring",
+]
 release = ["build", "twine"]
 release-local = [{ include-group = "release" }, { include-group = "check" }]
 pyinstaller = [

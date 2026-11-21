@@ -11,6 +11,7 @@ from strictdoc.cli.cli_arg_parser import (
 )
 from strictdoc.commands.about_command import AboutCommand
 from strictdoc.commands.convert import ConvertCommand
+from strictdoc.commands.desktop_command import DesktopCommand
 from strictdoc.commands.export import ExportCommand
 from strictdoc.commands.format_command import FormatCommand
 from strictdoc.commands.launcher_command import (
@@ -36,6 +37,7 @@ def create_command_registry() -> Dict[str, Any]:
     command_registry: Dict[str, Any] = {
         "about": AboutCommand,
         "convert": ConvertCommand,
+        "desktop": DesktopCommand,
         "export": ExportCommand,
         "format": FormatCommand,
         "manage": {

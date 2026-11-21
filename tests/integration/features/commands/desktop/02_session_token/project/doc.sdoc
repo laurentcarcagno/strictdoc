@@ -1,0 +1,6 @@
+[DOCUMENT]
+TITLE: Small project
+
+[REQUIREMENT]
+UID: REQ-1
+STATEMENT: The system shall work.

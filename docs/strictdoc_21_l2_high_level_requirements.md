@@ -625,6 +625,95 @@ schemes and styles when it renders the raw HTML of a Markdown field.
 **Rationale**: A requirements document is shared and rendered by the web server. Raw HTML
 must not run scripts or load active content.
 
+## Desktop application
+
+**Type**: SECTION \
+**MID**: 1f67ad607292411786ab6f57302a7c1b \
+**UID**: SECTION-SRS-Desktop-application
+
+### Desktop command
+
+**MID**: e9774c344e6e4ffcb20ef9d05225be17 \
+**UID**: SDOC-SRS-1220 \
+**Status**: Active
+
+**Statement**: StrictDoc shall provide the `strictdoc desktop` command, which starts the web
+server of a project on the address 127.0.0.1 only, on a free port, shows it in a
+window of the application, and stops the server when the user closes the window.
+
+**Rationale**: A user opens a project from a window, like a word processor, without a
+browser or a terminal. A server that listens on the loopback address only is not
+reachable from the network, and no server is left running after the window is
+closed.
+
+### Session token of the desktop server
+
+**MID**: 2552519420d349ac87c46d2605f8dabc \
+**UID**: SDOC-SRS-1221 \
+**Status**: Active
+
+**Statement**: StrictDoc shall refuse with the HTTP status 403 every request to the desktop
+server that does not carry a valid session cookie, and shall set that cookie
+with the HttpOnly and SameSite=Strict attributes in answer to a single-use
+bootstrap code.
+
+**Rationale**: Any local process or web page can send requests to a port on 127.0.0.1. The
+session cookie restricts the server to the window that started it, and the
+single-use code keeps the cookie out of the command line and the logs once the
+window is open.
+
+### Host header check of the desktop server
+
+**MID**: 1bc79a7105704c4abd8cd4514acd515d \
+**UID**: SDOC-SRS-1222 \
+**Status**: Active
+
+**Statement**: StrictDoc shall refuse every request to the desktop server whose Host header
+is neither `127.0.0.1:<port>` nor `localhost:<port>`, where `<port>` is the port
+of the server.
+
+**Rationale**: A DNS rebinding attack makes a hostile web page reach a local server under
+the name of the attacker. Checking the Host header rejects such requests even
+when the browser sends the cookie.
+
+### Application settings file
+
+**MID**: 9d93cf0b13e946e7bb900b97be7d966f \
+**UID**: SDOC-SRS-1223 \
+**Status**: Active
+
+**Statement**: StrictDoc shall store the settings of the desktop application in a JSON file
+in the configuration folder of the user, and shall write that file atomically.
+
+**Rationale**: The settings belong to the user and not to a project. An atomic write
+leaves the previous settings intact when the application stops during the
+write.
+
+### Secrets in the system keyring
+
+**MID**: 07598bea13be4080a4a220c05a1a1389 \
+**UID**: SDOC-SRS-1224 \
+**Status**: Active
+
+**Statement**: StrictDoc shall store the secrets of the desktop application, such as access
+tokens, in the keyring of the operating system and never in the settings file.
+
+**Rationale**: A settings file is readable by other tools and is easily copied or committed
+by mistake. The system keyring protects a secret with the session of the user.
+
+### Output and cache in the user cache folder
+
+**MID**: 6e314a22bc6f425483af45c52c583271 \
+**UID**: SDOC-SRS-1225 \
+**Status**: Active
+
+**Statement**: StrictDoc shall write the HTML output and the cache of a project opened by the
+desktop application in the cache folder of the user, in one sub-folder per
+project.
+
+**Rationale**: The project folder stays free of generated files, and two projects never
+share the same output or cache.
+
 ## Graph database
 
 **Type**: SECTION \

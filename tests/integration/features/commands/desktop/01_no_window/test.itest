@@ -1,0 +1,15 @@
+#
+# @relation(SDOC-SRS-1220, scope=file)
+# @relation(SDOC-SRS-1225, scope=file)
+#
+
+REQUIRES: PLATFORM_IS_NOT_WINDOWS
+
+RUN: python "%S/run_no_window.py" "%strictdoc" "%S/project" "%T/user" \
+RUN:   | filecheck %s --dump-input=fail
+CHECK: URL is on the loopback address: True
+CHECK: Status of the home page: 200
+CHECK: Exit code: 0
+CHECK: Project folder: ['doc.sdoc']
+CHECK: Current folder unchanged: True
+CHECK: Output in the cache of the user: True

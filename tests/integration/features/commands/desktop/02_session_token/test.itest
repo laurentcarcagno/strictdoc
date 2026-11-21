@@ -1,0 +1,25 @@
+#
+# @relation(SDOC-SRS-1221, scope=file)
+# @relation(SDOC-SRS-1222, scope=file)
+#
+
+REQUIRES: PLATFORM_IS_NOT_WINDOWS
+
+RUN: python "%S/run_session_token.py" "%strictdoc" "%S/project" "%T/user" \
+RUN:   | filecheck %s --dump-input=fail
+CHECK: Start path: /__desktop/start
+CHECK: Home page without cookie: 403
+CHECK: Edit without cookie: 403
+CHECK: Start with a wrong code: 403
+CHECK: Start with the code: 200
+CHECK: Cookies: 1
+CHECK: Cookie name: strictdoc_desktop_session_{{[0-9]+}}
+CHECK: Cookie HttpOnly: True
+CHECK: Cookie SameSite: Strict
+CHECK: Cookie is a session cookie: True
+CHECK: Home page with cookie: 200
+CHECK: Start with the code again: 403
+CHECK: Wrong Host with cookie: 403
+CHECK: localhost Host with cookie: 200
+CHECK: Exit code: 0
+CHECK: Token in the output: False
