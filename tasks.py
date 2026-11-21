@@ -55,6 +55,24 @@ def get_pyinstaller_html_static_data_options() -> str:
     )
 
 
+# Data files that the code reads next to its own module (relative to
+# __file__). PyInstaller does not collect them from the imports, so each
+# directory is copied to the same path inside the bundle.
+PYINSTALLER_PACKAGE_DATA_DIRS = [
+    os.path.join("strictdoc", "features", "i18n", "locales"),
+    os.path.join("strictdoc", "features", "llm", "prompts"),
+    os.path.join("strictdoc", "features", "llm", "golden"),
+    os.path.join("strictdoc", "features", "projects", "templates"),
+]
+
+
+def get_pyinstaller_package_data_options() -> str:
+    return "\n".join(
+        f'--add-data "{data_dir_}{os.pathsep}{data_dir_}"'
+        for data_dir_ in PYINSTALLER_PACKAGE_DATA_DIRS
+    )
+
+
 def get_nuitka_html_template_data_options() -> str:
     return "\n".join(
         f'--include-data-dir="{template_dir}={BINARY_HTML_TEMPLATES_DIR}"'
@@ -1118,6 +1136,7 @@ def release_pyinstaller(context):
     path_to_pyi_dist = "/tmp/strictdoc"
     html_template_data_options = get_pyinstaller_html_template_data_options()
     html_static_data_options = get_pyinstaller_html_static_data_options()
+    package_data_options = get_pyinstaller_package_data_options()
 
     # The --hidden-import strictdoc.server.app flag is needed because without
     # it, the following is produced:
@@ -1154,6 +1173,7 @@ def release_pyinstaller(context):
             --hidden-import strictdoc.server.app
             {html_template_data_options}
             {html_static_data_options}
+            {package_data_options}
             strictdoc/cli/main.py
     """
 
