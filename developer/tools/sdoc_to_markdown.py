@@ -6,6 +6,7 @@ developer/design/plan_markdown_natif.md.
     python developer/tools/sdoc_to_markdown.py PATH [PATH ...]
         [--output-dir DIR | --in-place] [--rename-only] [--check]
         [--strict] [--dry-run] [--baseline FILE] [--suspect-fields A,B]
+        [--exclude PATTERN ...]
 
 PATH is an .sdoc file or a folder. A file with the extension .md that still
 holds SDoc syntax (a first line [DOCUMENT]) is converted too: that is what
@@ -24,6 +25,8 @@ holds SDoc syntax (a first line [DOCUMENT]) is converted too: that is what
 --strict      exit with code 1 when a document is skipped, a warning is
               raised or --check finds differences
 --dry-run     write nothing, only report
+--exclude     a pattern (fnmatch) of the paths, relative to the first PATH, of
+              documents to leave as they are. Can be given several times
 --baseline    the trace_baseline.json of the project (suspect links). The text
               of a field is not the same string in Markdown, so every parent
               would look changed: the entries of the links that were reviewed
@@ -35,17 +38,19 @@ holds SDoc syntax (a first line [DOCUMENT]) is converted too: that is what
 
 Not converted, and left as they are: a document that includes another one
 (DOCUMENT_FROM_FILE) and the documents it includes, a document with a grammar
-imported from an .sgra file. The report says which.
+imported from an .sgra file, a document with MARKUP: HTML. The report says which.
 
-Lost on purpose (a warning is raised): the options of the document other than
-MARKUP (ENABLE_MID, VIEW_STYLE, NODE_IN_TOC, ROOT, AUTO_LEVELS, LAYOUT,
-DEFAULT_VIEW, REQUIREMENT_STYLE) and the MID of the document.
+Lost on purpose (a warning is raised): the option RELATION_FIELD and the MID of
+the document. A document with MARKUP: HTML is not converted. The other options
+(ROOT, ENABLE_MID, AUTO_LEVELS, LAYOUT, VIEW_STYLE, NODE_IN_TOC, DEFAULT_VIEW)
+are keys of the metadata block of the Markdown document.
 
 Nothing is committed: one commit per document or per project is up to the
 person who runs the tool.
 """
 
 import argparse
+import fnmatch
 import json
 import os
 import re
@@ -61,6 +66,7 @@ from strictdoc.backend.markdown.writer import (
     MarkdownGrammarWriter,
     SDMarkdownWriter,
 )
+from strictdoc.backend.sdoc.models.document_from_file import DocumentFromFile
 from strictdoc.backend.sdoc.models.node import SDocNode
 from strictdoc.backend.sdoc.reader import SDReader
 from strictdoc.core.document_iterator import SDocDocumentIterator
@@ -71,9 +77,6 @@ from strictdoc.features.hierarchy.suspect import (
     content_hash,
 )
 
-_INCLUDE_PATTERN = re.compile(
-    r"^\[DOCUMENT_FROM_FILE\]\s*\nFILE:\s*(.+?)\s*$", re.MULTILINE
-)
 _FENCE_PATTERN = re.compile(r"^(`{3,}|~{3,})")
 
 
@@ -106,14 +109,21 @@ def convert_text(
     conversion = Conversion(source=source)
     stem = os.path.splitext(os.path.basename(source))[0]
 
-    if _INCLUDE_PATTERN.search(text) is not None:
+    document = SDReader().read(text, file_path=source)
+    conversion.title = document.title
+
+    if len(_included_files(document)) > 0:
         conversion.skipped_reason = (
             "includes another document (DOCUMENT_FROM_FILE)"
         )
         return conversion
 
-    document = SDReader().read(text, file_path=source)
-    conversion.title = document.title
+    if document.config.markup == "HTML":
+        conversion.skipped_reason = (
+            "its fields are in HTML (MARKUP: HTML), which the Markdown format "
+            "has no option for"
+        )
+        return conversion
 
     grammar = document.grammar
     if grammar is not None and grammar.import_from_file is not None:
@@ -206,30 +216,15 @@ def collapse_blank_lines(markdown: str) -> str:
 
 
 def _lost_options(document: Any) -> List[str]:
-    config = document.config
+    """
+    The options of the document that the Markdown metadata block has no key
+    for (SDOC-MD-39 lists the ones it has).
+    """
     lost: List[str] = []
-    for label, value in (
-        ("ENABLE_MID", config.enable_mid),
-        ("ROOT", config.root),
-        ("LAYOUT", config.layout),
-        (
-            "VIEW_STYLE"
-            if config.view_style_tag is not None
-            else "REQUIREMENT_STYLE",
-            config.requirement_style,
-        ),
-        (
-            "NODE_IN_TOC"
-            if config.node_in_toc_tag is not None
-            else "REQUIREMENT_IN_TOC",
-            config.requirement_in_toc,
-        ),
-        ("DEFAULT_VIEW", config.default_view),
-    ):
-        if value is not None and len(str(value).strip()) > 0:
-            lost.append(f"option {label}: {value} is lost")
-    if config.ng_auto_levels_specified:
-        lost.append("option AUTO_LEVELS is lost")
+    if document.config.relation_field is not None:
+        lost.append(
+            f"option RELATION_FIELD: {document.config.relation_field} is lost"
+        )
     return lost
 
 
@@ -260,14 +255,30 @@ def _is_sdoc_in_md(path: str) -> bool:
         return file_.readline().strip() == "[DOCUMENT]"
 
 
+def _included_files(document: Any) -> List[str]:
+    """The files that a document includes (an example in a code block is not)."""
+    found: List[str] = []
+
+    def walk(section_contents: List[Any]) -> None:
+        for node_ in section_contents:
+            if isinstance(node_, DocumentFromFile):
+                found.append(node_.file)
+            else:
+                walk(getattr(node_, "section_contents", None) or [])
+
+    walk(document.section_contents)
+    return found
+
+
 def _included_documents(documents: List[str]) -> Set[str]:
     """The documents that others include: they stay as they are."""
     included: Set[str] = set()
     for path in documents:
         with open(path, encoding="utf8") as file_:
             text = file_.read()
-        for match in _INCLUDE_PATTERN.finditer(text):
-            name = match.group(1)
+        if "[DOCUMENT_FROM_FILE]" not in text:
+            continue
+        for name in _included_files(SDReader().read(text, file_path=path)):
             for candidate in documents:
                 if candidate.endswith(os.sep + name.replace("/", os.sep)):
                     included.add(candidate)
@@ -410,6 +421,26 @@ def compare_trees(
     for title in sorted(set(target_documents) - set(source_documents)):
         differences.append(f"document {title!r} appears after the conversion")
     for title in sorted(set(source_documents) & set(target_documents)):
+        for key_ in ("ROOT", "VERSION", "CLASSIFICATION", "PREFIX"):
+            if source_documents[title].get(key_) != target_documents[title].get(
+                key_
+            ):
+                differences.append(f"{title}: the document key {key_} differs")
+        options_before = {
+            k_: v_
+            for k_, v_ in source_documents[title].get("_OPTIONS", {}).items()
+            if k_ != "MARKUP"
+        }
+        options_after = {
+            k_: v_
+            for k_, v_ in target_documents[title].get("_OPTIONS", {}).items()
+            if k_ != "MARKUP"
+        }
+        if options_before != options_after:
+            differences.append(
+                f"{title}: the options differ: {options_before} before, "
+                f"{options_after} after"
+            )
         source_nodes = _flatten(source_documents[title].get("NODES", []))
         target_nodes = _flatten(target_documents[title].get("NODES", []))
         if len(source_nodes) != len(target_nodes):
@@ -489,6 +520,7 @@ def main(argv: Optional[List[str]] = None) -> int:
     parser.add_argument("--strict", action="store_true")
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--baseline")
+    parser.add_argument("--exclude", action="append", default=[])
     parser.add_argument(
         "--suspect-fields", default=",".join(DEFAULT_SUSPECT_FIELDS)
     )
@@ -532,6 +564,12 @@ def main(argv: Optional[List[str]] = None) -> int:
     converted: List[Tuple[str, Conversion]] = []
     for source in documents:
         relative = os.path.relpath(source, source_root)
+        if any(
+            fnmatch.fnmatch(relative, pattern_)
+            for pattern_ in arguments.exclude
+        ):
+            print(f"skip {relative}: excluded")  # noqa: T201
+            continue
         if source in included:
             print(f"skip {relative}: another document includes it")  # noqa: T201
             problems += 1

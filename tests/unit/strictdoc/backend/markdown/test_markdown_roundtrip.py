@@ -1486,3 +1486,40 @@ Second text.
         output_markdown
     )
     assert "**Type**: TEXT\n\nSecond text." in output_markdown
+
+
+def test_039_roundtrip_document_options():
+    input_markdown = """\
+# Document title
+
+**Root**: True \\
+**Enable MID**: False \\
+**Auto levels**: Off \\
+**Layout**: Website \\
+**View style**: Narrative \\
+**Node in TOC**: False \\
+**Default view**: table
+
+## Section
+"""
+    document, _ = _assert_markdown_roundtrip(input_markdown)
+
+    config = document.config
+    assert config.root is True
+    assert config.enable_mid is False
+    assert config.auto_levels is False and config.ng_auto_levels_specified
+    assert config.layout == "Website"
+    assert config.requirement_style == "Narrative"
+    assert config.requirement_in_toc == "False"
+    assert config.default_view == "table"
+    # An option is not custom metadata.
+    assert config.custom_metadata is not None
+    assert config.custom_metadata.entries == []
+
+
+def test_040_a_document_option_with_another_value_is_refused():
+    with pytest.raises(Exception, match="not a value of the document option"):
+        SDMarkdownReader().read(
+            "# Document title\n\n**View style**: Fancy\n\n## Section\n",
+            file_path=None,
+        )

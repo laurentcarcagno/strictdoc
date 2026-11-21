@@ -88,6 +88,31 @@ Recognized document-level keys are `Grammar`, `UID`, `Version`, `Date`,
 Duplicate key names are not allowed. Values may optionally be enclosed in
 backticks.
 
+### Document options
+
+**MID**: 25c56feec6ef49c1b62acabb5c3d15e6 \
+**UID**: MD-39
+
+**Statement**:
+
+The metadata block of the document also carries the options that an SDoc
+document sets in its `ROOT` and `OPTIONS` blocks. Each is a key with a fixed
+set of values, and none of them is stored as custom metadata:
+
+| Key | Values | SDoc option |
+|---|---|---|
+| `Root` | `True`, `False` | `ROOT` |
+| `Enable MID` | `True`, `False` | `ENABLE_MID` |
+| `Auto levels` | `On`, `Off` | `AUTO_LEVELS` |
+| `Layout` | `Default`, `Website` | `LAYOUT` |
+| `View style` | `Plain`, `Inline`, `Simple`, `Narrative`, `Table`, `Zebra` | `VIEW_STYLE` |
+| `Node in TOC` | `True`, `False` | `NODE_IN_TOC` |
+| `Default view` | the name of a view | `DEFAULT_VIEW` |
+
+Another value is an error. The writer emits the keys that the document sets,
+after the other keys of the block. The markup is not an option of a Markdown
+document: its fields are Markdown. The `RELATION_FIELD` option has no key.
+
 ### Document Prefix field
 
 **MID**: f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6 \

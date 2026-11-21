@@ -310,6 +310,65 @@ class SDMarkdownReader:
 
         return document
 
+    # The options of a document that the metadata block carries (SDOC-MD-39),
+    # with the values that the SDoc grammar accepts for them.
+    document_option_keys: Dict[str, Tuple[str, ...]] = {
+        "Root": ("True", "False"),
+        "Enable MID": ("True", "False"),
+        "Auto levels": ("On", "Off"),
+        "Layout": ("Default", "Website"),
+        "View style": (
+            "Plain",
+            "Inline",
+            "Simple",
+            "Narrative",
+            "Table",
+            "Zebra",
+        ),
+        "Node in TOC": ("True", "False"),
+        "Default view": (),
+    }
+
+    @staticmethod
+    def _set_document_option(
+        document: SDocDocument,
+        key: str,
+        value: str,
+        root_heading: MarkdownHeadingNode,
+        file_path: Optional[str],
+    ) -> None:
+        allowed = SDMarkdownReader.document_option_keys[key]
+        if len(allowed) > 0 and value not in allowed:
+            raise StrictDocSemanticError(
+                title=(
+                    f"Markdown parsing error: '{value}' is not a value of the "
+                    f"document option '{key}'."
+                ),
+                hint=f"Use one of: {', '.join(allowed)}.",
+                example=None,
+                line=root_heading.line_start,
+                col=1,
+                filename=file_path,
+            )
+        config = document.config
+        if key == "Root":
+            config.root = value == "True"
+        elif key == "Enable MID":
+            config.enable_mid = value == "True"
+        elif key == "Auto levels":
+            config.auto_levels = value == "On"
+            config.ng_auto_levels_specified = True
+        elif key == "Layout":
+            config.layout = value
+        elif key == "View style":
+            config.requirement_style = value
+            config.view_style_tag = "VIEW_STYLE"
+        elif key == "Node in TOC":
+            config.requirement_in_toc = value
+            config.node_in_toc_tag = "NODE_IN_TOC"
+        else:
+            config.default_view = value
+
     @staticmethod
     def _make_new_empty_document(
         title: str,
@@ -395,6 +454,15 @@ class SDMarkdownReader:
                         parent=document,
                         elements=[],
                         import_from_file=field_.value,
+                    )
+                    continue
+                if field_.name in SDMarkdownReader.document_option_keys:
+                    SDMarkdownReader._set_document_option(
+                        document,
+                        field_.name,
+                        field_.value,
+                        root_heading,
+                        file_path,
                     )
                     continue
                 if field_.name == "Prefix":

@@ -114,22 +114,57 @@ def test_003_the_prefix_none_of_an_element_is_kept():
     assert "**Prefix**: None" in (conversion.grammar_markdown or "")
 
 
-def test_004_the_lost_options_are_reported():
+def test_004_the_options_of_the_document_become_metadata_keys():
     conversion = script.convert_text(DOCUMENT, "/project/document.sdoc")
 
-    assert "option NODE_IN_TOC: False is lost" in conversion.warnings
-    assert "option VIEW_STYLE: Table is lost" in conversion.warnings
+    markdown = conversion.document_markdown
+    assert markdown is not None
+    assert "**View style**: Table" in markdown
+    assert "**Node in TOC**: False" in markdown
+    assert conversion.warnings == []
 
 
-def test_005_a_document_that_includes_another_is_skipped():
+def test_004b_the_relation_field_option_is_reported_as_lost():
+    text = DOCUMENT.replace(
+        "OPTIONS:\n", "OPTIONS:\n  RELATION_FIELD: LINKED_REQ\n"
+    )
+    conversion = script.convert_text(text, "/project/document.sdoc")
+
+    assert conversion.warnings == ["option RELATION_FIELD: LINKED_REQ is lost"]
+
+
+def test_004c_a_document_in_html_is_not_converted():
+    text = DOCUMENT.replace("OPTIONS:\n", "OPTIONS:\n  MARKUP: HTML\n")
+    conversion = script.convert_text(text, "/project/document.sdoc")
+
+    assert conversion.document_markdown is None
+    assert conversion.skipped_reason is not None
+    assert "HTML" in conversion.skipped_reason
+
+
+def test_005_a_document_that_includes_another_is_skipped(tmp_path):
+    (tmp_path / "part.sdoc").write_text(
+        "[DOCUMENT]\nTITLE: Part\n", encoding="utf8"
+    )
     conversion = script.convert_text(
         "[DOCUMENT]\nTITLE: D\n\n[DOCUMENT_FROM_FILE]\nFILE: part.sdoc\n",
-        "/project/document.sdoc",
+        str(tmp_path / "document.sdoc"),
     )
 
     assert conversion.document_markdown is None
     assert conversion.skipped_reason is not None
     assert "DOCUMENT_FROM_FILE" in conversion.skipped_reason
+
+
+def test_005b_an_include_in_a_code_block_is_not_an_include():
+    text = (
+        "[DOCUMENT]\nTITLE: D\n\n[TEXT]\nSTATEMENT: >>>\n```strictdoc\n"
+        "[DOCUMENT_FROM_FILE]\nFILE: example.sdoc\n```\n<<<\n"
+    )
+    conversion = script.convert_text(text, "/project/document.sdoc")
+
+    assert conversion.skipped_reason is None
+    assert "FILE: example.sdoc" in (conversion.document_markdown or "")
 
 
 def test_006_a_grammar_in_an_sgra_file_is_skipped():

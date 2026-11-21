@@ -125,9 +125,36 @@ class SDMarkdownWriter:
             metadata_entries.append((entry_key, entry_value))
             seen_keys.add(entry_key)
 
+        config = document.config
+        option_entries: Sequence[Tuple[str, Optional[str]]] = (
+            ("Root", SDMarkdownWriter._bool_text(config.root)),
+            ("Enable MID", SDMarkdownWriter._bool_text(config.enable_mid)),
+            (
+                "Auto levels",
+                ("On" if config.auto_levels else "Off")
+                if config.ng_auto_levels_specified
+                else None,
+            ),
+            ("Layout", config.layout),
+            ("View style", config.requirement_style),
+            ("Node in TOC", config.requirement_in_toc),
+            ("Default view", config.default_view),
+        )
+        for entry_key, entry_value in option_entries:
+            if entry_value is None or entry_key in seen_keys:
+                continue
+            metadata_entries.append((entry_key, entry_value))
+            seen_keys.add(entry_key)
+
         if len(metadata_entries) == 0:
             return None
         return SDMarkdownWriter._serialize_meta_fields(metadata_entries)
+
+    @staticmethod
+    def _bool_text(value: Optional[bool]) -> Optional[str]:
+        if value is None:
+            return None
+        return "True" if value else "False"
 
     @staticmethod
     def _serialize_node(

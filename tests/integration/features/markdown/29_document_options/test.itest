@@ -1,0 +1,11 @@
+#
+# Verify SDOC-MD-39: the options of a document are keys of the metadata block.
+#
+
+RUN: %strictdoc export %S --formats=json --output-dir %T
+
+RUN: %cat %T/json/index.json | filecheck %s --dump-input=fail --check-prefix CHECK-JSON
+
+CHECK-JSON: "ROOT": "true"
+CHECK-JSON: "VIEW_STYLE": "Narrative"
+CHECK-JSON: "NODE_IN_TOC": "False"
