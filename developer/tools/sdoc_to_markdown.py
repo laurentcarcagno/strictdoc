@@ -6,7 +6,7 @@ developer/design/plan_markdown_natif.md.
     python developer/tools/sdoc_to_markdown.py PATH [PATH ...]
         [--output-dir DIR | --in-place] [--rename-only] [--check]
         [--strict] [--dry-run] [--baseline FILE] [--suspect-fields A,B]
-        [--exclude PATTERN ...]
+        [--exclude PATTERN ...] [--root DIR]
 
 PATH is an .sdoc file or a folder. A file with the extension .md that still
 holds SDoc syntax (a first line [DOCUMENT]) is converted too: that is what
@@ -25,8 +25,12 @@ holds SDoc syntax (a first line [DOCUMENT]) is converted too: that is what
 --strict      exit with code 1 when a document is skipped, a warning is
               raised or --check finds differences
 --dry-run     write nothing, only report
---exclude     a pattern (fnmatch) of the paths, relative to the first PATH, of
+--exclude     a pattern (fnmatch) of the paths, relative to the root, of
               documents to leave as they are. Can be given several times
+--root        the folder that StrictDoc reads for --check, when the documents
+              to convert are only a part of it (default: the first PATH).
+              The paths of --exclude, of the report and of the baseline are
+              relative to it
 --baseline    the trace_baseline.json of the project (suspect links). The text
               of a field is not the same string in Markdown, so every parent
               would look changed: the entries of the links that were reviewed
@@ -519,6 +523,7 @@ def main(argv: Optional[List[str]] = None) -> int:
     parser.add_argument("--force", action="store_true")
     parser.add_argument("--strict", action="store_true")
     parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument("--root")
     parser.add_argument("--baseline")
     parser.add_argument("--exclude", action="append", default=[])
     parser.add_argument(
@@ -537,17 +542,25 @@ def main(argv: Optional[List[str]] = None) -> int:
     if len(documents) == 0:
         print("No SDoc document found.")  # noqa: T201
         return 0
-    source_root = os.path.abspath(arguments.paths[0])
+    source_root = os.path.abspath(arguments.root or arguments.paths[0])
     if os.path.isfile(source_root):
         source_root = os.path.dirname(source_root)
 
+    included = _included_documents(documents)
+
     if arguments.rename_only:
         for source in documents:
-            if source.endswith(".sdoc"):
-                target = os.path.splitext(source)[0] + ".md"
-                print(f"rename {source} -> {target}")  # noqa: T201
-                if not arguments.dry_run:
-                    _move(source, target)
+            relative = os.path.relpath(source, source_root)
+            if not source.endswith(".sdoc"):
+                continue
+            skipped = _skip_reason(source, relative, included, arguments)
+            if skipped is not None:
+                print(f"skip {relative}: {skipped}")  # noqa: T201
+                continue
+            target = os.path.splitext(source)[0] + ".md"
+            print(f"rename {relative} -> {os.path.basename(target)}")  # noqa: T201
+            if not arguments.dry_run:
+                _move(source, target)
         return 0
 
     suspect_fields = [
@@ -559,20 +572,15 @@ def main(argv: Optional[List[str]] = None) -> int:
         if os.path.isfile(candidate):
             baseline_path = candidate
 
-    included = _included_documents(documents)
     problems = 0
     converted: List[Tuple[str, Conversion]] = []
     for source in documents:
         relative = os.path.relpath(source, source_root)
-        if any(
-            fnmatch.fnmatch(relative, pattern_)
-            for pattern_ in arguments.exclude
-        ):
-            print(f"skip {relative}: excluded")  # noqa: T201
-            continue
-        if source in included:
-            print(f"skip {relative}: another document includes it")  # noqa: T201
-            problems += 1
+        skipped = _skip_reason(source, relative, included, arguments)
+        if skipped is not None:
+            print(f"skip {relative}: {skipped}")  # noqa: T201
+            if skipped != "excluded":
+                problems += 1
             continue
         with open(source, encoding="utf8") as file_:
             conversion = convert_text(
@@ -695,6 +703,25 @@ def _rebaseline_file(
         f"Baseline {target_path}: {updated} links reviewed again, "
         f"{suspect} links that were suspect stay suspect."
     )
+
+
+def _skip_reason(
+    source: str,
+    relative: str,
+    included: Set[str],
+    arguments: argparse.Namespace,
+) -> Optional[str]:
+    """Why a document stays as it is, before any conversion."""
+    if any(
+        fnmatch.fnmatch(relative, pattern_) for pattern_ in arguments.exclude
+    ):
+        return "excluded"
+    if source in included:
+        return "another document includes it"
+    if arguments.rename_only:
+        with open(source, encoding="utf8") as file_:
+            return convert_text(file_.read(), source).skipped_reason
+    return None
 
 
 def _reading_root(
