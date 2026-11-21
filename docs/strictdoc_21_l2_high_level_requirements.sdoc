@@ -671,6 +671,65 @@ which lowers the entry barrier for writing formal requirements with StrictDoc or
 other tools. It is also used extensively by AI tools.
 <<<
 
+[REQUIREMENT]
+MID: 0a95844e4269458394a6bb6fe9869d89
+UID: SDOC-SRS-1217
+STATUS: Active
+TITLE: Markdown as the default markup
+STATEMENT: >>>
+StrictDoc shall read the text fields of a document as Markdown unless the
+document declares the HTML markup, and shall refuse the RST and Text markups
+with an error that names the migration tool.
+<<<
+RATIONALE: >>>
+One markup keeps the rendering, the editor and the exports consistent. A
+document that still declares a removed markup must fail loudly instead of
+rendering its text wrongly.
+<<<
+RELATIONS:
+- TYPE: File
+  VALUE: strictdoc/backend/sdoc/processor.py
+- TYPE: File
+  VALUE: strictdoc/backend/sdoc/constants.py
+
+[REQUIREMENT]
+MID: 8bcd4472afb743faab9212cdaac83aca
+UID: SDOC-SRS-1218
+STATUS: Active
+TITLE: HTML elements for what Markdown lacks
+STATEMENT: >>>
+StrictDoc shall render the HTML elements that stand for the constructs that
+Markdown does not have (admonitions, definition lists, tables with spans,
+subscripts, superscripts and numbered equations) in a Markdown field, and
+shall export them to HTML, PDF and DOCX.
+<<<
+RATIONALE: >>>
+Documents migrated from RST use these constructs. HTML keeps them readable in
+the source and in every export.
+<<<
+RELATIONS:
+- TYPE: File
+  VALUE: strictdoc/backend/markdown/markdown_to_html_fragment_writer.py
+- TYPE: File
+  VALUE: strictdoc/backend/docx/export/markdown_to_paragraphs.py
+
+[REQUIREMENT]
+MID: 3e95bb7953ac44c29a196ae26b814959
+UID: SDOC-SRS-1219
+STATUS: Active
+TITLE: Sanitization of the HTML of a Markdown field
+STATEMENT: >>>
+StrictDoc shall keep only the allow-listed HTML elements, attributes, URL
+schemes and styles when it renders the raw HTML of a Markdown field.
+<<<
+RATIONALE: >>>
+A requirements document is shared and rendered by the web server. Raw HTML
+must not run scripts or load active content.
+<<<
+RELATIONS:
+- TYPE: File
+  VALUE: strictdoc/backend/markdown/html_sanitizer.py
+
 [[/SECTION]]
 
 [[SECTION]]
