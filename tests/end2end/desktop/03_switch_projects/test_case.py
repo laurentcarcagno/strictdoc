@@ -13,13 +13,13 @@ from typing import Dict
 import pytest
 from selenium.webdriver.common.by import By
 
+from tests.end2end.desktop.desktop_case import DesktopCase
 from tests.end2end.desktop.desktop_projects import (
     add_document_to_remote,
     create_remote,
     write_catalog,
 )
 from tests.end2end.desktop.desktop_test_server import DesktopTestServer
-from tests.end2end.e2e_case import E2ECase
 from tests.end2end.end2end_test_setup import End2EndTestSetup
 from tests.end2end.helpers.screens.project_index.screen_project_index import (
     Screen_ProjectIndex,
@@ -81,7 +81,7 @@ class Projects:
 @pytest.mark.skipif(
     sys.platform == "win32", reason="The user folders follow XDG variables."
 )
-class Test(E2ECase):
+class Test(DesktopCase):
     """
     The user works on a project, goes back to the home screen, opens another
     project and comes back: the server of the first project still runs, so the

@@ -9,8 +9,8 @@ from typing import List
 import pytest
 from selenium.webdriver.common.keys import Keys
 
+from tests.end2end.desktop.desktop_case import DesktopCase
 from tests.end2end.desktop.desktop_test_server import DesktopTestServer
-from tests.end2end.e2e_case import E2ECase
 from tests.end2end.end2end_test_setup import End2EndTestSetup
 
 WELCOME = '[data-testid="home-welcome"]'
@@ -26,7 +26,7 @@ PROJECT_ROLE = ".catalog__project_role"
 @pytest.mark.skipif(
     sys.platform == "win32", reason="The user folders follow XDG variables."
 )
-class Test(E2ECase):
+class Test(DesktopCase):
     """
     The first launch of the application: no project is open, the welcome
     message and the catalog are shown, and the search filters the catalog.
