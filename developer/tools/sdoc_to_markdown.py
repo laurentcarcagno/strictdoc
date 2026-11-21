@@ -389,10 +389,21 @@ def _iterate(nodes: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
 
 
 def _flatten(nodes: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """
+    The nodes in document order, each with the place of its parent in the list:
+    a TEXT that follows the subsections of a section is a child of the section
+    in SDoc, and a child of the last subsection in Markdown.
+    """
     flat: List[Dict[str, Any]] = []
-    for node in nodes:
-        flat.append({k_: v_ for k_, v_ in node.items() if k_ != "NODES"})
-        flat.extend(_flatten(node.get("NODES", [])))
+
+    def walk(children: List[Dict[str, Any]], parent: int) -> None:
+        for node in children:
+            entry = {k_: v_ for k_, v_ in node.items() if k_ != "NODES"}
+            entry["_PARENT"] = parent
+            flat.append(entry)
+            walk(node.get("NODES", []), len(flat) - 1)
+
+    walk(nodes, -1)
     return flat
 
 

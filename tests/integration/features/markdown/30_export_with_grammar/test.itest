@@ -1,0 +1,24 @@
+#
+# Verify that `export --formats=markdown` writes the grammar of the document in
+# a .gra.md file next to it, so that the exported files read back as the same
+# document: the two TEXT nodes, the requirement with its field ASIL.
+#
+
+RUN: %strictdoc export %S --formats=markdown --output-dir %T
+
+RUN: %cat %T/markdown/input.md | filecheck %s --dump-input=fail --check-prefix CHECK-MD
+CHECK-MD: **Grammar**: input.gra.md
+CHECK-MD: First text.
+CHECK-MD: **Type**: TEXT
+CHECK-MD: Second text.
+
+RUN: %cat %T/markdown/input.gra.md | filecheck %s --dump-input=fail --check-prefix CHECK-GRAMMAR
+CHECK-GRAMMAR: ## Element: REQUIREMENT
+CHECK-GRAMMAR: ### Field: ASIL
+
+RUN: %strictdoc export %T/markdown --formats=json --output-dir %T/again
+RUN: %cat %T/again/json/index.json | filecheck %s --dump-input=fail --check-prefix CHECK-JSON
+CHECK-JSON: "STATEMENT": "{{(\\n)?}}First text.
+CHECK-JSON: "STATEMENT": "Second text.
+CHECK-JSON: "UID": "REQ-1"
+CHECK-JSON: "ASIL": "B"

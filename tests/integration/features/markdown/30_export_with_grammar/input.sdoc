@@ -1,0 +1,54 @@
+[DOCUMENT]
+TITLE: Exported with a grammar
+
+[GRAMMAR]
+ELEMENTS:
+- TAG: SECTION
+  PROPERTIES:
+    IS_COMPOSITE: True
+  FIELDS:
+  - TITLE: TITLE
+    TYPE: String
+    REQUIRED: True
+- TAG: TEXT
+  FIELDS:
+  - TITLE: STATEMENT
+    TYPE: String
+    REQUIRED: True
+- TAG: REQUIREMENT
+  FIELDS:
+  - TITLE: UID
+    TYPE: String
+    REQUIRED: True
+  - TITLE: ASIL
+    TYPE: String
+    REQUIRED: False
+  - TITLE: TITLE
+    TYPE: String
+    REQUIRED: False
+  - TITLE: STATEMENT
+    TYPE: String
+    REQUIRED: True
+
+[[SECTION]]
+TITLE: Section
+
+[TEXT]
+STATEMENT: >>>
+First text.
+<<<
+
+[TEXT]
+STATEMENT: >>>
+Second text.
+<<<
+
+[REQUIREMENT]
+UID: REQ-1
+ASIL: B
+TITLE: Speed
+STATEMENT: >>>
+The vehicle shall not exceed 130 km/h.
+<<<
+
+[[/SECTION]]

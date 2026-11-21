@@ -1,11 +1,14 @@
 import os
 import sys
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 
 from strictdoc.backend.markdown.grammar_reader import MarkdownGrammarReader
 from strictdoc.backend.markdown.reader import SDMarkdownReader
-from strictdoc.backend.markdown.writer import SDMarkdownWriter
+from strictdoc.backend.markdown.writer import (
+    MarkdownGrammarWriter,
+    SDMarkdownWriter,
+)
 from strictdoc.backend.sdoc.errors.document_tree_error import DocumentTreeError
 from strictdoc.backend.sdoc.models.document import SDocDocument
 from strictdoc.backend.sdoc.models.document_grammar import DocumentGrammar
@@ -99,7 +102,28 @@ class MarkdownFormat(Format):
             assert document.meta.document_filename_base
             assert document.meta.input_doc_dir_rel_path
 
-            output = writer.write(document)
+            # A grammar that is written inside the document, or that is in an
+            # .sgra file, goes to a .gra.md file next to the document, or the
+            # exported document could not be read back.
+            grammar = document.grammar
+            grammar_file_name: Optional[str] = None
+            saved_import: Optional[str] = None
+            if (
+                grammar is not None
+                and not grammar.is_default
+                and not (grammar.import_from_file or "").endswith(".gra.md")
+            ):
+                grammar_file_name = (
+                    document.meta.document_filename_base + ".gra.md"
+                )
+                saved_import = grammar.import_from_file
+                grammar.import_from_file = grammar_file_name
+            try:
+                output = writer.write(document)
+            finally:
+                if grammar_file_name is not None:
+                    assert grammar is not None
+                    grammar.import_from_file = saved_import
 
             path_to_output_file_dir: str = os.path.join(
                 output_dir, document.meta.input_doc_dir_rel_path.relative_path
@@ -116,3 +140,9 @@ class MarkdownFormat(Format):
                 encoding="utf8",
             ) as file:
                 file.write(output)
+            if grammar_file_name is not None:
+                assert grammar is not None
+                MarkdownGrammarWriter.write_to_file(
+                    grammar,
+                    os.path.join(path_to_output_file_dir, grammar_file_name),
+                )
