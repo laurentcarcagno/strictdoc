@@ -986,7 +986,6 @@ The Web Editor shall support image upload in multi-line text fields via paste an
    - HTML: `<img src="./_assets/<node_specific_subfolder>/<filename>" />`
    - Markdown: `![](./_assets/<node_specific_subfolder>/<filename>)`
 
-
    For documents configured to use HTML or Markdown markup, always insert a
    direct reference to each uploaded file.
 
