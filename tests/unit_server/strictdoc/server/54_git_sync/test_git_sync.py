@@ -28,11 +28,28 @@ def _git(cwd: Path, *args: str) -> str:
     ).stdout.strip()
 
 
+NOTES = """# Notes
+
+## Memory
+
+**UID**: NOTE-1
+
+**Statement**: The log shall hold at most 32 MB.
+
+## Time
+
+**UID**: NOTE-2
+
+**Statement**: The clock shall be set at start.
+"""
+
+
 def _project(tmp_path: Path) -> Tuple[Any, Path, Path, Path]:
     """A project in a git repository with an origin, and a second clone."""
     root = tmp_path / "project"
     root.mkdir()
     config = make_config(root, None)
+    (root / "input" / "notes.md").write_text(NOTES, encoding="utf8")
     _git(root, "init", "-q", "-b", "main")
     _git(root, "add", "-A")
     _git(root, "commit", "-q", "-m", "init")
@@ -56,8 +73,14 @@ def _project(tmp_path: Path) -> Tuple[Any, Path, Path, Path]:
     return client, root, origin, other
 
 
-def _edit(root: Path, old: str, new: str, message: str) -> None:
-    path = root / "input" / "flight.sdoc"
+def _edit(
+    root: Path,
+    old: str,
+    new: str,
+    message: str,
+    name: str = "flight.sdoc",
+) -> None:
+    path = root / "input" / name
     path.write_text(
         path.read_text(encoding="utf8").replace(old, new), encoding="utf8"
     )
@@ -215,3 +238,54 @@ def test_006_abandoning_goes_back_to_the_local_state(tmp_path: Path) -> None:
         encoding="utf8"
     )
     assert _git(root, "status", "--porcelain", "--", "input") == ""
+
+
+def test_007_a_markdown_document_is_merged_node_by_node(
+    tmp_path: Path,
+) -> None:
+    client, root, origin, other = _project(tmp_path)
+    # The two sides change different nodes of the Markdown document: no
+    # conflict, the document is merged.
+    _edit(other, "set at start", "set at power on", "server", name="notes.md")
+    _git(other, "push", "-q")
+    _edit(root, "at most 32 MB", "at most 64 MB", "local", name="notes.md")
+
+    result = client.post("/actions/git/sync", headers=ADMIN)
+
+    assert result.status_code == 200, result.text
+    merged = _git(origin, "show", "main:input/notes.md")
+    assert "64 MB" in merged and "power on" in merged
+
+
+def test_008_a_conflict_in_a_markdown_document_opens_the_view_and_resolves(
+    tmp_path: Path,
+) -> None:
+    client, root, origin, other = _project(tmp_path)
+    _edit(other, "at most 32 MB", "at most 16 MB", "server", name="notes.md")
+    _git(other, "push", "-q")
+    _edit(root, "at most 32 MB", "at most 64 MB", "local", name="notes.md")
+
+    result = client.post("/actions/git/sync", headers=ADMIN)
+    assert 'context="merge"' in result.text
+    view = client.get(
+        "/actions/git/sync_conflicts?file=input/notes.md", headers=ADMIN
+    ).text
+    assert "sync-row-conflict" in view
+    # Both sides are shown as nodes, with their UID.
+    assert "16 MB" in view and "64 MB" in view and "NOTE-1" in view
+    data = json.loads(view.split('id="gs-data">')[1].split("</script>")[0])
+    [region] = data.keys()
+
+    done = client.post(
+        "/actions/git/sync/resolve",
+        data={
+            "file": "input/notes.md",
+            "texts": json.dumps({region: data[region]["server"]}),
+        },
+        headers=ADMIN,
+    )
+
+    assert done.status_code == 200, done.text
+    merged = _git(origin, "show", "main:input/notes.md")
+    assert "16 MB" in merged and "64 MB" not in merged
+    assert "NOTE-2" in merged

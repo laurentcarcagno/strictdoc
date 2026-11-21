@@ -6116,8 +6116,9 @@ What the conversion does not carry over, and says so:
 
 A Markdown document is a file for Git and for the tools around it:
 
-- Two conflicting changes in a `.md` file are merged by Git by lines. The merge
-  node by node of the synchronization screen works for `.sdoc` files only.
+- The synchronization screen merges a `.md` document node by node, like an
+  `.sdoc` one: a node is a heading with its text, and what comes before the
+  first heading below the title is the first block.
 - The Word import writes `.sdoc` files. It stops when a `.md` file of the same
   name exists in the folder.
 - Several TEXT nodes in a row are written with a `**Type**: TEXT` line before

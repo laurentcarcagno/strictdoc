@@ -1,4 +1,7 @@
-from strictdoc.features.git_sync.blocks import split_blocks
+from strictdoc.features.git_sync.blocks import (
+    split_blocks,
+    split_markdown_blocks,
+)
 from strictdoc.features.git_sync.merge3 import (
     CONFLICT,
     LOCAL,
@@ -154,3 +157,65 @@ def test_018_a_file_added_on_both_sides_conflicts_where_it_differs():
     regions = merge3("", local, server)
     assert [r.kind for r in regions].count(CONFLICT) == 1
     assert regions[0].kind == SAME
+
+
+MARKDOWN_HEADER = "# Spec\n\nIntro text.\n\n"
+
+
+def _md_req(uid, statement, level=2):
+    return f"{'#' * level} {uid}\n\n**UID**: {uid}\n\n**Statement**: {statement}\n\n"
+
+
+def _md_doc(*parts):
+    return MARKDOWN_HEADER + "".join(parts)
+
+
+def test_020_markdown_blocks_start_at_a_heading_and_have_keys():
+    text = _md_doc(
+        "## Section\n\n**Type**: SECTION \\\n**MID**: 11111111\n\nProse.\n\n",
+        _md_req("R-1", "one", level=3),
+    )
+    blocks = split_markdown_blocks(text)
+
+    assert "".join(b.text for b in blocks) == text
+    assert [b.key for b in blocks] == ["header", "MID:11111111", "UID:R-1"]
+    assert blocks[0].text == MARKDOWN_HEADER
+    assert blocks[2].title == "R-1"
+
+
+def test_021_a_heading_in_fenced_code_does_not_split():
+    text = _md_doc("## Section\n\n```text\n## not a heading\n```\n\nAfter.\n")
+
+    assert [b.kind for b in split_markdown_blocks(text)] == ["header", "NODE"]
+
+
+def test_022_a_markdown_block_without_identity_is_hashed():
+    blocks = split_markdown_blocks(_md_doc("## Plain\n\nJust text.\n"))
+
+    assert blocks[1].key.startswith("hash:NODE:")
+
+
+def test_023_markdown_changes_on_different_nodes_merge():
+    base = _md_doc(_md_req("R-1", "one"), _md_req("R-2", "two"))
+    local = _md_doc(_md_req("R-1", "one local"), _md_req("R-2", "two"))
+    server = _md_doc(_md_req("R-1", "one"), _md_req("R-2", "two server"))
+
+    regions = merge3(base, local, server, markdown=True)
+
+    assert conflict_indexes(regions) == []
+    assert assemble(regions, {}) == _md_doc(
+        _md_req("R-1", "one local"), _md_req("R-2", "two server")
+    )
+
+
+def test_024_markdown_same_node_changed_on_both_sides_is_a_conflict():
+    base = _md_doc(_md_req("R-1", "one"))
+    local = _md_doc(_md_req("R-1", "one local"))
+    server = _md_doc(_md_req("R-1", "one server"))
+
+    regions = merge3(base, local, server, markdown=True)
+
+    [index] = conflict_indexes(regions)
+    assert regions[index].kind == CONFLICT
+    assert "one local" in regions[index].local_text
+    assert "one server" in regions[index].server_text

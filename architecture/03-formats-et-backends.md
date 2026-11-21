@@ -95,8 +95,9 @@ Règles du lecteur et du rédacteur à connaître (`spec/Markdown.md`) :
 Le passage d'un projet `.sdoc` au `.md` se fait avec
 `developer/tools/sdoc_to_markdown.py` (`--check`, `--rename-only`,
 `--baseline`) ; le plan est dans `developer/design/plan_markdown_natif.md`. Ce qui
-suppose encore `.sdoc` : la fusion de conflits nœud par nœud
-(`features/git_sync/blocks.py`, `merge3.py`) et l'import Word.
+suppose encore `.sdoc` : l'import Word (il refuse d'écrire à côté d'un `.md`
+du même nom). La fusion de conflits nœud par nœud sait lire un `.md`
+(`features/git_sync/blocks.py`, `split_markdown_blocks`).
 
 ## RST retiré
 

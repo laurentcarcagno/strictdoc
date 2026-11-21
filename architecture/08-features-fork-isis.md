@@ -147,12 +147,12 @@ Option `git=GitConfig(...)` (`config.py` : `author_name`, `author_email`,
 
 `SyncService.sync` : `fetch`, avance rapide si possible, sinon fusion. L'état
 d'une fusion en cours est celui de Git (`MERGE_HEAD`, fichiers non fusionnés),
-donc un redémarrage du serveur ne perd rien. Les `.sdoc` que Git ne fusionne
+donc un redémarrage du serveur ne perd rien. Les `.sdoc` et les `.md` que Git ne fusionne
 pas par lignes le sont **nœud par nœud** :
 
 | Fichier | Rôle |
 |---|---|
-| `blocks.py` | un `.sdoc` comme liste de blocs (un par nœud), identifiés par MID, sinon UID, sinon hash du texte |
+| `blocks.py` | un `.sdoc` (`split_blocks`) ou un `.md` (`split_markdown_blocks`, un bloc par titre) comme liste de blocs, identifiés par MID, sinon UID, sinon hash du texte |
 | `merge3.py` | fusion à trois voies (`merge3(base, local, server)`) : régions `same`, `local`, `server`, `conflict` |
 | `fragments.py` | prépare l'affichage des conflits (chaque région comme des nœuds de chaque côté) |
 | `sync_service.py` | `SyncService`, `SyncResult`, `ConflictFile` |

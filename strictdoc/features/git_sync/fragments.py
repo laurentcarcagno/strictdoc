@@ -8,11 +8,13 @@ title, its UID, its fields. A block that cannot be read is shown as text.
 """
 
 import html
+import re
 from dataclasses import dataclass, field
 from typing import Any, Callable, List, Optional, Sequence
 
 from markupsafe import Markup
 
+from strictdoc.backend.markdown.reader import SDMarkdownReader
 from strictdoc.backend.sdoc.reader import SDReader
 from strictdoc.features.git_sync.blocks import Block
 from strictdoc.features.git_sync.merge3 import (
@@ -66,19 +68,34 @@ def _plain(text: str) -> Markup:
     return Markup("<pre class='gs-text'>%s</pre>") % text
 
 
+def _read_block(block: Block, header: str, markdown: bool) -> Any:
+    """The node that a block holds, read with the header of its document."""
+    if markdown:
+        # A block may start at any depth: its heading is read as a level 2.
+        text = re.sub(r"^#+", "##", block.text, count=1)
+        document = SDMarkdownReader().read(
+            header.rstrip("\n") + "\n\n" + text, file_path=None
+        )
+        return document, document.section_contents[-1]
+    closing = "[[/SECTION]]\n" if block.kind == "SECTION" else ""
+    if block.kind == "COMPOSITE_REQUIREMENT":
+        closing = "[[/COMPOSITE_REQUIREMENT]]\n"
+    document = SDReader.read(header + block.text + closing)
+    return document, document.section_contents[0]
+
+
 def _node_view(
-    block: Block, header: str, render_field: FieldRenderer
+    block: Block,
+    header: str,
+    render_field: FieldRenderer,
+    markdown: bool = False,
 ) -> NodeView:
     if block.kind.startswith("/"):
         return NodeView(block.kind, "", "", closing=True)
     if block.kind == "header":
         return NodeView("DOCUMENT", block.title, "", raw=block.text)
-    closing = "[[/SECTION]]\n" if block.kind == "SECTION" else ""
-    if block.kind == "COMPOSITE_REQUIREMENT":
-        closing = "[[/COMPOSITE_REQUIREMENT]]\n"
     try:
-        document = SDReader.read(header + block.text + closing)
-        node: Any = document.section_contents[0]
+        document, node = _read_block(block, header, markdown)
         markup = document.config.markup if document.config else None
         fields: List[FieldView] = []
         for name_, found in node.ordered_fields_lookup.items():
@@ -100,12 +117,12 @@ def _node_view(
         return NodeView(block.kind, block.title, "", raw=block.text)
 
 
-def header_of(blocks: Sequence[Block]) -> str:
+def header_of(blocks: Sequence[Block], markdown: bool = False) -> str:
     """The header block of a document: its title, options and grammar."""
     for block_ in blocks:
         if block_.kind == "header":
             return block_.text
-    return "[DOCUMENT]\nTITLE: -\n\n"
+    return "# -\n\n" if markdown else "[DOCUMENT]\nTITLE: -\n\n"
 
 
 def _views(
@@ -114,11 +131,12 @@ def _views(
     other: Sequence[Block],
     render_field: FieldRenderer,
     mark: bool,
+    markdown: bool = False,
 ) -> List[NodeView]:
     others = {block_.key: block_.text for block_ in other}
     views: List[NodeView] = []
     for block_ in blocks:
-        view = _node_view(block_, header, render_field)
+        view = _node_view(block_, header, render_field, markdown)
         if mark and not view.closing:
             view.differs = others.get(block_.key) != block_.text
         views.append(view)
@@ -130,16 +148,27 @@ def build_rows(
     local_header: str,
     server_header: str,
     render_field: FieldRenderer,
+    markdown: bool = False,
 ) -> List[RowView]:
     """The rows of the view; the regions that did not change are one row."""
     rows: List[RowView] = []
     for index_, region_ in enumerate(regions):
         changed = region_.kind != SAME
         left = _views(
-            region_.server, server_header, region_.local, render_field, changed
+            region_.server,
+            server_header,
+            region_.local,
+            render_field,
+            changed,
+            markdown,
         )
         right = _views(
-            region_.local, local_header, region_.server, render_field, changed
+            region_.local,
+            local_header,
+            region_.server,
+            render_field,
+            changed,
+            markdown,
         )
         if region_.kind == SAME and rows and rows[-1].kind == SAME:
             rows[-1].left.extend(left)

@@ -18,7 +18,11 @@ import difflib
 from dataclasses import dataclass
 from typing import Dict, List, Optional, Sequence, Tuple
 
-from strictdoc.features.git_sync.blocks import Block, split_blocks
+from strictdoc.features.git_sync.blocks import (
+    Block,
+    split_blocks,
+    split_markdown_blocks,
+)
 
 SAME = "same"
 LOCAL = "local"
@@ -173,12 +177,14 @@ def merge_blocks(
     return regions
 
 
-def merge3(base_text: str, local_text: str, server_text: str) -> List[Region]:
-    return merge_blocks(
-        split_blocks(base_text),
-        split_blocks(local_text),
-        split_blocks(server_text),
-    )
+def merge3(
+    base_text: str,
+    local_text: str,
+    server_text: str,
+    markdown: bool = False,
+) -> List[Region]:
+    split = split_markdown_blocks if markdown else split_blocks
+    return merge_blocks(split(base_text), split(local_text), split(server_text))
 
 
 def conflict_indexes(regions: Sequence[Region]) -> List[int]:

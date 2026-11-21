@@ -4,7 +4,7 @@ that both sides changed.
 
 The state of a merge in progress is Git's own (MERGE_HEAD and the unmerged
 files of the index): the server keeps nothing in memory, so a restart loses
-nothing. The documents (.sdoc) that Git cannot merge by lines are merged again
+nothing. The documents (.sdoc and .md) that Git cannot merge by lines are merged again
 node by node (merge3.py); what both sides changed is left to the person, in
 the view of the conflicts.
 """
@@ -13,6 +13,7 @@ import os
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 
+from strictdoc.backend.markdown.reader import SDMarkdownReader
 from strictdoc.backend.sdoc.reader import SDReader
 from strictdoc.features.git_config.config import GitConfig
 from strictdoc.features.git_config.git_service import (
@@ -55,6 +56,7 @@ class ConflictFile:
     regions: List[Region]
     local_text: str = ""
     server_text: str = ""
+    markdown: bool = False
 
     @property
     def conflict_indexes(self) -> List[int]:
@@ -180,10 +182,9 @@ class SyncService:
             if loaded is None:
                 self.service.abort_merge(self.root)
                 raise GitServiceError(
-                    f"{relative_} cannot be merged here (it is not an "
-                    "SDoc document, or one side removed it; documents in the "
-                    "Markdown format are merged by Git by lines only): "
-                    "resolve it with Git. The synchronization was abandoned."
+                    f"{relative_} cannot be merged here (it is not a "
+                    "document, or one side removed it): resolve it with "
+                    "Git. The synchronization was abandoned."
                 )
             if loaded.conflict_indexes:
                 remaining.append(relative_)
@@ -200,7 +201,8 @@ class SyncService:
         return remaining
 
     def _load(self, relative: str) -> Optional[ConflictFile]:
-        if not relative.endswith(".sdoc"):
+        markdown = relative.endswith(".md") and not relative.endswith(".gra.md")
+        if not relative.endswith(".sdoc") and not markdown:
             return None
         local = self.service.stage_text(self.root, relative, 2)
         server = self.service.stage_text(self.root, relative, 3)
@@ -208,7 +210,11 @@ class SyncService:
             return None
         base = self.service.stage_text(self.root, relative, 1) or ""
         return ConflictFile(
-            relative, merge3(base, local, server), local, server
+            relative,
+            merge3(base, local, server, markdown=markdown),
+            local,
+            server,
+            markdown,
         )
 
     def conflict_paths(self) -> List[str]:
@@ -236,7 +242,10 @@ class SyncService:
             )
         merged = assemble(loaded.regions, chosen)
         try:
-            document = SDReader.read(
+            reader = (
+                SDMarkdownReader().read if loaded.markdown else SDReader.read
+            )
+            document = reader(
                 merged, file_path=os.path.join(self.root, relative)
             )
         except StrictDocException as error:

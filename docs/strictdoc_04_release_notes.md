@@ -121,8 +121,9 @@ markups are removed, and docutils is no longer a dependency.
 - `developer/tools/sdoc_to_markdown.py` converts `.sdoc` documents to `.md`,
   checks that the converted tree reads as the same tree, and rehashes the
   suspect links. See the user guide, "Moving SDoc documents to Markdown files".
-- Not done: the node-by-node merge of a synchronization conflict is for `.sdoc`
-  files only, and the Word import writes `.sdoc` files.
+- The synchronization merges a `.md` document node by node, as it does an
+  `.sdoc` one, and shows its conflicts in the same view.
+- Not done: the Word import writes `.sdoc` files.
 
 ## 0.30.2 (2026-10-09)
 

@@ -167,10 +167,11 @@ Prises sur mes recommandations de la section 3.3, puisque vous avez demandé de 
 | N-04 | fait | plusieurs TEXT par corps (E-05, SDOC-MD-36), marqueur SECTION (E-04, SDOC-MD-37), un `**Type**: TEXT` du corps n'est plus le type du titre, champs remis dans l'ordre de la grammaire (E-07, SDOC-MD-38). Tests unitaires et d'intégration |
 | N-05 | fait | voir ci-dessous |
 | N-06 | fait | comparaison automatique et édition dans le serveur sur une copie de REQ_02 (voir ci-dessous) |
-| N-07 | en attente de votre accord | modifie vos données (`~/strictdoc-data`) |
+| N-07 | fait | `~/strictdoc-data` migré (voir ci-dessous) ; sauvegarde dans `~/strictdoc-data.backup-before-markdown-20261121` |
 | N-08 | fait en partie | profil Word : rien à changer ; import Word : arrêt si un `.md` du même nom existe ; `kb-platform` : non modifié (hors dépôt) |
 | N-09 | fait | section du guide utilisateur, entrée 13 des notes de version, `architecture/03` |
-| N-10 | à décider | documentation de StrictDoc en `.md` : le guide utilisateur et son fragment ne peuvent pas être convertis tant que E-08 n'est pas réglé |
+| N-10 | fait | `docs/` converti en `.md`, sauf le guide du développeur (lecture seule pour les agents) ; voir ci-dessous |
+| N-11 | fait | fusion de conflits nœud par nœud pour les `.md` (`split_markdown_blocks`) ; tests unitaires et serveur |
 
 ### N-05 : code du fork qui suppose `.sdoc`
 
@@ -180,7 +181,7 @@ Prises sur mes recommandations de la section 3.3, puisque vous avez demandé de 
 | versions d'un document (`document_versions`) | lit un `.md` à une étiquette et compare deux versions ; message d'erreur français mis à jour à la main dans le catalogue ; tests unitaires et serveur |
 | arbre du projet (`folders`) | renomme et déplace un `.md` (l'extension du document est gardée), refuse un `.gra.md`, et réécrit la ligne `**Grammar**:` d'un document déplacé comme pour un include ; tests unitaires |
 | carte du projet, diff de deux arbres | listent les `.md` (deux gabarits) |
-| conflits de fusion (`git_sync`) | **non fait** : la fusion nœud par nœud coupe le texte aux marqueurs SDoc. Pour un `.md`, Git fusionne par lignes et le message dit de résoudre avec Git. À faire si les documents `.md` sont édités à plusieurs (décision à prendre : tâche N-11) |
+| conflits de fusion (`git_sync`) | **fait en N-11** : `split_markdown_blocks` coupe un `.md` à chaque titre ; la fusion à trois voies, la vue des conflits et la résolution marchent comme pour un `.sdoc` |
 | import Word (`docx_import.py`, `docx_web_service.py`) | écrit toujours un `.sdoc` : laissé tel quel ; à convertir ensuite avec le convertisseur |
 | création d'un document dans l'interface | non regardée |
 | `strictdoc format`, `manage new`, surveillant de fichiers | déjà en ordre |
@@ -210,3 +211,26 @@ Non fait : l'ouverture du `.docx` dans Word, la création d'un commentaire par l
 | `docs/` de StrictDoc | arbre identique, 14 documents convertis ; le guide utilisateur et son fragment restent en `.sdoc` (E-08) |
 | Document synthétique | les deux documents sont sautés (fragment) |
 
+### N-07 : migration de REQ_02
+
+Faite dans `~/strictdoc-data` (pas un dépôt Git : renommage par `os.rename`, puis conversion), après une copie du dossier. `--check` : arbre identique. Export HTML et Word comparés avec la copie : le texte visible des quatre vues et les paragraphes Word sont identiques. Le serveur déployé (conteneur Podman) sert `~/strictdoc-projects`, pas ce dossier.
+
+### N-10 : documentation de StrictDoc en Markdown
+
+Quatorze documents de `docs/` ont deux commits : le renommage (`git mv`), puis la conversion du contenu, avec un `.gra.md` chacun. `docs/strictdoc_11_developer_guide.sdoc` reste en SDoc.
+
+Ce que l'essai a montré, et qui a été corrigé :
+
+- Le guide utilisateur n'inclut aucun fragment : la détection de `[DOCUMENT_FROM_FILE]` par le texte brut se trompait sur un exemple dans un bloc de code. Le convertisseur lit l'arbre.
+- Les options du document (`ROOT`, `ENABLE_MID`, `VIEW_STYLE`, `NODE_IN_TOC`...) devaient survivre : elles sont des clés de l'en-tête Markdown (SDOC-MD-39). C'est l'option b de E-06.
+- Une section lue en Markdown ne savait pas qu'elle avait des champs meta (UID, MID) : les vues traçabilité et PDF les omettaient. Corrigé dans le lecteur.
+- Le `Prefix` du document n'est plus listé avec les métadonnées (il ne l'était pas en SDoc).
+- Un TEXT placé après les sous-sections d'une section ne se dit pas en Markdown : il passait sous la dernière sous-section, sans que `--check` le voie. Il compare maintenant le parent de chaque nœud. Un seul cas dans `docs/` (introduction de « Document elements » du guide), déplacé en tête de section.
+
+Comparaison de 794 pages HTML avant et après (texte visible, à l'heure et aux extensions près) : 15 pages diffèrent, toutes expliquées par le déplacement du texte du guide (et le décalage de découpage en morceaux qu'il entraîne), les nombres de la couverture des sources, une virgule ajoutée par ruff dans un exemple de code et le `Prefix` qui n'est plus affiché.
+
+Le guide du développeur (SDG) cite encore `docs/strictdoc_04_release_notes.sdoc` : il est en lecture seule pour les agents, à corriger par vous.
+
+### N-11 : fusion des conflits pour un `.md`
+
+`split_markdown_blocks` coupe un `.md` à chaque titre (hors blocs de code) ; un bloc a pour clé son MID, sinon son UID, sinon un hash. La fusion à trois voies, la vue des conflits (le bloc est lu avec l'en-tête de sa version) et la résolution sont les mêmes que pour un `.sdoc`. La vérification finale relit le résultat avec le lecteur Markdown. Tests : 5 unitaires et 2 de serveur (fusion sans conflit, conflit puis résolution).

@@ -16,7 +16,10 @@ from strictdoc.export.html.document_type import DocumentType
 from strictdoc.export.html.renderers.link_renderer import LinkRenderer
 from strictdoc.export.html.renderers.markup_renderer import MarkupRenderer
 from strictdoc.features.git_config.git_service import GitServiceError
-from strictdoc.features.git_sync.blocks import split_blocks
+from strictdoc.features.git_sync.blocks import (
+    split_blocks,
+    split_markdown_blocks,
+)
 from strictdoc.features.git_sync.fragments import (
     build_rows,
     count_conflicts,
@@ -163,11 +166,13 @@ def create_git_sync_routers(
             loaded = service.conflict_file(file)
         except StrictDocException as error:
             return dialog(request, str(error))
+        split = split_markdown_blocks if loaded.markdown else split_blocks
         rows = build_rows(
             loaded.regions,
-            header_of(split_blocks(loaded.local_text)),
-            header_of(split_blocks(loaded.server_text)),
+            header_of(split(loaded.local_text), loaded.markdown),
+            header_of(split(loaded.server_text), loaded.markdown),
             field_renderer(),
+            loaded.markdown,
         )
         data = {
             str(row_.index): {
