@@ -466,7 +466,10 @@ class SDMarkdownReader:
                     )
                     continue
                 if field_.name == "Prefix":
+                    # The prefix is an option of the document, as in SDoc: it
+                    # is not shown with the metadata.
                     document.config.requirement_prefix = field_.value
+                    continue
                 if field_.name == "UID":
                     document.config.uid = field_.value
                 if field_.name == "Version":
@@ -783,6 +786,10 @@ class SDMarkdownReader:
             section_node.ordered_fields_lookup["PREFIX"] = [prefix_sdoc_field]
             if title_entry is not None:
                 section_node.ordered_fields_lookup["TITLE"] = title_entry
+        # The UID, MID and PREFIX were put in the fields after the node was
+        # made: the views show the meta fields of a node only if it knows it
+        # has some.
+        section_node._update_has_meta()  # noqa: SLF001
         parent_node.section_contents.append(section_node)
 
         if len(section_record_boundaries) > 0:
