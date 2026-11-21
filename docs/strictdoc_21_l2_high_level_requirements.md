@@ -714,6 +714,115 @@ project.
 **Rationale**: The project folder stays free of generated files, and two projects never
 share the same output or cache.
 
+### Project catalog interface
+
+**MID**: 019b824b1eb34238a4597363b3a00f18 \
+**UID**: SDOC-SRS-1226 \
+**Status**: Active
+
+**Statement**: StrictDoc shall list the projects that the user can open through a generic
+`ProjectCatalog` interface, and shall select the provider of that list by its
+name in the settings of the desktop application.
+
+**Rationale**: The source of the project list can change without a change to the screens
+that show it. A name in the settings lets an installation pick its provider.
+
+### GitLab project catalog
+
+**MID**: 481f4a97de63460e87562bdfb5c838e4 \
+**UID**: SDOC-SRS-1227 \
+**Status**: Active
+
+**Statement**: StrictDoc shall provide a project catalog that lists the GitLab projects of
+the configured root group and of all its sub-groups on which the user has the
+Reporter access level or a higher one.
+
+**Rationale**: The projects of a team are spread over sub-groups. A user sees the projects
+that GitLab lets them read, and no others.
+
+### Role from the GitLab access level
+
+**MID**: 6bb2cedfae694f3298aa860f8834a55a \
+**UID**: SDOC-SRS-1228 \
+**Status**: Active
+
+**Statement**: StrictDoc shall give the user, on a project of the GitLab catalog, the
+reader role for the Reporter access level, the author role for the Developer
+access level, and the administrator role for the Maintainer and Owner access
+levels, and shall not list a project on which the user is a Guest.
+
+**Rationale**: The rights of a user on a document follow the rights that GitLab gives on
+the project, so that the two never disagree.
+
+### Empty start screen with the project catalog
+
+**MID**: a067a7460fbd41b98441f641e22850b5 \
+**UID**: SDOC-SRS-1229 \
+**Status**: Active
+
+**Statement**: StrictDoc shall start the desktop application on a screen with no open
+project when the user has not yet opened a project, and shall show on that
+screen the project catalog as a tree, with a search by project name.
+
+**Rationale**: A new user has no project to open yet. The tree follows the organization of
+the groups, and the search finds a project without browsing the tree.
+
+### Choice of a folder for a project
+
+**MID**: ab5bb59f5a7f48c9a43f0ed52b320651 \
+**UID**: SDOC-SRS-1230 \
+**Status**: Active
+
+**Statement**: StrictDoc shall ask the user for a folder when the user opens a project for
+the first time, shall clone the project into that folder when it is empty, shall
+use the folder as is when it already contains the repository of the project, and
+shall refuse any other folder with a message.
+
+**Rationale**: The user chooses where the working copy lives. Cloning into a folder that
+holds other files, or reusing the copy of another project, would mix or lose
+data.
+
+### Project and folder association
+
+**MID**: 50e51af02fa84082b0bd37b4d3b6cdec \
+**UID**: SDOC-SRS-1231 \
+**Status**: Active
+
+**Statement**: StrictDoc shall keep in the settings of the desktop application the folder
+chosen for each project, and shall open a project with a known folder without
+asking the user again.
+
+**Rationale**: The choice of a folder is made once per project. The next launch goes
+straight to the documents.
+
+### Servers of the recent projects kept running
+
+**MID**: d6b838d004ce4399a7f16fa47f91b460 \
+**UID**: SDOC-SRS-1232 \
+**Status**: Active
+
+**Statement**: StrictDoc shall keep running the servers of the most recently opened
+projects, in a number that the user can set in the settings of the desktop
+application, shall stop the oldest one when that number is exceeded, and shall
+show a project whose server is running in less than 0.5 second.
+
+**Rationale**: A user moves often between a few projects. A server that is still running
+makes the return to a project immediate, and the limit bounds the memory used.
+
+### Background update of a project
+
+**MID**: dc16964a4c134674aff06974d8a7fd42 \
+**UID**: SDOC-SRS-1233 \
+**Status**: Active
+
+**Statement**: StrictDoc shall update the working copy of a project from its remote in the
+background when the user opens the project, without delaying the display of the
+project, and without showing an error to the user when the remote is not
+reachable.
+
+**Rationale**: The user sees the documents at once and gets the changes of the others as
+soon as they arrive. Working offline stays possible.
+
 ## Graph database
 
 **Type**: SECTION \
