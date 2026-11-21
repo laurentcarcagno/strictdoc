@@ -64,7 +64,7 @@ def test_001_the_command_serves_the_projects_of_a_registry(tmp_path):
             "--port",
             str(port),
         ],
-        cwd=str(Path(__file__).parents[4]),
+        cwd=str(Path(__file__).parents[5]),
         env=environment,
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,

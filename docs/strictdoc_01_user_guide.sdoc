@@ -93,8 +93,8 @@ TITLE: Contact the developers
 [TEXT]
 MID: 3ae6491057674be1abf057b7e0d9bf21
 STATEMENT: >>>
-Join the StrictDoc mailing list on groups.io: <https://groups.io/g/strictdoc>. As
-of Q1 2025, this is the primary channel for general discussions and
+Join the StrictDoc mailing list on groups.io: <https://groups.io/g/strictdoc>.
+As of Q1 2025, this is the primary channel for general discussions and
 announcements about StrictDoc, uniting three previously separate communities:
 email, GitHub, and Discord.
 
@@ -457,8 +457,8 @@ The easiest way to see the static HTML export feature in action is to run the
 
 The `export` command is the main producer of documentation. The native export
 format of StrictDoc is HTML. The `export` command supports a number of
-parameters, including the option for selecting export formats (HTML, Markdown, Excel,
-etc.). The options can be explored with the `--help` command.
+parameters, including the option for selecting export formats (HTML, Markdown,
+Excel, etc.). The options can be explored with the `--help` command.
 
 ```text
 strictdoc export --help
@@ -526,7 +526,9 @@ a reload signal to all connected browser tabs.
 <div class="sdoc-admonition sdoc-note" role="note">
 <p class="sdoc-admonition-title">Note</p>
 
-Live reload is triggered only by external changes to the watched files. Edits made through the StrictDoc web interface itself do not trigger a reload, since the server already handles those changes internally.
+Live reload is triggered only by external changes to the watched files. Edits
+made through the StrictDoc web interface itself do not trigger a reload, since
+the server already handles those changes internally.
 
 </div>
 <<<
@@ -546,9 +548,11 @@ STATEMENT: >>>
 <div class="sdoc-admonition sdoc-warning" role="note">
 <p class="sdoc-admonition-title">Warning</p>
 
-**TL;DR**: StrictDoc's web server is not yet hardened against unsafe use. Making StrictDoc safe for deployment in public networks is an ongoing effort.
+**TL;DR**: StrictDoc's web server is not yet hardened against unsafe use. Making
+StrictDoc safe for deployment in public networks is an ongoing effort.
 
-Using StrictDoc's command-line and web interfaces should be more secure if the web server is not deployed on a public network.
+Using StrictDoc's command-line and web interfaces should be more secure if the
+web server is not deployed on a public network.
 
 </div>
 
@@ -641,9 +645,11 @@ format, unless a given IDE is known to only support the TextMate bundle format
 <div class="sdoc-admonition sdoc-note" role="note">
 <p class="sdoc-admonition-title">Note</p>
 
-The TextMate grammar and the Sublime Syntax for StrictDoc only provides syntax highlighting.
-More advanced features like autocompletion and deep validation of requirements can be only achieved with a dedicated Language Server Protocol (LSP) implementation for StrictDoc.
-The StrictDoc LSP is on StrictDoc's long-term roadmap, see
+The TextMate grammar and the Sublime Syntax for StrictDoc only provides syntax
+highlighting. More advanced features like autocompletion and deep validation of
+requirements can be only achieved with a dedicated Language Server Protocol
+(LSP) implementation for StrictDoc. The StrictDoc LSP is on StrictDoc's
+long-term roadmap, see
 [Enhancement: Language Protocol Server for SDoc text language #577](https://github.com/strictdoc-project/strictdoc/issues/577).
 
 </div>
@@ -772,7 +778,8 @@ the document configuration options.
 <div class="sdoc-admonition sdoc-note" role="note">
 <p class="sdoc-admonition-title">Note</p>
 
-The sequence of the fields is defined by the document's Grammar, i.e. should not be changed.
+The sequence of the fields is defined by the document's Grammar, i.e. should not
+be changed.
 
 </div>
 <<<
@@ -888,7 +895,8 @@ OPTIONS:
 <div class="sdoc-admonition sdoc-note" role="note">
 <p class="sdoc-admonition-title">Note</p>
 
-The `VIEW_STYLE` option can be also specified individually for each grammar element, see [LINK: SECTION-UG-VIEW_STYLE-2].
+The `VIEW_STYLE` option can be also specified individually for each grammar
+element, see [LINK: SECTION-UG-VIEW_STYLE-2].
 
 </div>
 <<<
@@ -947,8 +955,9 @@ author's name or project identifiers.
 <div class="sdoc-admonition sdoc-note" role="note">
 <p class="sdoc-admonition-title">Note</p>
 
-The front page can be further customised using the `html2pdf_template`
-directive in `strictdoc_config.py`. See [LINK: SECTION-UG-Path-to-custom-HTML2PDF-template].
+The front page can be further customised using the `html2pdf_template` directive
+in `strictdoc_config.py`. See
+[LINK: SECTION-UG-Path-to-custom-HTML2PDF-template].
 
 </div>
 <<<
@@ -991,7 +1000,9 @@ unless the other nodes, such as `REQUIREMENT`, are used instead.
 <div class="sdoc-admonition sdoc-warning" role="note">
 <p class="sdoc-admonition-title">Warning</p>
 
-If your project still uses older `[FREETEXT]` tags, consider migrating to the new `[TEXT]` syntax. The rationale behind FREETEXT-TEXT change and the migration path are described in [LINK: SECTION-UG-FREETEXT-TEXT].
+If your project still uses older `[FREETEXT]` tags, consider migrating to the
+new `[TEXT]` syntax. The rationale behind FREETEXT-TEXT change and the migration
+path are described in [LINK: SECTION-UG-FREETEXT-TEXT].
 
 </div>
 <<<
@@ -1105,7 +1116,9 @@ STATEMENT: Substatement #3
 <div class="sdoc-admonition sdoc-note" role="note">
 <p class="sdoc-admonition-title">Note</p>
 
-Composite requirements should not be used in every document. In most cases, a simple combination of nested `[[SECTION]]` and `[[REQUIREMENT]]` elements is sufficient. See also [LINK: UG_PORTABILITY_CONSIDERATIONS].
+Composite requirements should not be used in every document. In most cases, a
+simple combination of nested `[[SECTION]]` and `[[REQUIREMENT]]` elements is
+sufficient. See also [LINK: UG_PORTABILITY_CONSIDERATIONS].
 
 </div>
 <<<
@@ -1121,7 +1134,9 @@ STATEMENT: >>>
 <div class="sdoc-admonition sdoc-warning" role="note">
 <p class="sdoc-admonition-title">Warning</p>
 
-As of 2025 Q2, StrictDoc is switching to a new `[[SECTION]]` syntax for declaring sections (previously `[SECTION]`). If you are an existing user, please follow the migration guide [LINK: SECTION-UG-NODE-MIGRATION].
+As of 2025 Q2, StrictDoc is switching to a new `[[SECTION]]` syntax for
+declaring sections (previously `[SECTION]`). If you are an existing user, please
+follow the migration guide [LINK: SECTION-UG-NODE-MIGRATION].
 
 </div>
 
@@ -1330,7 +1345,9 @@ MIDs.
 <div class="sdoc-admonition sdoc-note" role="note">
 <p class="sdoc-admonition-title">Note</p>
 
-StrictDoc provides the ENABLE_MID option on a per-document basis because this allows for the integration of MID-enabled documents alongside third-party documents where the MID feature may not be necessary or possible.
+StrictDoc provides the ENABLE_MID option on a per-document basis because this
+allows for the integration of MID-enabled documents alongside third-party
+documents where the MID feature may not be necessary or possible.
 
 </div>
 
@@ -1447,8 +1464,11 @@ STATEMENT: StrictDoc shall be based on a data model.
 <div class="sdoc-admonition" role="note">
 <p class="sdoc-admonition-title">Observation</p>
 
-Some documents do not use unique identifiers which makes it impossible to trace their requirements to each other.
-Within StrictDoc's framework, it is assumed that a good requirements document has all of its requirements uniquely identifiable, however, the `UID` field is optional to accommodate for documents without connections between requirements.
+Some documents do not use unique identifiers which makes it impossible to trace
+their requirements to each other. Within StrictDoc's framework, it is assumed
+that a good requirements document has all of its requirements uniquely
+identifiable, however, the `UID` field is optional to accommodate for documents
+without connections between requirements.
 
 </div>
 <<<
@@ -1530,7 +1550,9 @@ Every requirement should have its `TITLE` field specified.
 <div class="sdoc-admonition" role="note">
 <p class="sdoc-admonition-title">Observation</p>
 
-Many real-world documents have requirements with statements and titles but some documents only use statements without title in which case their `UID` becomes their `TITLE` and vice versa.
+Many real-world documents have requirements with statements and titles but some
+documents only use statements without title in which case their `UID` becomes
+their `TITLE` and vice versa.
 
 Example:
 
@@ -1664,8 +1686,8 @@ file references requirements by adding multiple `TYPE: File`-`VALUE` items.
 <div class="sdoc-admonition sdoc-note" role="note">
 <p class="sdoc-admonition-title">Note</p>
 
-In most requirements projects, only the Parent relations should be used, possibly with roles.
-The Child relation should be used only in specific cases.
+In most requirements projects, only the Parent relations should be used,
+possibly with roles. The Child relation should be used only in specific cases.
 See [LINK: SDOC_UG_GRAMMAR_RELATIONS_PARENT_VS_CHILD] for more details.
 
 </div>
@@ -1673,14 +1695,17 @@ See [LINK: SDOC_UG_GRAMMAR_RELATIONS_PARENT_VS_CHILD] for more details.
 <div class="sdoc-admonition sdoc-note" role="note">
 <p class="sdoc-admonition-title">Note</p>
 
-In the near future, adding information about external references (e.g. company policy documents, technical specifications, regulatory requirements, etc.) is planned.
+In the near future, adding information about external references (e.g. company
+policy documents, technical specifications, regulatory requirements, etc.) is
+planned.
 
 </div>
 
 <div class="sdoc-admonition sdoc-warning" role="note">
 <p class="sdoc-admonition-title">Warning</p>
 
-By design, StrictDoc will only show parent or child links if both requirements connected with a reference have `UID` defined.
+By design, StrictDoc will only show parent or child links if both requirements
+connected with a reference have `UID` defined.
 
 </div>
 <<<
@@ -1801,7 +1826,10 @@ STATEMENT: >>>
 <div class="sdoc-admonition sdoc-note" role="note">
 <p class="sdoc-admonition-title">Note</p>
 
-The composable documents is an early feature with only 50%+ of the implementation complete. See [Epic: UI: Composable documents](https://github.com/strictdoc-project/strictdoc/issues/1698) for an overview of the aspects that are still missing.
+The composable documents is an early feature with only 50%+ of the
+implementation complete. See
+[Epic: UI: Composable documents](https://github.com/strictdoc-project/strictdoc/issues/1698)
+for an overview of the aspects that are still missing.
 
 </div>
 
@@ -1865,7 +1893,9 @@ This text is in the main document.
 <div class="sdoc-admonition sdoc-note" role="note">
 <p class="sdoc-admonition-title">Note</p>
 
-The Composable Documents feature belongs to the list of features that may be less portable when it comes to interfacing with other tools. See [LINK: UG_PORTABILITY_CONSIDERATIONS].
+The Composable Documents feature belongs to the list of features that may be
+less portable when it comes to interfacing with other tools. See
+[LINK: UG_PORTABILITY_CONSIDERATIONS].
 
 </div>
 <<<
@@ -1899,11 +1929,15 @@ STATEMENT: >>>
 <div class="sdoc-admonition" role="note">
 <p class="sdoc-admonition-title">Observation</p>
 
-Different industries have their own types of requirements documents with specialized meta information.
-Examples:
-`ASIL` in the automotive industry or `HERITAGE` field in some of the requirements documents by NASA.
+Different industries have their own types of requirements documents with
+specialized meta information. Examples: `ASIL` in the automotive industry or
+`HERITAGE` field in some of the requirements documents by NASA.
 
-For anything beyond a small project, it's best to define a document grammar early. The default implicit document grammar works for quick tests, but real projects often need extra fields or custom node types. Starting with your own grammar saves time later. The instructions for defining a document grammar follow below.
+For anything beyond a small project, it's best to define a document grammar
+early. The default implicit document grammar works for quick tests, but real
+projects often need extra fields or custom node types. Starting with your own
+grammar saves time later. The instructions for defining a document grammar
+follow below.
 
 </div>
 
@@ -1996,7 +2030,8 @@ following fields accept single-line and multiline strings. See
 <div class="sdoc-admonition sdoc-note" role="note">
 <p class="sdoc-admonition-title">Note</p>
 
-The order of fields in each document node must match the order of their declaration in the grammar.
+The order of fields in each document node must match the order of their
+declaration in the grammar.
 
 </div>
 <<<
@@ -2027,7 +2062,10 @@ The supported field types are:
 <div class="sdoc-admonition sdoc-note" role="note">
 <p class="sdoc-admonition-title">Note</p>
 
-The **field type** also influences how the field is presented in the web editor UI. A `SingleChoice` field enables an auto-completion function, which is useful in cases where the same values are entered repeatedly (such as requirement owners, test case types, or status fields).
+The **field type** also influences how the field is presented in the web editor
+UI. A `SingleChoice` field enables an auto-completion function, which is useful
+in cases where the same values are entered repeatedly (such as requirement
+owners, test case types, or status fields).
 
 </div>
 
@@ -2142,7 +2180,8 @@ TITLE: Composite node
 <div class="sdoc-admonition sdoc-note" role="note">
 <p class="sdoc-admonition-title">Note</p>
 
-See [LINK: SECTION-UG-Leaf-nodes] and [LINK: UG_COMPOSITE_NODE] for a general description of leaf vs composite nodes.
+See [LINK: SECTION-UG-Leaf-nodes] and [LINK: UG_COMPOSITE_NODE] for a general
+description of leaf vs composite nodes.
 
 </div>
 <<<
@@ -2323,9 +2362,10 @@ RELATIONS:
   ROLE: Refines
 ```
 
-In this example, `REQ-2` has a Parent relation to `REQ-1` with `ROLE: Refines`. When the relation is displayed from `REQ-2` to `REQ-1`, StrictDoc
-shows `Refines`. When the same relation is displayed from `REQ-1` back to
-`REQ-2`, StrictDoc shows `Refined by`.
+In this example, `REQ-2` has a Parent relation to `REQ-1` with `ROLE: Refines`.
+When the relation is displayed from `REQ-2` to `REQ-1`, StrictDoc shows
+`Refines`. When the same relation is displayed from `REQ-1` back to `REQ-2`,
+StrictDoc shows `Refined by`.
 
 The `REVERSE_ROLE` field is only defined in the grammar. Individual
 requirement relations still specify only the canonical `ROLE`. The
@@ -2494,7 +2534,8 @@ directly in the document.
 <div class="sdoc-admonition sdoc-note" role="note">
 <p class="sdoc-admonition-title">Note</p>
 
-Editing of the grammars defined in `.sgra` files can be only done with a text editor, it is not implemented yet in the editable web interface.
+Editing of the grammars defined in `.sgra` files can be only done with a text
+editor, it is not implemented yet in the editable web interface.
 
 </div>
 <<<
@@ -2575,7 +2616,9 @@ The following link references a section: [LINK: SDOC_UG_LINKS_AND_ANCHORS].
 <div class="sdoc-admonition sdoc-note" role="note">
 <p class="sdoc-admonition-title">Note</p>
 
-Adding a LINK tag only works when it is placed in multiline fields written with `>>>...<<<`. Single-line fields do not support Markdown syntax or tags such as `[LINK:...]`. See also: [LINK: SECTION-UG-Single-vs-multiline-fields].
+Adding a LINK tag only works when it is placed in multiline fields written with
+`>>>...<<<`. Single-line fields do not support Markdown syntax or tags such as
+`[LINK:...]`. See also: [LINK: SECTION-UG-Single-vs-multiline-fields].
 
 </div>
 <<<
@@ -2602,8 +2645,8 @@ This is a link to anchor: [LINK: ANCHOR-EXAMPLE].
 <div class="sdoc-admonition sdoc-note" role="note">
 <p class="sdoc-admonition-title">Note</p>
 
-`ANCHOR` is a block-level tag.
-It has to be placed in the beginning of a line with a newline break after the tag.
+`ANCHOR` is a block-level tag. It has to be placed in the beginning of a line
+with a newline break after the tag.
 
 </div>
 <<<
@@ -3176,7 +3219,9 @@ supports both () and {} for arguments.
 <div class="sdoc-admonition sdoc-note" role="note">
 <p class="sdoc-admonition-title">Note</p>
 
-Language-specific scopes such as `class` and `function` are available for supported source file types. See [LINK: SECTION-UG-Language-aware-parsing-of-source-code].
+Language-specific scopes such as `class` and `function` are available for
+supported source file types. See
+[LINK: SECTION-UG-Language-aware-parsing-of-source-code].
 
 </div>
 
@@ -3208,7 +3253,8 @@ class Foo:
 
 **3) Linking language items to a requirement (Python, C, C++, Rust)**
 
-For Python, `@relation` markers can be placed inside [doc strings](https://peps.python.org/pep-0257/#what-is-a-docstring) to link
+For Python, `@relation` markers can be placed inside
+[doc strings](https://peps.python.org/pep-0257/#what-is-a-docstring) to link
 functions and classes.
 
 ```python
@@ -3237,8 +3283,9 @@ void hello_world(void) {
 }
 ```
 
-For Rust, `@relation` marker can be placed inside [doc comments](https://doc.rust-lang.org/rust-by-example/meta/doc.html#doc-comments) to
-automatically infer the linked item. This works for almost all Rust language
+For Rust, `@relation` marker can be placed inside
+[doc comments](https://doc.rust-lang.org/rust-by-example/meta/doc.html#doc-comments)
+to automatically infer the linked item. This works for almost all Rust language
 elements like modules, functions, traits, enums or structs.
 
 ```rust
@@ -3304,7 +3351,8 @@ def foo():
 <div class="sdoc-admonition sdoc-note" role="note">
 <p class="sdoc-admonition-title">Note</p>
 
-For Rust, line and range marker are supported in normal comments, but not doc comments.
+For Rust, line and range marker are supported in normal comments, but not doc
+comments.
 
 </div>
 <<<
@@ -3324,7 +3372,8 @@ type `File`.
 <div class="sdoc-admonition sdoc-note" role="note">
 <p class="sdoc-admonition-title">Note</p>
 
-Language-specific links are available for supported source file types. See [LINK: SECTION-UG-Language-aware-parsing-of-source-code].
+Language-specific links are available for supported source file types. See
+[LINK: SECTION-UG-Language-aware-parsing-of-source-code].
 
 </div>
 
@@ -3375,9 +3424,12 @@ RELATIONS:
 <div class="sdoc-admonition sdoc-note" role="note">
 <p class="sdoc-admonition-title">Note</p>
 
-Rules for building the full qualified path of an identifier depend on the language of the source file.
-For linking to Python functions in classes, a class name has to be added in a format: `<class name>.<function name>`.
-For linking to any Rust identifier, [canonical paths](<https://doc.rust-lang.org/reference/paths.html#canonical-paths%3E>) for a single file are used.
+Rules for building the full qualified path of an identifier depend on the
+language of the source file. For linking to Python functions in classes, a class
+name has to be added in a format: `<class name>.<function name>`. For linking to
+any Rust identifier,
+[canonical paths](<https://doc.rust-lang.org/reference/paths.html#canonical-paths%3E>)
+for a single file are used.
 
 </div>
 
@@ -3437,7 +3489,8 @@ void hello_world(void) {
 <div class="sdoc-admonition sdoc-note" role="note">
 <p class="sdoc-admonition-title">Note</p>
 
-See [LINK: SECTION-UG-Relation-roles] for a general description of the SDoc relations.
+See [LINK: SECTION-UG-Relation-roles] for a general description of the SDoc
+relations.
 
 </div>
 <<<
@@ -3481,7 +3534,9 @@ STATEMENT: >>>
 <div class="sdoc-admonition sdoc-note" role="note">
 <p class="sdoc-admonition-title">Note</p>
 
-Insight: It is often practical to avoid maintaining test specifications and similar documents separately from the source code, since the information is closely related anyway.
+Insight: It is often practical to avoid maintaining test specifications and
+similar documents separately from the source code, since the information is
+closely related anyway.
 
 </div>
 
@@ -3569,9 +3624,10 @@ format.
 <div class="sdoc-admonition sdoc-note" role="note">
 <p class="sdoc-admonition-title">Note</p>
 
-It is not possible to implement a single export/import procedure that works well for all ReqIF XML files produced by various requirements management tools.
-The export/import workflow is therefore tool-specific.
-See [LINK: SECTION-REQIF-DETAILS] for more details.
+It is not possible to implement a single export/import procedure that works well
+for all ReqIF XML files produced by various requirements management tools. The
+export/import workflow is therefore tool-specific. See
+[LINK: SECTION-REQIF-DETAILS] for more details.
 
 </div>
 
@@ -3648,12 +3704,12 @@ multiline fields as XHTML attributes, not as STRING (the default behavior). This
 is useful for interfacing with tools, such as Polarion, which assume XHTML as
 the primary format for writing multiline text.
 
-`--reqif-import-markup={Markdown,HTML}` This option makes StrictDoc import
-ReqIF to SDoc documents, setting their `MARKUP` option to the markup value
-provided. The default value is Markdown which is the default markup of StrictDoc.
-When working with other ReqIF tools, very often this option can be set to HTML.
-It is likely that with this option, the previous option
-`--reqif-multiline-is-xhtml` should be enabled as well.
+`--reqif-import-markup={Markdown,HTML}` This option makes StrictDoc import ReqIF
+to SDoc documents, setting their `MARKUP` option to the markup value provided.
+The default value is Markdown which is the default markup of StrictDoc. When
+working with other ReqIF tools, very often this option can be set to HTML. It is
+likely that with this option, the previous option `--reqif-multiline-is-xhtml`
+should be enabled as well.
 
 `--reqif-enable-mid` This option requires the machine identifiers option to be
 enabled (see [LINK: SECTION-UG-Machine-identifiers-MID]) and allows all nodes
@@ -4282,84 +4338,95 @@ TITLE: Folders and Markdown in the web interface
 [TEXT]
 MID: fea8831f0b034ed8acac27297f5e3296
 STATEMENT: >>>
-**Folders.** The menu of the project (right-click its name in the tree of the left bar) has
-*Add folder* (authors and administrators). The menu of a folder has *Add subfolder here* and
-*Add document here*, which fill in the path of the folder.
-Right-click a document for *Rename document* (authors and administrators): it changes the
-file name (`.sdoc` is added when missing), not the title. Right-click a folder for
-*Rename folder* (authors and administrators) and *Delete folder*
-(administrators, for an empty folder only). Drag a document or a folder onto another folder,
-or onto the project name for the top level, to move it (authors and administrators). A move
-is refused, with the reason under the project name, when the target has the same name or
-when it would put a folder in itself. A move or a rename rewrites the relative paths of the
-`[DOCUMENT_FROM_FILE]` includes and the `IMPORT_FROM_FILE` grammar imports that it
-changes, in the moved documents and in the others. With several input folders, each one is
-a top-level folder of the tree and a document can move from one to another; the input
-folders themselves cannot be renamed, moved or deleted.
-Type the path of the folder, with `/` between the levels to create several levels at
-once (`specifications/system`); the form lists the folders that exist. The folder is
-created in the input folder of the project (with several, the first level of the path is
-the name of one of them) and appears in the tree at once, even
-while it is empty: a folder that the interface creates holds a marker file,
-`.sdoc-folder`, and the tree shows the folders that have one (a folder without a
-document and without the marker stays hidden, as before). To put a document in a folder,
-use *Add document* and give its path (`specifications/system/interface.sdoc`). A name
-has letters, digits, `_`, `-` and `.`, up to 8 levels; `_assets`, `output` and
-`word` are reserved. There is no rename or delete for folders yet: do it on disk.
+**Folders.** The menu of the project (right-click its name in the tree of the
+left bar) has *Add folder* (authors and administrators). The menu of a folder
+has *Add subfolder here* and *Add document here*, which fill in the path of the
+folder. Right-click a document for *Rename document* (authors and
+administrators): it changes the file name (`.sdoc` is added when missing), not
+the title. Right-click a folder for *Rename folder* (authors and administrators)
+and *Delete folder* (administrators, for an empty folder only). Drag a document
+or a folder onto another folder, or onto the project name for the top level, to
+move it (authors and administrators). A move is refused, with the reason under
+the project name, when the target has the same name or when it would put a
+folder in itself. A move or a rename rewrites the relative paths of the
+`[DOCUMENT_FROM_FILE]` includes and the `IMPORT_FROM_FILE` grammar imports that
+it changes, in the moved documents and in the others. With several input
+folders, each one is a top-level folder of the tree and a document can move from
+one to another; the input folders themselves cannot be renamed, moved or
+deleted. Type the path of the folder, with `/` between the levels to create
+several levels at once (`specifications/system`); the form lists the folders
+that exist. The folder is created in the input folder of the project (with
+several, the first level of the path is the name of one of them) and appears in
+the tree at once, even while it is empty: a folder that the interface creates
+holds a marker file, `.sdoc-folder`, and the tree shows the folders that have
+one (a folder without a document and without the marker stays hidden, as
+before). To put a document in a folder, use *Add document* and give its path
+(`specifications/system/interface.sdoc`). A name has letters, digits, `_`, `-`
+and `.`, up to 8 levels; `_assets`, `output` and `word` are reserved. There is
+no rename or delete for folders yet: do it on disk.
 
-**Page view.** The document view is a wide column (up to 1280 px). The *Normal*, *1 page* and
-*2 pages* buttons next to the view menu show the document on A4 sheets, one or two side by
-side, to see how long a page is while editing. A node that does not fit at the bottom of a
-sheet starts the next one, a section title stays with the node that follows it, and a node
-taller than a page makes its sheet taller. The sheets are scaled down when the window is
-too narrow for them. It is a view of the screen, not the layout of the PDF export, and the
-choice is kept in the browser.
+**Page view.** The document view is a wide column (up to 1280 px). The *Normal*,
+*1 page* and *2 pages* buttons next to the view menu show the document on A4
+sheets, one or two side by side, to see how long a page is while editing. A node
+that does not fit at the bottom of a sheet starts the next one, a section title
+stays with the node that follows it, and a node taller than a page makes its
+sheet taller. The sheets are scaled down when the window is too narrow for them.
+It is a view of the screen, not the layout of the PDF export, and the choice is
+kept in the browser.
 
-**Versioning a document.** The right-click menu of a document has *Version document*
-(administrators, with the `GIT` feature). A form shows the repository of the document, its
-latest version and the next draft (A1, A2...) and major (A, B...) names. The version is a Git
-tag of the whole repository, not of the single document: the pending changes are committed
-first, and the tag is pushed when `push_on_tag` is on. It is the same action as the tags of
-the configuration management page.
+**Versioning a document.** The right-click menu of a document has *Version
+document* (administrators, with the `GIT` feature). A form shows the repository
+of the document, its latest version and the next draft (A1, A2...) and major (A,
+B...) names. The version is a Git tag of the whole repository, not of the single
+document: the pending changes are committed first, and the tag is pushed when
+`push_on_tag` is on. It is the same action as the tags of the configuration
+management page.
 
-**GitLab repositories.** When the server has a GitLab token (the environment variable named by
-`token_env`, `GITLAB_TOKEN` by default; in the ISIS deployment it comes from OpenBao), a
-project that an administrator creates in the portal gets a Git repository, the project of the
-same name in the GitLab group `group_path` (`documentation/projects` by default), the
-remote `origin` and a first push. A project that already has a remote on that GitLab gets
-its project created when it is first pushed (a version tag, or the push of the
-configuration management page). The token is given to git through a credential helper,
-for the host of the remote only. Without a token the project works without a remote.
+**GitLab repositories.** When the server has a GitLab token (the environment
+variable named by `token_env`, `GITLAB_TOKEN` by default; in the ISIS deployment
+it comes from OpenBao), a project that an administrator creates in the portal
+gets a Git repository, the project of the same name in the GitLab group
+`group_path` (`documentation/projects` by default), the remote `origin` and a
+first push. A project that already has a remote on that GitLab gets its project
+created when it is first pushed (a version tag, or the push of the configuration
+management page). The token is given to git through a credential helper, for the
+host of the remote only. Without a token the project works without a remote.
 
-**Synchronization.** *Synchronize* and *Configuration management* (menu of the project) open as
-modal windows over the application, in the design of the other modals (`developer/design/DESIGN.md`);
-the conflict view is a large modal. *Synchronize* (administrators, with the `GIT` feature
-and a remote `origin`) pulls what the server has, then pushes the commits and the tags. The
-changes that are not committed are saved in a commit first. When the server is only ahead, the
-branch is moved forward; when both sides have commits, the server branch is merged into the
-project and the merge is committed. A document that both sides changed is merged again node
-by node (a section, a requirement, a text): what only one side changed is taken, and a node
-that both sides changed differently is a conflict. The conflicts open the conflict view, with
-two pages: the server on the left, the local project on the right, the nodes that differ in a
-frame (red for a conflict, blue for what was merged for you). For each conflict, *Keep the
-server*, *Keep the local*, *Keep both* or *Edit the result* (the text of the .sdoc file); *n*
-and *p* go to the next and the previous conflict. *Finish this document* writes it, and when
-every document is solved the merge is committed and pushed. *Abandon the merge* goes back to
-the state before. While a merge waits, the project cannot be changed (HTTP 423). Keeping both
-sides of a node that both changed is refused (its MID and UID would be twice in the document).
-Only documents are merged here: a conflict in another file (an asset, the configuration)
-abandons the merge, and Git solves it. The server side of the node order is not compared: a
-moved node follows the local order.
+**Synchronization.** *Synchronize* and *Configuration management* (menu of the
+project) open as modal windows over the application, in the design of the other
+modals (`developer/design/DESIGN.md`); the conflict view is a large modal.
+*Synchronize* (administrators, with the `GIT` feature and a remote `origin`)
+pulls what the server has, then pushes the commits and the tags. The changes
+that are not committed are saved in a commit first. When the server is only
+ahead, the branch is moved forward; when both sides have commits, the server
+branch is merged into the project and the merge is committed. A document that
+both sides changed is merged again node by node (a section, a requirement, a
+text): what only one side changed is taken, and a node that both sides changed
+differently is a conflict. The conflicts open the conflict view, with two pages:
+the server on the left, the local project on the right, the nodes that differ in
+a frame (red for a conflict, blue for what was merged for you). For each
+conflict, *Keep the server*, *Keep the local*, *Keep both* or *Edit the result*
+(the text of the .sdoc file); *n* and *p* go to the next and the previous
+conflict. *Finish this document* writes it, and when every document is solved
+the merge is committed and pushed. *Abandon the merge* goes back to the state
+before. While a merge waits, the project cannot be changed (HTTP 423). Keeping
+both sides of a node that both changed is refused (its MID and UID would be
+twice in the document). Only documents are merged here: a conflict in another
+file (an asset, the configuration) abandons the merge, and Git solves it. The
+server side of the node order is not compared: a moved node follows the local
+order.
 
-**PDF export.** The PDF has no node type labels, no separator lines and no comments. When the
-project has the `GIT` feature and the repository has a version tag, a red bar on the left
-marks the nodes (sections, requirements, text) that are new or modified since the latest
-tag; the comments do not count as a change. The table of contents has no bar. *Export to PDF
-without revision marks* (menu of the document, and the actions menu of the document screen)
-leaves the bars out; the address `/export_html2pdf/<mid>?revision_marks=false` does the same.
+**PDF export.** The PDF has no node type labels, no separator lines and no
+comments. When the project has the `GIT` feature and the repository has a
+version tag, a red bar on the left marks the nodes (sections, requirements,
+text) that are new or modified since the latest tag; the comments do not count
+as a change. The table of contents has no bar. *Export to PDF without revision
+marks* (menu of the document, and the actions menu of the document screen)
+leaves the bars out; the address `/export_html2pdf/<mid>?revision_marks=false`
+does the same.
 
-**Markdown.** A document that the web interface creates is in Markdown
-(`MARKUP: Markdown`), so its fields are edited with the visual editor. So is a document
+**Markdown.** A document that the web interface creates is in Markdown (`MARKUP:
+Markdown`), so its fields are edited with the visual editor. So is a document
 that the Word import writes when the project has no `docx_profile` (the generic
 profile). Documents that already exist in RST must be converted first: see
 [LINK: SECTION-UG-Migrate-RST-to-Markdown].
@@ -4387,15 +4454,15 @@ def create_config() -> ProjectConfig:
 ```
 
 The node controls (the toolbox that appears when the mouse is over a requirement
-or a paragraph) get a **Comment** button, and the comments stand in the **margin to
-the right** of the node, like in Word. Select some words first and press Comment:
-the words are highlighted and a thin line joins them to the comment (the selection
-is stored in the header of the comment, `anchor` and `anchor_n`, the number of
-the occurrence of the words in the node). Without a selection the comment is about
-the whole node. Comments never overlap; on a narrow window (under 1100 pixels) they
-go below the node. The node must have a `COMMENT` field in its grammar, for a
-paragraph (`TEXT`) as well as for a requirement. The table of contents is on the
-left of the document view.
+or a paragraph) get a **Comment** button, and the comments stand in the **margin
+to the right** of the node, like in Word. Select some words first and press
+Comment: the words are highlighted and a thin line joins them to the comment
+(the selection is stored in the header of the comment, `anchor` and `anchor_n`,
+the number of the occurrence of the words in the node). Without a selection the
+comment is about the whole node. Comments never overlap; on a narrow window
+(under 1100 pixels) they go below the node. The node must have a `COMMENT` field
+in its grammar, for a paragraph (`TEXT`) as well as for a requirement. The table
+of contents is on the left of the document view.
 
 Each node shows its comments with the author, the date and the
 state. A reviewer adds a comment. The author of a comment, or an author or
@@ -4496,15 +4563,15 @@ gets its entry at once. An administrator creates the baseline from the current
 state on the same page; nothing is checked before it exists.
 
 **Applicable documents.** `applicable_documents={"DA1": "inputs/pus-standard"}`
-gives each input document a short name (a path in the project, or a document UID).
-When a Word table has a column such as `Linked Req`, named in the profile
-by `relation_fields`, the import reads its references, for example
-`[DA1] §5.14.1 ; [DA2] REQ-106005, REQ-0280`. A reference to a requirement
-(its UID, or its short form when the UID is longer) or to a numbered section that
-has a UID becomes a `Parent` relation; what cannot be resolved stays in the text
-and is listed in the report. The action `POST /actions/hierarchy/resolve_references`
-(administrator; send `apply=true` to write) does the same for requirements
-that are already in the project.
+gives each input document a short name (a path in the project, or a document
+UID). When a Word table has a column such as `Linked Req`, named in the profile
+by `relation_fields`, the import reads its references, for example `[DA1]
+§5.14.1 ; [DA2] REQ-106005, REQ-0280`. A reference to a requirement (its UID, or
+its short form when the UID is longer) or to a numbered section that has a UID
+becomes a `Parent` relation; what cannot be resolved stays in the text and is
+listed in the report. The action `POST /actions/hierarchy/resolve_references`
+(administrator; send `apply=true` to write) does the same for requirements that
+are already in the project.
 
 With `applicable_documents_table=True` in the Word profile, a fresh export
 starts with the list of the applicable documents (short name, title,
@@ -4578,38 +4645,42 @@ the registry and restarting the server, or created by an administrator from
 the portal (see below).
 
 **Projects and members created in the portal.** An administrator of the platform
-(a group that is administrator in every project of the registry, or the groups of
-`STRICTDOC_PLATFORM_ADMINS`, comma separated) sees a *New project* form on the
-`/_projects` page (*Projects* in the sidebar). A project gets a name (the slug) and a title; its folder is created under
-`--data-root` with a `strictdoc.toml` (tables, traceability, search, Word import and
-export, and the `COMMENTS` feature), it is served at once, with no restart, and the creator is
-its administrator and its current project. The projects created this way and the member lists of all the
-projects are kept in `projects.json`, next to the registry file.
+(a group that is administrator in every project of the registry, or the groups
+of `STRICTDOC_PLATFORM_ADMINS`, comma separated) sees a *New project* form on
+the `/_projects` page (*Projects* in the sidebar). A project gets a name (the
+slug) and a title; its folder is created under `--data-root` with a
+`strictdoc.toml` (tables, traceability, search, Word import and export, and the
+`COMMENTS` feature), it is served at once, with no restart, and the creator is
+its administrator and its current project. The projects created this way and the
+member lists of all the projects are kept in `projects.json`, next to the
+registry file.
 
 The administrator of a project opens its **Members** page (*Members* in the
 sidebar, the button of its row on the `/_projects` page, or `/members`), adds
-people by their user name (the one that
-`/whoami` shows) and gives each a role. A member has the highest role between the
-one of the list and the one of the groups of the login server. Every member reads
-all the documents of the project. The roles are: reader (reads), reviewer (reads and
-comments on every document), author (writes, creates documents and names their
-reviewers) and administrator (also manages the members).
+people by their user name (the one that `/whoami` shows) and gives each a role.
+A member has the highest role between the one of the list and the one of the
+groups of the login server. Every member reads all the documents of the project.
+The roles are: reader (reads), reviewer (reads and comments on every document),
+author (writes, creates documents and names their reviewers) and administrator
+(also manages the members).
 
 When the deployment gives the server access to the users of the login server
 (Keycloak; see the deployment notes), the user name field suggests the accounts
 and accepts only them; only the administrators of the project see the list. If
 the login server does not answer, the name is typed by hand and not checked.
 
-**Reviewers of a document.** With the `COMMENTS` feature, the form that creates a
-document has a *Reviewers* field: the user names, separated by commas. In a project
-with a member list they must be members. The names are stored in the metadata of the
-document (`REVIEWERS: ann, bob`). A reviewer may comment on that document even if
-the project role is reader; an author or administrator, and a project-wide
-reviewer, may comment on all of them. An author changes the reviewers later with the
-person icon in the document header. The server refuses a comment from anybody else.
+**Reviewers of a document.** With the `COMMENTS` feature, the form that creates
+a document has a *Reviewers* field: the user names, separated by commas. In a
+project with a member list they must be members. The names are stored in the
+metadata of the document (`REVIEWERS: ann, bob`). A reviewer may comment on that
+document even if the project role is reader; an author or administrator, and a
+project-wide reviewer, may comment on all of them. An author changes the
+reviewers later with the person icon in the document header. The server refuses
+a comment from anybody else.
 
-All the projects share one process: a long operation in one slows the others, and
-a crash stops all. The memory cost of one more project is small (see the plan).
+All the projects share one process: a long operation in one slows the others,
+and a crash stops all. The memory cost of one more project is small (see the
+plan).
 <<<
 
 [[/SECTION]]
@@ -4654,17 +4725,17 @@ and `author_email` of `GitConfig` (by default Laurent Carcagno), whoever is
 signed in.
 
 **Commits.** Each save writes one commit in the repository that owns the file,
-with a message such as `feat(doc): update requirement [REQ-042]`. Only the
-saved files are committed, never the other changes of the working tree. When
-the document is a submodule, the commit is made in the document repository
-first, then the project repository commits the new pointer
-(`chore(submodule): update <name> to <sha>`). Images and other files uploaded
-to a document (the `_assets` folder) are committed in the same repository,
-with the next save, or with the button "Commit now" of the page `/git`. When
-a node is deleted, its asset folders (and those of its children) are deleted
-too; the deletion is part of the next commit, so the files stay in the history. With
-`use_lfs=True`, StrictDoc adds the Git LFS rule for `_assets` to
-`.gitattributes`; the GitLab project must have LFS enabled.
+with a message such as `feat(doc): update requirement [REQ-042]`. Only the saved
+files are committed, never the other changes of the working tree. When the
+document is a submodule, the commit is made in the document repository first,
+then the project repository commits the new pointer (`chore(submodule): update
+<name> to <sha>`). Images and other files uploaded to a document (the `_assets`
+folder) are committed in the same repository, with the next save, or with the
+button "Commit now" of the page `/git`. When a node is deleted, its asset
+folders (and those of its children) are deleted too; the deletion is part of the
+next commit, so the files stay in the history. With `use_lfs=True`, StrictDoc
+adds the Git LFS rule for `_assets` to `.gitattributes`; the GitLab project must
+have LFS enabled.
 
 **Versions.** A version is a Git tag. `A1`, `A2`, ... are drafts, `A` is
 the major version that freezes the document and its assets, `B1` starts the
@@ -4730,25 +4801,26 @@ def create_config() -> ProjectConfig:
     )
 ```
 
-`OpenAICompatible` speaks the chat-completions protocol (Ollama through its `/v1`
-address, OpenAI, many gateways); `Anthropic` speaks the Messages API. A key is
-never written in the configuration: `api_key_env` is the NAME of an environment
-variable. The address of a provider comes only from this configuration, never from
-a request.
+`OpenAICompatible` speaks the chat-completions protocol (Ollama through its
+`/v1` address, OpenAI, many gateways); `Anthropic` speaks the Messages API. A
+key is never written in the configuration: `api_key_env` is the NAME of an
+environment variable. The address of a provider comes only from this
+configuration, never from a request.
 
 **Using it.** A node of the document view has an "AI" button (authors only; the
 page `/llm/draft?reference_mid=...`). The author gives an instruction, picks a
 template (free, or one of the EARS patterns: ubiquitous, event-driven,
-state-driven, unwanted behaviour, optional feature), and ticks the context to send:
-the current node, its parent requirements, sections or nodes of input documents (a
-UID, or `[DA1] §5.14.1`), and a few neighbouring requirements for style. The
-server builds the prompt from exactly that choice. The proposals appear as editable
-cards (title, statement, rationale, verification method, links to the UIDs of the
-context). **Create** writes the ticked cards through the normal creation code, so
-every validation of the form applies. Each node gets `STATUS: Draft` (when the
-grammar has it) and a comment `source=llm` with the provider, the model, the
-prompt version and the person who accepted it. The page `/llm/drafts` lists
-the nodes written by a model that nobody has made Active.
+state-driven, unwanted behaviour, optional feature), and ticks the context to
+send: the current node, its parent requirements, sections or nodes of input
+documents (a UID, or `[DA1] §5.14.1`), and a few neighbouring requirements for
+style. The server builds the prompt from exactly that choice. The proposals
+appear as editable cards (title, statement, rationale, verification method,
+links to the UIDs of the context). **Create** writes the ticked cards through
+the normal creation code, so every validation of the form applies. Each node
+gets `STATUS: Draft` (when the grammar has it) and a comment `source=llm` with
+the provider, the model, the prompt version and the person who accepted it. The
+page `/llm/drafts` lists the nodes written by a model that nobody has made
+Active.
 
 **What leaves the network.** A local model keeps the data on the network. Cloud
 providers are closed unless the project sets `allow_cloud=True`. Even then:
@@ -4762,18 +4834,18 @@ providers are closed unless the project sets `allow_cloud=True`. Even then:
 - `rate_limit_per_minute` limits each user.
 
 Every call writes one line to `llm_audit.jsonl` (next to the audit log): user,
-role, provider, model, whether it was local, the SHA-256 of the prompt, the sizes,
-the UIDs that were sent, the latency, the token counts, the outcome. The text of the
-prompt is kept only with `audit_store_prompts=True`.
+role, provider, model, whether it was local, the SHA-256 of the prompt, the
+sizes, the UIDs that were sent, the latency, the token counts, the outcome. The
+text of the prompt is kept only with `audit_store_prompts=True`.
 
-**Limits.** The text of documents can contain sentences that look like instructions.
-The prompt tells the model to treat it as data, the model has no tool and no network
-access, its answer is validated against a schema (a verification method of the
-project, only UIDs that were in the context), and it is only a proposal that a person
-reads. A draft can still look right and be wrong, for instance a wrong number: read
-it. The quality depends on the model; `python -m strictdoc.features.llm.golden` runs
-a set of 20 cases (10 French, 10 English) with rule checks against a model of your
-choice and prints a report.
+**Limits.** The text of documents can contain sentences that look like
+instructions. The prompt tells the model to treat it as data, the model has no
+tool and no network access, its answer is validated against a schema (a
+verification method of the project, only UIDs that were in the context), and it
+is only a proposal that a person reads. A draft can still look right and be
+wrong, for instance a wrong number: read it. The quality depends on the model;
+`python -m strictdoc.features.llm.golden` runs a set of 20 cases (10 French, 10
+English) with rule checks against a model of your choice and prints a report.
 <<<
 
 [[/SECTION]]
@@ -4786,17 +4858,20 @@ TITLE: The assistant bar in the Markdown editor (experimental)
 [TEXT]
 MID: 5197dfa26f024df48ba660cd2f3303c7
 STATEMENT: >>>
-With the `LLM` feature and the `llm` option (see above), every Markdown editor of a form
-has a **bar** above it: a ✦ icon and a field (the commands of a field; the document has its own bar, see below). Type `/` for the commands, `@` to mention
-something, `Enter` to run, `Ctrl+/` to put the cursor in the bar, `Up` for the previous
-inputs. Text with no command is a question (`/ask`). The bar is hidden for readers.
+With the `LLM` feature and the `llm` option (see above), every Markdown editor
+of a form has a **bar** above it: a ✦ icon and a field (the commands of a field;
+the document has its own bar, see below). Type `/` for the commands, `@` to
+mention something, `Enter` to run, `Ctrl+/` to put the cursor in the bar, `Up`
+for the previous inputs. Text with no command is a question (`/ask`). The bar is
+hidden for readers.
 
-Every answer is a **proposal**. The result shows a message, the findings, and cards with a
-tick box; a rewrite is shown as a difference (deleted words in red, new ones in green). Only
-**Apply selected** changes something. A replacement goes into the editor (`Ctrl+Z` undoes it)
-and is saved with the form. Comments and new requirements are saved by the server at once;
-the form that is open would send the old comments and the old revision, so the bar asks you to
-save or discard your changes first, then reloads the page.
+Every answer is a **proposal**. The result shows a message, the findings, and
+cards with a tick box; a rewrite is shown as a difference (deleted words in red,
+new ones in green). Only **Apply selected** changes something. A replacement
+goes into the editor (`Ctrl+Z` undoes it) and is saved with the form. Comments
+and new requirements are saved by the server at once; the form that is open
+would send the old comments and the old revision, so the bar asks you to save or
+discard your changes first, then reloads the page.
 
 <table>
 <thead>
@@ -4823,19 +4898,20 @@ save or discard your changes first, then reloads the page.
 </tbody>
 </table>
 
-"Reviewer" means an author or administrator, a project reviewer, or a reviewer that the document
-names. `/verify` always starts with checks that need no model (the verb of obligation, vague
-words, unresolved TBD, several obligations in one statement), so it is useful with a weak model
-or none. Its findings carry a rule id: `R-SHALL`, `R-ATOMIC`, `R-AMBIG`, `R-VERIFIABLE`,
-`R-ACTOR`, `R-DESIGN`, `R-TERM`, `R-TBD`, `R-COMPLETE`, `R-NEG`, `R-LANG`,
-`R-RELEVANT`.
+"Reviewer" means an author or administrator, a project reviewer, or a reviewer
+that the document names. `/verify` always starts with checks that need no model
+(the verb of obligation, vague words, unresolved TBD, several obligations in one
+statement), so it is useful with a weak model or none. Its findings carry a rule
+id: `R-SHALL`, `R-ATOMIC`, `R-AMBIG`, `R-VERIFIABLE`, `R-ACTOR`, `R-DESIGN`,
+`R-TERM`, `R-TBD`, `R-COMPLETE`, `R-NEG`, `R-LANG`, `R-RELEVANT`.
 
-**The bar of the document.** With the feature on, the top of a document view has a bar of its
-own, for the commands that read or write many requirements. They run as **jobs** in the
-background (a local model needs minutes): the bar shows the progress and the proposals found so
-far, you can cancel, and you tick what you keep when the job is done. One job per person at a
-time. The commands are `/write`, `/review`, `/trace`, `/translate`, `/glossary`, `/gap`,
-`/summarize`, `/consistency` and `/ask`.
+**The bar of the document.** With the feature on, the top of a document view has
+a bar of its own, for the commands that read or write many requirements. They
+run as **jobs** in the background (a local model needs minutes): the bar shows
+the progress and the proposals found so far, you can cancel, and you tick what
+you keep when the job is done. One job per person at a time. The commands are
+`/write`, `/review`, `/trace`, `/translate`, `/glossary`, `/gap`, `/summarize`,
+`/consistency` and `/ask`.
 
 <table>
 <thead>
@@ -4854,38 +4930,44 @@ time. The commands are `/write`, `/review`, `/trace`, `/translate`, `/glossary`,
 </tbody>
 </table>
 
-The requirements are sent in batches, so that each answer stays small; at most 60 requirements
-or remarks come out of one job. A translated document keeps the structure of the source; a node whose
-batch the model answered badly stays in the source language (the result says how many).
+The requirements are sent in batches, so that each answer stays small; at most
+60 requirements or remarks come out of one job. A translated document keeps the
+structure of the source; a node whose batch the model answered badly stays in
+the source language (the result says how many).
 
-**Comments from the bar** are comments of the person who ticked them: they carry no mark of the
-assistant. What was sent to a model, by whom, is in the audit log of the assistant.
+**Comments from the bar** are comments of the person who ticked them: they carry
+no mark of the assistant. What was sent to a model, by whom, is in the audit log
+of the assistant.
 
-**Mentions.** `@REQ-12` (a requirement), `@icd1` (a document, by file name or title),
-`@DA1 §5.14.1` (a section of an input document), `@selection` (the selected words, added
-automatically), `@this`, `@parents`, `@children`, `@neighbours`, `@doc`,
-`@section:<title>`. The server resolves them itself. A document that is too big goes in as its
-outline only; the bar says so. The text of a document is data between `BEGIN`/`END` lines,
-as for the draft page.
+**Mentions.** `@REQ-12` (a requirement), `@icd1` (a document, by file name or
+title), `@DA1 §5.14.1` (a section of an input document), `@selection` (the
+selected words, added automatically), `@this`, `@parents`, `@children`,
+`@neighbours`, `@doc`, `@section:<title>`. The server resolves them itself. A
+document that is too big goes in as its outline only; the bar says so. The text
+of a document is data between `BEGIN`/`END` lines, as for the draft page.
 
-**Quality.** `python -m strictdoc.features.llm.assist.golden --base-url http://127.0.0.1:11434/v1 --model <model>` runs 15 cases (French and English: rewrite, verify, comment, translate, fix,
-split) with rule checks (numbers and identifiers kept, the verb of obligation of the language, no
-vague word, the planted defect found with a quote that is in the text) and prints a report. On the
-GPU of the ISIS computer (16 GB, `OLLAMA_CONTEXT_LENGTH=16384`): `gpt-oss:20b` 14 of 15,
-`devstral-small-2` 12 of 15, `qwen2.5:3b` 10 to 11 of 15 (it leaves vague words in a rewrite, writes
-"must" for "shall" and sometimes answers in the wrong language). A reasoning model spends tokens
-thinking: an answer may use up to 4000.
+**Quality.** `python -m strictdoc.features.llm.assist.golden --base-url
+http://127.0.0.1:11434/v1 --model <model>` runs 15 cases (French and English:
+rewrite, verify, comment, translate, fix, split) with rule checks (numbers and
+identifiers kept, the verb of obligation of the language, no vague word, the
+planted defect found with a quote that is in the text) and prints a report. On
+the GPU of the ISIS computer (16 GB, `OLLAMA_CONTEXT_LENGTH=16384`):
+`gpt-oss:20b` 14 of 15, `devstral-small-2` 12 of 15, `qwen2.5:3b` 10 to 11 of 15
+(it leaves vague words in a rewrite, writes "must" for "shall" and sometimes
+answers in the wrong language). A reasoning model spends tokens thinking: an
+answer may use up to 4000.
 
-**Providers and data.** The bar uses the providers of the `llm` option and the same policy as
-the draft page: a cloud provider must be opened by the project, shows exactly what will be
-sent and waits for your click, and a classified document never goes to one. When there are
-several providers a list appears in the bar. The JSON that the browser and the server
-exchange (a request, a result with typed operations `replace_text`, `insert_node`,
-`add_comment`) is described in `strictdoc/features/llm/assist/envelope.py`.
+**Providers and data.** The bar uses the providers of the `llm` option and the
+same policy as the draft page: a cloud provider must be opened by the project,
+shows exactly what will be sent and waits for your click, and a classified
+document never goes to one. When there are several providers a list appears in
+the bar. The JSON that the browser and the server exchange (a request, a result
+with typed operations `replace_text`, `insert_node`, `add_comment`) is described
+in `strictdoc/features/llm/assist/envelope.py`.
 
-**Knowledge base.** A project can link the assistant to a knowledge base of its mission (interface
-control documents, system specifications, requirements of the customer) with the option `kb` of
-`llm`:
+**Knowledge base.** A project can link the assistant to a knowledge base of its
+mission (interface control documents, system specifications, requirements of the
+customer) with the option `kb` of `llm`:
 
 ```
 llm=LLMConfig(
@@ -4899,18 +4981,22 @@ llm=LLMConfig(
 )
 ```
 
-The server reads the base with the Keycloak service account `strictdoc-kb` (its secret is in
-the variable `KB_CLIENT_SECRET`) and tells the base which person it acts for: the base answers
-only for the missions that the person and the account share, and both names are in its audit log.
-For the commands of `commands`, a model that runs on this network chooses which tools of the base
-to call (search, read a requirement, read a section, an interface...), at most `max_steps` rounds;
-what the tools return goes into the prompt as data between `BEGIN KB-DATA` and `END KB-DATA`
-lines, cut to `max_tool_chars`, and the answer shows its sources under "Base: \<mission>". A model
-that does not support tools gets a plain search with the question. A cloud provider never runs the
-loop: it receives the result of one search, listed in the confirmation, only if the mission names
-the model in `allowed_models` and its classification is not blocked. Only tools that read can be
-named in `tools`. Every call to the base is in the audit log of the assistant (tool, mission, a
-hash of the arguments, size, and the `request_id` of the base). `/kb`, `/cite` and `/kbcheck` need no model; `/kb` also works in the document bar.
+The server reads the base with the Keycloak service account `strictdoc-kb` (its
+secret is in the variable `KB_CLIENT_SECRET`) and tells the base which person it
+acts for: the base answers only for the missions that the person and the account
+share, and both names are in its audit log. For the commands of `commands`, a
+model that runs on this network chooses which tools of the base to call (search,
+read a requirement, read a section, an interface...), at most `max_steps`
+rounds; what the tools return goes into the prompt as data between `BEGIN
+KB-DATA` and `END KB-DATA` lines, cut to `max_tool_chars`, and the answer shows
+its sources under "Base: \<mission>". A model that does not support tools gets a
+plain search with the question. A cloud provider never runs the loop: it
+receives the result of one search, listed in the confirmation, only if the
+mission names the model in `allowed_models` and its classification is not
+blocked. Only tools that read can be named in `tools`. Every call to the base is
+in the audit log of the assistant (tool, mission, a hash of the arguments, size,
+and the `request_id` of the base). `/kb`, `/cite` and `/kbcheck` need no model;
+`/kb` also works in the document bar.
 <<<
 
 [[/SECTION]]
@@ -4988,7 +5074,9 @@ stores the results as a list of `Metric` and `MetricSection` objects.
 <div class="sdoc-admonition sdoc-note" role="note">
 <p class="sdoc-admonition-title">Note</p>
 
-StrictDoc’s built-in statistics generator is a good example of how to implement a custom one. See [SDocStatisticsGenerator](https://github.com/strictdoc-project/strictdoc/blob/6f57747e6a1b5b3cb29c0047f9df5959da64ebb1/docs/sdoc_project_statistics.py).
+StrictDoc’s built-in statistics generator is a good example of how to implement
+a custom one. See
+[SDocStatisticsGenerator](https://github.com/strictdoc-project/strictdoc/blob/6f57747e6a1b5b3cb29c0047f9df5959da64ebb1/docs/sdoc_project_statistics.py).
 
 </div>
 <<<
@@ -5004,8 +5092,8 @@ TITLE: Mermaid diagramming and charting tool
 [TEXT]
 MID: 6a4e4467a5c0451ea8291fd94309d525
 STATEMENT: >>>
-The Mermaid tool allows to create diagrams inside of StrictDoc/Markdown markup as
-follows:
+The Mermaid tool allows to create diagrams inside of StrictDoc/Markdown markup
+as follows:
 
 ```strictdoc
 [TEXT]
@@ -5098,7 +5186,8 @@ STATEMENT: >>>
 <div class="sdoc-admonition sdoc-warning" role="note">
 <p class="sdoc-admonition-title">Warning</p>
 
-StrictDoc is migrating from TOML to Python for its configuration files, see the migration note: [LINK: SECTION-UG-MIGRATE-CONFIG-2025-Q4].
+StrictDoc is migrating from TOML to Python for its configuration files, see the
+migration note: [LINK: SECTION-UG-MIGRATE-CONFIG-2025-Q4].
 
 </div>
 
@@ -5339,7 +5428,8 @@ template. The path can be absolute or relative to the project root.
 <div class="sdoc-admonition sdoc-note" role="note">
 <p class="sdoc-admonition-title">Note</p>
 
-An example template can be found [here](https://github.com/strictdoc-project/strictdoc/tree/main/tests/end2end/screens/pdf/view_pdf_document_custom_template/html2pdf_template)
+An example template can be found
+[here](https://github.com/strictdoc-project/strictdoc/tree/main/tests/end2end/screens/pdf/view_pdf_document_custom_template/html2pdf_template)
 
 </div>
 <<<
@@ -5460,7 +5550,8 @@ The behavior of wildcard symbols `*` and `**` is as follows:
 <div class="sdoc-admonition sdoc-note" role="note">
 <p class="sdoc-admonition-title">Note</p>
 
-See [LINK: SECTION-UG-Finding-document-and-source-files] for a description of performance considerations related to file discovery.
+See [LINK: SECTION-UG-Finding-document-and-source-files] for a description of
+performance considerations related to file discovery.
 
 </div>
 <<<
@@ -5503,7 +5594,8 @@ The behavior of the wildcards is the same as for the
 <div class="sdoc-admonition sdoc-note" role="note">
 <p class="sdoc-admonition-title">Note</p>
 
-See [LINK: SECTION-UG-Finding-document-and-source-files] for a description of performance considerations related to file discovery.
+See [LINK: SECTION-UG-Finding-document-and-source-files] for a description of
+performance considerations related to file discovery.
 
 </div>
 <<<
@@ -5660,11 +5752,11 @@ MID: ff77928f09094995acb61af071157431
 STATEMENT: >>>
 When a document contains many nodes, the StrictDoc server can render the
 document in lazily loaded chunks to speed up the initial page load. The
-`lazy_document_loading_threshold` option controls the threshold number of
-nodes: the chunked rendering is activated for documents that contain more than
-this number of nodes. The default value is `200`. Setting the option to `0`
-disables the chunked rendering completely. Threshold values below `100` also
-become the chunk size: the documents are loaded in chunks of `min(threshold, 100)` nodes.
+`lazy_document_loading_threshold` option controls the threshold number of nodes:
+the chunked rendering is activated for documents that contain more than this
+number of nodes. The default value is `200`. Setting the option to `0` disables
+the chunked rendering completely. Threshold values below `100` also become the
+chunk size: the documents are loaded in chunks of `min(threshold, 100)` nodes.
 
 Set the `lazy_document_loading_threshold` option in `strictdoc_config.py`
 to configure this option.
@@ -5854,9 +5946,10 @@ strictdoc export --no-parallelization docs/
 <div class="sdoc-admonition sdoc-note" role="note">
 <p class="sdoc-admonition-title">Note</p>
 
-Currently, only the generation of HTML documents is parallelized, so this option will only have effect on the HTML export.
-All other export options are run from the main thread.
-Reading of the SDoc documents is parallelized for all export options and is disabled with this option as well.
+Currently, only the generation of HTML documents is parallelized, so this option
+will only have effect on the HTML export. All other export options are run from
+the main thread. Reading of the SDoc documents is parallelized for all export
+options and is disabled with this option as well.
 
 </div>
 <<<
@@ -6022,7 +6115,10 @@ The nodes with validation issues attached will be displayed as follows:
 <div class="sdoc-admonition sdoc-warning" role="note">
 <p class="sdoc-admonition-title">Warning</p>
 
-This custom validations feature is not yet fully supported in the editable web interface. If a user modifies a given node, its validations may not be updated or re-evaluated correctly. See <https://github.com/strictdoc-project/strictdoc/issues/1229> for more details.
+This custom validations feature is not yet fully supported in the editable web
+interface. If a user modifies a given node, its validations may not be updated
+or re-evaluated correctly. See
+<https://github.com/strictdoc-project/strictdoc/issues/1229> for more details.
 
 </div>
 <<<
@@ -6103,7 +6199,11 @@ STATEMENT: >>>
 <div class="sdoc-admonition sdoc-note" role="note">
 <p class="sdoc-admonition-title">Note</p>
 
-**TL;DR**: The following topic of portability becomes relevant if documentation created with StrictDoc has to be exported to another tool and especially if the other tool has to export the content back to StrictDoc. Writing custom export/import generators may be needed to enable a full interoperability when the less portable features are used.
+**TL;DR**: The following topic of portability becomes relevant if documentation
+created with StrictDoc has to be exported to another tool and especially if the
+other tool has to export the content back to StrictDoc. Writing custom
+export/import generators may be needed to enable a full interoperability when
+the less portable features are used.
 
 </div>
 
@@ -6132,7 +6232,11 @@ interfaces:
 <div class="sdoc-admonition sdoc-note" role="note">
 <p class="sdoc-admonition-title">Note</p>
 
-It is easier to extend StrictDoc to produce a format supported by a given tool than it is to make the other tool export a 100%-identical content back to StrictDoc. If there is a need to interface with a tool X and something is missing in StrictDoc, please reach out to the developers (see [LINK: SDOC_UG_CONTACT]).
+It is easier to extend StrictDoc to produce a format supported by a given tool
+than it is to make the other tool export a 100%-identical content back to
+StrictDoc. If there is a need to interface with a tool X and something is
+missing in StrictDoc, please reach out to the developers (see
+[LINK: SDOC_UG_CONTACT]).
 
 </div>
 <<<
@@ -6179,8 +6283,9 @@ When a requirement is referenced in a source code comment block with the command
 the output.
 
 The location of the StrictDoc export can be specified in the TAGFILE field,
-either as a relative path, e.g., `TAGFILES = strictdoc.tag=../../strictdoc`,
-or as an absolute URL, e.g., `TAGFILES = strictdoc.tag=http://example.com/strictdoc`.
+either as a relative path, e.g., `TAGFILES = strictdoc.tag=../../strictdoc`, or
+as an absolute URL, e.g., `TAGFILES =
+strictdoc.tag=http://example.com/strictdoc`.
 
 To make the StrictDoc @relation keyword work with Doxygen, an alias has to be
 created:
@@ -6414,8 +6519,9 @@ MID: 4e775a2127d94fe887b1e625f41490a6
 STATEMENT: >>>
 StrictDoc keeps the Markdown and HTML markups only. A document without a
 `MARKUP` option used to be read as RST: the tool
-`developer/tools/rst_to_markdown.py` rewrites such a document in Markdown
-(the Git tag `rst-to-markdown-converter` keeps it now that the RST support is removed).
+`developer/tools/rst_to_markdown.py` rewrites such a document in Markdown (the
+Git tag `rst-to-markdown-converter` keeps it now that the RST support is
+removed).
 
 **Before.**
 
@@ -6520,57 +6626,57 @@ for a node that exists; if `ENABLE_MID` is off, save a new node first.
 The inline links and anchors of StrictDoc (the `LINK` and `ANCHOR` markers)
 stay as they are and appear as small labels in the editor.
 
-A second bar under the toolbar works on tables. It is shown with the table button
-of the toolbar, and while the cursor is in a table cell. It inserts a table (the size is
-chosen on a grid), adds and deletes rows and columns, makes the first rows header
-rows, merges and splits cells, selects a cell, a row, a column or the table,
-and fills the selected cells with a colour. A simple table (one header row, no
-merged cell, no colour) is written as a Markdown pipe table. Any other table is
-written as an HTML `<table>`, because Markdown cannot express a merged cell or
-a colour; the HTML is rendered as it is. An HTML table is opened as a table in the
-editor only if all its tags and attributes are known to it (`thead`,
-`tbody`, `th`, `td`, `colspan`, `rowspan`, a background colour and a
-text alignment). Any other HTML table stays as written.
+A second bar under the toolbar works on tables. It is shown with the table
+button of the toolbar, and while the cursor is in a table cell. It inserts a
+table (the size is chosen on a grid), adds and deletes rows and columns, makes
+the first rows header rows, merges and splits cells, selects a cell, a row, a
+column or the table, and fills the selected cells with a colour. A simple table
+(one header row, no merged cell, no colour) is written as a Markdown pipe table.
+Any other table is written as an HTML `<table>`, because Markdown cannot express
+a merged cell or a colour; the HTML is rendered as it is. An HTML table is
+opened as a table in the editor only if all its tags and attributes are known to
+it (`thead`, `tbody`, `th`, `td`, `colspan`, `rowspan`, a background colour and
+a text alignment). Any other HTML table stays as written.
 
-The diagram button of the toolbar opens a diagram editor over the page. The editor
-draws shapes (rectangle, rounded rectangle, ellipse, diamond, triangle, cylinder,
-note and text box) and connectors with arrowheads, and gives each of them a text
-label. A bar changes the fill, the line, the text, the alignment and the order of
-the selected shapes. The toolbar of the diagram editor also aligns the selected
-shapes (left, centre, right, top, middle, bottom) and distributes three or more of
-them horizontally or vertically. Save stores the diagram as an SVG file in the
-`_assets` folder of the node and inserts it as an image.
+The diagram button of the toolbar opens a diagram editor over the page. The
+editor draws shapes (rectangle, rounded rectangle, ellipse, diamond, triangle,
+cylinder, note and text box) and connectors with arrowheads, and gives each of
+them a text label. A bar changes the fill, the line, the text, the alignment and
+the order of the selected shapes. The toolbar of the diagram editor also aligns
+the selected shapes (left, centre, right, top, middle, bottom) and distributes
+three or more of them horizontally or vertically. Save stores the diagram as an
+SVG file in the `_assets` folder of the node and inserts it as an image.
 
-The SVG file holds the model of the diagram, so a double click on the image opens
-the diagram again, and Save overwrites the file. The diagram button of the toolbar
-does the same when a diagram is selected. The file is written when Save is used in
-the diagram editor, not when the form of the node is saved. An SVG image that the
-diagram editor did not draw has no model and stays a plain image. The labels are
-plain text without wrapping. The diagram editor loads the first time the button is
-used.
+The SVG file holds the model of the diagram, so a double click on the image
+opens the diagram again, and Save overwrites the file. The diagram button of the
+toolbar does the same when a diagram is selected. The file is written when Save
+is used in the diagram editor, not when the form of the node is saved. An SVG
+image that the diagram editor did not draw has no model and stays a plain image.
+The labels are plain text without wrapping. The diagram editor loads the first
+time the button is used.
 
-Handles on a selected diagram change its width and its height. The corner keeps the
-proportions unless Shift is held. The size is stored in the SVG file, so the
+Handles on a selected diagram change its width and its height. The corner keeps
+the proportions unless Shift is held. The size is stored in the SVG file, so the
 document view and the exports show it.
 
-Four buttons of the toolbar align the paragraphs of the selection to the left, to
-the centre, to the right, or justify them. A paragraph that is not aligned to the
-left is written as an HTML paragraph (`<p style="text-align: center">`) with
+Four buttons of the toolbar align the paragraphs of the selection to the left,
+to the centre, to the right, or justify them. A paragraph that is not aligned to
+the left is written as an HTML paragraph (`<p style="text-align: center">`) with
 its content as inline HTML (bold, italic, code, links and line breaks). The
 editor reads such a paragraph back as an aligned paragraph only if all its tags
 and attributes are known to it.
 
-The same buttons align an image or a diagram when it is selected (left, centre or
-right; an image that is not aligned is on the left), and a table when the cursor
-is in it. An aligned image is written as an HTML paragraph that holds the image.
-An aligned table is written as an HTML table, and it has the width of its content:
-the button that is already on puts the table back to the full width. Inside a table
-the alignment of the text of the cells is the one of the table bar. The Word export
-keeps the text and the pictures of an aligned paragraph or image, not their
-alignment.
+The same buttons align an image or a diagram when it is selected (left, centre
+or right; an image that is not aligned is on the left), and a table when the
+cursor is in it. An aligned image is written as an HTML paragraph that holds the
+image. An aligned table is written as an HTML table, and it has the width of its
+content: the button that is already on puts the table back to the full width.
+Inside a table the alignment of the text of the cells is the one of the table
+bar. The Word export keeps the text and the pictures of an aligned paragraph or
+image, not their alignment.
 
-Every button of the toolbars shows a tooltip with its name when the pointer rests
-on it, or when it has the keyboard focus.
+Every button of the toolbars shows a tooltip with its name when the pointer
+rests on it, or when it has the keyboard focus.
 
 The field is written again by the editor only if its text was changed. When it
 is, the text is normalised: for example a table is re-aligned, a hard break
@@ -6889,10 +6995,18 @@ strictdoc export . --generate-diff-git="HEAD^..HEAD"
 <div class="sdoc-admonition" role="note">
 <p class="sdoc-admonition-title">Robust MID-based change tracking</p>
 
-For optimal results when using the Diff/Changelog feature in a StrictDoc-based project, it is strongly recommended to enable Machine Identifiers (MIDs) for all project artifacts, such as TEXT, REQUIREMENT, and others. Without MIDs, StrictDoc relies on change tracking based on node UIDs, which is less reliable due to at least the following two issues:
+For optimal results when using the Diff/Changelog feature in a StrictDoc-based
+project, it is strongly recommended to enable Machine Identifiers (MIDs) for all
+project artifacts, such as TEXT, REQUIREMENT, and others. Without MIDs,
+StrictDoc relies on change tracking based on node UIDs, which is less reliable
+due to at least the following two issues:
 
-1. The need to maintain UIDs for sections and text nodes, not only for requirements.
-2. Possible changes to node UIDs. If a node UID changes, for example due to a change in project conventions, StrictDoc cannot reliably determine whether the node has been modified or relocated in later versions of the documentation tree.
+1. The need to maintain UIDs for sections and text nodes, not only for
+   requirements.
+2. Possible changes to node UIDs. If a node UID changes, for example due to a
+   change in project conventions, StrictDoc cannot reliably determine whether
+   the node has been modified or relocated in later versions of the
+   documentation tree.
 
 For more details, see [LINK: SECTION-UG-Machine-identifiers-MID].
 
@@ -6922,13 +7036,14 @@ There are three methods of PDF printing available:
 
 The first two methods require the Chrome browser and chromedriver to be
 installed on the user's computer. StrictDoc downloads chromedriver on demand by
-default, or uses a pre installed executable if `strictdoc export --chromedriver=/path/to/chromedriver` or the equivalent `strictdoc_config.py`
+default, or uses a pre installed executable if `strictdoc export
+--chromedriver=/path/to/chromedriver` or the equivalent `strictdoc_config.py`
 option is given.
 
 By default, StrictDoc attempts to detect an existing Chrome/Chromium
 installation. If Chrome is installed in a non-standard location, its binary can
-be specified explicitly with `strictdoc export --chrome-binary=/path/to/chrome` or the equivalent `strictdoc_config.py`
-option.
+be specified explicitly with `strictdoc export --chrome-binary=/path/to/chrome`
+or the equivalent `strictdoc_config.py` option.
 
 When printing from the command line (the first method), you can use the
 `--generate-bundle-document` option to have StrictDoc generate a single PDF
@@ -7076,14 +7191,20 @@ must have one of the following extensions:
 <div class="sdoc-admonition sdoc-note" role="note">
 <p class="sdoc-admonition-title">Note</p>
 
-After the existing JUnit XML flavors have been implemented, it should be easy to add more tools in case their output differs.
+After the existing JUnit XML flavors have been implemented, it should be easy to
+add more tools in case their output differs.
 
 </div>
 
 <div class="sdoc-admonition sdoc-warning" role="note">
 <p class="sdoc-admonition-title">Warning</p>
 
-The JUnit XML feature's status is experimental. The functionality has been implemented and passes basic integration tests but it has not received enough testing by the users. StrictDoc's own documentation is already using this feature and the JUnit XML traceability will be part of StrictDoc's own qualification package. It is expected that the JUnit XML will become a stable feature by no late than 2025 Q4.
+The JUnit XML feature's status is experimental. The functionality has been
+implemented and passes basic integration tests but it has not received enough
+testing by the users. StrictDoc's own documentation is already using this
+feature and the JUnit XML traceability will be part of StrictDoc's own
+qualification package. It is expected that the JUnit XML will become a stable
+feature by no late than 2025 Q4.
 
 </div>
 <<<
@@ -7497,7 +7618,10 @@ element like described in the previous section.
 <div class="sdoc-admonition sdoc-note" role="note">
 <p class="sdoc-admonition-title">Note</p>
 
-StrictDoc can automatically create the `[[SECTION]]` element even if it is not explicitly defined in the document grammar. However, since 2025 Q2, it is recommended that users always define explicit grammars with the SECTION element included.
+StrictDoc can automatically create the `[[SECTION]]` element even if it is not
+explicitly defined in the document grammar. However, since 2025 Q2, it is
+recommended that users always define explicit grammars with the SECTION element
+included.
 
 </div>
 

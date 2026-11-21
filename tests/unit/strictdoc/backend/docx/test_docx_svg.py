@@ -4,6 +4,7 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 
 import pytest
+import resvg_py
 
 from strictdoc.backend.docx.export.docx_images import load_image
 from strictdoc.backend.docx.export.docx_tracked_update import DocxUpdater
@@ -191,6 +192,18 @@ def test_010_text_in_a_drawing_is_rendered_when_the_fonts_exist(
     if not os.path.isdir(fonts):
         pytest.skip("fonts-liberation is not installed")
     text_svg = (CORPUS / "text.svg").read_bytes()
+
+    # A workstation has system fonts, which the rasterizer would use even
+    # without the font directory: leave them out so that the test sees only
+    # the fonts of the directory.
+    svg_to_bytes = resvg_py.svg_to_bytes
+
+    def svg_to_bytes_without_system_fonts(**kwargs):
+        return svg_to_bytes(**{**kwargs, "skip_system_fonts": True})
+
+    monkeypatch.setattr(
+        resvg_py, "svg_to_bytes", svg_to_bytes_without_system_fonts
+    )
     monkeypatch.setenv("STRICTDOC_SVG_FONT_DIRS", "/nonexistent")
     without = rasterize_svg(text_svg)
     monkeypatch.setenv("STRICTDOC_SVG_FONT_DIRS", fonts)

@@ -187,8 +187,8 @@ host the StrictDoc's static HTML export, without using StrictDoc's own web
 server.
 
 Is your project public or private? If it is public, you could simply use
-[GitHub pages](https://pages.github.com). See how one user of StrictDoc is
-doing it here:
+[GitHub pages](https://pages.github.com). See how one user of StrictDoc is doing
+it here:
 [nmfta-repo/vcr-experiment](https://github.com/nmfta-repo/vcr-experiment) and
 the resulting static website:
 [nmfta-repo.github.io/vcr-experiment](https://nmfta-repo.github.io/vcr-experiment).
@@ -353,7 +353,8 @@ STATEMENT: >>>
 <div class="sdoc-admonition sdoc-note" role="note">
 <p class="sdoc-admonition-title">Note</p>
 
-The complete list of the project milestones is maintained in the Development Plan: [LINK: SECTION-DP-Project-milestones].
+The complete list of the project milestones is maintained in the Development
+Plan: [LINK: SECTION-DP-Project-milestones].
 
 </div>
 

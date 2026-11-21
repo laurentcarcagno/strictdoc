@@ -104,13 +104,13 @@ def test_upload_asset_endpoint(tmp_path: Path) -> None:
     uri_base = f"./_assets/{REQUIREMENT_MID}"
     assert response.json() == {
         "images": {
-            "pair.svg": f"{uri_base}/pair.*",
-            "pair.png": f"{uri_base}/pair.*",
+            "pair.svg": f"{uri_base}/pair.svg",
+            "pair.png": f"{uri_base}/pair.png",
             "separate.gif": f"{uri_base}/separate.gif",
             "raster.jpg": f"{uri_base}/raster.jpg",
             "raster.png": f"{uri_base}/raster.png",
-            "second.svg": f"{uri_base}/second.*",
-            "second.webp": f"{uri_base}/second.*",
+            "second.svg": f"{uri_base}/second.svg",
+            "second.webp": f"{uri_base}/second.webp",
         }
     }
 
@@ -141,7 +141,7 @@ def test_upload_asset_endpoint(tmp_path: Path) -> None:
     response = upload([("incremental.svg", SVG, "image/svg+xml")])
     assert response.status_code == 200
     assert response.json() == {
-        "images": {"incremental.svg": f"{uri_base}/incremental.*"}
+        "images": {"incremental.svg": f"{uri_base}/incremental.svg"}
     }
 
     response = upload([("../../outside.svg", SAFE_SVG, "image/svg+xml")])

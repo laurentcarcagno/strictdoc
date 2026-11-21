@@ -51,13 +51,13 @@ CHECK-TABLE: &lt;b&gt;&#34;escaping&#34;&amp;nbsp;&#39;document title&#39;&lt;/b
 CHECK-INPUT: <sdoc-autogen>1.&nbsp;&lt;b&gt;&#34;escaping&#34;&amp;nbsp;&#39;section title&#39;&lt;/b&gt;</sdoc-autogen>
 CHECK-DTR: <sdoc-autogen>1.&nbsp;&lt;b&gt;&#34;escaping&#34;&amp;nbsp;&#39;section title&#39;&lt;/b&gt;</sdoc-autogen>
 
-CHECK-TABLE: &lt;b&gt;&#34;escaping&#34;&amp;nbsp;&#39;section title&#39;&lt;/b&gt;
+# The table view shows no section title, only its anchor.
+CHECK-TABLE: id="1--b-escaping-nbsp-section-title-b"
 
 CHECK-TRACE: <sdoc-autogen>1.&nbsp;&lt;b&gt;&#34;escaping&#34;&amp;nbsp;&#39;section title&#39;&lt;/b&gt;</sdoc-autogen>
 
 # Main document: Text statement.
 CHECK-INPUT: <p>&lt;b&gt;&quot;escaping&quot;&amp;nbsp;'text statement'&lt;/b&gt;</p>
-CHECK-TABLE: <p>&lt;b&gt;&quot;escaping&quot;&amp;nbsp;'text statement'&lt;/b&gt;</p>
 CHECK-TRACE: <p>&lt;b&gt;&quot;escaping&quot;&amp;nbsp;'text statement'&lt;/b&gt;</p>
 
 # Main document: Requirement statement.

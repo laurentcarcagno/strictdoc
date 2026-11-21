@@ -6,8 +6,9 @@
 # command) is caught the same way.
 #
 
-RUN: %expect_exit 2 %strictdoc server 2>&1 | filecheck %s --dump-input=fail
+RUN: %expect_exit 1 %strictdoc server 2>&1 | filecheck %s --dump-input=fail
 
 CHECK-NOT: main.py
-CHECK: strictdoc server: error: the following arguments are required: input_path
+CHECK: error: Provide an input path or --projects.
+CHECK-NOT: error: Provide an input path or --projects.
 CHECK-NOT: main.py

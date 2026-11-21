@@ -5,7 +5,6 @@ import os
 import re
 import types
 import uuid
-from collections import defaultdict
 from mimetypes import guess_type
 from pathlib import Path
 from typing import Any, Dict, Iterator, List, Optional, Set, Union
@@ -2888,17 +2887,15 @@ def create_main_router(
             )
 
         # Process each uploaded file
-        uploaded_files_by_stem: dict[str, list[tuple[str, str]]] = defaultdict(
-            list
-        )
+        uploaded_filenames: list[str] = []
 
         for uploaded_file in uploaded_files:
             assert uploaded_file.filename is not None
 
             original_filename = Path(uploaded_file.filename).name
-            rst_safe_filename = original_filename.replace(" ", "_")
+            safe_filename = original_filename.replace(" ", "_")
             full_file_save_path = os.path.join(
-                assets_node_specific_subfolder, rst_safe_filename
+                assets_node_specific_subfolder, safe_filename
             )
             if not full_file_save_path.startswith(
                 os.path.abspath(assets_node_specific_subfolder)
@@ -2934,11 +2931,7 @@ def create_main_router(
             if context.git_committer is not None:
                 context.git_committer.on_asset_written(full_file_save_path)
 
-            # Group uploaded filenames by stem before resolving wildcard pairs.
-            stem, extension = os.path.splitext(rst_safe_filename)
-            uploaded_files_by_stem[stem].append(
-                (rst_safe_filename, extension.lower())
-            )
+            uploaded_filenames.append(safe_filename)
 
         # The URI of each uploaded file is the path of the file.
         uploaded_image_uris: dict[str, str] = {}
@@ -2947,9 +2940,8 @@ def create_main_router(
             if asset_subfolder_name
             else "./_assets"
         )
-        for uploaded_stem_files in uploaded_files_by_stem.values():
-            for filename, _ in uploaded_stem_files:
-                uploaded_image_uris[filename] = f"{uri_base}/{filename}"
+        for filename in uploaded_filenames:
+            uploaded_image_uris[filename] = f"{uri_base}/{filename}"
 
         # We need to re-export the assets to copy the new files to the output folder
         html_generator.export_project_assets(

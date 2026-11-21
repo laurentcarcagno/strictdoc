@@ -108,3 +108,25 @@ STATEMENT: >>>
     # List items should NOT be wrapped (structured content)
     assert "- Item one that is quite long" in output
     assert "- Item two that is also quite long" in output
+
+
+def test_sdwriter_preserves_html_blocks():
+    html_block = (
+        "<table>\n<thead>\n<tr><th>Name</th><th>Meaning of the column</th></tr>\n"
+        "</thead>\n<tbody>\n<tr><td>word word word word word word word word"
+        "</td></tr>\n</tbody>\n</table>"
+    )
+    input_sdoc = f"""\
+[DOCUMENT]
+TITLE: Test
+
+[TEXT]
+STATEMENT: >>>
+{html_block}
+<<<
+"""
+    document = SDReader().read(input_sdoc)
+    assert isinstance(document, SDocDocument)
+
+    output = SDWriter(_make_project_config(40)).write(document)
+    assert html_block in output

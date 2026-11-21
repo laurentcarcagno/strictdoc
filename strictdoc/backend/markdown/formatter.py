@@ -33,6 +33,7 @@ _MD_PRESERVE_LINE_RE = re.compile(
     r"|-{3,}"  # setext heading underline or thematic break
     r"|={3,}"  # setext heading underline
     r"|\*{3,}"  # thematic break
+    r"|<[A-Za-z/!]"  # HTML block, such as a table or an admonition
     r")"
 )
 
