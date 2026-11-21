@@ -9,6 +9,7 @@ settings, cache and data folders are in a temporary folder, and its settings
 name a catalog read from a JSON file.
 
 @relation(SDOC-SRS-1229, scope=file)
+@relation(SDOC-SRS-1234, scope=file)
 """
 
 import os
@@ -36,6 +37,8 @@ class DesktopTestServer(SDocTestServer):
         language: Optional[str] = None,
         user_path: Optional[str] = None,
         kept_servers: Optional[int] = None,
+        gitlab_url: Optional[str] = None,
+        oauth_client_id: Optional[str] = None,
         port: Optional[int] = None,
     ) -> None:
         super().__init__(input_path=input_path, port=port)
@@ -43,6 +46,10 @@ class DesktopTestServer(SDocTestServer):
         self.kept_servers: Optional[int] = kept_servers
         self.project_path: Optional[str] = project_path
         self.fake_catalog_path: Optional[str] = fake_catalog_path
+        # The GitLab of the sign-in and the identifier of its OAuth
+        # application: the settings that make the sign-in available.
+        self.gitlab_url: Optional[str] = gitlab_url
+        self.oauth_client_id: Optional[str] = oauth_client_id
         # The folders of the user. Without a given folder, run() creates a
         # temporary one that close() removes. A test that starts the
         # application twice gives the same folder to both runs: the second run
@@ -57,13 +64,20 @@ class DesktopTestServer(SDocTestServer):
         if self.fake_catalog_path is not None and not os.path.exists(
             self.get_settings_path()
         ):
+            defaults = DesktopSettings()
             save_settings(
                 DesktopSettings(
                     catalog_provider="fake",
                     fake_catalog_path=self.fake_catalog_path,
                     kept_servers=self.kept_servers
                     if self.kept_servers is not None
-                    else DesktopSettings().kept_servers,
+                    else defaults.kept_servers,
+                    gitlab_url=self.gitlab_url
+                    if self.gitlab_url is not None
+                    else defaults.gitlab_url,
+                    oauth_client_id=self.oauth_client_id
+                    if self.oauth_client_id is not None
+                    else defaults.oauth_client_id,
                 ),
                 # The path that platformdirs gives under XDG_CONFIG_HOME.
                 path=Path(self.get_settings_path()),

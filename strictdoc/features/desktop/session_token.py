@@ -3,22 +3,44 @@ The session token of the desktop server and the middleware that checks it.
 
 @relation(SDOC-SRS-1221, scope=file)
 @relation(SDOC-SRS-1222, scope=file)
+@relation(SDOC-SRS-1234, scope=file)
 """
 
 import hmac
+import html
 import secrets
 import threading
-from typing import Callable, FrozenSet, List, Optional, Tuple
+from typing import (
+    Callable,
+    Dict,
+    FrozenSet,
+    List,
+    Mapping,
+    Optional,
+    Tuple,
+)
 from urllib.parse import parse_qs
 
 from starlette.types import ASGIApp, Message, Receive, Scope, Send
+
+from strictdoc.features.i18n.i18n import gettext
+from strictdoc.features.i18n.languages import get_language
 
 SESSION_COOKIE_NAME_PREFIX = "strictdoc_desktop_session"
 BOOTSTRAP_PATH = "/__desktop/start"
 BOOTSTRAP_CODE_PARAMETER = "code"
 
+# The name of the attribute of the state of an application that lists its
+# public paths: a dictionary from a path to a PublicPathChecker.
+PUBLIC_PATHS_STATE_NAME = "desktop_public_paths"
+
 _TOKEN_BYTES = 32
 _FORBIDDEN_BODY = b"Forbidden\n"
+
+
+# Tells, from the query of a request, whether the request may reach a public
+# path without the session cookie.
+PublicPathChecker = Callable[[Dict[str, List[str]]], bool]
 
 
 def get_session_cookie_name(port: int) -> str:
@@ -92,6 +114,10 @@ class DesktopSessionMiddleware:
     - The Host header must name the address of the server (a defense against
       DNS rebinding).
     - A request with the bootstrap code gets the session cookie.
+    - A GET request to a public path passes without the cookie when the
+      checker of that path accepts its query. The sign-in to GitLab needs it:
+      the cookie is SameSite=Strict, so the browser does not send it when
+      GitLab calls back the window from another site.
     - Any other request needs the session cookie.
 
     It covers the HTTP requests and the WebSocket connections.
@@ -104,8 +130,12 @@ class DesktopSessionMiddleware:
         credentials: SessionCredentials,
         port: int,
         allowed_hosts: FrozenSet[str],
+        public_paths: Optional[Mapping[str, PublicPathChecker]] = None,
     ) -> None:
         self.app: ASGIApp = app
+        self.public_paths: Mapping[str, PublicPathChecker] = (
+            public_paths if public_paths is not None else {}
+        )
         self.cookie_name: str = get_session_cookie_name(port)
         self.credentials: SessionCredentials = credentials
         self.allowed_hosts: FrozenSet[str] = frozenset(
@@ -128,11 +158,25 @@ class DesktopSessionMiddleware:
             await self._bootstrap(scope, send)
             return
 
-        if not self._has_session_cookie(header_pairs):
-            await self._refuse(scope, send)
+        if not self._has_session_cookie(header_pairs) and not (
+            self._is_accepted_public_request(scope)
+        ):
+            if scope["type"] == "http" and scope["path"] in self.public_paths:
+                await self._refuse_public_path(send)
+            else:
+                await self._refuse(scope, send)
             return
 
         await self.app(scope, receive, send)
+
+    def _is_accepted_public_request(self, scope: Scope) -> bool:
+        if scope["type"] != "http" or scope["method"] != "GET":
+            return False
+        checker = self.public_paths.get(scope["path"])
+        if checker is None:
+            return False
+        query = parse_qs(scope["query_string"].decode("latin-1"))
+        return checker(query)
 
     def _has_allowed_host(
         self, header_pairs: List[Tuple[bytes, bytes]]
@@ -184,6 +228,27 @@ class DesktopSessionMiddleware:
         await send({"type": "http.response.body", "body": b""})
 
     @staticmethod
+    async def _refuse_public_path(send: Send) -> None:
+        """
+        Refuse a request to a public path that the checker did not accept: a
+        sign-in that expired, or a callback that is not one. The window shows
+        the answer, so it is a short page with the way back to the home
+        screen. The page holds nothing of the request or of the server.
+        """
+        body = _create_expired_page().encode("utf-8")
+        start_message: Message = {
+            "type": "http.response.start",
+            "status": 403,
+            "headers": [
+                (b"content-type", b"text/html; charset=utf-8"),
+                (b"content-length", str(len(body)).encode("ascii")),
+                (b"cache-control", b"no-store"),
+            ],
+        }
+        await send(start_message)
+        await send({"type": "http.response.body", "body": body})
+
+    @staticmethod
     async def _refuse(scope: Scope, send: Send) -> None:
         if scope["type"] == "websocket":
             # Before the handshake is accepted, this answers with HTTP 403.
@@ -200,3 +265,16 @@ class DesktopSessionMiddleware:
         }
         await send(refused_message)
         await send({"type": "http.response.body", "body": _FORBIDDEN_BODY})
+
+
+def _create_expired_page() -> str:
+    return (
+        f'<!DOCTYPE html><html lang="{html.escape(get_language())}"><head>'
+        '<meta charset="utf-8"/><title>StrictDoc</title></head><body>'
+        '<p data-testid="expired-sign-in">'
+        f"{html.escape(gettext('The sign-in has expired or is no longer valid.'))}"
+        "</p>"
+        '<p><a href="/" data-testid="back-to-home">'
+        f"{html.escape(gettext('Back to the home screen'))}"
+        "</a></p></body></html>"
+    )

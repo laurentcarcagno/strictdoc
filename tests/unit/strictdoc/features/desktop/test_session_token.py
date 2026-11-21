@@ -1,6 +1,7 @@
 """
 @relation(SDOC-SRS-1221, scope=file)
 @relation(SDOC-SRS-1222, scope=file)
+@relation(SDOC-SRS-1234, scope=file)
 """
 
 import pytest
@@ -17,6 +18,7 @@ from strictdoc.features.desktop.session_token import (
     SessionCredentials,
     get_session_cookie_name,
 )
+from strictdoc.features.i18n import i18n
 
 PORT = 18080
 HOST = f"127.0.0.1:{PORT}"
@@ -248,3 +250,80 @@ def test_013_cookie_name_holds_the_port(
     assert response.headers["set-cookie"].startswith(
         f"strictdoc_desktop_session_{PORT}="
     )
+
+
+def _create_public_path_client(
+    credentials: SessionCredentials, *, is_accepted: bool
+) -> TestClient:
+    application = Starlette(
+        routes=[
+            Route("/", _home),
+            Route("/public", _home),
+        ]
+    )
+    application.add_middleware(
+        DesktopSessionMiddleware,
+        credentials=credentials,
+        port=PORT,
+        allowed_hosts=frozenset({HOST}),
+        public_paths={"/public": lambda _: is_accepted},
+    )
+    return TestClient(application, base_url=f"http://{HOST}")
+
+
+def test_014_a_public_path_that_the_checker_accepts_needs_no_cookie(
+    credentials: SessionCredentials,
+) -> None:
+    client = _create_public_path_client(credentials, is_accepted=True)
+
+    assert client.get("/public").text == "home"
+    # Only that path, and only a GET request.
+    assert client.get("/").status_code == 403
+    # A POST request is not a callback: the page of the refusal answers.
+    assert client.post("/public").status_code == 403
+
+
+def test_015_a_public_path_that_the_checker_refuses_shows_a_page(
+    credentials: SessionCredentials,
+) -> None:
+    client = _create_public_path_client(credentials, is_accepted=False)
+
+    response = client.get("/public?state=abc&code=secret-value")
+
+    assert response.status_code == 403
+    assert response.headers["content-type"].startswith("text/html")
+    assert response.headers["cache-control"] == "no-store"
+    assert "The sign-in has expired or is no longer valid." in response.text
+    assert 'href="/"' in response.text
+    # Nothing of the request is in the page.
+    assert "abc" not in response.text
+    assert "secret-value" not in response.text
+    # A POST request gets the same page: no data goes with it either.
+    assert client.post("/public").status_code == 403
+
+
+def test_016_the_other_paths_keep_the_plain_refusal(
+    credentials: SessionCredentials,
+) -> None:
+    client = _create_public_path_client(credentials, is_accepted=False)
+
+    response = client.get("/")
+
+    assert response.status_code == 403
+    assert response.text == "Forbidden\n"
+    assert response.headers["content-type"].startswith("text/plain")
+
+
+def test_017_the_page_of_the_public_path_follows_the_language(
+    credentials: SessionCredentials,
+) -> None:
+    client = _create_public_path_client(credentials, is_accepted=False)
+    i18n.set_language("fr")
+    try:
+        response = client.get("/public")
+    finally:
+        i18n.set_language(i18n.DEFAULT_LANGUAGE)
+
+    assert "La connexion a expiré ou n&#x27;est plus valide." in response.text
+    assert "Retour à l&#x27;accueil" in response.text
+    assert '<html lang="fr">' in response.text

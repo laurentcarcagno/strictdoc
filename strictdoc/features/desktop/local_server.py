@@ -6,6 +6,7 @@ The web server of a project for the desktop application.
 @relation(SDOC-SRS-1222, scope=file)
 @relation(SDOC-SRS-1225, scope=file)
 @relation(SDOC-SRS-1229, scope=file)
+@relation(SDOC-SRS-1234, scope=file)
 """
 
 import asyncio
@@ -31,6 +32,7 @@ from strictdoc.features.desktop.paths import (
 from strictdoc.features.desktop.session_token import (
     BOOTSTRAP_CODE_PARAMETER,
     BOOTSTRAP_PATH,
+    PUBLIC_PATHS_STATE_NAME,
     DesktopSessionMiddleware,
     SessionCredentials,
 )
@@ -150,6 +152,11 @@ class LocalServer:
                         f"{LOCAL_SERVER_HOST}:{self.port}",
                         f"localhost:{self.port}",
                     }
+                ),
+                # The application tells which paths can do without the
+                # cookie, and when.
+                public_paths=getattr(
+                    application.state, PUBLIC_PATHS_STATE_NAME, {}
                 ),
             )
         except BaseException:

@@ -1,0 +1,16 @@
+{% extends "base.jinja.html" %}
+{#
+  The answer to the callback of GitLab. The browser comes from another site and
+  does not send the session cookie, so the page goes to the home screen with a
+  navigation of this site, which sends it. Variables: assets.
+#}
+
+{% block main_attributes %}data-testid="signed-in"{% endblock %}
+
+{% block content %}
+  <p><a href="/" data-testid="signed-in-continue">
+    {{ _("Signed in. Opening the home screen...") }}
+  </a></p>
+  {#- Replaced, so that the history does not keep the callback address. -#}
+  <script>window.location.replace("/");</script>
+{% endblock %}

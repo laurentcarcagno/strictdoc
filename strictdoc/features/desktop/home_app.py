@@ -9,15 +9,16 @@ the user starts the application without a project.
 @relation(SDOC-SRS-1230, scope=file)
 @relation(SDOC-SRS-1231, scope=file)
 @relation(SDOC-SRS-1232, scope=file)
+@relation(SDOC-SRS-1234, scope=file)
 """
 
 import os
 from contextlib import asynccontextmanager
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import AbstractSet, AsyncIterator, List, Optional, Union
+from typing import AbstractSet, AsyncIterator, Dict, List, Optional, Union
 
-from fastapi import FastAPI, Form
+from fastapi import FastAPI, Form, Request
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from starlette.responses import (
     HTMLResponse,
@@ -28,11 +29,23 @@ from starlette.responses import (
 from starlette.staticfiles import StaticFiles
 
 from strictdoc.features.desktop import window
+from strictdoc.features.desktop.oauth_gitlab import (
+    CALLBACK_PATH,
+    GitLabSignIn,
+    GitLabUser,
+    OAuthError,
+    is_sign_in_configured,
+    parse_callback_query,
+)
 from strictdoc.features.desktop.project_opener import (
     JobState,
     ProjectOpener,
 )
 from strictdoc.features.desktop.project_servers import ProjectServerManager
+from strictdoc.features.desktop.session_token import (
+    PUBLIC_PATHS_STATE_NAME,
+    PublicPathChecker,
+)
 from strictdoc.features.desktop.settings import DesktopSettings, load_settings
 from strictdoc.features.desktop.workspace import (
     FolderStatus,
@@ -105,6 +118,7 @@ def create_home_app(
     *,
     settings_path: Optional[Path] = None,
     opener: Optional[ProjectOpener] = None,
+    sign_in: Optional[GitLabSignIn] = None,
 ) -> FastAPI:
     project_opener = (
         opener
@@ -115,6 +129,7 @@ def create_home_app(
         )
     )
     manager = project_opener.manager
+    gitlab_sign_in = sign_in if sign_in is not None else GitLabSignIn()
 
     @asynccontextmanager
     async def lifespan(application: FastAPI) -> AsyncIterator[None]:
@@ -131,12 +146,67 @@ def create_home_app(
         ASSETS_URL, StaticFiles(directory=ASSETS_DIR), name="assets"
     )
 
+    # The callback of GitLab comes from another site: the browser does not
+    # send the session cookie. The middleware lets it pass, only with the state
+    # of a sign-in that this application started and that waits.
+    public_paths: Dict[str, PublicPathChecker] = {
+        CALLBACK_PATH: lambda query_: _is_callback_expected(
+            gitlab_sign_in, query_
+        )
+    }
+    setattr(application.state, PUBLIC_PATHS_STATE_NAME, public_paths)
+
     @application.get("/", response_class=HTMLResponse)
     def home() -> HTMLResponse:
         return render_home(
             load_settings(settings_path),
             running_identifiers=manager.get_open_identifiers(),
+            user=gitlab_sign_in.user,
         )
+
+    @application.post("/sign-in")
+    def start_sign_in(request: Request) -> Response:
+        port = request.url.port
+        if port is None:
+            return _render_page(
+                "message.jinja.html",
+                notice=gettext("The address of the home screen is not known."),
+            )
+        try:
+            authorization_url = gitlab_sign_in.start(
+                settings=load_settings(settings_path), port=port
+            )
+        except OAuthError as exception_:
+            return _render_page("message.jinja.html", notice=str(exception_))
+        return RedirectResponse(authorization_url, status_code=303)
+
+    @application.get(CALLBACK_PATH)
+    def finish_sign_in(request: Request) -> Response:
+        parameters = parse_callback_query(
+            {
+                name_: request.query_params.getlist(name_)
+                for name_ in request.query_params
+            }
+        )
+        state = parameters.get("state", "")
+        if "error" in parameters:
+            # The user refused, or GitLab could not sign the user in.
+            gitlab_sign_in.refuse(state)
+            return _render_page(
+                "message.jinja.html",
+                notice=gettext("GitLab refused the sign-in (%(reason)s).")
+                % {"reason": parameters["error"][:80]},
+            )
+        try:
+            gitlab_sign_in.complete(
+                state=state, code=parameters.get("code", "")
+            )
+        except OAuthError as exception_:
+            return _render_page("message.jinja.html", notice=str(exception_))
+        # The answer is the page that GitLab called back, from another site.
+        # The page goes to the home screen: that navigation is of the same
+        # site, so the browser sends the session cookie again.
+        return _render_page("signed_in.jinja.html")
 
     @application.post("/projects/open")
     def open_project(identifier: str = Form(...)) -> Response:
@@ -213,10 +283,12 @@ def create_home_app(
 def render_home(
     settings: DesktopSettings,
     running_identifiers: AbstractSet[str] = frozenset(),
+    user: Optional[GitLabUser] = None,
 ) -> HTMLResponse:
     """
     The home page. A catalog that fails is an error shown in the page. The
-    projects whose server runs are marked.
+    projects whose server runs are marked. The user that signed in is named;
+    without one, the page offers the sign-in when the settings allow it.
     """
     projects: List[CatalogProject] = []
     error: Optional[str] = None
@@ -232,8 +304,17 @@ def render_home(
         project_count=len(projects),
         root=build_catalog_tree(projects),
         running_identifiers=running_identifiers,
+        user=user,
+        is_sign_in_offered=user is None and is_sign_in_configured(settings),
     )
     return HTMLResponse(output, headers={"Cache-Control": "no-store"})
+
+
+def _is_callback_expected(
+    sign_in: GitLabSignIn, query: Dict[str, List[str]]
+) -> bool:
+    states = query.get("state", [])
+    return len(states) == 1 and sign_in.is_valid_state(states[0])
 
 
 def _find_project(

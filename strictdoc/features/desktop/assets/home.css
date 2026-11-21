@@ -31,6 +31,29 @@ body {
   background: rgba(31, 79, 143, 0.08);
 }
 
+.home__user {
+  margin: 0 0 1.5rem;
+}
+
+.home__user_name {
+  margin-left: 0.4rem;
+  color: var(--home-muted);
+}
+
+.home__sign_in {
+  margin: 0 0 1.5rem;
+}
+
+.home__sign_in_button {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--home-accent);
+  border-radius: 4px;
+  background: var(--home-accent);
+  color: #fff;
+  cursor: pointer;
+  font: inherit;
+}
+
 .catalog__title {
   margin: 0 0 0.75rem;
   font-size: 1.15rem;

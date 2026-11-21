@@ -3,7 +3,8 @@
   The home screen of the desktop application: a welcome message on the first
   launch, then the catalog of the projects as a tree with a search by name.
   Variables: assets, has_opened_project, error, project_count, root,
-  running_identifiers (the projects whose server runs).
+  running_identifiers (the projects whose server runs), user (the GitLab user
+  who signed in, or none), is_sign_in_offered.
 #}
 {%- set role_labels = {
   "reader": _("reader"),
@@ -63,6 +64,18 @@
   <p class="home__welcome" data-testid="home-welcome">
     {{ _("Welcome to StrictDoc. Choose a project in the catalog to start.") }}
   </p>
+  {%- endif %}
+
+  {%- if user is not none %}
+  <p class="home__user" data-testid="signed-in-user">
+    {{ _("Signed in as %(name)s", name=user.display_name) }}
+    <span class="home__user_name" data-testid="signed-in-username">{{ user.username }}</span>
+  </p>
+  {%- elif is_sign_in_offered %}
+  <form method="post" action="/sign-in" class="home__sign_in">
+    <button type="submit" class="home__sign_in_button"
+            data-testid="sign-in">{{ _("Sign in") }}</button>
+  </form>
   {%- endif %}
 
   <section class="catalog" data-testid="catalog">
