@@ -33,27 +33,34 @@ class DesktopTestServer(SDocTestServer):
         fake_catalog_path: Optional[str] = None,
         project_path: Optional[str] = None,
         language: Optional[str] = None,
+        user_path: Optional[str] = None,
         port: Optional[int] = None,
     ) -> None:
         super().__init__(input_path=input_path, port=port)
         self.language: Optional[str] = language
         self.project_path: Optional[str] = project_path
         self.fake_catalog_path: Optional[str] = fake_catalog_path
-        # Created by run(), removed by close().
-        self.user_path: Optional[str] = None
+        # The folders of the user. Without a given folder, run() creates a
+        # temporary one that close() removes. A test that starts the
+        # application twice gives the same folder to both runs: the second run
+        # finds what the first one remembered.
+        self.user_path: Optional[str] = user_path
 
     def run(self) -> None:
-        user_folder = tempfile.TemporaryDirectory()
-        self.exit_stack.enter_context(user_folder)
-        self.user_path = user_folder.name
-        if self.fake_catalog_path is not None:
+        if self.user_path is None:
+            user_folder = tempfile.TemporaryDirectory()
+            self.exit_stack.enter_context(user_folder)
+            self.user_path = user_folder.name
+        if self.fake_catalog_path is not None and not os.path.exists(
+            self.get_settings_path()
+        ):
             save_settings(
                 DesktopSettings(
                     catalog_provider="fake",
                     fake_catalog_path=self.fake_catalog_path,
                 ),
                 # The path that platformdirs gives under XDG_CONFIG_HOME.
-                path=Path(self._get_config_path()),
+                path=Path(self.get_settings_path()),
             )
         super().run()
 
@@ -65,6 +72,12 @@ class DesktopTestServer(SDocTestServer):
             self.exit_stack.close()
             return
         super().close(exit_due_exception=exit_due_exception)
+
+    def get_settings_path(self) -> str:
+        assert self.user_path is not None
+        return os.path.join(
+            self.user_path, "config", APPLICATION_NAME, "settings.json"
+        )
 
     def get_start_url(self) -> str:
         """
@@ -103,9 +116,3 @@ class DesktopTestServer(SDocTestServer):
         if self.language is not None:
             strictdoc_env["STRICTDOC_LANGUAGE"] = self.language
         return strictdoc_arguments, strictdoc_env
-
-    def _get_config_path(self) -> str:
-        assert self.user_path is not None
-        return os.path.join(
-            self.user_path, "config", APPLICATION_NAME, "settings.json"
-        )

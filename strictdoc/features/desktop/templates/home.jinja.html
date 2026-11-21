@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+{% extends "base.jinja.html" %}
 {#
   The home screen of the desktop application: a welcome message on the first
   launch, then the catalog of the projects as a tree with a search by name.
@@ -24,7 +24,14 @@
     <li class="catalog__project" data-testid="catalog-project"
         data-name="{{ project.title|lower }}"
         data-role="{{ project.role.value }}">
-      <span class="catalog__project_title">{{ project.title }}</span>
+      <form method="post" action="/projects/open" class="catalog__open">
+        <input type="hidden" name="identifier"
+               value="{{ project.identifier }}"/>
+        <button type="submit" class="catalog__project_open"
+                data-testid="catalog-project-open">
+          <span class="catalog__project_title">{{ project.title }}</span>
+        </button>
+      </form>
       <span class="catalog__project_role">
         {{ role_labels[project.role.value] }}
       </span>
@@ -38,20 +45,13 @@
   </ul>
 {%- endmacro -%}
 
-<html lang="{{ sdoc_language() }}">
-<head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>StrictDoc</title>
-  <link rel="stylesheet" href="{{ assets }}/home.css"/>
+{% block head %}
   <script src="{{ assets }}/home.js" defer></script>
-</head>
-<body>
-<main class="home" data-testid="home">
-  <header class="home__header">
-    <h1 class="home__title">StrictDoc</h1>
-  </header>
+{% endblock %}
 
+{% block main_attributes %}data-testid="home"{% endblock %}
+
+{% block content %}
   {%- if not has_opened_project %}
   <p class="home__welcome" data-testid="home-welcome">
     {{ _("Welcome to StrictDoc. Choose a project in the catalog to start.") }}
@@ -84,6 +84,4 @@
     </p>
     {%- endif %}
   </section>
-</main>
-</body>
-</html>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends "base.jinja.html" %}
+{#
+  The wait while a project is cloned and opened. The script polls the state of
+  the job and moves the window to the project when it is done.
+  Variables: assets, job, project_title.
+#}
+
+{% block head %}
+  <script src="{{ assets }}/open_project.js" defer></script>
+{% endblock %}
+
+{% block main_attributes %}data-testid="open-job"
+  data-status-url="/jobs/{{ job.job_id }}/status"{% endblock %}
+
+{% block content %}
+  <section class="job" id="job-progress">
+    <div class="job__spinner" aria-hidden="true"></div>
+    <p class="job__step" data-step="cloning" data-testid="job-cloning"
+       {% if job.step.value != "cloning" %}hidden{% endif %}>
+      {{ _("Cloning the project %(title)s...", title=project_title) }}
+    </p>
+    <p class="job__step" data-step="opening" data-testid="job-opening"
+       {% if job.step.value != "opening" %}hidden{% endif %}>
+      {{ _("Opening the project %(title)s...", title=project_title) }}
+    </p>
+  </section>
+  <div class="notice" role="alert" id="job-error" hidden
+       data-testid="job-error">
+    <p>{{ _("The project cannot be opened.") }}</p>
+    <p class="notice__detail" id="job-error-message"></p>
+  </div>
+  <p><a href="/" data-testid="back-to-catalog">
+    {{ _("Back to the catalog") }}
+  </a></p>
+{% endblock %}

@@ -2,11 +2,12 @@
 The window of the desktop application.
 
 @relation(SDOC-SRS-1220, scope=file)
+@relation(SDOC-SRS-1230, scope=file)
 """
 
 import importlib
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional
 
 WINDOW_WIDTH = 1280
 WINDOW_HEIGHT = 800
@@ -14,6 +15,11 @@ WINDOW_HEIGHT = 800
 
 class DesktopWindowError(Exception):
     pass
+
+
+# The window of this process, while run_window() shows it. None when the
+# application runs without a window (--no-window).
+_window: Optional[Any] = None
 
 
 # The pages of the server open some links in a new window (target="_blank",
@@ -82,17 +88,54 @@ def run_window(*, title: str, url: str, storage_path: Path) -> None:
     The window keeps its browser profile in the storage folder, so that the
     settings of the pages survive between two runs.
     """
+    global _window  # noqa: PLW0603
     webview = _import_webview()
     storage_path.mkdir(parents=True, exist_ok=True)
     window = webview.create_window(
         title, url, width=WINDOW_WIDTH, height=WINDOW_HEIGHT
     )
+    _window = window
 
     def keep_own_links_in_window() -> None:
         window.evaluate_js(_KEEP_OWN_LINKS_IN_WINDOW_SCRIPT)
 
     window.events.loaded += keep_own_links_in_window
-    webview.start(gui="qt", private_mode=False, storage_path=str(storage_path))
+    try:
+        webview.start(
+            gui="qt", private_mode=False, storage_path=str(storage_path)
+        )
+    finally:
+        _window = None
+
+
+def is_window_open() -> bool:
+    """Tell whether this process shows its window, so that it has dialogs."""
+    return _window is not None
+
+
+def choose_folder(initial_folder: str) -> Optional[str]:
+    """
+    Ask the user for a folder in the dialog of the system, and return it. None
+    when the user cancels the dialog.
+
+    Call it from a thread that is not the one of the window: with Qt, the call
+    runs the dialog in the thread of the window and waits for its answer, so
+    the web server calls it from the thread of a request.
+    """
+    if _window is None:
+        raise DesktopWindowError("There is no window to show a dialog.")
+    webview = _import_webview()
+    file_dialog = getattr(webview, "FileDialog", None)
+    dialog_type = (
+        file_dialog.FOLDER
+        if file_dialog is not None
+        else webview.FOLDER_DIALOG
+    )
+    chosen = _window.create_file_dialog(dialog_type, directory=initial_folder)
+    if chosen is None or len(chosen) == 0:
+        return None
+    folder: str = chosen[0]
+    return folder
 
 
 def _import_webview() -> Any:

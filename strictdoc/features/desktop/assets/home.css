@@ -104,3 +104,99 @@ body {
 [hidden] {
   display: none !important;
 }
+
+/* The leaf of the catalog opens the project. */
+.catalog__open {
+  display: inline;
+  margin: 0;
+}
+
+.catalog__project_open {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--home-accent);
+  cursor: pointer;
+  font: inherit;
+  text-decoration: underline;
+}
+
+/* The folder of a project and the wait while it opens. */
+.folder__title {
+  margin: 0 0 0.5rem;
+  font-size: 1.15rem;
+}
+
+.folder__help {
+  color: var(--home-muted);
+}
+
+.folder__form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  margin: 1rem 0;
+}
+
+.folder__input {
+  flex: 1 1 20rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--home-border);
+  border-radius: 4px;
+  font: inherit;
+}
+
+.folder__submit {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--home-accent);
+  border-radius: 4px;
+  background: var(--home-accent);
+  color: #fff;
+  cursor: pointer;
+  font: inherit;
+}
+
+.notice {
+  margin: 1rem 0;
+  padding: 0.75rem 1rem;
+  border-left: 4px solid #b3261e;
+  background: rgba(179, 38, 30, 0.08);
+}
+
+.notice p {
+  margin: 0;
+}
+
+.notice__detail {
+  margin-top: 0.4rem;
+  color: var(--home-muted);
+  font-size: 0.875rem;
+  overflow-wrap: anywhere;
+}
+
+.job {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  margin: 2rem 0;
+}
+
+.job__step {
+  margin: 0;
+}
+
+.job__spinner {
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 3px solid var(--home-border);
+  border-top-color: var(--home-accent);
+  border-radius: 50%;
+  animation: job-spin 0.9s linear infinite;
+}
+
+@keyframes job-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
