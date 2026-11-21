@@ -1,4 +1,6 @@
 # pylint: disable=invalid-name
+import re
+
 from selenium.webdriver import Keys
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
@@ -159,6 +161,9 @@ class Form:  # pylint: disable=invalid-name
             f"(//*[@data-testid='form-field-{field_name}'])[{field_order_str}]"
         )
 
+        # The form is loaded by Turbo: the field may not be there yet, and a
+        # field that is not there is not a textarea.
+        self.test_case.wait_for_element_present(field_xpath, by=By.XPATH)
         if self.test_case.is_element_present(
             field_xpath + "[self::sdoc-markdown-editor]", by=By.XPATH
         ):
@@ -167,20 +172,38 @@ class Form:  # pylint: disable=invalid-name
 
         self.test_case.type(field_xpath, f"{field_value}", by=By.XPATH)
 
-    def _do_fill_in_markdown_editor(
-        self, field_xpath: str, field_value: str
-    ) -> None:
-        """Types into the WYSIWYG Markdown editor, one paragraph at a time."""
+    def _find_markdown_editor(self, field_xpath: str) -> object:
         prose_mirror_xpath = (
             f"{field_xpath}[@data-ready='true']"
             "//*[contains(@class, 'ProseMirror')]"
         )
         self.test_case.wait_for_element(prose_mirror_xpath, by=By.XPATH)
-        editor = self.test_case.find_element(prose_mirror_xpath, by=By.XPATH)
-        editor.click()
-        editor.send_keys(Keys.CONTROL, "a")
-        editor.send_keys(Keys.DELETE)
-        for index, paragraph in enumerate(field_value.split("\n\n")):
+        return self.test_case.find_element(prose_mirror_xpath, by=By.XPATH)
+
+    def _clear_markdown_editor(self, editor: object) -> None:
+        editor.click()  # type: ignore[attr-defined]
+        # Not Ctrl+A then Delete as keys: ChromeDriver moves the caret at each
+        # send_keys, and the first paragraph stayed.
+        self.test_case.execute_script(
+            "arguments[0].focus();"
+            "document.execCommand('selectAll', false, null);"
+            "document.execCommand('delete', false, null);",
+            editor,
+        )
+
+    def _do_fill_in_markdown_editor(
+        self, field_xpath: str, field_value: str
+    ) -> None:
+        """Types into the WYSIWYG Markdown editor, one paragraph at a time."""
+        editor = self._find_markdown_editor(field_xpath)
+        self._clear_markdown_editor(editor)
+        # A line of spaces is a blank line, and an SDoc field has no leading or
+        # trailing blank line: typed in the editor, they would be empty
+        # paragraphs (saved as <br />, or as blank lines in a row).
+        text = re.sub(r"[ \t]+$", "", field_value, flags=re.MULTILINE)
+        for index, paragraph in enumerate(
+            re.split(r"\n{2,}", text.strip("\n"))
+        ):
             if index > 0:
                 editor.send_keys(Keys.ENTER)
             editor.send_keys(paragraph)
@@ -418,6 +441,16 @@ class Form:  # pylint: disable=invalid-name
 
     def do_clear_field(self, field_name: str, field_order: int = 1) -> None:
         assert isinstance(field_name, str)
+        field_xpath = (
+            f"(//*[@data-testid='form-field-{field_name}'])[{field_order}]"
+        )
+        self.test_case.wait_for_element_present(field_xpath, by=By.XPATH)
+        if self.test_case.is_element_present(
+            field_xpath + "[self::sdoc-markdown-editor]", by=By.XPATH
+        ):
+            editor = self._find_markdown_editor(field_xpath)
+            self._clear_markdown_editor(editor)
+            return
         # HACK: The only way the field is actually cleared.
         self.test_case.type(
             f"(//*[@data-testid='form-field-{field_name}'])[{field_order}]",

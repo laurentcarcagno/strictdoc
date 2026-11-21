@@ -36,11 +36,10 @@ class Test(E2ECase):
             )
             edit_form.assert_on_form()
             edit_form.do_fill_in_field_statement(
-                ".. raw:: html\n\n"
-                '    <pre class="mermaid">\n'
-                "    graph TD\n"
-                "    A[Enter Chart Definition] --> B(Preview again)\n"
-                "    </pre>\n"
+                '<pre class="mermaid">\n'
+                "graph TD\n"
+                "A[Enter Chart Definition] --> B(Preview again)\n"
+                "</pre>\n"
             )
             edit_form.do_form_submit()
 

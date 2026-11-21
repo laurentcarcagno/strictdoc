@@ -1,7 +1,7 @@
 [DOCUMENT]
 TITLE: Document 1
 OPTIONS:
-  MARKUP: Markdown
+  MARKUP: HTML
 
 [[SECTION]]
 TITLE: Section title

@@ -1,4 +1,6 @@
 [DOCUMENT]
 TITLE: Document 1
+OPTIONS:
+  MARKUP: HTML
 
 

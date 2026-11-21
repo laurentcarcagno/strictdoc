@@ -46,7 +46,7 @@ class Test(E2ECase):
                     "./tests/end2end/screens/document/update_node/update_requirement_reject_pdf_upload/document.pdf",
                 ],
             )
-            screen_document.assert_text("picture.*")
+            screen_document.assert_text("picture.webp")
             screen_document.assert_text("picture_with_spaces.svg")
             self.assert_text(
                 "Unsupported formats: picture.tiff, document.pdf.",

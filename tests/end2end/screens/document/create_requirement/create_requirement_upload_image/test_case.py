@@ -56,7 +56,8 @@ class Test(E2ECase):
 
             screen_document.assert_no_js_errors()
 
-            screen_document.assert_text("picture.svg")
+            # The image of an HTML document is a picture, not a text.
+            self.assert_element("img[src$='/picture.svg']")
 
             sandbox_doc_path = (
                 Path(test_setup.path_to_sandbox) / "document.sdoc"

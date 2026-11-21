@@ -51,6 +51,7 @@ class Test(E2ECase):
 
             form_edit_requirement.do_form_submit()
 
-            screen_document.assert_text("picture.svg")
+            # The image of an HTML document is a picture, not a text.
+            self.assert_element("img[src$='/picture.svg']")
 
         assert test_setup.compare_sandbox_and_expected_output()

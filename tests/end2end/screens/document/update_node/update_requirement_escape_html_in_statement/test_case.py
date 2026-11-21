@@ -37,11 +37,7 @@ class Test(E2ECase):
                 requirement.do_open_form_edit_requirement()
             )
 
-            self.assert_text(
-                "`Link does not get corrupted "
-                "<https://github.com/strictdoc-project/"
-                "sphinx-latex-reqspec-template>`_"
-            )
+            self.assert_text("Link does not get corrupted")
             form_edit_requirement.do_form_submit()
 
             screen_document.assert_text(

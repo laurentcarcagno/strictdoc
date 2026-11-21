@@ -36,12 +36,11 @@ class Test(E2ECase):
             )
             edit_form.assert_on_form()
             edit_form.do_fill_in_field_statement(
-                ".. raw:: html\n\n"
-                '    <pre class="plantuml">\n'
-                "    @startuml\n"
-                "    Alice -> Bob: Hello again\n"
-                "    @enduml\n"
-                "    </pre>\n"
+                '<pre class="plantuml">\n'
+                "@startuml\n"
+                "Alice -> Bob: Hello again\n"
+                "@enduml\n"
+                "</pre>\n"
             )
             edit_form.do_form_submit()
 
