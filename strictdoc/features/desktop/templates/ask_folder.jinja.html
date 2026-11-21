@@ -1,0 +1,50 @@
+{% extends "base.jinja.html" %}
+{#
+  The folder of a project that has none yet: the dialog of the window, or a
+  field for the path when the application has no window.
+  Variables: assets, project, notice, folder_value, has_dialog.
+#}
+
+{% block main_attributes %}data-testid="ask-folder"{% endblock %}
+
+{% block content %}
+  <section class="folder">
+    <h2 class="folder__title">
+      {{ _("Folder of the project %(title)s", title=project.title) }}
+    </h2>
+    <p class="folder__help">
+      {{ _("An empty folder receives a copy of the project. A folder that already holds a copy of the project is used as it is.") }}
+    </p>
+
+    {%- if notice is not none %}
+    <div class="notice" role="alert" data-testid="folder-message">
+      <p>{{ notice }}</p>
+    </div>
+    {%- endif %}
+
+    <form method="post" action="/projects/folder" class="folder__form">
+      <input type="hidden" name="identifier"
+             value="{{ project.identifier }}"/>
+      {%- if has_dialog %}
+      <button type="submit" class="folder__submit"
+              data-testid="folder-choose">
+        {{ _("Choose a folder") }}
+      </button>
+      {%- else %}
+      <label class="folder__label" for="folder-input">
+        {{ _("Folder") }}
+      </label>
+      <input type="text" id="folder-input" name="folder"
+             class="folder__input" data-testid="folder-input"
+             value="{{ folder_value }}" autocomplete="off" required/>
+      <button type="submit" class="folder__submit"
+              data-testid="folder-submit">
+        {{ _("Use this folder") }}
+      </button>
+      {%- endif %}
+    </form>
+    <p><a href="/" data-testid="back-to-catalog">
+      {{ _("Back to the catalog") }}
+    </a></p>
+  </section>
+{% endblock %}

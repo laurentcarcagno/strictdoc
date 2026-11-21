@@ -1,0 +1,94 @@
+{% extends "base.jinja.html" %}
+{#
+  The home screen of the desktop application: a welcome message on the first
+  launch, then the catalog of the projects as a tree with a search by name.
+  Variables: assets, has_opened_project, error, project_count, root,
+  running_identifiers (the projects whose server runs).
+#}
+{%- set role_labels = {
+  "reader": _("reader"),
+  "author": _("author"),
+  "administrator": _("administrator"),
+} -%}
+
+{%- macro render_folder(folder) -%}
+  <ul class="catalog__list">
+    {%- for sub_folder in folder.folders %}
+    <li class="catalog__folder" data-testid="catalog-folder">
+      <details open>
+        <summary class="catalog__folder_name">{{ sub_folder.name }}</summary>
+        {{ render_folder(sub_folder) }}
+      </details>
+    </li>
+    {%- endfor %}
+    {%- for project in folder.projects %}
+    <li class="catalog__project" data-testid="catalog-project"
+        data-name="{{ project.title|lower }}"
+        data-role="{{ project.role.value }}"
+        data-open="{{ 'true' if project.identifier in running_identifiers else 'false' }}">
+      <form method="post" action="/projects/open" class="catalog__open">
+        <input type="hidden" name="identifier"
+               value="{{ project.identifier }}"/>
+        <button type="submit" class="catalog__project_open"
+                data-testid="catalog-project-open">
+          <span class="catalog__project_title">{{ project.title }}</span>
+        </button>
+      </form>
+      <span class="catalog__project_role">
+        {{ role_labels[project.role.value] }}
+      </span>
+      {%- if project.identifier in running_identifiers %}
+      <span class="catalog__project_open_mark" data-testid="catalog-project-opened">
+        {{ _("opened") }}
+      </span>
+      {%- endif %}
+      {%- if project.description %}
+      <span class="catalog__project_description">
+        {{ project.description }}
+      </span>
+      {%- endif %}
+    </li>
+    {%- endfor %}
+  </ul>
+{%- endmacro -%}
+
+{% block head %}
+  <script src="{{ assets }}/home.js" defer></script>
+{% endblock %}
+
+{% block main_attributes %}data-testid="home"{% endblock %}
+
+{% block content %}
+  {%- if not has_opened_project %}
+  <p class="home__welcome" data-testid="home-welcome">
+    {{ _("Welcome to StrictDoc. Choose a project in the catalog to start.") }}
+  </p>
+  {%- endif %}
+
+  <section class="catalog" data-testid="catalog">
+    <h2 class="catalog__title">{{ _("Projects") }}</h2>
+
+    {%- if error is not none %}
+    <div class="catalog__error" role="alert" data-testid="catalog-error">
+      <p>{{ _("The catalog of projects cannot be shown.") }}</p>
+      <p class="catalog__error_detail">{{ error }}</p>
+    </div>
+    {%- elif project_count == 0 %}
+    <p class="catalog__empty" data-testid="catalog-empty">
+      {{ _("The catalog has no project for you.") }}
+    </p>
+    {%- else %}
+    <input type="search" class="catalog__search" id="catalog-search"
+           data-testid="catalog-search" autocomplete="off"
+           placeholder="{{ _('Search a project by name') }}"
+           aria-label="{{ _('Search a project by name') }}"/>
+    <div class="catalog__tree" id="catalog-tree" data-testid="catalog-tree">
+      {{ render_folder(root) }}
+    </div>
+    <p class="catalog__no_match" id="catalog-no-match" hidden
+       data-testid="catalog-no-match">
+      {{ _("No project matches the search.") }}
+    </p>
+    {%- endif %}
+  </section>
+{% endblock %}

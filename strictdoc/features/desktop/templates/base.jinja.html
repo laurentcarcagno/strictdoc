@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+{#
+  The frame of the screens of the home server: the title of the application
+  and a block for the content. Variables: assets.
+#}
+<html lang="{{ sdoc_language() }}">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>StrictDoc</title>
+  {#- No icon: the browser would ask for /favicon.ico and get a 404. -#}
+  <link rel="icon" href="data:,"/>
+  <link rel="stylesheet" href="{{ assets }}/home.css"/>
+  {% block head %}{% endblock %}
+</head>
+<body>
+<main class="home" {% block main_attributes %}{% endblock %}>
+  <header class="home__header">
+    <h1 class="home__title">StrictDoc</h1>
+  </header>
+  {% block content %}{% endblock %}
+</main>
+</body>
+</html>

@@ -18,10 +18,15 @@ class DesktopProcess:
     """
     The folders of the user (configuration, cache and data) are inside the
     given folder, so that nothing is written in the real folders of the user.
+    Without a project path, the process shows the home screen.
     """
 
     def __init__(
-        self, *, strictdoc_command: str, project_path: str, user_path: str
+        self,
+        *,
+        strictdoc_command: str,
+        project_path: Optional[str],
+        user_path: str,
     ) -> None:
         environment = dict(os.environ)
         environment["XDG_CACHE_HOME"] = os.path.join(user_path, "cache")
@@ -32,7 +37,8 @@ class DesktopProcess:
         self._url_printed = threading.Event()
         self._process = subprocess.Popen(
             shlex.split(strictdoc_command)
-            + ["desktop", "--no-window", project_path],
+            + ["desktop", "--no-window"]
+            + ([] if project_path is None else [project_path]),
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             text=True,

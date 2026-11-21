@@ -2,11 +2,15 @@
 The window of the desktop application.
 
 @relation(SDOC-SRS-1220, scope=file)
+@relation(SDOC-SRS-1230, scope=file)
+@relation(SDOC-SRS-1232, scope=file)
 """
 
 import importlib
 from pathlib import Path
-from typing import Any
+from typing import Any, List, Optional
+
+from strictdoc.features.i18n.i18n import gettext
 
 WINDOW_WIDTH = 1280
 WINDOW_HEIGHT = 800
@@ -14,6 +18,15 @@ WINDOW_HEIGHT = 800
 
 class DesktopWindowError(Exception):
     pass
+
+
+# The window of this process, while run_window() shows it. None when the
+# application runs without a window (--no-window).
+_window: Optional[Any] = None
+
+# The address of the home screen, when the application has one. The menu of the
+# window brings the user back to it.
+_home_url: Optional[str] = None
 
 
 # The pages of the server open some links in a new window (target="_blank",
@@ -82,17 +95,83 @@ def run_window(*, title: str, url: str, storage_path: Path) -> None:
     The window keeps its browser profile in the storage folder, so that the
     settings of the pages survive between two runs.
     """
+    global _window  # noqa: PLW0603
     webview = _import_webview()
     storage_path.mkdir(parents=True, exist_ok=True)
     window = webview.create_window(
         title, url, width=WINDOW_WIDTH, height=WINDOW_HEIGHT
     )
+    _window = window
 
     def keep_own_links_in_window() -> None:
         window.evaluate_js(_KEEP_OWN_LINKS_IN_WINDOW_SCRIPT)
 
     window.events.loaded += keep_own_links_in_window
-    webview.start(gui="qt", private_mode=False, storage_path=str(storage_path))
+    try:
+        webview.start(
+            gui="qt",
+            private_mode=False,
+            storage_path=str(storage_path),
+            menu=_create_menu(),
+        )
+    finally:
+        _window = None
+
+
+def set_home_url(url: Optional[str]) -> None:
+    """
+    Tell the window where the home screen is. The window then has the menu
+    "Projects > Switch project", which goes back to it. The home screen has
+    the session cookie of its server already: the window opens it directly.
+    """
+    global _home_url  # noqa: PLW0603
+    _home_url = url
+
+
+def go_to_home() -> None:
+    """Show the home screen in the window. A thread of the menu calls it."""
+    if _window is not None and _home_url is not None:
+        _window.load_url(_home_url)
+
+
+def is_window_open() -> bool:
+    """Tell whether this process shows its window, so that it has dialogs."""
+    return _window is not None
+
+
+def choose_folder(initial_folder: str) -> Optional[str]:
+    """
+    Ask the user for a folder in the dialog of the system, and return it. None
+    when the user cancels the dialog.
+
+    Call it from a thread that is not the one of the window: with Qt, the call
+    runs the dialog in the thread of the window and waits for its answer, so
+    the web server calls it from the thread of a request.
+    """
+    if _window is None:
+        raise DesktopWindowError("There is no window to show a dialog.")
+    webview = _import_webview()
+    file_dialog = getattr(webview, "FileDialog", None)
+    dialog_type = (
+        file_dialog.FOLDER if file_dialog is not None else webview.FOLDER_DIALOG
+    )
+    chosen = _window.create_file_dialog(dialog_type, directory=initial_folder)
+    if chosen is None or len(chosen) == 0:
+        return None
+    folder: str = chosen[0]
+    return folder
+
+
+def _create_menu() -> List[Any]:
+    if _home_url is None:
+        return []
+    menu_module = importlib.import_module("webview.menu")
+    return [
+        menu_module.Menu(
+            gettext("Projects"),
+            [menu_module.MenuAction(gettext("Switch project"), go_to_home)],
+        )
+    ]
 
 
 def _import_webview() -> Any:

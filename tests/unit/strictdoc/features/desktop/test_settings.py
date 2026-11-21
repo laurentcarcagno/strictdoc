@@ -51,6 +51,8 @@ def test_002_missing_file_gives_the_defaults(settings_path: Path) -> None:
     assert settings == DesktopSettings()
     assert settings.catalog_provider == "gitlab"
     assert settings.gitlab_url == ""
+    assert settings.gitlab_projects_root == "HERMES/DOCUMENTATION/PROJETS"
+    assert settings.fake_catalog_path == ""
     assert settings.kept_servers == 3
     assert settings.project_folders == {}
     assert settings.ai_servers == []
@@ -60,6 +62,8 @@ def test_002_missing_file_gives_the_defaults(settings_path: Path) -> None:
 def test_003_round_trip(settings_path: Path) -> None:
     settings = DesktopSettings(
         gitlab_url="https://gitlab.example.org",
+        gitlab_projects_root="TEAM/PROJECTS",
+        fake_catalog_path="/data/catalog.json",
         kept_servers=5,
         project_folders={"group/project": "/data/project"},
         ai_servers=[
@@ -87,6 +91,8 @@ def test_004_unknown_fields_and_wrong_types_are_ignored(
         "schema_version": 99,
         "future_option": True,
         "gitlab_url": "https://gitlab.example.org",
+        "gitlab_projects_root": 12,
+        "fake_catalog_path": ["catalog.json"],
         "kept_servers": "many",
         "project_folders": {"a": "/a", "b": 3},
         "ai_servers": [
@@ -100,6 +106,8 @@ def test_004_unknown_fields_and_wrong_types_are_ignored(
     settings = load_settings(settings_path)
 
     assert settings.gitlab_url == "https://gitlab.example.org"
+    assert settings.gitlab_projects_root == "HERMES/DOCUMENTATION/PROJETS"
+    assert settings.fake_catalog_path == ""
     assert settings.kept_servers == 3
     assert settings.project_folders == {"a": "/a"}
     assert settings.ai_servers == [AiServer(server_id="id-1", url="http://x")]

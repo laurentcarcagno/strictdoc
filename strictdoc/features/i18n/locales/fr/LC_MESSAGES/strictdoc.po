@@ -2876,3 +2876,138 @@ msgstr "Fermer le menu"
 #: strictdoc/export/html/templates/base.jinja.html
 msgid "Menu"
 msgstr "Menu"
+
+#: strictdoc/features/desktop/templates/home.jinja.html:57
+msgid "Welcome to StrictDoc. Choose a project in the catalog to start."
+msgstr "Bienvenue dans StrictDoc. Choisissez un projet dans le catalogue pour commencer."
+
+#: strictdoc/features/desktop/templates/home.jinja.html:66
+msgid "The catalog of projects cannot be shown."
+msgstr "Le catalogue des projets ne peut pas être affiché."
+
+#: strictdoc/features/desktop/templates/home.jinja.html:71
+msgid "The catalog has no project for you."
+msgstr "Le catalogue ne contient aucun projet pour vous."
+
+#: strictdoc/features/desktop/templates/home.jinja.html:76
+#: strictdoc/features/desktop/templates/home.jinja.html:77
+msgid "Search a project by name"
+msgstr "Rechercher un projet par nom"
+
+#: strictdoc/features/desktop/templates/home.jinja.html:83
+msgid "No project matches the search."
+msgstr "Aucun projet ne correspond à la recherche."
+
+#: strictdoc/features/desktop/workspace.py
+#, python-format
+msgid ""
+"The path of the folder is too long (%(length)s characters, the limit is "
+"%(limit)s). Choose a shorter path."
+msgstr ""
+"Le chemin du dossier est trop long (%(length)s caractères, la limite est "
+"%(limit)s). Choisissez un chemin plus court."
+
+#: strictdoc/features/desktop/workspace.py
+#, python-format
+msgid "The folder %(folder)s does not exist."
+msgstr "Le dossier %(folder)s n'existe pas."
+
+#: strictdoc/features/desktop/workspace.py
+#, python-format
+msgid "%(folder)s is not a folder."
+msgstr "%(folder)s n'est pas un dossier."
+
+#: strictdoc/features/desktop/workspace.py
+#, python-format
+msgid ""
+"The folder %(folder)s is not empty and does not hold this project. Choose an "
+"empty folder."
+msgstr ""
+"Le dossier %(folder)s n'est pas vide et ne contient pas ce projet. Choisissez "
+"un dossier vide."
+
+#: strictdoc/features/desktop/workspace.py
+#, python-format
+msgid ""
+"The folder %(folder)s holds the clone of another repository: %(url)s."
+msgstr ""
+"Le dossier %(folder)s contient le clone d'un autre dépôt : %(url)s."
+
+#: strictdoc/features/desktop/workspace.py
+#, python-format
+msgid "The clone of the project failed: %(reason)s"
+msgstr "Le clonage du projet a échoué : %(reason)s"
+
+#: strictdoc/features/desktop/project_opener.py
+#, python-format
+msgid "The project cannot be opened: %(reason)s"
+msgstr "Le projet ne peut pas être ouvert : %(reason)s"
+
+#: strictdoc/features/desktop/home_app.py
+#, python-format
+msgid ""
+"The folder %(folder)s of this project no longer exists. Choose a new folder."
+msgstr ""
+"Le dossier %(folder)s de ce projet n'existe plus. Choisissez un nouveau "
+"dossier."
+
+#: strictdoc/features/desktop/home_app.py
+msgid "Enter the path of a folder."
+msgstr "Saisissez le chemin d'un dossier."
+
+#: strictdoc/features/desktop/home_app.py
+msgid "The project is not in the catalog."
+msgstr "Le projet n'est pas dans le catalogue."
+
+#: strictdoc/features/desktop/templates/message.jinja.html:15
+#: strictdoc/features/desktop/templates/ask_folder.jinja.html:49
+#: strictdoc/features/desktop/templates/open_project.jinja.html:37
+msgid "Back to the catalog"
+msgstr "Retour au catalogue"
+
+#: strictdoc/features/desktop/templates/ask_folder.jinja.html:14
+#, python-format
+msgid "Folder of the project %(title)s"
+msgstr "Dossier du projet %(title)s"
+
+#: strictdoc/features/desktop/templates/ask_folder.jinja.html:17
+msgid ""
+"An empty folder receives a copy of the project. A folder that already holds "
+"a copy of the project is used as it is."
+msgstr ""
+"Un dossier vide reçoit une copie du projet. Un dossier qui contient déjà une "
+"copie du projet est utilisé tel quel."
+
+#: strictdoc/features/desktop/templates/ask_folder.jinja.html:33
+msgid "Choose a folder"
+msgstr "Choisir un dossier"
+
+#: strictdoc/features/desktop/templates/ask_folder.jinja.html:37
+msgid "Folder"
+msgstr "Dossier"
+
+#: strictdoc/features/desktop/templates/ask_folder.jinja.html:44
+msgid "Use this folder"
+msgstr "Utiliser ce dossier"
+
+#: strictdoc/features/desktop/templates/open_project.jinja.html:24
+#, python-format
+msgid "Cloning the project %(title)s..."
+msgstr "Clonage du projet %(title)s…"
+
+#: strictdoc/features/desktop/templates/open_project.jinja.html:28
+#, python-format
+msgid "Opening the project %(title)s..."
+msgstr "Ouverture du projet %(title)s…"
+
+#: strictdoc/features/desktop/templates/open_project.jinja.html:33
+msgid "The project cannot be opened."
+msgstr "Le projet ne peut pas être ouvert."
+
+#: strictdoc/features/desktop/templates/home.jinja.html:42
+msgid "opened"
+msgstr "ouvert"
+
+#: strictdoc/features/desktop/window.py
+msgid "Switch project"
+msgstr "Changer de projet"

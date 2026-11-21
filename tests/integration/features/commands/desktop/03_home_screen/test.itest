@@ -1,0 +1,16 @@
+#
+# @relation(SDOC-SRS-1221, scope=file)
+# @relation(SDOC-SRS-1229, scope=file)
+#
+
+REQUIRES: PLATFORM_IS_NOT_WINDOWS
+
+RUN: python "%S/run_home_screen.py" "%strictdoc" "%T/user" \
+RUN:   | filecheck %s --dump-input=fail
+CHECK: Home page without cookie: 403
+CHECK: Start with the code: 200
+CHECK: Home page with cookie: 200
+CHECK: Welcome message on the first launch: True
+CHECK: Catalog error shown in the page: True
+CHECK: Python trace in the page: False
+CHECK: Exit code: 0

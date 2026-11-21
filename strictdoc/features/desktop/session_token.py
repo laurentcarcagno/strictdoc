@@ -8,7 +8,7 @@ The session token of the desktop server and the middleware that checks it.
 import hmac
 import secrets
 import threading
-from typing import FrozenSet, List, Optional, Tuple
+from typing import Callable, FrozenSet, List, Optional, Tuple
 from urllib.parse import parse_qs
 
 from starlette.types import ASGIApp, Message, Receive, Scope, Send
@@ -44,6 +44,8 @@ class SessionCredentials:
         self._bootstrap_code: str = bootstrap_code
         self._bootstrap_code_used: bool = False
         self._lock: threading.Lock = threading.Lock()
+        # Called once, when the code is used: the window has the cookie.
+        self.bootstrap_listener: Optional[Callable[[], None]] = None
 
     @classmethod
     def create(cls) -> "SessionCredentials":
@@ -55,6 +57,12 @@ class SessionCredentials:
     @property
     def bootstrap_code(self) -> str:
         return self._bootstrap_code
+
+    @property
+    def is_bootstrap_code_used(self) -> bool:
+        """True once a window has used the code and has the session cookie."""
+        with self._lock:
+            return self._bootstrap_code_used
 
     def is_token(self, candidate: str) -> bool:
         return hmac.compare_digest(
@@ -70,7 +78,10 @@ class SessionCredentials:
             if not is_right_code or self._bootstrap_code_used:
                 return False
             self._bootstrap_code_used = True
-            return True
+            listener = self.bootstrap_listener
+        if listener is not None:
+            listener()
+        return True
 
 
 class DesktopSessionMiddleware:

@@ -1,0 +1,15 @@
+{% extends "base.jinja.html" %}
+{#
+  A message and the way back to the catalog. Variables: assets, notice.
+#}
+
+{% block main_attributes %}data-testid="message"{% endblock %}
+
+{% block content %}
+  <div class="notice" role="alert" data-testid="message-text">
+    <p>{{ notice }}</p>
+  </div>
+  <p><a href="/" data-testid="back-to-catalog">
+    {{ _("Back to the catalog") }}
+  </a></p>
+{% endblock %}
