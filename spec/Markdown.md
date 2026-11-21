@@ -744,6 +744,13 @@ property: `**Human title**: <string>`.
 Field properties are written as plain `**Key**: value` lines with no
 continuation marker.
 
+**Order of the fields.** The reader builds a node from the fields `MID`, `UID`,
+`LEVEL`, `STATUS` and `TAGS` of its meta block, then the `TITLE` of its heading,
+then its other fields in the order of the text. A node is accepted only when its
+fields follow the order of the grammar, so a grammar that is read with the
+reader of this format declares `TITLE` after those five fields and before the
+others.
+
 ### Field types
 
 **MID**: 9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d \
