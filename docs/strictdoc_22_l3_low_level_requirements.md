@@ -723,8 +723,8 @@ The "new" StrictDoc CLI command shall generate a documentation skeleton that
 consists of the following artifacts in the provided input directory:
 
 - `docs/` folder with the following content:
-  - `high_level_requirements.sdoc` that contains a dummy document with a requirement prefix `HLR-` and one high-level requirement with identifier `HLR-1`.
-  - `low_level_requirements.sdoc` that contains a dummy document with a requirement prefix `LLR-` and one low-level requirement with identifier `LLR-1` that has a Parent relation to the requirement `HLR-1`.
+  - `high_level_requirements.md` that contains a dummy document with a requirement prefix `HLR-` and one high-level requirement with identifier `HLR-1`.
+  - `low_level_requirements.md` that contains a dummy document with a requirement prefix `LLR-` and one low-level requirement with identifier `LLR-1` that has a Parent relation to the requirement `HLR-1`.
 - `src/` folder with the following content:
   - A source file `main.c` that contains a C hello world program that is annotated with a C comment that has a `@relation` to the `LLR-1` requirement.
 - `strictdoc_config.py` that is configured to read SDoc documents from the

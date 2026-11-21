@@ -9,29 +9,25 @@ CHECK: strictdoc export .
 CHECK: strictdoc server .
 
 RUN: %check_exists --dir "%T/project/docs"
-RUN: %check_exists --file "%T/project/docs/high_level_requirements.sdoc"
-RUN: %check_exists --file "%T/project/docs/low_level_requirements.sdoc"
+RUN: %check_exists --file "%T/project/docs/high_level_requirements.md"
+RUN: %check_exists --file "%T/project/docs/low_level_requirements.md"
 RUN: %check_exists --dir "%T/project/src"
 RUN: %check_exists --file "%T/project/src/main.c"
 RUN: %check_exists --file "%T/project/strictdoc_config.py"
 
-RUN: %cat %T/project/docs/high_level_requirements.sdoc | filecheck %s --dump-input=fail --check-prefix CHECK-HLR
-CHECK-HLR: MID: {{[a-f0-9]{32}}}
-CHECK-HLR: PREFIX: HLR-
-CHECK-HLR: OPTIONS:
-CHECK-HLR: ENABLE_MID: True
-CHECK-HLR: MID: {{[a-f0-9]{32}}}
-CHECK-HLR: UID: HLR-1
+RUN: %cat %T/project/docs/high_level_requirements.md | filecheck %s --dump-input=fail --check-prefix CHECK-HLR
+CHECK-HLR: # High-Level Requirements
+CHECK-HLR: **Prefix**: HLR-
+CHECK-HLR: **MID**: {{[a-f0-9]{32}}}
+CHECK-HLR: **UID**: HLR-1
 
-RUN: %cat %T/project/docs/low_level_requirements.sdoc | filecheck %s --dump-input=fail --check-prefix CHECK-LLR
-CHECK-LLR: MID: {{[a-f0-9]{32}}}
-CHECK-LLR: PREFIX: LLR-
-CHECK-LLR: OPTIONS:
-CHECK-LLR: ENABLE_MID: True
-CHECK-LLR: MID: {{[a-f0-9]{32}}}
-CHECK-LLR: UID: LLR-1
-CHECK-LLR: - TYPE: Parent
-CHECK-LLR: VALUE: HLR-1
+RUN: %cat %T/project/docs/low_level_requirements.md | filecheck %s --dump-input=fail --check-prefix CHECK-LLR
+CHECK-LLR: # Low-Level Requirements
+CHECK-LLR: **Prefix**: LLR-
+CHECK-LLR: **MID**: {{[a-f0-9]{32}}}
+CHECK-LLR: **UID**: LLR-1
+CHECK-LLR: **Type**: `Parent`
+CHECK-LLR: **ID**: `HLR-1`
 
 RUN: %cat %T/project/src/main.c | filecheck %s --dump-input=fail --check-prefix CHECK-SOURCE
 CHECK-SOURCE: {{@}}relation(LLR-1, scope=file)

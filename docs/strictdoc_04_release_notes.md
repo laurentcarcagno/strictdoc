@@ -123,7 +123,12 @@ markups are removed, and docutils is no longer a dependency.
   suspect links. See the user guide, "Moving SDoc documents to Markdown files".
 - The synchronization merges a `.md` document node by node, as it does an
   `.sdoc` one, and shows its conflicts in the same view.
-- Not done: the Word import writes `.sdoc` files.
+- `strictdoc new` creates its two documents as `.md` files, and the form that
+  creates a document suggests a `.md` path. Markdown is the format for what is
+  created now. The SDoc format stays readable and writable: it is the only one
+  that has `[DOCUMENT_FROM_FILE]` fragments, `.sgra` grammars and the
+  `RELATION_FIELD` option, and the imports (ReqIF, Excel, Word) still write
+  `.sdoc` files that the converter turns into `.md`.
 
 ## 0.30.2 (2026-10-09)
 

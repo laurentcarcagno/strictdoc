@@ -85,48 +85,38 @@ Next steps:
     ) -> Tuple[List[Path], Dict[Path, str]]:
         docs_path = output_path / "docs"
         src_path = output_path / "src"
-        hlr_document_mid = MID.create()
         hlr_requirement_mid = MID.create()
-        llr_document_mid = MID.create()
         llr_requirement_mid = MID.create()
         return [output_path, docs_path, src_path], {
-            docs_path / "high_level_requirements.sdoc": (
+            docs_path / "high_level_requirements.md": (
                 f"""\
-[DOCUMENT]
-MID: {hlr_document_mid}
-TITLE: High-Level Requirements
-PREFIX: HLR-
-OPTIONS:
-  ENABLE_MID: True
+# High-Level Requirements
 
-[REQUIREMENT]
-MID: {hlr_requirement_mid}
-UID: HLR-1
-TITLE: Initial high-level requirement
-STATEMENT: >>>
-The system shall provide a hello world application.
-<<<
+**Prefix**: HLR-
+
+## Initial high-level requirement
+
+**MID**: {hlr_requirement_mid} \\
+**UID**: HLR-1
+
+**Statement**: The system shall provide a hello world application.
 """
             ),
-            docs_path / "low_level_requirements.sdoc": (
+            docs_path / "low_level_requirements.md": (
                 f"""\
-[DOCUMENT]
-MID: {llr_document_mid}
-TITLE: Low-Level Requirements
-PREFIX: LLR-
-OPTIONS:
-  ENABLE_MID: True
+# Low-Level Requirements
 
-[REQUIREMENT]
-MID: {llr_requirement_mid}
-UID: LLR-1
-TITLE: Initial low-level requirement
-STATEMENT: >>>
-The software shall print a hello world message.
-<<<
-RELATIONS:
-- TYPE: Parent
-  VALUE: HLR-1
+**Prefix**: LLR-
+
+## Initial low-level requirement
+
+**MID**: {llr_requirement_mid} \\
+**UID**: LLR-1
+**Relations**:
+- **Type**: `Parent` \\
+  **ID**: `HLR-1`
+
+**Statement**: The software shall print a hello world message.
 """
             ),
             src_path / "main.c": (
