@@ -1,6 +1,6 @@
 # Plan de passage au Markdown natif
 
-Rédigé le 2026-11-21, à la fin du plan de retrait de RST (tâche P5-01). Il n'est pas encore validé.
+Rédigé le 2026-11-21, à la fin du plan de retrait de RST (tâche P5-01). Validé par l'utilisateur le 2026-11-21, avec les décisions de la section 9 (N-01).
 
 ## 1. Objectif
 
