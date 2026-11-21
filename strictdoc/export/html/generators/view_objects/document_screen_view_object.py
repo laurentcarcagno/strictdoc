@@ -255,7 +255,7 @@ class DocumentScreenViewObject:
         if self.has_included_document():
             return True
         config = self.document.config
-        return config is not None and config.markup == SDocMarkup.MARKDOWN
+        return config is not None and config.get_markup() == SDocMarkup.MARKDOWN
 
     def has_included_document(self) -> bool:
         return len(self.document.included_documents) > 0

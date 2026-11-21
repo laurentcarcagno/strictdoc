@@ -467,6 +467,9 @@ class TraceabilityIndexBuilder:
 
             if document.config.markup == SDocMarkup.MARKDOWN:
                 SDMarkdownReader.fixup_composite_nodes(document)
+            if document.meta.input_doc_full_path.endswith((".md", ".markdown")):
+                # Only the documents that the Markdown reader built: the
+                # fields of an SDoc document are validated in their order.
                 SDMarkdownReader.fixup_field_order(document)
 
             try:
