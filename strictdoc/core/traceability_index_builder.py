@@ -467,6 +467,7 @@ class TraceabilityIndexBuilder:
 
             if document.config.markup == SDocMarkup.MARKDOWN:
                 SDMarkdownReader.fixup_composite_nodes(document)
+                SDMarkdownReader.fixup_field_order(document)
 
             try:
                 SDocValidator.validate_document(document)

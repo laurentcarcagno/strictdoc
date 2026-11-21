@@ -54,8 +54,6 @@ from strictdoc.backend.markdown.writer import (
 )
 from strictdoc.backend.sdoc.reader import SDReader
 
-# The fields that the Markdown reader puts before the TITLE of a heading.
-_MARKDOWN_META_FIELDS = ("MID", "UID", "LEVEL", "STATUS", "TAGS")
 _INCLUDE_PATTERN = re.compile(
     r"^\[DOCUMENT_FROM_FILE\]\s*\nFILE:\s*(.+?)\s*$", re.MULTILINE
 )
@@ -98,7 +96,6 @@ def convert_text(text: str, source: str) -> Conversion:
             )
             return conversion
     elif grammar is not None and not grammar.is_default:
-        _put_title_after_meta_fields(grammar)
         conversion.grammar_file_name = stem + ".gra.md"
         conversion.grammar_markdown = MarkdownGrammarWriter.write(grammar)
         grammar.import_from_file = conversion.grammar_file_name
@@ -132,32 +129,6 @@ def collapse_blank_lines(markdown: str) -> str:
         previous_blank = blank and fence is None
         result.append(line)
     return "\n".join(result)
-
-
-def _put_title_after_meta_fields(grammar: Any) -> None:
-    """
-    The Markdown reader builds a node as MID, UID, LEVEL, STATUS, TAGS, TITLE
-    and then the other fields. A grammar that orders them differently is
-    refused as "wrong field order", so the grammar is written in that order.
-    """
-    for element in grammar.elements:
-        titles = [
-            field_ for field_ in element.fields if field_.title == "TITLE"
-        ]
-        if len(titles) == 0:
-            continue
-        first = [
-            field_
-            for field_ in element.fields
-            if field_.title in _MARKDOWN_META_FIELDS
-        ]
-        rest = [
-            field_
-            for field_ in element.fields
-            if field_.title not in _MARKDOWN_META_FIELDS
-            and field_.title != "TITLE"
-        ]
-        element.fields = first + titles + rest
 
 
 def _lost_options(document: Any) -> List[str]:

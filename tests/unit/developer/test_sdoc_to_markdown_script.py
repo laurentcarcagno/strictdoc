@@ -96,15 +96,15 @@ def test_001_a_document_with_a_grammar_gets_a_grammar_file():
     assert "\n\n\n" not in markdown
 
 
-def test_002_the_title_follows_the_meta_fields_in_the_grammar_file():
+def test_002_the_order_of_the_fields_of_the_grammar_is_kept():
     conversion = script.convert_text(DOCUMENT, "/project/document.sdoc")
 
     grammar = conversion.grammar_markdown
     assert grammar is not None
     requirement = grammar.split("## Element: REQUIREMENT")[1]
-    assert requirement.index("Field: UID") < requirement.index("Field: TITLE")
-    assert requirement.index("Field: TITLE") < requirement.index(
-        "Field: VERSION"
+    assert requirement.index("Field: UID") < requirement.index("Field: VERSION")
+    assert requirement.index("Field: VERSION") < requirement.index(
+        "Field: TITLE"
     )
 
 

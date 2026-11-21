@@ -48,7 +48,7 @@ Il faudra aussi relire le rendu HTML des deux exemples corrigés.
 | Id | Écart | Correction |
 |---|---|---|
 | E-01 | `--formats=markdown` n'écrit pas la grammaire. Un document à grammaire en ligne ne se relit pas (« Invalid requirement field: VERSION »). | Écrire un `.gra.md` par grammaire en ligne et le citer dans `**Grammar**:`. Une grammaire déjà dans un `.sgra` devient un `.gra.md` commun. |
-| E-02 | Le lecteur Markdown place le TITLE du titre juste après les champs `MID`, `UID`, `LEVEL`, `STATUS`, `TAGS`. Une grammaire qui les range autrement donne « Wrong field order ». | Soit réordonner la grammaire en conversion, ce que fait le prototype, soit corriger le lecteur (E-07). |
+| E-02 | Le lecteur Markdown place le TITLE du titre juste après les champs `MID`, `UID`, `LEVEL`, `STATUS`, `TAGS`. Une grammaire qui les range autrement donne « Wrong field order ». | **Corrigé dans le lecteur (E-07, SDOC-MD-38)** : les champs d'un nœud sont remis dans l'ordre de leur élément de grammaire avant la validation. Le convertisseur ne réordonne plus rien, donc l'ordre des colonnes de la vue tableau ne change pas. |
 | E-03 | `**Prefix**: None` dans la grammaire du guide utilisateur. **Corrigé à l'usage : ce n'est pas une erreur.** `PREFIX: None` est la valeur littérale « None » que StrictDoc teste (`== "None"`) pour dire « pas d'UID automatique ». Le writer la garde telle quelle. | Aucune ; un test le fixe (N-03). |
 | E-04 | Avec une grammaire propre au document, une section qui contient du texte se relit comme une exigence (tout titre qui a des champs devient un nœud), et ses sous-sections disparaissent : 131 exigences deviennent 97 sur REQ_02 sans champ `MID`. Le marqueur `**Type**: SECTION` n'était écrit qu'avec un champ `MID` ou un élément hors SECTION, TEXT, REQUIREMENT. | Le writer écrit le marqueur dès qu'une section contient un TEXT sous une grammaire propre au document (SDOC-MD-37). **Fait.** |
 
@@ -164,8 +164,33 @@ Prises sur mes recommandations de la section 3.3, puisque vous avez demandé de 
 | N-01 | fait | voir ci-dessus |
 | N-02 | fait | `developer/tools/sdoc_to_markdown.py` : `--output-dir`, `--in-place`, `--rename-only` (le `git mv` seul, pour deux commits), `--check` (relit les deux arbres avec StrictDoc dans un dossier de travail et compare documents, nœuds, champs, relations ; n'écrit rien en cas de différence sans `--force`), `--strict`, `--dry-run`. Le convertisseur laisse les documents avec fragments ou avec une grammaire `.sgra`. Tests : `tests/unit/developer/test_sdoc_to_markdown_script.py` (10 tests) |
 | N-03 | fait | sans objet pour le writer (E-03 n'est pas une erreur) ; un test garde `**Prefix**: None` |
-| N-04 | en cours | fait : plusieurs TEXT par corps (E-05), marqueur SECTION (E-04), un `**Type**: TEXT` du corps n'est plus le type du titre. Reste : l'ordre des champs méta du lecteur (E-07), que le convertisseur contourne en réordonnant la grammaire |
-| N-05 à N-10 | à faire | |
+| N-04 | fait | plusieurs TEXT par corps (E-05, SDOC-MD-36), marqueur SECTION (E-04, SDOC-MD-37), un `**Type**: TEXT` du corps n'est plus le type du titre, champs remis dans l'ordre de la grammaire (E-07, SDOC-MD-38). Tests unitaires et d'intégration |
+| N-05 | fait | voir ci-dessous |
+| N-06 | en cours | comparaison automatique faite sur REQ_02 (voir ci-dessous) ; reste l'édition dans le serveur |
+| N-07 à N-10 | à faire | |
+
+### N-05 : code du fork qui suppose `.sdoc`
+
+| Endroit | Résultat |
+|---|---|
+| `manage auto-uid` | écrit les UID dans un `.md` (il sautait tout ce qui n'était pas `.sdoc`) ; test d'intégration `auto-uid/requirement_uids/13_markdown_document` |
+| versions d'un document (`document_versions`) | lit un `.md` à une étiquette et compare deux versions ; message d'erreur français mis à jour à la main dans le catalogue ; tests unitaires et serveur |
+| arbre du projet (`folders`) | renomme et déplace un `.md` (l'extension du document est gardée), refuse un `.gra.md`, et réécrit la ligne `**Grammar**:` d'un document déplacé comme pour un include ; tests unitaires |
+| carte du projet, diff de deux arbres | listent les `.md` (deux gabarits) |
+| conflits de fusion (`git_sync`) | **non fait** : la fusion nœud par nœud coupe le texte aux marqueurs SDoc. Pour un `.md`, Git fusionne par lignes et le message dit de résoudre avec Git. À faire si les documents `.md` sont édités à plusieurs (décision à prendre : tâche N-11) |
+| import Word (`docx_import.py`, `docx_web_service.py`) | écrit toujours un `.sdoc` : laissé tel quel ; à convertir ensuite avec le convertisseur |
+| création d'un document dans l'interface | non regardée |
+| `strictdoc format`, `manage new`, surveillant de fichiers | déjà en ordre |
+
+### N-06 : essai sur REQ_02 (comparaison automatique)
+
+Copie de `~/strictdoc-data` convertie avec le convertisseur, puis exportée en HTML et en Word :
+
+- le texte visible des quatre vues (document, tableau, traçabilité, traçabilité profonde) est identique mot pour mot ;
+- les 2 129 paragraphes de l'export Word sont identiques ;
+- `--check` ne signale aucune différence de nœud : 131 exigences, 56 sections, 23 textes.
+
+Non fait : l'ouverture du `.docx` dans Word, l'édition dans le serveur (Milkdown, enregistrement, commentaires), le test des liens suspects.
 
 ### Résultats de l'essai avec le convertisseur
 

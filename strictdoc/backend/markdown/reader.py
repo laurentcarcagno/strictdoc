@@ -219,6 +219,43 @@ class SDMarkdownReader:
         return document
 
     @staticmethod
+    def fixup_field_order(document: SDocDocument) -> None:
+        """
+        Puts the fields of each node in the order of its grammar element
+        (SDOC-MD-38). The reader builds a node as MID, UID, LEVEL, STATUS,
+        TAGS, then the TITLE of the heading, then the other fields, which is
+        not the order of every grammar; the grammar is known only once the
+        document is resolved. A field that the grammar does not know stays
+        after the others, where the validation reports it.
+        """
+        grammar = assert_cast(document.grammar, DocumentGrammar)
+
+        def walk(section_contents: List[Any]) -> None:
+            for node_ in section_contents:
+                if (
+                    isinstance(node_, DocumentFromFile)
+                    and node_.resolved_document is None
+                ):
+                    continue
+                if isinstance(node_, SDocNode):
+                    element = grammar.elements_by_type.get(node_.node_type)
+                    if element is not None:
+                        lookup = node_.ordered_fields_lookup
+                        ordered = {
+                            title_: lookup[title_]
+                            for title_ in element.field_titles
+                            if title_ in lookup
+                        }
+                        for title_, fields_ in lookup.items():
+                            if title_ not in ordered:
+                                ordered[title_] = fields_
+                        lookup.clear()
+                        lookup.update(ordered)
+                walk(node_.section_contents)
+
+        walk(document.section_contents)
+
+    @staticmethod
     def fixup_composite_nodes(document: SDocDocument) -> None:
         # Markdown nesting is heading-level based, so it never sets
         # is_composite the way SDoc's [[TAG]]...[[/TAG]] syntax does; derive

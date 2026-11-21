@@ -1,0 +1,15 @@
+#
+# Verify SDOC-MD-38: a grammar that declares TITLE after another field than
+# MID, UID, LEVEL, STATUS and TAGS is accepted. The fields of the node follow
+# the order of the grammar, here UID, ASIL, then the TITLE of the heading.
+#
+
+RUN: %strictdoc export %S --formats=html,json --output-dir %T | filecheck %s --dump-input=fail
+CHECK: Export completed.
+
+RUN: %cat %T/json/index.json | filecheck %s --dump-input=fail --check-prefix CHECK-JSON
+
+CHECK-JSON: "UID": "REQ-1"
+CHECK-JSON: "ASIL": "B"
+CHECK-JSON: "TITLE": "Speed limit"
+CHECK-JSON: "STATEMENT": "The vehicle shall not exceed 130 km/h
