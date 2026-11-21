@@ -10,6 +10,7 @@ the user starts the application without a project.
 @relation(SDOC-SRS-1231, scope=file)
 @relation(SDOC-SRS-1232, scope=file)
 @relation(SDOC-SRS-1234, scope=file)
+@relation(SDOC-SRS-1235, scope=file)
 """
 
 import os
@@ -42,11 +43,13 @@ from strictdoc.features.desktop.project_opener import (
     ProjectOpener,
 )
 from strictdoc.features.desktop.project_servers import ProjectServerManager
+from strictdoc.features.desktop.secret_store import MemorySecretStore
 from strictdoc.features.desktop.session_token import (
     PUBLIC_PATHS_STATE_NAME,
     PublicPathChecker,
 )
 from strictdoc.features.desktop.settings import DesktopSettings, load_settings
+from strictdoc.features.desktop.token_store import SignInStatus, TokenKeeper
 from strictdoc.features.desktop.workspace import (
     FolderStatus,
     check_folder,
@@ -119,6 +122,7 @@ def create_home_app(
     settings_path: Optional[Path] = None,
     opener: Optional[ProjectOpener] = None,
     sign_in: Optional[GitLabSignIn] = None,
+    keeper: Optional[TokenKeeper] = None,
 ) -> FastAPI:
     project_opener = (
         opener
@@ -129,12 +133,31 @@ def create_home_app(
         )
     )
     manager = project_opener.manager
-    gitlab_sign_in = sign_in if sign_in is not None else GitLabSignIn()
+    # The tokens of the user. Without a keeper, they stay in memory.
+    token_keeper = (
+        keeper
+        if keeper is not None
+        else TokenKeeper(MemorySecretStore(), use_timer=False)
+    )
+    gitlab_sign_in = (
+        sign_in
+        if sign_in is not None
+        else GitLabSignIn(session_listener=token_keeper.adopt_sign_in)
+    )
 
     @asynccontextmanager
     async def lifespan(application: FastAPI) -> AsyncIterator[None]:
         del application
+        # The user who signed in at a previous launch is signed in again, with
+        # no network call when the access token is still good.
+        settings = load_settings(settings_path)
+        if is_sign_in_configured(settings):
+            token_keeper.restore(
+                gitlab_url=settings.gitlab_url.strip(),
+                client_id=settings.oauth_client_id.strip(),
+            )
         yield
+        token_keeper.close()
         # The web servers of the projects belong to the home server: they end
         # with it.
         manager.stop_all()
@@ -161,7 +184,10 @@ def create_home_app(
         return render_home(
             load_settings(settings_path),
             running_identifiers=manager.get_open_identifiers(),
-            user=gitlab_sign_in.user,
+            user=_get_user(token_keeper),
+            sign_in_status=token_keeper.status,
+            is_sign_in_refused=token_keeper.is_refused,
+            storage_error=token_keeper.storage_error,
         )
 
     @application.post("/sign-in")
@@ -284,11 +310,16 @@ def render_home(
     settings: DesktopSettings,
     running_identifiers: AbstractSet[str] = frozenset(),
     user: Optional[GitLabUser] = None,
+    sign_in_status: SignInStatus = SignInStatus.SIGNED_OUT,
+    is_sign_in_refused: bool = False,
+    storage_error: Optional[str] = None,
 ) -> HTMLResponse:
     """
     The home page. A catalog that fails is an error shown in the page. The
     projects whose server runs are marked. The user that signed in is named;
-    without one, the page offers the sign-in when the settings allow it.
+    without one, the page offers the sign-in when the settings allow it. A
+    user whose access token has ended with no network is told that the
+    application is offline.
     """
     projects: List[CatalogProject] = []
     error: Optional[str] = None
@@ -305,9 +336,17 @@ def render_home(
         root=build_catalog_tree(projects),
         running_identifiers=running_identifiers,
         user=user,
+        is_offline=sign_in_status is SignInStatus.OFFLINE,
+        is_sign_in_refused=is_sign_in_refused and user is None,
+        storage_error=storage_error,
         is_sign_in_offered=user is None and is_sign_in_configured(settings),
     )
     return HTMLResponse(output, headers={"Cache-Control": "no-store"})
+
+
+def _get_user(token_keeper: TokenKeeper) -> Optional[GitLabUser]:
+    session = token_keeper.session
+    return session.user if session is not None else None
 
 
 def _is_callback_expected(

@@ -9,6 +9,7 @@ GitLab, an authorization page that answers 200 with a page whose script sets
 window.location to the callback address. It is not a 302 redirect.
 
 @relation(SDOC-SRS-1234, scope=file)
+@relation(SDOC-SRS-1235, scope=file)
 """
 
 import base64
@@ -17,7 +18,7 @@ import json
 import secrets
 import threading
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Set
 from urllib.parse import parse_qs, urlencode, urlparse
 
 CLIENT_ID = "fake-desktop-application"
@@ -33,6 +34,11 @@ MODE_DENY = "deny"
 # The callback carries a state that the application did not send.
 MODE_WRONG_STATE = "wrong_state"
 
+# What the token endpoint does with a refresh token.
+REFRESH_GRANT = "grant"
+# GitLab refuses the refresh token: {"error": "invalid_grant"}.
+REFRESH_INVALID_GRANT = "invalid_grant"
+
 
 class FakeGitLab:
     """
@@ -46,7 +52,13 @@ class FakeGitLab:
         self.authorization_requests: List[Dict[str, str]] = []
         # The forms that the token endpoint received, without the code.
         self.token_requests: List[Dict[str, str]] = []
+        # The forms of the renewals, without the refresh token.
+        self.refresh_requests: List[Dict[str, str]] = []
         self.user_request_count: int = 0
+        # The life of the access tokens that the server gives, in seconds.
+        self.expires_in: int = 7200
+        self.refresh_mode: str = REFRESH_GRANT
+        self._refresh_tokens: Set[str] = set()
         # code -> the authorization request that issued it.
         self._codes: Dict[str, Dict[str, str]] = {}
         self._access_tokens: List[str] = []
@@ -87,6 +99,7 @@ class FakeGitLab:
         self._thread = threading.Thread(
             target=self._server.serve_forever, daemon=True
         )
+        self._is_stopped: bool = False
 
     @property
     def port(self) -> int:
@@ -107,6 +120,10 @@ class FakeGitLab:
         self._thread.start()
 
     def stop(self) -> None:
+        """Stop the server. A test can stop it before the end of its block."""
+        if self._is_stopped:
+            return
+        self._is_stopped = True
         self._server.shutdown()
         self._server.server_close()
         self._thread.join(10)
@@ -166,6 +183,9 @@ class FakeGitLab:
     def handle_token(
         self, handler: BaseHTTPRequestHandler, form: Dict[str, str]
     ) -> None:
+        if form.get("grant_type") == "refresh_token":
+            self.handle_refresh(handler, form)
+            return
         self.token_requests.append(
             {name_: value_ for name_, value_ in form.items() if name_ != "code"}
         )
@@ -181,20 +201,43 @@ class FakeGitLab:
         ):
             self.send_json(handler, 400, {"error": "invalid_grant"})
             return
-        access_token = secrets.token_urlsafe(24)
-        self._access_tokens.append(access_token)
-        self.send_json(
-            handler,
-            200,
+        self.send_json(handler, 200, self._create_tokens(request["scope"]))
+
+    def handle_refresh(
+        self, handler: BaseHTTPRequestHandler, form: Dict[str, str]
+    ) -> None:
+        self.refresh_requests.append(
             {
-                "access_token": access_token,
-                "token_type": "Bearer",
-                "expires_in": 7200,
-                "refresh_token": secrets.token_urlsafe(24),
-                "scope": request["scope"],
-                "created_at": 0,
-            },
+                name_: value_
+                for name_, value_ in form.items()
+                if name_ != "refresh_token"
+            }
         )
+        refresh_token = form.get("refresh_token", "")
+        # Like GitLab: a refresh token works once, the answer gives the next.
+        if (
+            self.refresh_mode == REFRESH_INVALID_GRANT
+            or form.get("client_id") != CLIENT_ID
+            or refresh_token not in self._refresh_tokens
+        ):
+            self.send_json(handler, 400, {"error": "invalid_grant"})
+            return
+        self._refresh_tokens.discard(refresh_token)
+        self.send_json(handler, 200, self._create_tokens("read_user"))
+
+    def _create_tokens(self, scope: str) -> Dict[str, Any]:
+        access_token = secrets.token_urlsafe(24)
+        refresh_token = secrets.token_urlsafe(24)
+        self._access_tokens.append(access_token)
+        self._refresh_tokens.add(refresh_token)
+        return {
+            "access_token": access_token,
+            "token_type": "Bearer",
+            "expires_in": self.expires_in,
+            "refresh_token": refresh_token,
+            "scope": scope,
+            "created_at": 0,
+        }
 
     def handle_user(self, handler: BaseHTTPRequestHandler) -> None:
         self.user_request_count += 1

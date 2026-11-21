@@ -11,6 +11,7 @@ The tokens are never written in a message, a log or a representation of an
 object.
 
 @relation(SDOC-SRS-1234, scope=file)
+@relation(SDOC-SRS-1235, scope=file)
 """
 
 import base64
@@ -50,6 +51,14 @@ _MAXIMUM_ANSWER_BYTES = 1_000_000
 
 class OAuthError(Exception):
     """The sign-in failed. The message is for the user and holds no secret."""
+
+
+class OAuthRejectedError(OAuthError):
+    """
+    GitLab refused the grant on purpose ("invalid_grant"): the code or the
+    refresh token is not good any more. It is not a network failure: the
+    sign-in is lost and the user has to start it again.
+    """
 
 
 @dataclass(frozen=True)
@@ -159,22 +168,35 @@ def exchange_code(
         access_token=None,
         gitlab_url=pending.gitlab_url,
     )
-    access_token = answer.get("access_token")
-    refresh_token = answer.get("refresh_token")
-    expires_in = answer.get("expires_in")
-    if not isinstance(access_token, str) or len(access_token) == 0:
-        raise OAuthError(gettext("GitLab did not give an access token."))
-    return GitLabTokens(
-        access_token=access_token,
-        refresh_token=refresh_token if isinstance(refresh_token, str) else None,
-        expires_at=clock()
-        + (
-            float(expires_in)
-            if isinstance(expires_in, (int, float))
-            and not isinstance(expires_in, bool)
-            else DEFAULT_TOKEN_LIFETIME_SECONDS
-        ),
+    return _parse_tokens(answer, clock)
+
+
+def refresh_tokens(
+    *,
+    gitlab_url: str,
+    client_id: str,
+    refresh_token: str,
+    clock: Callable[[], float] = time.time,
+) -> GitLabTokens:
+    """
+    Give the refresh token to GitLab and get new tokens. GitLab replaces the
+    refresh token at each renewal: the old one does not work any more. Raise
+    OAuthRejectedError when GitLab refuses the refresh token, and OAuthError
+    for any other failure, the network included.
+    """
+    answer = _request_json(
+        f"{_normalize_gitlab_url(gitlab_url)}/oauth/token",
+        data=urllib.parse.urlencode(
+            {
+                "client_id": client_id,
+                "grant_type": "refresh_token",
+                "refresh_token": refresh_token,
+            }
+        ).encode("ascii"),
+        access_token=None,
+        gitlab_url=gitlab_url,
     )
+    return _parse_tokens(answer, clock)
 
 
 def fetch_user(gitlab_url: str, access_token: str) -> GitLabUser:
@@ -277,8 +299,19 @@ class GitLabSignIn:
     wait, and the session once one succeeded.
     """
 
-    def __init__(self, *, clock: Callable[[], float] = time.time) -> None:
+    def __init__(
+        self,
+        *,
+        clock: Callable[[], float] = time.time,
+        session_listener: Optional[
+            Callable[[PendingSignIn, GitLabSession], None]
+        ] = None,
+    ) -> None:
         self._clock: Callable[[], float] = clock
+        # Called with each session that a sign-in gives: it keeps the tokens.
+        self._session_listener: Optional[
+            Callable[[PendingSignIn, GitLabSession], None]
+        ] = session_listener
         self._pending_sign_ins: PendingSignIns = PendingSignIns(clock=clock)
         self._session: Optional[GitLabSession] = None
         self._lock: threading.Lock = threading.Lock()
@@ -343,6 +376,8 @@ class GitLabSignIn:
         session = GitLabSession(tokens=tokens, user=user)
         with self._lock:
             self._session = session
+        if self._session_listener is not None:
+            self._session_listener(pending, session)
         return session
 
 
@@ -356,6 +391,27 @@ def parse_callback_query(query: Dict[str, List[str]]) -> Dict[str, str]:
         for name_, values_ in query.items()
         if len(values_) == 1
     }
+
+
+def _parse_tokens(
+    answer: Dict[str, Any], clock: Callable[[], float]
+) -> GitLabTokens:
+    access_token = answer.get("access_token")
+    refresh_token = answer.get("refresh_token")
+    expires_in = answer.get("expires_in")
+    if not isinstance(access_token, str) or len(access_token) == 0:
+        raise OAuthError(gettext("GitLab did not give an access token."))
+    return GitLabTokens(
+        access_token=access_token,
+        refresh_token=refresh_token if isinstance(refresh_token, str) else None,
+        expires_at=clock()
+        + (
+            float(expires_in)
+            if isinstance(expires_in, (int, float))
+            and not isinstance(expires_in, bool)
+            else DEFAULT_TOKEN_LIFETIME_SECONDS
+        ),
+    )
 
 
 def _normalize_gitlab_url(gitlab_url: str) -> str:
@@ -377,9 +433,13 @@ def _request_json(
         with _OPENER.open(request, timeout=REQUEST_TIMEOUT_SECONDS) as answer_:
             content = json.loads(answer_.read(_MAXIMUM_ANSWER_BYTES))
     except urllib.error.HTTPError as exception_:
-        raise OAuthError(
+        reason = _read_error_reason(exception_)
+        error_class = (
+            OAuthRejectedError if reason == "invalid_grant" else OAuthError
+        )
+        raise error_class(
             gettext("GitLab refused the request (%(reason)s).")
-            % {"reason": _read_error_reason(exception_)}
+            % {"reason": reason}
         ) from None
     except (OSError, HTTPException) as exception_:
         # URLError, timeouts and refused connections are OSError. The message

@@ -3075,3 +3075,27 @@ msgstr "La connexion a expiré ou n'est plus valide."
 #: strictdoc/features/desktop/session_token.py
 msgid "Back to the home screen"
 msgstr "Retour à l'accueil"
+
+#: strictdoc/features/desktop/templates/home.jinja.html
+msgid ""
+"You are offline: GitLab cannot be reached. The application tries again by "
+"itself."
+msgstr ""
+"Vous êtes hors ligne : GitLab est inaccessible. L'application réessaie "
+"d'elle-même."
+
+#: strictdoc/features/desktop/templates/home.jinja.html
+msgid "The sign-in has ended. Sign in again."
+msgstr "La connexion est terminée. Connectez-vous de nouveau."
+
+#: strictdoc/features/desktop/token_store.py
+msgid "The keyring did not delete the sign-in."
+msgstr "Le trousseau n'a pas supprimé la connexion."
+
+#: strictdoc/features/desktop/token_store.py
+msgid ""
+"The keyring did not save the sign-in. You will have to sign in again at the "
+"next launch."
+msgstr ""
+"Le trousseau n'a pas enregistré la connexion. Vous devrez vous connecter de "
+"nouveau au prochain lancement."

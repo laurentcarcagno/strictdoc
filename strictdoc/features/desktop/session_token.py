@@ -268,11 +268,12 @@ class DesktopSessionMiddleware:
 
 
 def _create_expired_page() -> str:
+    message = gettext("The sign-in has expired or is no longer valid.")
     return (
         f'<!DOCTYPE html><html lang="{html.escape(get_language())}"><head>'
         '<meta charset="utf-8"/><title>StrictDoc</title></head><body>'
         '<p data-testid="expired-sign-in">'
-        f"{html.escape(gettext('The sign-in has expired or is no longer valid.'))}"
+        f"{html.escape(message)}"
         "</p>"
         '<p><a href="/" data-testid="back-to-home">'
         f"{html.escape(gettext('Back to the home screen'))}"

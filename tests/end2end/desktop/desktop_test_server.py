@@ -10,6 +10,7 @@ name a catalog read from a JSON file.
 
 @relation(SDOC-SRS-1229, scope=file)
 @relation(SDOC-SRS-1234, scope=file)
+@relation(SDOC-SRS-1235, scope=file)
 """
 
 import os
@@ -23,6 +24,13 @@ from strictdoc.features.desktop.settings import DesktopSettings, save_settings
 from tests.end2end.conftest import test_environment
 from tests.end2end.server import ReadTimeout, SDocTestServer
 
+# The keyring of the system is not used by the tests: the application finds a
+# stand-in for the "keyring" package that keeps its secrets in a file of the
+# temporary user folder.
+STUB_KEYRING_PATH = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "stub_keyring"
+)
+KEYRING_FILE_VARIABLE = "STRICTDOC_TEST_KEYRING_FILE"
 START_URL_PREFIX = "StrictDoc desktop server: "
 APPLICATION_NAME = "StrictDoc"
 
@@ -99,6 +107,10 @@ class DesktopTestServer(SDocTestServer):
             self.user_path, "config", APPLICATION_NAME, "settings.json"
         )
 
+    def get_keyring_path(self) -> str:
+        assert self.user_path is not None
+        return os.path.join(self.user_path, "keyring.json")
+
     def get_home_url(self) -> str:
         """
         The home page, for a browser that has followed the start URL: it has
@@ -141,6 +153,10 @@ class DesktopTestServer(SDocTestServer):
         )
         strictdoc_env["XDG_CACHE_HOME"] = os.path.join(self.user_path, "cache")
         strictdoc_env["XDG_DATA_HOME"] = os.path.join(self.user_path, "data")
+        strictdoc_env["PYTHONPATH"] = os.pathsep.join(
+            [STUB_KEYRING_PATH, strictdoc_env["PYTHONPATH"]]
+        )
+        strictdoc_env[KEYRING_FILE_VARIABLE] = self.get_keyring_path()
         if self.language is not None:
             strictdoc_env["STRICTDOC_LANGUAGE"] = self.language
         return strictdoc_arguments, strictdoc_env
