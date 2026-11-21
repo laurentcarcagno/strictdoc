@@ -774,6 +774,13 @@ The available options are: `Markdown` and `HTML`. Default is
 `MARKUP: RST` and `MARKUP: Text` are no longer supported: see
 [LINK: SECTION-UG-Migrate-RST-to-Markdown].
 
+The fields of a document with `MARKUP: HTML` are HTML, and they go through the
+same allow-list as the raw HTML of a Markdown field (see
+[LINK: SECTION-UG-Markdown-HTML-elements]): the elements and attributes that
+draw a document are kept, and a script, an event attribute or a `javascript:`
+link is shown as text or dropped. `[LINK: ...]` and `[ANCHOR: ...]` work as in
+Markdown.
+
 ###### AUTO_LEVELS
 
 **Type**: SECTION \

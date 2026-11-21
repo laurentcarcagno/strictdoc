@@ -1,0 +1,21 @@
+[DOCUMENT]
+TITLE: Unsafe HTML
+UID: DOC-HTML
+OPTIONS:
+  MARKUP: HTML
+
+[TEXT]
+UID: TEXT-1
+STATEMENT: >>>
+<p>Safe <b>text</b> with a link to [LINK: TEXT-2].</p>
+<p onclick="alert(1)">Handler.</p>
+<script>alert(2)</script>
+<a href="javascript:alert(3)">Bad link</a>
+<<<
+
+[TEXT]
+UID: TEXT-2
+STATEMENT: >>>
+[ANCHOR: HTML-ANCHOR, An anchor]
+<p>Second.</p>
+<<<

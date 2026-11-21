@@ -129,6 +129,10 @@ markups are removed, and docutils is no longer a dependency.
   that has `[DOCUMENT_FROM_FILE]` fragments, `.sgra` grammars and the
   `RELATION_FIELD` option, and the imports (ReqIF, Excel, Word) still write
   `.sdoc` files that the converter turns into `.md`.
+- The fields of a document with `MARKUP: HTML` go through the allow-list of the
+  raw HTML of a Markdown field: a script, an event attribute or a `javascript:`
+  link is no longer written as it is. An element outside the list (`iframe`,
+  `object`, `svg`) is shown as text.
 
 ## 0.30.2 (2026-10-09)
 

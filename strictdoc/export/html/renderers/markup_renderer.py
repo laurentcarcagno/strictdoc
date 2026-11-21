@@ -150,14 +150,16 @@ class MarkupRenderer:
         fragment_writer = self._get_writer_for_node_field(node_field)
 
         parts_output = ""
-        # The HTML that StrictDoc writes itself (the anchors) goes through the
-        # Markdown writer as a comment and is put back afterwards, so that the
-        # allow-list of the raw HTML of the author does not touch it.
+        # The HTML that StrictDoc writes itself (the anchors, and the links of
+        # an HTML field) goes through the writer as a comment and is put back
+        # afterwards, so that the allow-list of the raw HTML of the author does
+        # not touch it.
         trusted_html: Dict[str, str] = {}
         nonce = secrets.token_hex(8)
         keep_trusted_html = isinstance(
             fragment_writer, MarkdownToHtmlFragmentWriter
         )
+        is_html_field = isinstance(fragment_writer, HTMLFragmentWriter)
         for part in node_field.parts:
             if isinstance(part, str):
                 parts_output += part
@@ -168,9 +170,17 @@ class MarkupRenderer:
                 href = self.link_renderer.render_node_link(
                     linkable_node, self.context_document, document_type
                 )
-                parts_output += fragment_writer.write_anchor_link(
+                link_html = fragment_writer.write_anchor_link(
                     linkable_node.get_display_title(), href
                 )
+                if is_html_field:
+                    placeholder = (
+                        f"<!--sdoc-trusted-{nonce}-{len(trusted_html)}-->"
+                    )
+                    trusted_html[placeholder] = link_html
+                    parts_output += placeholder
+                else:
+                    parts_output += link_html
             elif isinstance(part, Anchor):
                 anchor_html = self.template_anchor.render(
                     anchor=part,
@@ -178,7 +188,7 @@ class MarkupRenderer:
                     link_renderer=self.link_renderer,
                     document_type=DocumentType.DOCUMENT,
                 )
-                if keep_trusted_html:
+                if keep_trusted_html or is_html_field:
                     placeholder = (
                         f"<!--sdoc-trusted-{nonce}-{len(trusted_html)}-->"
                     )

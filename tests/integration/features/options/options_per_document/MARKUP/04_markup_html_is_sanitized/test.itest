@@ -1,0 +1,21 @@
+#
+# The HTML of a document in the HTML markup goes through the allow-list that
+# the raw HTML of a Markdown field goes through: a script, an event handler and
+# a javascript: link are not written as they are, while [LINK] and [ANCHOR]
+# still work.
+#
+
+RUN: %strictdoc export %S --output-dir %T | filecheck %s --dump-input=fail
+CHECK: Export completed.
+
+RUN: %cat %T/html/04_markup_html_is_sanitized/input.html | filecheck %s --dump-input=fail --check-prefix CHECK-HTML
+CHECK-HTML: <p>Safe <b>text</b> with a link to
+CHECK-HTML-SAME: 🔗
+CHECK-HTML: <p>Handler.</p>
+CHECK-HTML: &lt;script&gt;alert(2)&lt;/script&gt;
+CHECK-HTML: Bad link
+CHECK-HTML: HTML-ANCHOR
+
+RUN: %cat %T/html/04_markup_html_is_sanitized/input.html | filecheck %s --dump-input=fail --check-prefix CHECK-HTML-NOT
+CHECK-HTML-NOT-NOT: onclick
+CHECK-HTML-NOT-NOT: javascript:alert
