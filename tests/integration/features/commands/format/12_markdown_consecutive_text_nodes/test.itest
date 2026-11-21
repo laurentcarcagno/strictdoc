@@ -1,0 +1,43 @@
+REQUIRES: PLATFORM_IS_NOT_WINDOWS
+
+#
+# Verify SDOC-MD-36: consecutive TEXT nodes, at the document root and under a
+# heading, are written with a `**Type**: TEXT` marker and read back as separate
+# nodes. The JSON export counts them. A second format pass must produce
+# identical output (idempotency).
+#
+
+RUN: mkdir -p %T/pass1
+RUN: cp %S/input.md %T/pass1/input.md
+RUN: cp %S/strictdoc_config.py %T/pass1/strictdoc_config.py
+
+RUN: %strictdoc format %T/pass1/
+
+RUN: %cat %T/pass1/input.md | filecheck %s --dump-input=fail
+
+CHECK: Client: ACME.
+CHECK: **Type**: TEXT
+CHECK-NEXT: {{^$}}
+CHECK-NEXT: Project: REVALTO.
+CHECK: **Type**: TEXT
+CHECK-NEXT: {{^$}}
+CHECK-NEXT: Edition: A.
+CHECK: ## Introduction
+CHECK: First paragraph of the introduction.
+CHECK: **Type**: TEXT
+CHECK-NEXT: {{^$}}
+CHECK-NEXT: Second text of the introduction.
+
+# The five paragraphs are five TEXT nodes, not two.
+RUN: %strictdoc export %T/pass1/ --formats=json --output-dir %T/json
+RUN: %cat %T/json/json/index.json | filecheck %s --check-prefix CHECK-JSON --dump-input=fail
+CHECK-JSON: "STATEMENT": "{{(\\n)?}}Client: ACME.
+CHECK-JSON: "STATEMENT": "Project: REVALTO.
+CHECK-JSON: "STATEMENT": "Edition: A.
+CHECK-JSON: "STATEMENT": "{{(\\n)?}}First paragraph of the introduction.
+CHECK-JSON: "STATEMENT": "Second text of the introduction.
+
+# Second pass must produce identical output (idempotency).
+RUN: cp -r %T/pass1 %T/pass2
+RUN: %strictdoc format %T/pass2/
+RUN: diff %T/pass1/input.md %T/pass2/input.md

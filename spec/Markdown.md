@@ -503,6 +503,36 @@ After a format pass the SECTION MID (11111111111111111111111111111111) is
 preserved in the section meta block, and the TEXT MID
 (22222222222222222222222222222222) is preserved in the TEXT prefix block.
 
+### Several TEXT nodes in one body
+
+**MID**: dadc1bcd22204a648117cfe1b9a18669 \
+**UID**: MD-36
+
+**Statement**:
+
+A heading body, or the body of the document root, may hold several TEXT nodes.
+Each `**Type**: TEXT` line at column 0, outside fenced code and either first in
+the body or after a blank line, opens a TEXT node. The marker may be followed by
+a `**MID**` line (see [LINK: MD-28]) or stand alone. What precedes the first
+marker is a TEXT node of its own.
+
+The writer starts every TEXT node that follows another TEXT node with a
+`**Type**: TEXT` marker, so that two consecutive TEXT nodes are read back as
+two nodes. A `**Type**: TEXT` line inside the body is never the Type of the
+heading that holds it.
+
+### SECTION with TEXT under a custom grammar
+
+**MID**: 271ec62abc4b44268289910dd254e981 \
+**UID**: MD-37
+
+**Statement**:
+
+With a custom grammar, the reader turns any heading that has content fields into
+a node. The writer therefore starts the meta block of a SECTION that holds a TEXT
+node with `**Type**: SECTION`, even when the grammar has no `MID` field and no
+element beyond SECTION, TEXT and REQUIREMENT.
+
 ### Meta-field styles
 
 **MID**: 0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a \

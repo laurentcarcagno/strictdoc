@@ -47,6 +47,7 @@ class SDMarkdownWriter:
         if document_meta_block is not None and len(document_meta_block) > 0:
             top_level_blocks.append(document_meta_block)
 
+        previous_is_text = False
         for node in document.section_contents:
             if not isinstance(node, SDocNode):
                 continue
@@ -55,9 +56,11 @@ class SDMarkdownWriter:
                 heading_level=2,
                 line_width=line_width,
                 parent_supports_flat_children=False,
+                follows_text=previous_is_text,
             )
             if node_block is None or len(node_block) == 0:
                 continue
+            previous_is_text = node.node_type == "TEXT"
             top_level_blocks.append(node_block)
 
         output = "# " + SDMarkdownWriter._to_lf(document.title)
@@ -132,13 +135,14 @@ class SDMarkdownWriter:
         heading_level: int,
         line_width: Optional[int] = None,
         parent_supports_flat_children: bool = False,
+        follows_text: bool = False,
     ) -> Optional[str]:
         if node.autogen:
             return None
 
         if node.node_type == "TEXT":
             return SDMarkdownWriter._serialize_text_node(
-                node, line_width=line_width
+                node, line_width=line_width, follows_text=follows_text
             )
 
         # A titleless node (SDOC-MD-29) has no heading of its own, so it can
@@ -161,6 +165,7 @@ class SDMarkdownWriter:
             body_blocks.append(own_fields_block)
 
         node_supports_flat_children = node.node_type == "SECTION"
+        previous_is_text = False
         for child_node in node.section_contents:
             if isinstance(child_node, SDocNode):
                 child_block = SDMarkdownWriter._serialize_node(
@@ -168,9 +173,11 @@ class SDMarkdownWriter:
                     heading_level=heading_level + 1,
                     line_width=line_width,
                     parent_supports_flat_children=node_supports_flat_children,
+                    follows_text=previous_is_text,
                 )
                 if child_block is None or len(child_block) == 0:
                     continue
+                previous_is_text = child_node.node_type == "TEXT"
                 body_blocks.append(child_block)
 
         if node.reserved_title is None:
@@ -234,6 +241,18 @@ class SDMarkdownWriter:
             and child.reserved_title is None
             for child in node.section_contents
         )
+        # With a custom grammar the reader turns any heading that has content
+        # fields into a node, so a SECTION that holds prose needs its own
+        # **Type**: SECTION marker (SDOC-MD-37).
+        section_has_text_child = (
+            node.node_type == "SECTION"
+            and document_grammar is not None
+            and not document_grammar.is_default
+            and any(
+                isinstance(child, SDocNode) and child.node_type == "TEXT"
+                for child in node.section_contents
+            )
+        )
         # A titleless node (SDOC-MD-29) has no heading to distinguish it from
         # surrounding content, so its own **Type**: marker is what lets a
         # re-read find the record boundary (SDOC-MD-35) — emit it
@@ -241,6 +260,7 @@ class SDMarkdownWriter:
         if node.node_type != "TEXT" and (
             node.reserved_title is None
             or section_has_flat_children
+            or section_has_text_child
             or (
                 document_grammar is not None
                 and (document_grammar.has_custom_elements() or section_has_mid)
@@ -392,7 +412,9 @@ class SDMarkdownWriter:
 
     @staticmethod
     def _serialize_text_node(
-        node: SDocNode, line_width: Optional[int] = None
+        node: SDocNode,
+        line_width: Optional[int] = None,
+        follows_text: bool = False,
     ) -> Optional[str]:
         statement_fields = node.ordered_fields_lookup.get("STATEMENT", None)
         if statement_fields is None or len(statement_fields) == 0:
@@ -428,6 +450,11 @@ class SDMarkdownWriter:
                 if len(statement_value) > 0:
                     return f"{meta_block}\n\n{statement_value}"
                 return meta_block
+
+        # A TEXT that follows another TEXT starts with its own marker, or the
+        # reader would read both as one (SDOC-MD-36).
+        if follows_text and len(statement_value) > 0:
+            return f"**Type**: TEXT\n\n{statement_value}"
 
         return statement_value
 

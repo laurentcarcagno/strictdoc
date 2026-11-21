@@ -387,24 +387,15 @@ class SDMarkdownReader:
             document.config.custom_metadata = None
 
         root_text = "".join(root_body_lines_without_meta)
-        if len(root_text.strip()) > 0:
-            root_text_mid, root_text_statement = (
-                SDMarkdownReader._try_parse_text_meta(root_text)
-            )
-            root_text_statement = (
-                SDMarkdownReader._strip_leading_statement_label(
-                    root_text_statement
-                )
-            )
-            root_text_node = SDMarkdownReader._create_text_node(
+        document.section_contents.extend(
+            SDMarkdownReader._create_text_nodes(
                 parent=document,
-                statement=root_text_statement,
+                body=root_text,
                 document_reference=document_reference,
                 including_document_reference=including_document_reference,
-                mid=root_text_mid,
                 line_start=root_heading.line_start,
             )
-            document.section_contents.append(root_text_node)
+        )
 
     @staticmethod
     def _create_document_tree(
@@ -712,22 +703,16 @@ class SDMarkdownReader:
                     project_config=project_config,
                     has_custom_grammar=has_custom_grammar,
                 )
-        elif len(effective_body.strip()) > 0:
-            text_mid, text_statement = SDMarkdownReader._try_parse_text_meta(
-                effective_body
+        else:
+            section_node.section_contents.extend(
+                SDMarkdownReader._create_text_nodes(
+                    parent=section_node,
+                    body=effective_body,
+                    document_reference=document_reference,
+                    including_document_reference=including_document_reference,
+                    line_start=heading_line_start,
+                )
             )
-            text_statement = SDMarkdownReader._strip_leading_statement_label(
-                text_statement
-            )
-            text_node = SDMarkdownReader._create_text_node(
-                parent=section_node,
-                statement=text_statement,
-                document_reference=document_reference,
-                including_document_reference=including_document_reference,
-                mid=text_mid,
-                line_start=heading_line_start,
-            )
-            section_node.section_contents.append(text_node)
 
         return section_node
 
@@ -910,6 +895,17 @@ class SDMarkdownReader:
             )
         )
 
+        # A `**Type**: TEXT` marker in the body is the start of a TEXT node, not
+        # a Type field of the heading (SDOC-MD-36): only the meta block of the
+        # heading can set its type.
+        content_fields = [
+            field_
+            for field_ in content_fields
+            if not (
+                field_.name == "Type"
+                and field_.value.strip().split("\n")[0].rstrip(" \\") == "TEXT"
+            )
+        ]
         parsed_fields = meta_fields + content_fields
 
         # These 8 reserved field roles back shared SDocNode accessors
@@ -1554,6 +1550,85 @@ class SDMarkdownReader:
         return requirement
 
     @staticmethod
+    def _find_text_record_boundaries(body: str) -> List[int]:
+        """
+        Find the line indices where a TEXT record starts in a body: a
+        `**Type**: TEXT` line at column 0, outside fenced code, that opens the
+        body or follows a blank line. A body that holds several such markers
+        holds several TEXT nodes (SDOC-MD-36).
+        """
+        body_lines = body.splitlines(keepends=True)
+        fence_interior = SDMarkdownReader._compute_fence_interior_lines(
+            body_lines
+        )
+        boundaries: List[int] = []
+        for line_index, line in enumerate(body_lines):
+            if line_index in fence_interior:
+                continue
+            if line_index > 0 and not SDMarkdownReader._is_empty_line(
+                body_lines[line_index - 1]
+            ):
+                continue
+            if SDMarkdownReader._text_type_line_re.match(
+                SDMarkdownReader._line_without_line_ending(line)
+            ):
+                boundaries.append(line_index)
+        return boundaries
+
+    @staticmethod
+    def _create_text_nodes(
+        *,
+        parent: Union[SDocDocument, SDocNode],
+        body: str,
+        document_reference: DocumentReference,
+        including_document_reference: DocumentReference,
+        line_start: Optional[int],
+    ) -> List[SDocNode]:
+        """
+        Build the TEXT nodes of a body. Without a `**Type**: TEXT` marker the
+        whole body is one node. Each marker opens a node, and what precedes the
+        first marker is a node of its own (SDOC-MD-36).
+        """
+        if len(body.strip()) == 0:
+            return []
+        body_lines = body.splitlines(keepends=True)
+        boundaries = SDMarkdownReader._find_text_record_boundaries(body)
+        starts = [0] if len(boundaries) == 0 or boundaries[0] > 0 else []
+        starts.extend(boundaries)
+        chunks: List[str] = []
+        for chunk_index, start in enumerate(starts):
+            end = (
+                starts[chunk_index + 1]
+                if chunk_index + 1 < len(starts)
+                else len(body_lines)
+            )
+            chunks.append("".join(body_lines[start:end]))
+
+        text_nodes: List[SDocNode] = []
+        for chunk in chunks:
+            if len(chunk.strip()) == 0:
+                continue
+            text_mid, text_statement = SDMarkdownReader._try_parse_text_meta(
+                chunk
+            )
+            text_statement = SDMarkdownReader._strip_leading_statement_label(
+                text_statement
+            )
+            if len(text_statement.strip()) == 0 and text_mid is None:
+                continue
+            text_nodes.append(
+                SDMarkdownReader._create_text_node(
+                    parent=parent,
+                    statement=text_statement,
+                    document_reference=document_reference,
+                    including_document_reference=including_document_reference,
+                    mid=text_mid,
+                    line_start=line_start,
+                )
+            )
+        return text_nodes
+
+    @staticmethod
     def _try_parse_text_meta(body: str) -> Tuple[Optional[str], str]:
         r"""
         Detect and extract a **Type**: TEXT \\ **MID**: <value> prefix block
@@ -1564,21 +1639,24 @@ class SDMarkdownReader:
         after the blank line that follows the meta block.
         """
         lines = body.splitlines(keepends=True)
-        if len(lines) < 2:
+        if len(lines) < 1:
             return None, body
 
         line0 = lines[0].rstrip("\r\n")
         if not SDMarkdownReader._text_type_line_re.match(line0):
             return None, body
 
-        line1 = lines[1].rstrip("\r\n")
-        mid_match = SDMarkdownReader._text_mid_line_re.match(line1)
-        if not mid_match:
-            return None, body
-
-        mid_value = mid_match.group(1)
-
-        idx = 2
+        if not line0.endswith("\\"):
+            # The marker alone, without a MID: **Type**: TEXT.
+            mid_value = None
+            idx = 1
+        else:
+            line1 = lines[1].rstrip("\r\n")
+            mid_match = SDMarkdownReader._text_mid_line_re.match(line1)
+            if not mid_match:
+                return None, body
+            mid_value = mid_match.group(1)
+            idx = 2
         while idx < len(lines) and not SDMarkdownReader._is_empty_line(
             lines[idx]
         ):

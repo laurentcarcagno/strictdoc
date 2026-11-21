@@ -1339,3 +1339,150 @@ def test_033_roundtrip_multiple_comments_roundtrip():
         "First comment.",
         "Second comment.",
     ]
+
+
+def test_034_roundtrip_consecutive_text_nodes_in_a_section():
+    input_markdown = """\
+# Document title
+
+## Section
+
+First text.
+
+**Type**: TEXT
+
+Second text.
+
+**Type**: TEXT
+
+Third text.
+"""
+
+    document, _ = _assert_markdown_roundtrip(input_markdown)
+
+    section = document.section_contents[0]
+    assert isinstance(section, SDocNode)
+    assert [
+        child_.get_content_field().get_text_value().strip()
+        for child_ in section.section_contents
+    ] == ["First text.", "Second text.", "Third text."]
+
+
+def test_035_roundtrip_consecutive_text_nodes_with_mid_in_a_section():
+    input_markdown = """\
+# Document title
+
+## Section
+
+**Type**: SECTION
+
+**Type**: TEXT \\
+**MID**: 11111111111111111111111111111111
+
+First text.
+
+**Type**: TEXT \\
+**MID**: 22222222222222222222222222222222
+
+Second text.
+"""
+    reader = SDMarkdownReader()
+    document = reader.read(input_markdown, file_path=None)
+    section = document.section_contents[0]
+    assert isinstance(section, SDocNode)
+    assert [
+        (
+            child_.ordered_fields_lookup["MID"][0].get_text_value(),
+            child_.get_content_field().get_text_value().strip(),
+        )
+        for child_ in section.section_contents
+    ] == [
+        ("11111111111111111111111111111111", "First text."),
+        ("22222222222222222222222222222222", "Second text."),
+    ]
+
+
+def test_036_roundtrip_consecutive_text_nodes_at_the_document_root():
+    input_markdown = """\
+# Document title
+
+First text.
+
+**Type**: TEXT
+
+Second text.
+
+## Section
+"""
+    document, _ = _assert_markdown_roundtrip(input_markdown)
+
+    assert [
+        node_.get_content_field().get_text_value().strip()
+        for node_ in document.section_contents[:2]
+    ] == ["First text.", "Second text."]
+    assert document.section_contents[2].node_type == "SECTION"
+
+
+def test_037_a_type_text_marker_in_fenced_code_is_not_a_boundary():
+    input_markdown = """\
+# Document title
+
+## Section
+
+```text
+**Type**: TEXT
+
+not a node
+```
+"""
+    document, _ = _assert_markdown_roundtrip(input_markdown)
+
+    section = document.section_contents[0]
+    assert isinstance(section, SDocNode)
+    assert len(section.section_contents) == 1
+
+
+def test_038_sdoc_with_consecutive_texts_and_a_custom_grammar_to_markdown():
+    input_sdoc = """\
+[DOCUMENT]
+TITLE: Document title
+
+[GRAMMAR]
+ELEMENTS:
+- TAG: SECTION
+  PROPERTIES:
+    IS_COMPOSITE: True
+  FIELDS:
+  - TITLE: TITLE
+    TYPE: String
+    REQUIRED: True
+- TAG: TEXT
+  FIELDS:
+  - TITLE: STATEMENT
+    TYPE: String
+    REQUIRED: True
+
+[[SECTION]]
+TITLE: Section
+
+[TEXT]
+STATEMENT: >>>
+First text.
+<<<
+
+[TEXT]
+STATEMENT: >>>
+Second text.
+<<<
+
+[[/SECTION]]
+"""
+    document = SDReader.read(input_sdoc, file_path=None)
+    output_markdown = SDMarkdownWriter().write(document)
+
+    # The SECTION holds prose: its Type marker keeps the reader from turning
+    # the heading into a node, and the second TEXT has its own marker.
+    assert "## Section\n\n**Type**: SECTION\n\nFirst text.\n\n" in (
+        output_markdown
+    )
+    assert "**Type**: TEXT\n\nSecond text." in output_markdown
