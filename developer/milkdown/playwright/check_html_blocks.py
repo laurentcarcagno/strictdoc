@@ -12,7 +12,7 @@ Usage (see README.md):
     python check_html_blocks.py
 
 CHROMIUM is an optional path to the browser, when the Playwright default is not
-installed. The exit code is 1 when a check fails.
+installed. BROWSER is chromium (the default), firefox or webkit. The exit code is 1 when a check fails.
 """
 
 import http.server
@@ -221,7 +221,10 @@ def main() -> int:
         server = serve(folder)
         try:
             with sync_playwright() as playwright:
-                browser = playwright.chromium.launch(
+                browser_type = getattr(
+                    playwright, os.environ.get("BROWSER", "chromium")
+                )
+                browser = browser_type.launch(
                     executable_path=os.environ.get("CHROMIUM") or None
                 )
                 page = browser.new_page()
