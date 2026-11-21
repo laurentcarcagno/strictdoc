@@ -49,14 +49,14 @@ Il faudra aussi relire le rendu HTML des deux exemples corrigés.
 |---|---|---|
 | E-01 | `--formats=markdown` n'écrit pas la grammaire. Un document à grammaire en ligne ne se relit pas (« Invalid requirement field: VERSION »). | Écrire un `.gra.md` par grammaire en ligne et le citer dans `**Grammar**:`. Une grammaire déjà dans un `.sgra` devient un `.gra.md` commun. |
 | E-02 | Le lecteur Markdown place le TITLE du titre juste après les champs `MID`, `UID`, `LEVEL`, `STATUS`, `TAGS`. Une grammaire qui les range autrement donne « Wrong field order ». | Soit réordonner la grammaire en conversion, ce que fait le prototype, soit corriger le lecteur (E-07). |
-| E-03 | `MarkdownGrammarWriter` écrit `**Prefix**: None` quand l'élément n'a pas de préfixe (grammaire du guide utilisateur). Relu, le préfixe vaut la chaîne `None`. | N'écrire `Prefix` que s'il a une valeur, avec un test. |
-| E-04 | Sans champ `MID` dans la grammaire, une section qui n'a qu'un texte se relit comme une exigence, car le marqueur `**Type**: SECTION` n'est pas écrit. | Ajouter un champ `MID` à chaque élément de la grammaire. Le prototype le fait, et c'est de toute façon le conseil n° 1 (section 6). |
+| E-03 | `**Prefix**: None` dans la grammaire du guide utilisateur. **Corrigé à l'usage : ce n'est pas une erreur.** `PREFIX: None` est la valeur littérale « None » que StrictDoc teste (`== "None"`) pour dire « pas d'UID automatique ». Le writer la garde telle quelle. | Aucune ; un test le fixe (N-03). |
+| E-04 | Avec une grammaire propre au document, une section qui contient du texte se relit comme une exigence (tout titre qui a des champs devient un nœud), et ses sous-sections disparaissent : 131 exigences deviennent 97 sur REQ_02 sans champ `MID`. Le marqueur `**Type**: SECTION` n'était écrit qu'avec un champ `MID` ou un élément hors SECTION, TEXT, REQUIREMENT. | Le writer écrit le marqueur dès qu'une section contient un TEXT sous une grammaire propre au document (SDOC-MD-37). **Fait.** |
 
 ### 3.3 Écarts du format (à décider)
 
 | Id | Écart | Effet sur REQ_02 | Options |
 |---|---|---|---|
-| E-05 | Deux nœuds TEXT qui se suivent sous un même titre ne se relisent pas séparément. Le second marqueur `**Type**: TEXT \ **MID**: …` reste dans le texte du premier et s'affiche (HTML, Word). La spécification (MD-27, MD-28) ne prévoit qu'un texte par corps de titre. | 5 suites de textes, dont la page de garde (15 textes) | a) fusionner les textes consécutifs à la conversion ; b) étendre le lecteur et la spécification : plusieurs enregistrements `**Type**: TEXT` dans un corps, comme MD-35 le fait pour les exigences |
+| E-05 | Deux nœuds TEXT qui se suivent sous un même titre ne se relisent pas séparément. Le second marqueur `**Type**: TEXT \ **MID**: …` reste dans le texte du premier et s'affiche (HTML, Word). La spécification (MD-27, MD-28) ne prévoit qu'un texte par corps de titre. **Décidé : option b, fait (SDOC-MD-36).** | 5 suites de textes, dont la page de garde (15 textes) | a) fusionner les textes consécutifs à la conversion ; b) étendre le lecteur et la spécification : plusieurs enregistrements `**Type**: TEXT` dans un corps, comme MD-35 le fait pour les exigences |
 | E-06 | Les `OPTIONS` du document sont perdues : `ENABLE_MID`, `VIEW_STYLE`, `NODE_IN_TOC` (`REQUIREMENT_IN_TOC`), `ROOT`, `AUTO_LEVELS`, `LAYOUT`, `DEFAULT_VIEW`. Le MID du document est perdu aussi. | REQ_02 n'a que `MARKUP: Markdown`, donc aucun effet | a) accepter la perte document par document ; b) ajouter ces clés aux métadonnées reconnues (spécification, lecteur, rédacteur). `ENABLE_MID` est déjà couvert par le champ `MID` de la grammaire, et `VIEW_STYLE` par `View style` par élément. |
 | E-07 | Le classement des champs méta est figé dans le lecteur (`requirement_meta_fields`), d'où E-02. | Contourné par E-02 | Corriger le lecteur : garder l'ordre des champs du bloc méta et placer TITLE selon la grammaire |
 | E-08 | `[DOCUMENT_FROM_FILE]` n'existe pas en `.md`. Le fragment devient un document séparé et le point d'inclusion disparaît sans avertissement. | Aucun fragment dans REQ_02 | a) laisser en `.sdoc` les documents qui incluent des fragments ; b) recopier le fragment dans le document ; c) ajouter l'inclusion au format (travail de spécification) |
@@ -141,3 +141,37 @@ Ordre : N-01, puis N-03 et N-02, N-04, N-05, N-06, N-07 et N-08, puis N-09. N-04
 - Les écrans de la section 4 ont été trouvés par recherche de texte, pas testés.
 - `kb-platform` n'a pas été essayé avec un `.md`.
 - Le convertisseur prototype est resté hors du dépôt : N-02 le réécrit avec des tests.
+
+## 9. Avancement
+
+Branche `feature/markdown-native`, créée à partir de `feature/markdown-only`.
+
+### Décisions de N-01
+
+Prises sur mes recommandations de la section 3.3, puisque vous avez demandé de commencer le développement. Dites-moi si l'une d'elles ne vous convient pas.
+
+| Écart | Décision |
+|---|---|
+| E-05 | Étendre le lecteur, le rédacteur et la spécification : plusieurs `**Type**: TEXT` par corps (SDOC-MD-36). |
+| E-06 | Accepter la perte des `OPTIONS` et du MID du document. Le convertisseur la signale document par document. |
+| E-08 | Laisser en `.sdoc` les documents qui incluent des fragments, et les fragments. Le convertisseur les saute et le dit. |
+| E-09 | Accepter : `FORMAT` n'a qu'une valeur (`Sourcecode`, la valeur par défaut) et ne sert qu'à l'export JSON. Le convertisseur ignore cette clé dans sa comparaison. |
+
+### Tâches
+
+| Tâche | État | Détail |
+|---|---|---|
+| N-01 | fait | voir ci-dessus |
+| N-02 | fait | `developer/tools/sdoc_to_markdown.py` : `--output-dir`, `--in-place`, `--rename-only` (le `git mv` seul, pour deux commits), `--check` (relit les deux arbres avec StrictDoc dans un dossier de travail et compare documents, nœuds, champs, relations ; n'écrit rien en cas de différence sans `--force`), `--strict`, `--dry-run`. Le convertisseur laisse les documents avec fragments ou avec une grammaire `.sgra`. Tests : `tests/unit/developer/test_sdoc_to_markdown_script.py` (10 tests) |
+| N-03 | fait | sans objet pour le writer (E-03 n'est pas une erreur) ; un test garde `**Prefix**: None` |
+| N-04 | en cours | fait : plusieurs TEXT par corps (E-05), marqueur SECTION (E-04), un `**Type**: TEXT` du corps n'est plus le type du titre. Reste : l'ordre des champs méta du lecteur (E-07), que le convertisseur contourne en réordonnant la grammaire |
+| N-05 à N-10 | à faire | |
+
+### Résultats de l'essai avec le convertisseur
+
+| Corpus | Résultat de `--check` |
+|---|---|
+| Copie de REQ_02 | arbre identique : 131 exigences, 56 sections, 23 textes (avant : 15 textes fondus en 1) |
+| `docs/` de StrictDoc | arbre identique, 14 documents convertis ; le guide utilisateur et son fragment restent en `.sdoc` (E-08) |
+| Document synthétique | les deux documents sont sautés (fragment) |
+
