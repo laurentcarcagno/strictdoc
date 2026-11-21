@@ -182,7 +182,7 @@ STATEMENT: >>>
 StrictDoc's data model shall support configuring the document options:
 
 - Enable/disable MID
-- Markup choice, e.g., RST, HTML, etc.
+- Markup choice: Markdown (default) or HTML
 - Levels (automatic or manual)
 - Node style
 - Default presentation view.
@@ -388,8 +388,7 @@ StrictDoc shall implement its own text markup language called S-Doc
 <<<
 RATIONALE: >>>
 The most commonly used Markdown format lacks the ability to store requirements
-metadata. While the RST syntax does allow for customization with directives to
-implement metadata extensions, its visual appearance contradicts other
+metadata. While the Markdown syntax can carry metadata only by convention, its visual appearance contradicts other
 requirements of StrictDoc, such as the type-safety of the grammar and visual
 readability. Therefore, a markup language tailored specifically to the needs of
 the requirements tool provides direct control over the capabilities implemented
@@ -596,7 +595,7 @@ UID: SDOC-SRS-24
 STATUS: Active
 TITLE: Format-specific markup-to-HTML fragment writers
 STATEMENT: >>>
-StrictDoc shall render supported markup formats (at least RST and Markdown) to
+StrictDoc shall render supported markup formats (Markdown and HTML) to
 HTML fragments via dedicated format-specific writers selected by markup type.
 <<<
 RELATIONS:
@@ -1939,33 +1938,6 @@ UID: SECTION-SRS-Export-import-formats
 TITLE: Export/import formats
 
 [[SECTION]]
-MID: ce1d174a4d794250931a5ba519583be6
-UID: SECTION-SRS-RST
-TITLE: RST
-
-[REQUIREMENT]
-MID: 6faffbd1d4cc47ea88c08ef38966e5ec
-UID: SDOC-SRS-71
-STATUS: Active
-TITLE: Docutils
-STATEMENT: >>>
-StrictDoc shall generate RST markup to HTML using Docutils.
-<<<
-RATIONALE: >>>
-Docutils is the most mature RST-to-HTML converter.
-<<<
-COMMENT: >>>
-TBD: Move this to design decisions.
-<<<
-RELATIONS:
-- TYPE: Parent
-  VALUE: DO178-5
-- TYPE: Parent
-  VALUE: DO178-16
-
-[[/SECTION]]
-
-[[SECTION]]
 MID: a906dfb776334b8985f778f0fe1b79e4
 UID: SECTION-SRS-ReqIF
 TITLE: ReqIF
@@ -2306,25 +2278,6 @@ StrictDoc shall support incremental generation of documents.
 
 NOTE: "Incremental" means that only the modified documents are regenerated when
 StrictDoc is run repeatedly against the same project tree.
-<<<
-RELATIONS:
-- TYPE: Parent
-  VALUE: SDOC-SSS-13
-- TYPE: Parent
-  VALUE: SDOC-SSS-14
-
-[REQUIREMENT]
-MID: 5f2df631605543d18d57e09bc3791003
-UID: SDOC-SRS-3
-STATUS: Active
-TITLE: Caching of RST fragments
-STATEMENT: >>>
-StrictDoc shall cache the RST fragments rendered to HTML.
-<<<
-RATIONALE: >>>
-Conversion of RST markup to HTML is a time consuming process. Caching the
-rendered HTML of each fragment helps to save time when rendering the HTML
-content.
 <<<
 RELATIONS:
 - TYPE: Parent

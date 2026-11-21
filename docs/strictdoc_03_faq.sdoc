@@ -214,7 +214,7 @@ STATEMENT: >>>
 StrictDoc is only partially compatible with Sphinx.
 
 StrictDoc does not have Sphinx in its dependency tree, and it does not use any
-of Sphinx API. Instead, StrictDoc uses Docutils for RST markup support.
+of Sphinx API. StrictDoc reads Markdown and HTML markup only.
 
 StrictDoc no longer exports SDoc content to RST, so it no longer feeds a Sphinx
 documentation tree.

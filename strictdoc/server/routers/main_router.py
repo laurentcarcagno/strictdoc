@@ -72,7 +72,6 @@ from strictdoc.core.feature import FeatureContext
 from strictdoc.core.image_formats import (
     MAX_IMAGE_SIZE_BYTES,
     SUPPORTED_IMAGE_FORMAT_NAMES,
-    SUPPORTED_IMAGE_FORMATS,
     is_supported_image_format,
 )
 from strictdoc.core.project_config import ProjectConfig
@@ -2941,37 +2940,16 @@ def create_main_router(
                 (rst_safe_filename, extension.lower())
             )
 
-        # Resolve Sphinx wildcard (.*) paths for the uploaded files.
-        # @relation(SDOC-LLR-216, scope=range_start)
-        existing_image_stems_to_ext_set: dict[str, set[str]] = defaultdict(set)
-        for sibling in os.listdir(assets_node_specific_subfolder):
-            full_path = os.path.join(assets_node_specific_subfolder, sibling)
-            if not os.path.isfile(full_path):
-                continue
-            stem, extension = os.path.splitext(sibling)
-            if extension.lower() in SUPPORTED_IMAGE_FORMATS:
-                existing_image_stems_to_ext_set[stem].add(extension.lower())
-
+        # The URI of each uploaded file is the path of the file.
         uploaded_image_uris: dict[str, str] = {}
-        for stem, uploaded_stem_files in uploaded_files_by_stem.items():
-            found_extensions = existing_image_stems_to_ext_set.get(stem, set())
-            uri_base = (
-                f"./_assets/{asset_subfolder_name}"
-                if asset_subfolder_name
-                else "./_assets"
-            )
-            has_wildcard_pair = ".svg" in found_extensions and any(
-                extension != ".svg" for extension in found_extensions
-            )
-            if has_wildcard_pair:
-                wildcard_uri = f"{uri_base}/{stem}.*"
-                for filename, _ in uploaded_stem_files:
-                    uploaded_image_uris[filename] = wildcard_uri
-            else:
-                for filename, _ in uploaded_stem_files:
-                    uploaded_image_uris[filename] = f"{uri_base}/{filename}"
-
-        # @relation(SDOC-LLR-216, scope=range_end)
+        uri_base = (
+            f"./_assets/{asset_subfolder_name}"
+            if asset_subfolder_name
+            else "./_assets"
+        )
+        for uploaded_stem_files in uploaded_files_by_stem.values():
+            for filename, _ in uploaded_stem_files:
+                uploaded_image_uris[filename] = f"{uri_base}/{filename}"
 
         # We need to re-export the assets to copy the new files to the output folder
         html_generator.export_project_assets(

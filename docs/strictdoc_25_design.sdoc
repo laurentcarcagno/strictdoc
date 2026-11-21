@@ -320,7 +320,7 @@ reading and computation of already-parsed objects.
 The cached artifacts include:
 
 - Precompiled Jinja templates
-- RST fragments converted to HTML
+- Markdown fragments converted to HTML
 - Pickled Python objects from parsed SDoc files
 - Pickled Python objects from parsed source files
 - Git revisions used for the Diff/Changelog feature.

@@ -112,6 +112,32 @@ The `RSTFormat` class and the RST templates are gone. The sections of the
 user guide about the export through Sphinx and about wildcard image paths for
 Sphinx are removed with it. The RST markup of the fields (`MARKUP: RST`) is
 not affected by this change.
+
+12\) Breaking change: StrictDoc reads Markdown and HTML only. The RST and Text
+markups are removed, and docutils is no longer a dependency.
+
+- `MARKUP` is optional. A field is Markdown unless the document says
+  `MARKUP: HTML`, and `MARKUP: Markdown` is accepted and changes nothing.
+  `MARKUP: RST` and `MARKUP: Text` stop with an error that points to the
+  converter. A Markdown field that still looks like RST (a directive, a literal
+  between double backticks, a grid table, an underlined title) is reported once
+  per document.
+- The converter `developer/tools/rst_to_markdown.py` rewrites the RST fields of
+  `.sdoc` files as Markdown (the admonitions, the tables, the definition lists
+  and the numbered equations become HTML elements that the user guide
+  describes). It stays in the git tag `rst-to-markdown-converter`. See the
+  section "Migrating the RST fields to Markdown" of the user guide.
+- The `MATHJAX` feature and the `--enable-mathjax` option are removed;
+  MathJax is loaded as before. A configuration that lists `MATHJAX` stops with
+  the unknown feature error.
+- `--reqif-import-markup` takes `Markdown` or `HTML` (default `Markdown`), and
+  a Word profile with a `markup` other than `Markdown` stops with an error.
+- The review comment header is the HTML comment `<!-- sdoc-comment ... -->`
+  only.
+- The fields no longer get a syntax check when a node is saved in the web
+  interface, and the wildcard image path (`image.*`) is gone.
+- The HTML of a Markdown field goes through an allow-list of elements and
+  attributes: scripts and event attributes are shown as text or removed.
 <<<
 
 [[/SECTION]]

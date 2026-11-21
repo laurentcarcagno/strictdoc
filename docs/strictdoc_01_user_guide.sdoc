@@ -2731,22 +2731,12 @@ TITLE: Markup
 [TEXT]
 MID: a3d675f38a1341548722239e994e55e1
 STATEMENT: >>>
-The Restructured Text (reST) markup is the default markup supported by
-StrictDoc. The reST markup can be written inside all StrictDoc's text blocks,
-such as `STATEMENT`, `COMMENT`, `RATIONALE`, etc.
-
-See the [reST syntax documentation](https://docutils.sourceforge.io/rst.html)
-for a full reference.
-
-<div class="sdoc-admonition sdoc-note" role="note">
-<p class="sdoc-admonition-title">Note</p>
-
-StrictDoc supports a Docutils-subset of RST, not a Sphinx-subset.
-See [LINK: SDOC_UG_LIMIT_RST].
-
-</div>
-
-The support of Tex and HTML is planned.
+Markdown (CommonMark with pipe tables) is the markup of StrictDoc. It can be
+written inside all text blocks, such as `STATEMENT`, `COMMENT`, `RATIONALE`,
+etc. What Markdown has not got is written as HTML: see
+[LINK: SECTION-UG-Markdown-HTML-elements]. A document can declare `MARKUP: HTML`
+to write its fields as HTML. The RST markup is no longer supported: see
+[LINK: SECTION-UG-Migrate-RST-to-Markdown].
 <<<
 
 [[SECTION]]
@@ -2759,14 +2749,12 @@ STATEMENT: >>>
 To insert an image into a document, create a folder named `_assets` alongside
 your document and then place the image file into it.
 
-This is the example of how images are included using the reST syntax:
+This is the example of how images are included with Markdown:
 
 ```strictdoc
 [TEXT]
 STATEMENT: >>>
-.. image:: _assets/sandbox1.svg
-   :alt: Sandbox demo
-   :class: image
+![Sandbox demo](_assets/sandbox1.svg)
  <<<
 ```
 
@@ -2799,31 +2787,16 @@ Examples of using MathJax:
 ```strictdoc
 [TEXT]
 STATEMENT: >>>
-The following fragment will be rendered with MathJax:
+The following formula $a^2 + b^2 = c^2$ is rendered inline with the text.
 
-.. raw:: latex html
-    $$
-    \mathbf{\underline{k}}_{\text{a}} =
-    \mathbf{\underline{i}}_{\text{a}} \times
-    \mathbf{\underline{j}}_{\text{a}}
-    $$
+A block formula is written between two lines of $$, and `\tag{1}` numbers it:
+
+$$
+\mathbf{\underline{k}}_{\text{a}} =
+\mathbf{\underline{i}}_{\text{a}} \times
+\mathbf{\underline{j}}_{\text{a}} \tag{1}
+$$
  <<<
-```
-
-Sphinx-style syntax is also supported:
-
-```strictdoc
-[TEXT]
-STATEMENT: >>>
-The following formula :math:`a^2 + b^2 = c^2` is rendered inline with the text.
-
-When using the math directive, the enclosing $$ are not required.
-
-.. math::
-    \mathbf{\underline{k}}_{\text{a}} =
-    \mathbf{\underline{i}}_{\text{a}} \times
-    \mathbf{\underline{j}}_{\text{a}}
->>>
 ```
 
 See [LINK: SDOC_UG_CONFIG_FEATURES] for the description of other features.
@@ -3083,8 +3056,8 @@ def create_config() -> ProjectConfig:
 
 The minimum acceptable value is `80`. When set, the SDoc and Markdown writers
 wrap long text paragraphs to the configured width. Structured content such as
-bullet lists, numbered lists, indented code blocks, RST directives, and Markdown
-fenced code blocks are left unchanged.
+bullet lists, numbered lists, indented code blocks, and Markdown fenced code
+blocks are left unchanged.
 
 **Integration with the web interface**
 
@@ -3675,9 +3648,9 @@ multiline fields as XHTML attributes, not as STRING (the default behavior). This
 is useful for interfacing with tools, such as Polarion, which assume XHTML as
 the primary format for writing multiline text.
 
-`--reqif-import-markup={RST,HTML,Text}` This option makes StrictDoc import
+`--reqif-import-markup={Markdown,HTML}` This option makes StrictDoc import
 ReqIF to SDoc documents, setting their `MARKUP` option to the markup value
-provided. The default value is RST which is the default markup of StrictDoc.
+provided. The default value is Markdown which is the default markup of StrictDoc.
 When working with other ReqIF tools, very often this option can be set to HTML.
 It is likely that with this option, the previous option
 `--reqif-multiline-is-xhtml` should be enabled as well.
@@ -3955,10 +3928,11 @@ def create_profile() -> DocxProfile:
 - `free_text`: `"text"` keeps paragraphs outside requirements as text
   nodes. `"drop"` counts them in the report and skips them.
 - `document_title`: the title of the SDoc document. Default: the file name.
-- `markup`: `"RST"` (default) or `"Markdown"`. It sets how the import
-  writes the text of the nodes. With `"Markdown"` the SDoc document gets
-  `MARKUP: Markdown`, which the web interface edits with the WYSIWYG editor.
-  The export does not use this value: it reads the markup of each SDoc document.
+- `markup`: `"Markdown"`, the only value. The import writes the text of the
+  nodes as Markdown, and the SDoc document gets `MARKUP: Markdown`, which the web
+  interface edits with the WYSIWYG editor. The option stays so that a profile
+  written before the RST markup was removed loads; any other value stops with an
+  error.
 - `ignored_style_prefixes`: paragraph styles to skip. Default: tables of
   contents and tables of figures.
 - `note_style` and `warning_style`: the Word styles of the paragraphs of an
@@ -4172,10 +4146,10 @@ TITLE: Formatting and tracked changes
 [TEXT]
 MID: 925aebad4064473691fd37ee57561877
 STATEMENT: >>>
-Bold, italic and monospace runs become RST `**bold**`, `*italic*` and
-``` ``monospace`` ```. A Word list item becomes an RST list item.
+Bold, italic and monospace runs become Markdown `**bold**`, `*italic*` and
+`` `monospace` ``. A Word list item becomes a Markdown list item.
 
-Characters that RST treats as markup (`*`, backquote, backslash and a
+Characters that Markdown treats as markup (`*`, backquote, backslash and a
 trailing underscore) are escaped.
 
 Nested tables are flattened. Images and footnotes are not imported. Word
@@ -4387,9 +4361,8 @@ leaves the bars out; the address `/export_html2pdf/<mid>?revision_marks=false` d
 **Markdown.** A document that the web interface creates is in Markdown
 (`MARKUP: Markdown`), so its fields are edited with the visual editor. So is a document
 that the Word import writes when the project has no `docx_profile` (the generic
-profile); a profile file chooses its own `markup` (default `RST`). Documents that
-already exist keep their markup: set `MARKUP: Markdown` in their options to change it
-(the text must then be Markdown).
+profile). Documents that already exist in RST must be converted first: see
+[LINK: SECTION-UG-Migrate-RST-to-Markdown].
 <<<
 
 [[/SECTION]]
@@ -4436,10 +4409,10 @@ addresses answer with HTTP status 412.
 value is a header that renders as nothing:
 
 ```text
-.. sdoc-comment: id=c7f3a9 author=jane date=2026-10-10T12:00:00Z status=open
+<!-- sdoc-comment id=c7f3a9 author=jane date=2026-10-10T12:00:00Z status=open -->
 ```
 
-In a Markdown document the header is `<!-- sdoc-comment id=... -->`. A
+The header is an HTML comment. A
 comment without a header is a legacy comment: it is shown without author and
 date, as open, and it gets a header when someone edits it.
 
@@ -5031,24 +5004,22 @@ TITLE: Mermaid diagramming and charting tool
 [TEXT]
 MID: 6a4e4467a5c0451ea8291fd94309d525
 STATEMENT: >>>
-The Mermaid tool allows to create diagrams inside of StrictDoc/RST markup as
+The Mermaid tool allows to create diagrams inside of StrictDoc/Markdown markup as
 follows:
 
 ```strictdoc
 [TEXT]
 STATEMENT: >>>
-.. raw:: html
-
-    <pre class="mermaid">
-    graph TD
-    A[Enter Chart Definition] --> B(Preview)
-    B --> C{decide}
-    C --> D[Keep]
-    C --> E[Edit Definition]
-    E --> B
-    D --> F[Save Image and Code]
-    F --> B
-    </pre>
+```mermaid
+graph TD
+A[Enter Chart Definition] --> B(Preview)
+B --> C{decide}
+C --> D[Keep]
+C --> E[Edit Definition]
+E --> B
+D --> F[Save Image and Code]
+F --> B
+```
  <<<
 ```
 
@@ -5078,18 +5049,16 @@ TITLE: PlantUML diagramming tool
 [TEXT]
 MID: 6bd707bcbc2b4e77b65a8d7d02607daa
 STATEMENT: >>>
-PlantUML diagrams can be created inside of StrictDoc/RST markup as follows:
+PlantUML diagrams can be created inside of StrictDoc/Markdown markup as follows:
 
 ```strictdoc
 [TEXT]
 STATEMENT: >>>
-.. raw:: html
-
-    <pre class="plantuml">
-    @startuml
-    Alice -> Bob: Hello
-    @enduml
-    </pre>
+```plantuml
+@startuml
+Alice -> Bob: Hello
+@enduml
+```
  <<<
 ```
 
@@ -5331,8 +5300,7 @@ def create_config() -> ProjectConfig:
 ```
 
 Structured content is never wrapped: bullet lists, numbered lists, indented
-blocks (code), RST directives (`.. code::`, etc.), and Markdown fenced code
-blocks are preserved as-is.
+blocks (code), and Markdown fenced code blocks are preserved as-is.
 <<<
 
 [[/SECTION]]
@@ -5916,8 +5884,7 @@ Python class with a public interface, see
 One good example is the `SDWriter` class, which exercises the complete export
 of the Python data objects to the SDoc format. Since, the SDoc format is the
 primary data format of StrictDoc, the SDWriter is quite feature-rich in what it
-does and covers. The `RSTWriter` is less powerful because it does not reflect
-the full data model, but is probably worth a look as well.
+does and covers.
 
 The `strictdoc/backend/reqif` folder contains exporter/importer routines for
 the ReqIF format. There, the core classes from the Python data model, e.g.
@@ -6448,7 +6415,7 @@ STATEMENT: >>>
 StrictDoc keeps the Markdown and HTML markups only. A document without a
 `MARKUP` option used to be read as RST: the tool
 `developer/tools/rst_to_markdown.py` rewrites such a document in Markdown
-(the Git tag `pre-markdown-only` keeps it when the RST support is removed).
+(the Git tag `rst-to-markdown-converter` keeps it now that the RST support is removed).
 
 **Before.**
 
@@ -7266,22 +7233,6 @@ prepared to encounter various unknown or undefined behaviors in the process.
 MID: c3c6d6fe6e8140ca905d26dbbaae22b3
 UID: SDOC_UG_LIMIT
 TITLE: StrictDoc's limitations
-
-[[SECTION]]
-MID: 4fb2645146eb42c1be2152d480b61cfc
-UID: SDOC_UG_LIMIT_RST
-TITLE: Limitations of RST support by StrictDoc
-
-[TEXT]
-MID: f7b039831f4e4c1ea19b45efe71c5365
-STATEMENT: >>>
-StrictDoc uses Docutils for rendering RST to HTML, not Sphinx. The implication
-is that no Sphinx-specific RST directives are supported. Refer to this issue for
-the related discussion of the limitations:
-[Unexpected restriction on specific RST directives / compatibility with Breathe Sphinx Plugin #1093](https://github.com/strictdoc-project/strictdoc/issues/1093).
-<<<
-
-[[/SECTION]]
 
 [[SECTION]]
 MID: 076c2ae8d627491a85ddcacc132a4bc5
