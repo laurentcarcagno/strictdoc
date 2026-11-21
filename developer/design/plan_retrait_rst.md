@@ -1143,3 +1143,24 @@ Demandée par l'utilisateur le 2026-11-20. Elle couvre ce qui n'a pas pu être v
 - Non inspectés : les dépôts GitLab de documents, l'indexeur `kb-platform`, les prompts de l'assistant, Firefox et Safari pour l'éditeur.
 - Choix à confirmer : les documents `MARKUP: HTML` ne sont pas filtrés par la liste blanche ; dans le tableau d'une exigence, les encadrés Word gardent l'aspect de la cellule.
 
+### Résultat de la campagne (2026-11-21)
+
+Faite sur le poste Linux, avec Chrome for Testing 144 et son pilote, libtidy, Firefox 153 (Playwright) et `wordcraft-cli` à la place de Word.
+
+| Point | Résultat |
+|---|---|
+| Suites | lint OK ; unitaires 1452, intégration 544, serveur 394 réussis, aucun échec ; le test de fumée passe sans artifice (libtidy installé) |
+| end2end Selenium | 443 réussis sur 453. Les 10 qui échouent échouent aussi sur `develop` (même poste) : 6 tests de rôle de relation (le navigateur rend « REFINES » en majuscules), 2 tests de titre lisible de grammaire, l'alerte de l'éditeur de diagrammes, une erreur WebSocket du test des rôles |
+| Lanceur Docker | l'image se construit avec Podman et `invoke test-unit` y passe (1452) ; `run_tests.ps1` lui-même (Windows) n'a pas été lancé |
+| PDF réel (html2pdf4doc) | export d'un document avec encadrés, liste de définitions, tableau et équation numérotée : rendu vérifié sur les pages ; styles d'impression corrects |
+| Word | vérifié avec `wordcraft-cli` (rendu en image) : styles `Note` et `Warning`, indices et exposants, tableaux Markdown ; REQ_02 sur le modèle HEMERIA (46 pages) |
+| Éditeur | `check_html_blocks.py` passe dans Chrome 158 et dans Firefox 153 ; WebKit ne se lance pas sur ce système (bibliothèques d'Ubuntu 24.04) |
+| Documents déployés | `~/strictdoc-projects` : REQ_02 se lit, `MARKUP: Markdown`, pas de RST résiduel |
+
+Défauts trouvés et corrigés pendant la campagne :
+
+- **Éditeur absent** : un document sans option `MARKUP` n'était pas Markdown pour l'écran du document, qui ne chargeait pas le script de l'éditeur alors que les formulaires en affichaient l'élément : aucun champ ne se modifiait (216 tests e2e sur 453 échouaient). Corrigé, avec un test serveur.
+- **Tableau HTML dans Word** : exporté comme une ligne de texte par rangée (« NameValue »). C'est le format des tableaux que écrit le convertisseur : maintenant un tableau Word.
+- **Tests e2e** adaptés à l'éditeur visuel (aide de formulaire, tests d'envoi d'image et de diagrammes passés en `MARKUP: HTML`, test du joker `picture.*` adapté).
+
+Reste non vérifié : `run_tests.ps1` sous Windows, Word lui-même (le rendu `wordcraft-cli` est proche mais pas identique), Safari, les dépôts GitLab de documents autres que ceux de ce poste, `--baseline` sur un vrai projet, l'ajout d'un commentaire par l'interface sur un `.md`.
