@@ -921,6 +921,15 @@ Effort et risque : effort S (½ j) ; risque moyen.
 
 L'indexeur de la base de connaissances lit des `.sdoc` ; je ne peux pas voir s'il suppose du RST (dépôt hors de celui-ci). À vérifier avant de convertir des documents de mission.
 
+Constat (2026-11-21, dépôt `~/DEV/PUS/ISIS/kb-platform`, commit `3a7dad8`) :
+
+- L'indexeur ne suppose pas du RST. `sdoc_reader.py` et `export_sdoc.py` appellent `SDReader().read(...)` de StrictDoc et lisent `get_text_value()` des champs, c'est-à-dire le texte source, sans le rendre.
+- Il dépend de `strictdoc==0.30.2` (PyPI amont), pas de ce fork. Rien ne change tant que cette version est épinglée.
+- Avec le lecteur de ce fork : le fixture `demo.sdoc` (Markdown) est lu comme avant ; un document sans `MARKUP` est lu ; un document `MARKUP: RST` s'arrête avec l'erreur attendue.
+- Après conversion, le texte indexé contient les éléments HTML (`<div class="sdoc-admonition ...">`, `\tag{n}`) au lieu des directives RST. Ils s'ajoutent au texte des sections et des exigences : la recherche et les citations de l'assistant les verront.
+- Non vérifié : la suite de tests de `kb-platform` (il manque `psycopg` et `jsonschema` ici), et le comportement de l'indexeur avec un vrai document de mission converti.
+- Décision à prendre avant de convertir un document de mission : laisser les balises dans l'index, ou les retirer dans `sdoc_reader.py` (par exemple avec `strip_html_tags` de ce fork).
+
 #### F-08 Écrans qui rendent des champs
 
 Effort et risque : effort S (½ j) ; risque faible.
