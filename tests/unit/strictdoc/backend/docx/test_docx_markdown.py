@@ -387,3 +387,40 @@ def test_018_a_free_text_admonition_gets_the_word_styles_of_the_profile():
     assert 'w:pStyle w:val="Remarque"' in document_xml
     assert 'w:pStyle w:val="Avertissement"' in document_xml
     assert "&lt;div" not in document_xml
+
+
+HTML_TABLE = """\
+<table>
+<thead>
+<tr><th>Name</th><th>Value</th></tr>
+</thead>
+<tbody>
+<tr><td>Alpha</td><td><code>1</code> and <b>2</b></td></tr>
+<tr><td colspan="2">Merged<br>cell</td></tr>
+<tr><td rowspan="2">Tall</td><td>x</td></tr>
+<tr><td>y</td></tr>
+</tbody>
+</table>
+"""
+
+
+def test_019_an_html_table_is_a_table_with_its_spans_spread():
+    blocks = markdown_to_blocks("Before.\n\n" + HTML_TABLE + "\nAfter.\n")
+
+    [table] = [block_ for block_ in blocks if isinstance(block_, ExportTable)]
+    assert table.rows == [
+        ["Name", "Value"],
+        ["Alpha", "1 and 2"],
+        ["Merged cell", ""],
+        ["Tall", "x"],
+        ["", "y"],
+    ]
+    assert len(blocks) == 3
+
+
+def test_020_an_html_table_with_a_blank_line_stays_text():
+    text = "<table>\n<tr><td>a</td></tr>\n\n<tr><td>b</td></tr>\n</table>\n"
+
+    blocks = markdown_to_blocks(text)
+
+    assert not any(isinstance(block_, ExportTable) for block_ in blocks)

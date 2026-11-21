@@ -111,7 +111,12 @@ def markdown_to_blocks(markdown: str, base_dir: str = "") -> List[ExportBlock]:
             blocks.append(table)
         elif kind == "html_block":
             text = token.content.strip()
-            opening = _admonition_kind(text)
+            html_table = _html_table(text)
+            if html_table is not None:
+                blocks.append(html_table)
+                opening = None
+            else:
+                opening = _admonition_kind(text)
             if opening is not None:
                 admonition = opening
                 title = _ADMONITION_TITLE.search(text)
@@ -126,6 +131,8 @@ def markdown_to_blocks(markdown: str, base_dir: str = "") -> List[ExportBlock]:
                             )
                         )
                     )
+            elif html_table is not None:
+                pass
             elif (
                 admonition is not None
                 and _CLOSING_DIV.fullmatch(text) is not None
@@ -179,6 +186,103 @@ def _html_block_paragraphs(text: str, base_dir: str) -> List[ExportParagraph]:
     return [
         ExportParagraph([ExportRun(line_)]) for line_ in text_parser.lines()
     ]
+
+
+def _html_table(text: str) -> Optional[ExportTable]:
+    """
+    A Word table for an HTML block that is one <table>. A cell that spans
+    several columns or rows holds its text in the first cell it covers, and the
+    cells it covers are empty: the table has no merged cell.
+    """
+    if re.match(r"<table\b", text, re.IGNORECASE) is None:
+        return None
+    if re.search(r"</table>\s*$", text, re.IGNORECASE) is None:
+        return None
+    parser = _TableParser()
+    parser.feed(text)
+    parser.close()
+    if len(parser.rows) == 0:
+        return None
+    return ExportTable(parser.rows)
+
+
+class _TableParser(HTMLParser):
+    """The rows of an HTML table, with its spans spread over the grid."""
+
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.rows: List[List[str]] = []
+        self._cells: Optional[List[Tuple[str, int, int]]] = None
+        self._text: Optional[List[str]] = None
+        self._span: Tuple[int, int] = (1, 1)
+        # (column, rows left) of the cells that cover the rows below.
+        self._pending: List[Tuple[int, int]] = []
+
+    def handle_starttag(
+        self, tag: str, attrs: List[Tuple[str, Optional[str]]]
+    ) -> None:
+        if tag == "tr":
+            self._cells = []
+        elif tag in ("td", "th") and self._cells is not None:
+            attributes = dict(attrs)
+            self._span = (
+                _positive(attributes.get("colspan")),
+                _positive(attributes.get("rowspan")),
+            )
+            self._text = []
+        elif tag == "br" and self._text is not None:
+            self._text.append(" ")
+
+    def handle_endtag(self, tag: str) -> None:
+        if tag in ("td", "th") and self._cells is not None:
+            text = " ".join("".join(self._text or []).split())
+            self._cells.append((text, *self._span))
+            self._text = None
+        elif tag == "tr" and self._cells is not None:
+            self._end_row(self._cells)
+            self._cells = None
+
+    def handle_data(self, data: str) -> None:
+        if self._text is not None:
+            self._text.append(data)
+
+    def _end_row(self, cells: List[Tuple[str, int, int]]) -> None:
+        row: List[str] = []
+        carried = set(self._carry())
+        position = 0
+        for text, columns, rows_ in cells:
+            while position in carried:
+                row.append("")
+                position += 1
+            row.append(text)
+            for offset_ in range(1, columns):
+                row.append("")
+                if rows_ > 1:
+                    self._pending.append((position + offset_, rows_ - 1))
+            if rows_ > 1:
+                self._pending.append((position, rows_ - 1))
+            position += columns
+        while position in carried:
+            row.append("")
+            position += 1
+        self.rows.append(row)
+
+    def _carry(self) -> List[int]:
+        """The columns that a cell of a row above still covers."""
+        columns = [column_ for column_, _ in self._pending]
+        self._pending = [
+            (column_, rows_ - 1)
+            for column_, rows_ in self._pending
+            if rows_ > 1
+        ]
+        return columns
+
+
+def _positive(value: Optional[str]) -> int:
+    try:
+        return max(1, int(value or "1"))
+    except ValueError:
+        return 1
 
 
 class _TextParser(HTMLParser):
