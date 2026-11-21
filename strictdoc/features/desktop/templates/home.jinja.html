@@ -2,7 +2,8 @@
 {#
   The home screen of the desktop application: a welcome message on the first
   launch, then the catalog of the projects as a tree with a search by name.
-  Variables: assets, has_opened_project, error, project_count, root.
+  Variables: assets, has_opened_project, error, project_count, root,
+  running_identifiers (the projects whose server runs).
 #}
 {%- set role_labels = {
   "reader": _("reader"),
@@ -23,7 +24,8 @@
     {%- for project in folder.projects %}
     <li class="catalog__project" data-testid="catalog-project"
         data-name="{{ project.title|lower }}"
-        data-role="{{ project.role.value }}">
+        data-role="{{ project.role.value }}"
+        data-open="{{ 'true' if project.identifier in running_identifiers else 'false' }}">
       <form method="post" action="/projects/open" class="catalog__open">
         <input type="hidden" name="identifier"
                value="{{ project.identifier }}"/>
@@ -35,6 +37,11 @@
       <span class="catalog__project_role">
         {{ role_labels[project.role.value] }}
       </span>
+      {%- if project.identifier in running_identifiers %}
+      <span class="catalog__project_open_mark" data-testid="catalog-project-opened">
+        {{ _("opened") }}
+      </span>
+      {%- endif %}
       {%- if project.description %}
       <span class="catalog__project_description">
         {{ project.description }}

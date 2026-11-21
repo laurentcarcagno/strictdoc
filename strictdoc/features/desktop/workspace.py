@@ -30,6 +30,9 @@ REMOTE_NAME = "origin"
 # adds its own sub-folders to the folder that the user chooses.
 WINDOWS_MAX_FOLDER_PATH_LENGTH = 200
 
+# "git pull" is stopped after this time, for example on a network that drops.
+PULL_TIMEOUT_SECONDS = 30.0
+
 _SCP_LIKE_URL = re.compile(r"^[^@/:]+@([^:/]+):(?!//)(.+)$")
 
 
@@ -135,19 +138,68 @@ def clone_project(clone_url: str, folder: str) -> None:
     """
     Clone the repository into an empty folder.
 
-    A failure empties the folder again, so that the user can retry with the
+    The function checks the folder itself, just before the clone: a folder
+    with anything in it is left untouched and raises a WorkspaceError. A
+    failed clone empties the folder again, so that the user can retry with the
     same folder, and raises a WorkspaceError with a message to show. Git never
     asks for a password: without a credential, the clone fails.
     """
     if clone_url.strip().startswith("-"):
         raise WorkspaceError(_get_clone_failed_message("invalid URL"))
+    full_path = os.path.abspath(folder)
+    if os.path.lexists(full_path) and (
+        not os.path.isdir(full_path) or len(os.listdir(full_path)) > 0
+    ):
+        raise WorkspaceError(
+            gettext(
+                "The folder %(folder)s is not empty and does not hold this "
+                "project. Choose an empty folder."
+            )
+            % {"folder": full_path}
+        )
+    was_folder_present = os.path.isdir(full_path)
     try:
         _clone(clone_url, folder)
     except (GitError, OSError) as exception_:
-        _empty_folder(folder)
+        # Only a folder that was empty before is emptied. A missing folder is
+        # created by Git, which removes it when the clone fails.
+        if was_folder_present:
+            _empty_folder(folder)
         raise WorkspaceError(
             _get_clone_failed_message(_get_error_summary(exception_))
         ) from exception_
+
+
+def pull_project(
+    folder: str, *, timeout_seconds: float = PULL_TIMEOUT_SECONDS
+) -> bool:
+    """
+    Bring the project up to date from its remote, in the way of a
+    fast-forward only: "git pull --ff-only".
+
+    It returns True when the update changed files and False when there was
+    nothing to change. It raises WorkspaceError when Git cannot do it: no
+    remote, no network, a branch that has its own commits, a change that
+    would be overwritten. In all these cases Git leaves the files as they
+    were. Git never asks for a password, and it is stopped after the timeout.
+    """
+    try:
+        repo = Repo(folder)
+    except (GitError, OSError) as exception_:
+        raise WorkspaceError(_get_error_summary(exception_)) from exception_
+    try:
+        head_before = repo.head.commit.hexsha if repo.head.is_valid() else None
+        with repo.git.custom_environment(GIT_TERMINAL_PROMPT="0"):
+            repo.git.pull(
+                "--ff-only",
+                kill_after_timeout=timeout_seconds,
+            )
+        head_after = repo.head.commit.hexsha if repo.head.is_valid() else None
+        return head_before != head_after
+    except (GitError, OSError, ValueError) as exception_:
+        raise WorkspaceError(_get_error_summary(exception_)) from exception_
+    finally:
+        repo.close()
 
 
 def _clone(clone_url: str, folder: str) -> None:

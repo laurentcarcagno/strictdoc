@@ -16,6 +16,7 @@ import tempfile
 import time
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
+from urllib.parse import urlsplit
 
 from strictdoc.features.desktop.settings import DesktopSettings, save_settings
 from tests.end2end.conftest import test_environment
@@ -34,10 +35,12 @@ class DesktopTestServer(SDocTestServer):
         project_path: Optional[str] = None,
         language: Optional[str] = None,
         user_path: Optional[str] = None,
+        kept_servers: Optional[int] = None,
         port: Optional[int] = None,
     ) -> None:
         super().__init__(input_path=input_path, port=port)
         self.language: Optional[str] = language
+        self.kept_servers: Optional[int] = kept_servers
         self.project_path: Optional[str] = project_path
         self.fake_catalog_path: Optional[str] = fake_catalog_path
         # The folders of the user. Without a given folder, run() creates a
@@ -58,6 +61,9 @@ class DesktopTestServer(SDocTestServer):
                 DesktopSettings(
                     catalog_provider="fake",
                     fake_catalog_path=self.fake_catalog_path,
+                    kept_servers=self.kept_servers
+                    if self.kept_servers is not None
+                    else DesktopSettings().kept_servers,
                 ),
                 # The path that platformdirs gives under XDG_CONFIG_HOME.
                 path=Path(self.get_settings_path()),
@@ -78,6 +84,14 @@ class DesktopTestServer(SDocTestServer):
         return os.path.join(
             self.user_path, "config", APPLICATION_NAME, "settings.json"
         )
+
+    def get_home_url(self) -> str:
+        """
+        The home page, for a browser that has followed the start URL: it has
+        the session cookie. It is what the menu "Projects" of the window opens.
+        """
+        parts = urlsplit(self.get_start_url())
+        return f"{parts.scheme}://{parts.netloc}/"
 
     def get_start_url(self) -> str:
         """

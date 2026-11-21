@@ -3,6 +3,7 @@
 """
 
 import os
+import shutil
 from pathlib import Path
 from typing import Iterator
 
@@ -16,6 +17,7 @@ from strictdoc.features.desktop.workspace import (
     check_folder,
     clone_project,
     normalize_clone_url,
+    pull_project,
 )
 from strictdoc.features.i18n import i18n
 
@@ -247,3 +249,148 @@ def test_014_url_that_looks_like_an_option_is_refused(tmp_path: Path) -> None:
         clone_project("--upload-pack=touch evil", str(tmp_path))
 
     assert os.listdir(tmp_path) == []
+
+
+def test_015_folder_with_a_file_of_the_user_is_never_cleared(
+    tmp_path: Path,
+) -> None:
+    clone_url = _create_bare_repository(tmp_path)
+    folder = tmp_path / "workspace"
+    folder.mkdir()
+    (folder / "mine.txt").write_text("my file")
+    (folder / "sub").mkdir()
+    (folder / "sub" / "other.txt").write_text("other")
+
+    with pytest.raises(WorkspaceError) as exception_info:
+        clone_project(clone_url, str(folder))
+    with pytest.raises(WorkspaceError):
+        clone_project(f"file://{tmp_path}/absent.git", str(folder))
+
+    assert "is not empty" in str(exception_info.value)
+    assert (folder / "mine.txt").read_text() == "my file"
+    assert (folder / "sub" / "other.txt").read_text() == "other"
+
+
+def test_016_file_in_place_of_the_folder_is_left_alone(tmp_path: Path) -> None:
+    clone_url = _create_bare_repository(tmp_path)
+    path = tmp_path / "a_file"
+    path.write_text("content")
+
+    with pytest.raises(WorkspaceError):
+        clone_project(clone_url, str(path))
+
+    assert path.read_text() == "content"
+
+
+def test_017_clone_creates_a_missing_folder(tmp_path: Path) -> None:
+    clone_url = _create_bare_repository(tmp_path)
+    folder = tmp_path / "new" / "workspace"
+
+    clone_project(clone_url, str(folder))
+
+    assert (folder / "doc.sdoc").is_file()
+    with pytest.raises(WorkspaceError):
+        clone_project(f"file://{tmp_path}/absent.git", str(tmp_path / "x"))
+    assert not (tmp_path / "x").exists()
+
+
+def _commit_file(repo: Repo, name: str, content: str) -> None:
+    path = Path(repo.working_tree_dir or "") / name
+    path.write_text(content)
+    repo.index.add([name])
+    actor = Actor("Test", "test@example.org")
+    repo.index.commit(f"Change {name}", author=actor, committer=actor)
+
+
+def _clone_and_get_another_clone(tmp_path: Path) -> "tuple[Path, Path, str]":
+    clone_url = _create_bare_repository(tmp_path)
+    application_folder = tmp_path / "application"
+    other_folder = tmp_path / "other"
+    Repo.clone_from(clone_url, str(application_folder)).close()
+    Repo.clone_from(clone_url, str(other_folder)).close()
+    return application_folder, other_folder, clone_url
+
+
+def test_018_pull_brings_the_changes_of_the_remote(tmp_path: Path) -> None:
+    application_folder, other_folder, _ = _clone_and_get_another_clone(tmp_path)
+    other_repo = Repo(other_folder)
+    _commit_file(other_repo, "new.sdoc", "[DOCUMENT]\nTITLE: New\n")
+    other_repo.remotes.origin.push()
+    other_repo.close()
+
+    assert pull_project(str(application_folder)) is True
+    assert (application_folder / "new.sdoc").is_file()
+    assert pull_project(str(application_folder)) is False
+
+
+def test_019_pull_without_a_remote_raises_and_changes_nothing(
+    tmp_path: Path,
+) -> None:
+    folder = tmp_path / "local"
+    folder.mkdir()
+    repo = Repo.init(folder)
+    _commit_file(repo, "doc.sdoc", "[DOCUMENT]\nTITLE: Doc\n")
+    repo.close()
+
+    with pytest.raises(WorkspaceError):
+        pull_project(str(folder))
+
+    assert (folder / "doc.sdoc").read_text() == "[DOCUMENT]\nTITLE: Doc\n"
+
+
+def test_020_pull_with_a_remote_that_is_gone_raises(tmp_path: Path) -> None:
+    application_folder, _, _ = _clone_and_get_another_clone(tmp_path)
+    shutil.rmtree(tmp_path / "remote.git")
+
+    with pytest.raises(WorkspaceError) as exception_info:
+        pull_project(str(application_folder))
+
+    assert "fatal" in str(exception_info.value)
+    assert (application_folder / "doc.sdoc").is_file()
+
+
+def test_021_pull_that_is_not_a_fast_forward_changes_nothing(
+    tmp_path: Path,
+) -> None:
+    application_folder, other_folder, _ = _clone_and_get_another_clone(tmp_path)
+    other_repo = Repo(other_folder)
+    _commit_file(other_repo, "doc.sdoc", "[DOCUMENT]\nTITLE: Remote\n")
+    other_repo.remotes.origin.push()
+    other_repo.close()
+    application_repo = Repo(application_folder)
+    _commit_file(application_repo, "doc.sdoc", "[DOCUMENT]\nTITLE: Local\n")
+    head_before = application_repo.head.commit.hexsha
+    application_repo.close()
+
+    with pytest.raises(WorkspaceError):
+        pull_project(str(application_folder))
+
+    assert (application_folder / "doc.sdoc").read_text() == (
+        "[DOCUMENT]\nTITLE: Local\n"
+    )
+    assert Repo(application_folder).head.commit.hexsha == head_before
+
+
+def test_022_pull_that_would_overwrite_a_change_of_the_user_is_refused(
+    tmp_path: Path,
+) -> None:
+    application_folder, other_folder, _ = _clone_and_get_another_clone(tmp_path)
+    other_repo = Repo(other_folder)
+    _commit_file(other_repo, "doc.sdoc", "[DOCUMENT]\nTITLE: Remote\n")
+    other_repo.remotes.origin.push()
+    other_repo.close()
+    (application_folder / "doc.sdoc").write_text("[DOCUMENT]\nTITLE: Mine\n")
+
+    with pytest.raises(WorkspaceError):
+        pull_project(str(application_folder))
+
+    assert (application_folder / "doc.sdoc").read_text() == (
+        "[DOCUMENT]\nTITLE: Mine\n"
+    )
+
+
+def test_023_pull_of_a_folder_that_is_not_a_repository_raises(
+    tmp_path: Path,
+) -> None:
+    with pytest.raises(WorkspaceError):
+        pull_project(str(tmp_path))

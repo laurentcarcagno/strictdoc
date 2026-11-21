@@ -3003,3 +3003,11 @@ msgstr "Ouverture du projet %(title)s…"
 #: strictdoc/features/desktop/templates/open_project.jinja.html:33
 msgid "The project cannot be opened."
 msgstr "Le projet ne peut pas être ouvert."
+
+#: strictdoc/features/desktop/templates/home.jinja.html:42
+msgid "opened"
+msgstr "ouvert"
+
+#: strictdoc/features/desktop/window.py
+msgid "Switch project"
+msgstr "Changer de projet"

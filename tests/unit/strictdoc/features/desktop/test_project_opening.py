@@ -16,6 +16,7 @@ from starlette.testclient import TestClient
 from strictdoc.features.desktop import window
 from strictdoc.features.desktop.home_app import create_home_app
 from strictdoc.features.desktop.project_opener import ProjectOpener
+from strictdoc.features.desktop.project_servers import ProjectServerManager
 from strictdoc.features.desktop.settings import (
     DesktopSettings,
     load_settings,
@@ -25,13 +26,19 @@ from strictdoc.features.i18n import i18n
 
 IDENTIFIER = "demo/isis"
 START_URL = "http://127.0.0.1:5999/__desktop/start?code=abc"
+DIRECT_URL = "http://127.0.0.1:5999/"
 
 
 class FakeProjectServer:
     def __init__(self, folder: str) -> None:
         self.folder: str = folder
         self.is_running: bool = False
+        self.is_bootstrapped: bool = False
         self.start_url: str = START_URL
+        self.direct_url: str = DIRECT_URL
+
+    def set_bootstrap_listener(self, listener: Any) -> None:
+        del listener
 
     def start(self) -> None:
         self.is_running = True
@@ -51,9 +58,15 @@ class Environment:
         self.servers: List[FakeProjectServer] = []
         self.clone_url: str = self._create_bare_repository()
         self._write_catalog(self.clone_url)
-        self.opener: ProjectOpener = ProjectOpener(
+        self.updated_folders: List[str] = []
+        self.manager: ProjectServerManager = ProjectServerManager(
             server_factory=self._create_server,
+            updater=self._update,
             settings_path=self.settings_path,
+            eviction_delay_seconds=0,
+        )
+        self.opener: ProjectOpener = ProjectOpener(
+            manager=self.manager, settings_path=self.settings_path
         )
         self.application = create_home_app(
             settings_path=self.settings_path, opener=self.opener
@@ -64,6 +77,10 @@ class Environment:
 
     def get_project_folders(self) -> Dict[str, str]:
         return load_settings(self.settings_path).project_folders
+
+    def _update(self, folder: str) -> bool:
+        self.updated_folders.append(folder)
+        return False
 
     def _create_server(self, folder: str) -> FakeProjectServer:
         server = FakeProjectServer(folder)
@@ -185,7 +202,7 @@ def test_003_empty_folder_gets_the_clone_and_is_remembered(
     assert [server_.folder for server_ in environment.servers] == [str(folder)]
 
 
-def test_004_known_folder_opens_without_a_question(
+def test_004_open_project_is_joined_without_a_new_server(
     client: TestClient, environment: Environment, tmp_path: Path
 ) -> None:
     folder = tmp_path / "workspace"
@@ -195,19 +212,40 @@ def test_004_known_folder_opens_without_a_question(
 
     response = client.post("/projects/open", data={"identifier": IDENTIFIER})
 
+    # No job, no check of the folder: the address of the running server.
     assert response.status_code == 303
-    second_job_url = response.headers["location"]
-    assert second_job_url != job_url
-    # The folder holds the clone: nothing to clone, only to open.
-    assert 'data-testid="job-opening"' in client.get(second_job_url).text
-    status = _wait_for_job(client, second_job_url)
-    assert status["state"] == "done"
+    assert response.headers["location"] == START_URL
     assert environment.get_project_folders() == {IDENTIFIER: str(folder)}
-    # The previous server of the project was stopped.
-    assert [server_.is_running for server_ in environment.servers] == [
-        False,
-        True,
-    ]
+    assert len(environment.servers) == 1
+    assert environment.servers[0].is_running
+
+
+def test_004b_window_that_has_the_cookie_gets_the_direct_address(
+    client: TestClient, environment: Environment, tmp_path: Path
+) -> None:
+    folder = tmp_path / "workspace"
+    folder.mkdir()
+    job_url = _post_folder(client, str(folder)).headers["location"]
+    _wait_for_job(client, job_url)
+    environment.servers[0].is_bootstrapped = True
+
+    response = client.post("/projects/open", data={"identifier": IDENTIFIER})
+
+    assert response.headers["location"] == DIRECT_URL
+
+
+def test_004c_home_page_marks_the_open_projects(
+    client: TestClient, tmp_path: Path
+) -> None:
+    assert 'data-open="true"' not in client.get("/").text
+    folder = tmp_path / "workspace"
+    folder.mkdir()
+    _wait_for_job(client, _post_folder(client, str(folder)).headers["location"])
+
+    page = client.get("/").text
+
+    assert 'data-open="true"' in page
+    assert 'data-testid="catalog-project-opened"' in page
 
 
 def test_005_folder_that_disappeared_is_said_and_asked_again(

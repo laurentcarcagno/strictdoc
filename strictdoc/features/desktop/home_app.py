@@ -8,13 +8,14 @@ the user starts the application without a project.
 @relation(SDOC-SRS-1229, scope=file)
 @relation(SDOC-SRS-1230, scope=file)
 @relation(SDOC-SRS-1231, scope=file)
+@relation(SDOC-SRS-1232, scope=file)
 """
 
 import os
 from contextlib import asynccontextmanager
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import AsyncIterator, List, Optional, Union
+from typing import AbstractSet, AsyncIterator, List, Optional, Union
 
 from fastapi import FastAPI, Form
 from jinja2 import Environment, FileSystemLoader, select_autoescape
@@ -31,6 +32,7 @@ from strictdoc.features.desktop.project_opener import (
     JobState,
     ProjectOpener,
 )
+from strictdoc.features.desktop.project_servers import ProjectServerManager
 from strictdoc.features.desktop.settings import DesktopSettings, load_settings
 from strictdoc.features.desktop.workspace import (
     FolderStatus,
@@ -107,8 +109,12 @@ def create_home_app(
     project_opener = (
         opener
         if opener is not None
-        else ProjectOpener(settings_path=settings_path)
+        else ProjectOpener(
+            manager=ProjectServerManager(settings_path=settings_path),
+            settings_path=settings_path,
+        )
     )
+    manager = project_opener.manager
 
     @asynccontextmanager
     async def lifespan(application: FastAPI) -> AsyncIterator[None]:
@@ -116,7 +122,7 @@ def create_home_app(
         yield
         # The web servers of the projects belong to the home server: they end
         # with it.
-        project_opener.stop_all()
+        manager.stop_all()
 
     application = FastAPI(
         docs_url=None, redoc_url=None, openapi_url=None, lifespan=lifespan
@@ -127,7 +133,10 @@ def create_home_app(
 
     @application.get("/", response_class=HTMLResponse)
     def home() -> HTMLResponse:
-        return render_home(load_settings(settings_path))
+        return render_home(
+            load_settings(settings_path),
+            running_identifiers=manager.get_open_identifiers(),
+        )
 
     @application.post("/projects/open")
     def open_project(identifier: str = Form(...)) -> Response:
@@ -147,6 +156,10 @@ def create_home_app(
                 )
                 % {"folder": folder},
             )
+        # The server of the project runs: back to it, at once.
+        open_url = manager.get_open_url(identifier, folder)
+        if open_url is not None:
+            return RedirectResponse(open_url, status_code=303)
         return _use_folder(project_opener, project, folder)
 
     @application.post("/projects/folder")
@@ -197,8 +210,14 @@ def create_home_app(
     return application
 
 
-def render_home(settings: DesktopSettings) -> HTMLResponse:
-    """The home page. A catalog that fails is an error shown in the page."""
+def render_home(
+    settings: DesktopSettings,
+    running_identifiers: AbstractSet[str] = frozenset(),
+) -> HTMLResponse:
+    """
+    The home page. A catalog that fails is an error shown in the page. The
+    projects whose server runs are marked.
+    """
     projects: List[CatalogProject] = []
     error: Optional[str] = None
     try:
@@ -212,6 +231,7 @@ def render_home(settings: DesktopSettings) -> HTMLResponse:
         error=error,
         project_count=len(projects),
         root=build_catalog_tree(projects),
+        running_identifiers=running_identifiers,
     )
     return HTMLResponse(output, headers={"Cache-Control": "no-store"})
 

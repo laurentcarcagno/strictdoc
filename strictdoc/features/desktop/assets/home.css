@@ -200,3 +200,12 @@ body {
     transform: rotate(360deg);
   }
 }
+
+/* A project whose server is running: going back to it is immediate. */
+.catalog__project_open_mark {
+  margin-left: 0.5rem;
+  color: var(--home-accent);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}

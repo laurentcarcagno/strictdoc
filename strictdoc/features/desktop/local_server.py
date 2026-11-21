@@ -98,6 +98,19 @@ class LocalServer:
         return f"http://{LOCAL_SERVER_HOST}:{self.port}"
 
     @property
+    def is_bootstrapped(self) -> bool:
+        """
+        True once the window has followed the start URL: it has the session
+        cookie of this port, so that the direct URL works.
+        """
+        return self._credentials.is_bootstrap_code_used
+
+    @property
+    def direct_url(self) -> str:
+        """The address of the home page, for a window that has the cookie."""
+        return f"{self.url}/"
+
+    @property
     def start_url(self) -> str:
         """
         The URL that the window opens: it gives the session cookie to the
@@ -107,6 +120,12 @@ class LocalServer:
             f"{self.url}{BOOTSTRAP_PATH}"
             f"?{BOOTSTRAP_CODE_PARAMETER}={self._credentials.bootstrap_code}"
         )
+
+    def set_bootstrap_listener(
+        self, listener: Optional[Callable[[], None]]
+    ) -> None:
+        """Call the function when the window follows the start URL."""
+        self._credentials.bootstrap_listener = listener
 
     def start(self) -> None:
         """
@@ -256,6 +275,9 @@ def create_desktop_project_config(
         reload=False,
         host=LOCAL_SERVER_HOST,
         port=port,
+        # The documents change under the server when the project is updated
+        # from its remote: the server reads them again and tells the pages.
+        watch=True,
     )
     project_config = ProjectConfigLoader.load_using_server_config(server_config)
     project_config.dir_for_sdoc_cache = os.path.join(

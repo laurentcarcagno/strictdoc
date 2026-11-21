@@ -1,7 +1,7 @@
 """
 The opening of a project chosen in the catalog: the clone of its repository
 into the folder of the user, the memory of that folder, and the web server of
-the project.
+the project (project_servers.py).
 
 The work takes seconds, so a job does it in a thread and the screen polls the
 state of the job.
@@ -15,8 +15,9 @@ import uuid
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import Callable, Dict, Optional, Protocol
+from typing import Dict, Optional
 
+from strictdoc.features.desktop.project_servers import ProjectServerManager
 from strictdoc.features.desktop.settings import load_settings, save_settings
 from strictdoc.features.desktop.workspace import (
     WorkspaceError,
@@ -24,22 +25,6 @@ from strictdoc.features.desktop.workspace import (
 )
 from strictdoc.features.i18n.i18n import gettext
 from strictdoc.features.project_catalog.catalog import CatalogProject
-
-
-class ProjectServer(Protocol):
-    """The part of LocalServer that the opener uses."""
-
-    @property
-    def start_url(self) -> str: ...
-
-    def start(self) -> None: ...
-
-    def wait_until_ready(self) -> None: ...
-
-    def stop(self) -> None: ...
-
-
-ProjectServerFactory = Callable[[str], ProjectServer]
 
 
 class JobState(str, Enum):
@@ -66,27 +51,17 @@ class OpenJob:
 
 
 class ProjectOpener:
-    """
-    The jobs that open a project, and the web servers that they started.
-
-    A project that is opened again gets a new server, after the previous one
-    of the same project is stopped.
-    """
+    """The jobs that clone a project, remember its folder and open it."""
 
     def __init__(
         self,
         *,
-        server_factory: Optional[ProjectServerFactory] = None,
+        manager: ProjectServerManager,
         settings_path: Optional[Path] = None,
     ) -> None:
-        self._server_factory: ProjectServerFactory = (
-            server_factory
-            if server_factory is not None
-            else _create_local_server
-        )
+        self.manager: ProjectServerManager = manager
         self._settings_path: Optional[Path] = settings_path
         self._jobs: Dict[str, OpenJob] = {}
-        self._servers: Dict[str, ProjectServer] = {}
         self._lock: threading.Lock = threading.Lock()
 
     def start_job(
@@ -112,14 +87,6 @@ class ProjectOpener:
         with self._lock:
             return self._jobs.get(job_id)
 
-    def stop_all(self) -> None:
-        """Stop the servers of the projects, when the application ends."""
-        with self._lock:
-            servers = list(self._servers.values())
-            self._servers.clear()
-        for server_ in servers:
-            server_.stop()
-
     def _run_job(
         self,
         job: OpenJob,
@@ -132,7 +99,12 @@ class ProjectOpener:
                 clone_project(project.clone_url, folder)
                 job.step = JobStep.OPENING
             self._remember_folder(project.identifier, folder)
-            job.url = self._open_server(project.identifier, folder)
+            # A project that was just cloned is up to date.
+            job.url = self.manager.open(
+                project.identifier,
+                folder,
+                is_update_needed=not is_clone_needed,
+            )
         except WorkspaceError as exception_:
             job.message = str(exception_)
             job.state = JobState.FAILED
@@ -151,31 +123,3 @@ class ProjectOpener:
             settings = load_settings(self._settings_path)
             settings.project_folders[identifier] = folder
             save_settings(settings, self._settings_path)
-
-    def _open_server(self, identifier: str, folder: str) -> str:
-        with self._lock:
-            previous_server = self._servers.pop(identifier, None)
-        if previous_server is not None:
-            previous_server.stop()
-        server = self._server_factory(folder)
-        server.start()
-        try:
-            server.wait_until_ready()
-        except BaseException:
-            server.stop()
-            raise
-        with self._lock:
-            self._servers[identifier] = server
-        return server.start_url
-
-
-def _create_local_server(folder: str) -> ProjectServer:
-    # Imported here: the module needs the web server of the project, which
-    # the unit tests of the opener do not start.
-    from strictdoc.features.desktop.local_server import (  # noqa: PLC0415
-        LocalServer,
-        create_desktop_project_config,
-    )
-
-    project_config = create_desktop_project_config(input_path=folder, port=None)
-    return LocalServer(project_config=project_config)

@@ -3,18 +3,18 @@
 @relation(SDOC-SRS-1231, scope=file)
 """
 
-import json
 import os
 import shutil
 import sys
 import tempfile
-from pathlib import Path
-from typing import Dict
 
 import pytest
-from git import Actor, Repo
 
-from strictdoc.features.desktop.settings import load_settings
+from tests.end2end.desktop.desktop_projects import (
+    create_remote,
+    get_project_folders,
+    write_catalog,
+)
 from tests.end2end.desktop.desktop_test_server import DesktopTestServer
 from tests.end2end.e2e_case import E2ECase
 from tests.end2end.end2end_test_setup import End2EndTestSetup
@@ -35,62 +35,26 @@ class Workspace:
     bare repository on the disk), the catalog that lists it, and the folders.
     """
 
-    def __init__(self, root: str, clone_url: str = "") -> None:
+    def __init__(self, root: str) -> None:
         self.root: str = root
         self.user_path: str = os.path.join(root, "user")
         self.empty_folder: str = os.path.join(root, "workspace")
         self.catalog_path: str = os.path.join(root, "catalog.json")
-        self.remote_url: str = self._create_remote()
-        self.write_catalog(clone_url if clone_url != "" else self.remote_url)
+        self.remote_url: str = create_remote(root, "remote", DOCUMENT_TITLE)
+        self.write_catalog(self.remote_url)
 
     def write_catalog(self, clone_url: str) -> None:
-        with open(self.catalog_path, "w", encoding="utf-8") as file_:
-            json.dump(
-                [
-                    {
-                        "identifier": IDENTIFIER,
-                        "title": "ISIS",
-                        "display_path": "Satellites/ISIS",
-                        "description": "",
-                        "clone_url": clone_url,
-                        "role": "author",
-                    }
-                ],
-                file_,
-            )
-
-    def _create_remote(self) -> str:
-        work_path = os.path.join(self.root, "work")
-        os.makedirs(work_path)
-        with open(
-            os.path.join(work_path, "doc.sdoc"), "w", encoding="utf-8"
-        ) as file_:
-            file_.write(
-                "[DOCUMENT]\n"
-                f"TITLE: {DOCUMENT_TITLE}\n"
-                "\n"
-                "[REQUIREMENT]\n"
-                "UID: REQ-1\n"
-                "TITLE: Braking\n"
-                "STATEMENT: The system shall brake.\n"
-            )
-        work_repo = Repo.init(work_path)
-        work_repo.index.add(["doc.sdoc"])
-        actor = Actor("Test", "test@example.org")
-        work_repo.index.commit(
-            "Add the document", author=actor, committer=actor
+        write_catalog(
+            self.catalog_path,
+            [
+                {
+                    "identifier": IDENTIFIER,
+                    "title": "ISIS",
+                    "display_path": "Satellites/ISIS",
+                    "clone_url": clone_url,
+                }
+            ],
         )
-        work_repo.close()
-        bare_path = os.path.join(self.root, "remote.git")
-        Repo.clone_from(work_path, bare_path, bare=True).close()
-        return f"file://{bare_path}"
-
-
-def _get_project_folders(user_path: str) -> Dict[str, str]:
-    settings_path = os.path.join(
-        user_path, "config", "StrictDoc", "settings.json"
-    )
-    return load_settings(Path(settings_path)).project_folders
 
 
 @pytest.mark.skipif(
@@ -130,7 +94,7 @@ class Test(E2ECase):
                 self.type(FOLDER_INPUT, not_empty_folder)
                 self.click(FOLDER_SUBMIT)
                 self.assert_text("is not empty", FOLDER_MESSAGE)
-                assert _get_project_folders(workspace.user_path) == {}
+                assert get_project_folders(workspace.user_path) == {}
                 assert os.listdir(not_empty_folder) == ["notes.txt"]
 
                 # An empty folder receives the clone, then the project opens.
@@ -143,7 +107,7 @@ class Test(E2ECase):
                 assert os.path.isdir(
                     os.path.join(workspace.empty_folder, ".git")
                 )
-                assert _get_project_folders(workspace.user_path) == {
+                assert get_project_folders(workspace.user_path) == {
                     IDENTIFIER: workspace.empty_folder
                 }
 
@@ -180,7 +144,7 @@ class Test(E2ECase):
 
                 self.assert_text("The clone of the project failed", JOB_ERROR)
                 assert os.listdir(workspace.empty_folder) == []
-                assert _get_project_folders(workspace.user_path) == {}
+                assert get_project_folders(workspace.user_path) == {}
 
     def test_003_folder_that_disappeared_is_asked_again(self) -> None:
         test_setup = End2EndTestSetup(path_to_test_file=__file__)
@@ -216,6 +180,6 @@ class Test(E2ECase):
                 self.type(FOLDER_INPUT, new_folder)
                 self.click(FOLDER_SUBMIT)
                 self.assert_text(DOCUMENT_TITLE)
-                assert _get_project_folders(workspace.user_path) == {
+                assert get_project_folders(workspace.user_path) == {
                     IDENTIFIER: new_folder
                 }
