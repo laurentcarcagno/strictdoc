@@ -141,4 +141,4 @@ Chaque `Format` d'import ajoute ses propres drapeaux via
 1. `commands/<nom>_command.py` (classe `BaseCommand`) et `commands/<nom>_config.py`.
 2. L'ajouter dans `create_command_registry()` de `cli/main.py`.
 3. Un test d'intégration dans `tests/integration/features/commands/<nom>/`.
-4. Documenter dans `docs/strictdoc_01_user_guide.sdoc` et les notes de version.
+4. Documenter dans `docs/strictdoc_01_user_guide.md` et les notes de version.

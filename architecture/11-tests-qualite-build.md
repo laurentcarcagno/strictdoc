@@ -146,12 +146,12 @@ données PyInstaller et Nuitka de `tasks.py`.
 
 | Chemin | Contenu |
 |---|---|
-| `docs/strictdoc_01_user_guide.sdoc` | guide utilisateur |
-| `docs/strictdoc_02_feature_map.sdoc`, `03_faq`, `05_troubleshooting` | |
-| `docs/strictdoc_04_release_notes.sdoc` | notes de version (mettre à jour pour chaque changement visible) |
-| `docs/strictdoc_10_contributing.sdoc`, `11_developer_guide.sdoc` | contribution et **guide du développeur (SDG), lecture seule pour les agents** |
-| `docs/strictdoc_20_l1_system_requirements.sdoc`, `21_l2_high_level_...`, `22_l3_low_level_...` | exigences de StrictDoc (préfixes `SDOC-SSS-`, `SDOC-SRS-`, `SDOC-LLR-`) |
-| `docs/strictdoc_24_development_plan.sdoc`, `25_design`, `28_Backlog`, `40_DO178`, `41_Zephyr` | plans et profils |
+| `docs/strictdoc_01_user_guide.md` | guide utilisateur |
+| `docs/strictdoc_02_feature_map.md`, `03_faq`, `05_troubleshooting` | |
+| `docs/strictdoc_04_release_notes.md` | notes de version (mettre à jour pour chaque changement visible) |
+| `docs/strictdoc_10_contributing.md`, `11_developer_guide.sdoc` | contribution et **guide du développeur (SDG), lecture seule pour les agents** |
+| `docs/strictdoc_20_l1_system_requirements.md`, `21_l2_high_level_...`, `22_l3_low_level_...` | exigences de StrictDoc (préfixes `SDOC-SSS-`, `SDOC-SRS-`, `SDOC-LLR-`) |
+| `docs/strictdoc_24_development_plan.md`, `25_design`, `28_Backlog`, `40_DO178`, `41_Zephyr` | plans et profils |
 | `spec/Markdown.md`, `spec/Markdown.gra.md`, `spec/Formatting.md` | spécification du format Markdown |
 | `developer/tasks/<date>_<sujet>/task.md` | tâches de développement (amont) |
 | `developer/design/*.md` | plans du fork |

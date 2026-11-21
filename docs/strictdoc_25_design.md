@@ -1,81 +1,29 @@
-[DOCUMENT]
-MID: 8e68536f7d4047ada15d3a3043580c4a
-TITLE: Design Document
-UID: SDOC_DD
-VERSION: Git commit: @GIT_VERSION, Git branch: @GIT_BRANCH
-DATE: @GIT_COMMIT_DATETIME
-PREFIX: SDOC-SRS-
-OPTIONS:
-  ENABLE_MID: True
-  MARKUP: Markdown
-  VIEW_STYLE: Narrative
-  NODE_IN_TOC: True
+# Design Document
 
-[GRAMMAR]
-ELEMENTS:
-- TAG: SECTION
-  PROPERTIES:
-    IS_COMPOSITE: True
-  FIELDS:
-  - TITLE: MID
-    TYPE: String
-    REQUIRED: True
-  - TITLE: UID
-    TYPE: String
-    REQUIRED: False
-  - TITLE: LEVEL
-    TYPE: String
-    REQUIRED: False
-  - TITLE: PREFIX
-    TYPE: String
-    REQUIRED: False
-  - TITLE: TITLE
-    TYPE: String
-    REQUIRED: True
-- TAG: TEXT
-  FIELDS:
-  - TITLE: MID
-    TYPE: String
-    REQUIRED: False
-  - TITLE: STATEMENT
-    TYPE: String
-    REQUIRED: True
-  RELATIONS:
-  - TYPE: Parent
-  - TYPE: File
-- TAG: DESIGN
-  FIELDS:
-  - TITLE: MID
-    TYPE: String
-    REQUIRED: True
-  - TITLE: UID
-    TYPE: String
-    REQUIRED: False
-  - TITLE: TITLE
-    TYPE: String
-    REQUIRED: False
-  - TITLE: STATEMENT
-    TYPE: String
-    REQUIRED: False
-  RELATIONS:
-  - TYPE: Parent
-  - TYPE: File
+**Grammar**: strictdoc_25_design.gra.md \
+**UID**: SDOC_DD \
+**Version**: Git commit: @GIT_VERSION, Git branch: @GIT_BRANCH \
+**Date**: @GIT_COMMIT_DATETIME \
+**Prefix**: SDOC-SRS- \
+**Enable MID**: True \
+**View style**: Narrative \
+**Node in TOC**: True
 
-[TEXT]
-MID: 2c006e9044074d239db4a45328633657
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: 2c006e9044074d239db4a45328633657
+
 This document describes the architecture and the implementation details of
 StrictDoc. Compared to the User Guide that describes how to use StrictDoc, this
 Design Document focuses on the "how it works" of StrictDoc.
-<<<
 
-[[SECTION]]
-MID: a74f4e7328714765b5e051768ca8383d
-TITLE: Overview
+## Overview
 
-[TEXT]
-MID: 23937f96ac8e437d81686071cc42d6bf
-STATEMENT: >>>
+**Type**: SECTION \
+**MID**: a74f4e7328714765b5e051768ca8383d
+
+**Type**: TEXT \
+**MID**: 23937f96ac8e437d81686071cc42d6bf
+
 StrictDoc consists of two applications:
 
 1. StrictDoc command-line application (CLI).
@@ -84,17 +32,15 @@ StrictDoc consists of two applications:
 Both applications share a significant subset of the backend and frontend logic.
 The backend logic is written in Python, the frontend logic is written using
 HTML/CSS, Jinja templates, and the Turbo.js frontend library.
-<<<
 
-[[/SECTION]]
+## Building blocks
 
-[[SECTION]]
-MID: f296843b2027457f851a159abafc97e3
-TITLE: Building blocks
+**Type**: SECTION \
+**MID**: f296843b2027457f851a159abafc97e3
 
-[TEXT]
-MID: bae7db5591fe418a857af4fb02ad4fec
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: bae7db5591fe418a857af4fb02ad4fec
+
 StrictDoc is based on the following open-source libraries and tools:
 
 <table>
@@ -110,32 +56,28 @@ StrictDoc is based on the following open-source libraries and tools:
 <tr><td>Selenium and SeleniumBase</td><td>Used for end-to-end testing of StrictDoc's Web-based user interface.</td></tr>
 </tbody>
 </table>
-<<<
 
-[[/SECTION]]
+## High-level architecture
 
-[[SECTION]]
-MID: 5328a6f4c8544f5e92a91279b5b2c0df
-UID: SECTION-DD-High-level-architecture
-TITLE: High-level architecture
+**Type**: SECTION \
+**MID**: 5328a6f4c8544f5e92a91279b5b2c0df \
+**UID**: SECTION-DD-High-level-architecture
 
-[TEXT]
-MID: dcb6369b8d0949f0b06c9ee5b2188b12
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: dcb6369b8d0949f0b06c9ee5b2188b12
+
 The following diagram captures the high-level architecture of StrictDoc.
 
 <img src="_assets/StrictDoc_Workspace-Architecture.drawio.png" alt="StrictDoc&#x27;s architecture diagram" width="100%" />
-<<<
 
-[[/SECTION]]
+## StrictDoc command-line application
 
-[[SECTION]]
-MID: 9b81ed50014c412bb617e90552e58879
-TITLE: StrictDoc command-line application
+**Type**: SECTION \
+**MID**: 9b81ed50014c412bb617e90552e58879
 
-[TEXT]
-MID: 0e0fca629004496084dbe5e217874c36
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: 0e0fca629004496084dbe5e217874c36
+
 StrictDoc command-line application is at the core of StrictDoc. The command-line
 interface contains commands for exporting/importing SDoc content from/to other
 formats and presenting documentation content to a user.
@@ -148,17 +90,15 @@ The command-line application can be seen as a Model-View-Controller application:
 - The input of the command is transformed by the action using the backend (Model
   layer) (SDoc, ReqIF, Excel, etc.).
 - The resulting output is written back to HTML or other formats (View layer).
-<<<
 
-[[/SECTION]]
+## StrictDoc web application
 
-[[SECTION]]
-MID: dbcfa8a98e4f4928b0b35938d57dd644
-TITLE: StrictDoc web application
+**Type**: SECTION \
+**MID**: dbcfa8a98e4f4928b0b35938d57dd644
 
-[TEXT]
-MID: f84c0efa27954e44a8b5c1dd3517f90f
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: f84c0efa27954e44a8b5c1dd3517f90f
+
 StrictDoc Web application is based on FastAPI / Uvicorn. The end-to-end usage
 cycle of the web application is as follows:
 
@@ -170,15 +110,15 @@ cycle of the web application is as follows:
   edit the documents and send the updated content back to the server.
 - The server writes the updated content back to the SDoc files stored on a
   user's file system.
-<<<
 
-[[SECTION]]
-MID: dd2bd75fdffe49a1a0299b804538329c
-TITLE: The HTML Over the Wire (Hotwire) architecture
+### The HTML Over the Wire (Hotwire) architecture
 
-[TEXT]
-MID: 5577da2187294eb986ec84d9fe26bbdf
-STATEMENT: >>>
+**Type**: SECTION \
+**MID**: dd2bd75fdffe49a1a0299b804538329c
+
+**Type**: TEXT \
+**MID**: 5577da2187294eb986ec84d9fe26bbdf
+
 StrictDoc uses the [Hotwire architecture](https://hotwired.dev).
 
 The JavaScript framework used by StrictDoc is minimized to Turbo.js, which
@@ -210,21 +150,23 @@ All interactive behavior is now implemented as small, dependency-free JS
 files. Where a script needs to react to newly inserted markup, it registers
 through a single shared StrictDoc.onInsert contract instead of running its
 own MutationObserver.
-<<<
 
-[[/SECTION]]
+## Static HTML search
 
-[[/SECTION]]
+**Type**: SECTION \
+**MID**: 50f1db3236fa426ea5904974ee724939
 
-[[SECTION]]
-MID: 50f1db3236fa426ea5904974ee724939
-TITLE: Static HTML search
+### Static HTML search
 
-[DESIGN]
-MID: 5fedd9aac1684adc8fe1f3b87557345d
-UID: SDOC-SRS-156
-TITLE: Static HTML search
-STATEMENT: >>>
+**Type**: DESIGN \
+**MID**: 5fedd9aac1684adc8fe1f3b87557345d \
+**UID**: SDOC-SRS-156
+**Relations**:
+- **Type**: `Parent` \
+  **ID**: `SDOC-SRS-155`
+
+**Statement**:
+
 The static HTML search is implemented using a custom JavaScript solution that
 consumes a search index JS file generated by the same StrictDoc Python pipeline
 that produces all other artifacts.
@@ -272,20 +214,15 @@ functionality:
 - The algorithm is reasonably fast and has been tested with documentation trees
   of up to 130+ documents with the largest documents reaching up to 1.5
   megabytes.
-<<<
-RELATIONS:
-- TYPE: Parent
-  VALUE: SDOC-SRS-155
 
-[[/SECTION]]
+## Parsing SDoc files
 
-[[SECTION]]
-MID: 108af17c077c48bea04557c9d325e924
-TITLE: Parsing SDoc files
+**Type**: SECTION \
+**MID**: 108af17c077c48bea04557c9d325e924
 
-[TEXT]
-MID: 8a926f0a67424a1eb5db73bb5abca0cd
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: 8a926f0a67424a1eb5db73bb5abca0cd
+
 StrictDoc uses [textX](https://github.com/textX/textX)  which is a
 `meta-language for building Domain-Specific Languages (DSLs) in Python`. The
 textX itself is based on [Arpeggio](https://github.com/textX/Arpeggio) which
@@ -302,18 +239,16 @@ experience is that the parser stops immediately when it encounters an error. For
 a document that has several issues, the parser highlights only the first error
 without going any further. When the first error is resolved, the second error
 will be shown, etc.
-<<<
 
-[[/SECTION]]
+## Caching artifacts
 
-[[SECTION]]
-MID: 4db723c7ae2c4350b2f184783cb638e7
-UID: SECTION-DD-Caching-artifacts
-TITLE: Caching artifacts
+**Type**: SECTION \
+**MID**: 4db723c7ae2c4350b2f184783cb638e7 \
+**UID**: SECTION-DD-Caching-artifacts
 
-[TEXT]
-MID: d351d1bf6c2a48d88e9b9bdc50e029ff
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: d351d1bf6c2a48d88e9b9bdc50e029ff
+
 StrictDoc caches artifacts to disk to speed up performance by avoiding repeated
 reading and computation of already-parsed objects.
 
@@ -332,17 +267,15 @@ checksum in its name is written to disk. On subsequent reads, the checksum is
 recalculated, and the disk is checked for an existing file with the matching
 checksum. If a match is found, the file is read from disk, avoiding the need for
 extensive parsing or computation.
-<<<
 
-[[/SECTION]]
+## HTML escaping
 
-[[SECTION]]
-MID: 4b904b71438c47fcac8aba14df2dd7c0
-TITLE: HTML escaping
+**Type**: SECTION \
+**MID**: 4b904b71438c47fcac8aba14df2dd7c0
 
-[TEXT]
-MID: e8a03713c7f644698d9a72cc79b2a299
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: e8a03713c7f644698d9a72cc79b2a299
+
 StrictDoc uses Jinja2 [autoescaping](https://jinja.palletsprojects.com/en/latest/api/#autoescaping) for HTML output. [Template.render](https://jinja.palletsprojects.com/en/latest/api/#jinja2.Template.render) calls
 will escape any Python object unless it's explicitly marked as safe.
 
@@ -362,19 +295,20 @@ Good to know for a start:
   you would use `Markup("> ") + Markup("<div>safe</div>")`. Basically the
   same magic happens in templates when using [safe](https://jinja.palletsprojects.com/en/latest/templates/#jinja-filters.safe).
 - See also [Working with Automatic Escaping](https://jinja.palletsprojects.com/en/latest/templates/#working-with-automatic-escaping).
-<<<
 
-[[/SECTION]]
+## ReqIF interface
 
-[[SECTION]]
-MID: 92e8709709614f0f9ccdf702799bf56c
-TITLE: ReqIF interface
+**Type**: SECTION \
+**MID**: 92e8709709614f0f9ccdf702799bf56c
 
-[DESIGN]
-MID: abe8709709614f0f9ccdf702799bf511
-UID: SDOC-SRS-153
-TITLE: ReqIF-to-SDoc import
-STATEMENT: >>>
+### ReqIF-to-SDoc import
+
+**Type**: DESIGN \
+**MID**: abe8709709614f0f9ccdf702799bf511 \
+**UID**: SDOC-SRS-153
+
+**Statement**:
+
 The following details describe the implementation of the StrictDoc ReqIF-to-SDoc
 converter.
 
@@ -410,6 +344,3 @@ Spec Relation Type “Y”, the resulting SDoc documents will be:
 
 - SDoc document “A” with a grammar element for type “X”
 - SDoc document “B” with a grammar element for type “Y”
-<<<
-
-[[/SECTION]]

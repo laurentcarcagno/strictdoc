@@ -904,42 +904,42 @@ def check_dead_links(context):
         context,
         UvEnvironment.CHECK,
         """
-            python tools/link_health.py docs/strictdoc_01_user_guide.sdoc
+            python tools/link_health.py docs/strictdoc_01_user_guide.md
         """,
     )
     run_invoke_with_uv(
         context,
         UvEnvironment.CHECK,
         """
-            python tools/link_health.py docs/strictdoc_02_feature_map.sdoc
+            python tools/link_health.py docs/strictdoc_02_feature_map.md
         """,
     )
     run_invoke_with_uv(
         context,
         UvEnvironment.CHECK,
         """
-            python tools/link_health.py docs/strictdoc_03_faq.sdoc
+            python tools/link_health.py docs/strictdoc_03_faq.md
         """,
     )
     run_invoke_with_uv(
         context,
         UvEnvironment.CHECK,
         """
-            python tools/link_health.py docs/strictdoc_04_release_notes.sdoc
+            python tools/link_health.py docs/strictdoc_04_release_notes.md
         """,
     )
     run_invoke_with_uv(
         context,
         UvEnvironment.CHECK,
         """
-            python tools/link_health.py docs/strictdoc_05_troubleshooting.sdoc
+            python tools/link_health.py docs/strictdoc_05_troubleshooting.md
         """,
     )
     run_invoke_with_uv(
         context,
         UvEnvironment.CHECK,
         """
-            python tools/link_health.py docs/strictdoc_10_contributing.sdoc
+            python tools/link_health.py docs/strictdoc_10_contributing.md
         """,
     )
     run_invoke_with_uv(
@@ -953,28 +953,28 @@ def check_dead_links(context):
         context,
         UvEnvironment.CHECK,
         """
-            python tools/link_health.py docs/strictdoc_24_development_plan.sdoc
+            python tools/link_health.py docs/strictdoc_24_development_plan.md
         """,
     )
     run_invoke_with_uv(
         context,
         UvEnvironment.CHECK,
         """
-            python tools/link_health.py docs/strictdoc_20_l1_system_requirements.sdoc
+            python tools/link_health.py docs/strictdoc_20_l1_system_requirements.md
         """,
     )
     run_invoke_with_uv(
         context,
         UvEnvironment.CHECK,
         """
-            python tools/link_health.py docs/strictdoc_21_l2_high_level_requirements.sdoc
+            python tools/link_health.py docs/strictdoc_21_l2_high_level_requirements.md
         """,
     )
     run_invoke_with_uv(
         context,
         UvEnvironment.CHECK,
         """
-            python tools/link_health.py docs/strictdoc_25_design.sdoc
+            python tools/link_health.py docs/strictdoc_25_design.md
         """,
     )
     run_invoke_with_uv(

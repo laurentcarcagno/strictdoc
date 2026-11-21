@@ -1,72 +1,14 @@
-[DOCUMENT]
-MID: 6a9745098a87daf19a7c487f89f39640
-TITLE: StrictDoc Low-Level Requirements Specification (L3)
-VERSION: Git commit: @GIT_VERSION, Git branch: @GIT_BRANCH
-DATE: @GIT_COMMIT_DATETIME
-PREFIX: SDOC-LLR-
-OPTIONS:
-  ENABLE_MID: True
-  MARKUP: Markdown
+# StrictDoc Low-Level Requirements Specification (L3)
 
-[GRAMMAR]
-ELEMENTS:
-- TAG: SECTION
-  PROPERTIES:
-    IS_COMPOSITE: True
-    VIEW_STYLE: Narrative
-  FIELDS:
-  - TITLE: MID
-    TYPE: String
-    REQUIRED: False
-  - TITLE: UID
-    TYPE: String
-    REQUIRED: False
-  - TITLE: TITLE
-    TYPE: String
-    REQUIRED: True
-- TAG: TEXT
-  FIELDS:
-  - TITLE: MID
-    TYPE: String
-    REQUIRED: True
-  - TITLE: UID
-    TYPE: String
-    REQUIRED: False
-  - TITLE: STATEMENT
-    TYPE: String
-    REQUIRED: False
-- TAG: REQUIREMENT
-  PROPERTIES:
-    VIEW_STYLE: Table
-  FIELDS:
-  - TITLE: MID
-    TYPE: String
-    REQUIRED: False
-  - TITLE: UID
-    TYPE: String
-    REQUIRED: False
-  - TITLE: STATUS
-    TYPE: String
-    REQUIRED: False
-  - TITLE: TITLE
-    TYPE: String
-    REQUIRED: False
-  - TITLE: STATEMENT
-    TYPE: String
-    REQUIRED: False
-  - TITLE: RATIONALE
-    TYPE: String
-    REQUIRED: False
-  - TITLE: COMMENT
-    TYPE: String
-    REQUIRED: False
-  RELATIONS:
-  - TYPE: Parent
-  - TYPE: File
+**Grammar**: strictdoc_22_l3_low_level_requirements.gra.md \
+**Version**: Git commit: @GIT_VERSION, Git branch: @GIT_BRANCH \
+**Date**: @GIT_COMMIT_DATETIME \
+**Prefix**: SDOC-LLR- \
+**Enable MID**: True
 
-[TEXT]
-MID: 1ea652f0284940b6913a0a224492759f
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: 1ea652f0284940b6913a0a224492759f
+
 The level 3 low-level requirements specification of StrictDoc (L3/LLR) is
 derived from StrictDoc's L2 high-level (L2/HLR) requirements specification. The
 purpose of L3/LLR is to provide the lowest-level requirements from which
@@ -80,57 +22,59 @@ specified by this L3/LLR.
 
 NOTE: This specification level is under construction. Many L2/HLR requirements
 will be gradually moved to be here at the L3/HLR level.
-<<<
 
-[[SECTION]]
-MID: 408105d13e234f8aa73d017404eb5349
-TITLE: Markdown text markup
+## Markdown text markup
 
-[REQUIREMENT]
-MID: 34246811634c493dbc771ae4c8bc3b14
-UID: SDOC-LLR-183
-STATUS: Active
-TITLE: Read Markdown markup
-STATEMENT: >>>
-StrictDoc shall support reading Markdown files into in-memory SDoc documents.
-<<<
-RELATIONS:
-- TYPE: Parent
-  VALUE: SDOC-SRS-202
+**Type**: SECTION \
+**MID**: 408105d13e234f8aa73d017404eb5349
 
-[REQUIREMENT]
-MID: 476d094833ac4b02af1d72ad27710b36
-UID: SDOC-LLR-197
-STATUS: Active
-TITLE: Write Markdown markup
-STATEMENT: >>>
-StrictDoc shall support writing in-memory SDoc documents to Markdown files.
-<<<
-RELATIONS:
-- TYPE: Parent
-  VALUE: SDOC-SRS-202
+### Read Markdown markup
 
-[REQUIREMENT]
-MID: bc3b1411634c493dbc771ae4c8bc3b14
-UID: SDOC-LLR-192
-STATUS: Active
-TITLE: Markdown files discovery
-STATEMENT: >>>
-StrictDoc shall discover Markdown files `*.md` and `*.markdown` using the
+**MID**: 34246811634c493dbc771ae4c8bc3b14 \
+**UID**: SDOC-LLR-183 \
+**Status**: Active
+**Relations**:
+- **Type**: `Parent` \
+  **ID**: `SDOC-SRS-202`
+
+**Statement**: StrictDoc shall support reading Markdown files into in-memory SDoc documents.
+
+### Write Markdown markup
+
+**MID**: 476d094833ac4b02af1d72ad27710b36 \
+**UID**: SDOC-LLR-197 \
+**Status**: Active
+**Relations**:
+- **Type**: `Parent` \
+  **ID**: `SDOC-SRS-202`
+
+**Statement**: StrictDoc shall support writing in-memory SDoc documents to Markdown files.
+
+### Markdown files discovery
+
+**MID**: bc3b1411634c493dbc771ae4c8bc3b14 \
+**UID**: SDOC-LLR-192 \
+**Status**: Active
+**Relations**:
+- **Type**: `Parent` \
+  **ID**: `SDOC-SRS-202`
+- **Type**: `Parent` \
+  **ID**: `SDOC-SRS-115`
+
+**Statement**: StrictDoc shall discover Markdown files `*.md` and `*.markdown` using the
 same mechanism as used for SDoc files.
-<<<
-RELATIONS:
-- TYPE: Parent
-  VALUE: SDOC-SRS-202
-- TYPE: Parent
-  VALUE: SDOC-SRS-115
 
-[REQUIREMENT]
-MID: 245378eed60245378de2e099facd196d
-UID: SDOC-LLR-196
-STATUS: Active
-TITLE: Identical Markdown content by import/export roundtrip
-STATEMENT: >>>
+### Identical Markdown content by import/export roundtrip
+
+**MID**: 245378eed60245378de2e099facd196d \
+**UID**: SDOC-LLR-196 \
+**Status**: Active
+**Relations**:
+- **Type**: `Parent` \
+  **ID**: `SDOC-SSS-94`
+
+**Statement**:
+
 StrictDoc shall ensure that identical Markdown content is produced every time
 StrictDoc reads a Markdown file and then writes it to another Markdown file.
 
@@ -153,31 +97,27 @@ Markdown MVP is implemented. For example:
   Specification in spec/Markdown.md), but writer always emits #1/#2 for content
   via [LINK: SDOC-LLR-198]. In this case the content will not be identical, but
   it is accepted for an MVP implementation.
-<<<
-RATIONALE: >>>
-A consistent import/export roundtrip implementation and testing reduces the risk
+
+**Rationale**: A consistent import/export roundtrip implementation and testing reduces the risk
 of the Markdown bi-directional import/export corruption.
-<<<
-RELATIONS:
-- TYPE: Parent
-  VALUE: SDOC-SSS-94
 
-[REQUIREMENT]
-MID: 54321111634c493dbc771ae4c8bc3b14
-UID: SDOC-LLR-189
-STATUS: Active
-TITLE: One Markdown file — One SDoc document
-STATEMENT: >>>
-StrictDoc shall parse Markdown files using the "one Markdown file — one SDoc
+### One Markdown file — One SDoc document
+
+**MID**: 54321111634c493dbc771ae4c8bc3b14 \
+**UID**: SDOC-LLR-189 \
+**Status**: Active
+
+**Statement**: StrictDoc shall parse Markdown files using the "one Markdown file — one SDoc
 document" principle.
-<<<
 
-[REQUIREMENT]
-MID: 11133111634c493dbc771ae4c8bc3b14
-UID: SDOC-LLR-190
-STATUS: Active
-TITLE: Reading rules — Default grammar for MVP
-STATEMENT: >>>
+### Reading rules — Default grammar for MVP
+
+**MID**: 11133111634c493dbc771ae4c8bc3b14 \
+**UID**: SDOC-LLR-190 \
+**Status**: Active
+
+**Statement**:
+
 When a parsing Markdown file, StrictDoc shall generate an SDoc document using
 the default SDoc grammar according to the following rules:
 
@@ -204,14 +144,15 @@ the default SDoc grammar according to the following rules:
 - All SDoc node fields, REQUIREMENT/TEXT/SECTION, must store all field values'
   Markdown content verbatim, without any pre-processing. This includes
   preserving original whitespace/line endings exactly.
-<<<
 
-[REQUIREMENT]
-MID: c144739494ad4f75b65b9286248005eb
-UID: SDOC-LLR-198
-STATUS: Active
-TITLE: Writing rules — Default grammar for MVP
-STATEMENT: >>>
+### Writing rules — Default grammar for MVP
+
+**MID**: c144739494ad4f75b65b9286248005eb \
+**UID**: SDOC-LLR-198 \
+**Status**: Active
+
+**Statement**:
+
 When writing an SDoc document to a markdown file, StrictDoc shall generate the
 Markdown markup according to the following rules:
 
@@ -232,65 +173,67 @@ Markdown markup according to the following rules:
 - The node level shall be used for defining the Markdown node level. The
   document title becomes the top-level section level 1. SDoc node level 1
   becomes `##`, level 2 becomes `###`, etc.
-<<<
 
-[REQUIREMENT]
-MID: 987111ede0f2477181bfc7667684df59
-UID: SDOC-LLR-187
-STATUS: Active
-TITLE: Robust Markdown backend
-STATEMENT: >>>
-StrictDoc shall employ a well-maintained Markdown library with Python support.
-<<<
+### Robust Markdown backend
 
-[[/SECTION]]
+**MID**: 987111ede0f2477181bfc7667684df59 \
+**UID**: SDOC-LLR-187 \
+**Status**: Active
 
-[[SECTION]]
-MID: 65cfed23d9bb404cad88dadc95feb0d1
-TITLE: HTML2PDF export
+**Statement**: StrictDoc shall employ a well-maintained Markdown library with Python support.
 
-[REQUIREMENT]
-MID: 95f0e0198d8446a38eb1c7fc0f409522
-UID: SDOC-LLR-203
-TITLE: Use of html2pdf4doc
-STATEMENT: >>>
+## HTML2PDF export
+
+**Type**: SECTION \
+**MID**: 65cfed23d9bb404cad88dadc95feb0d1
+
+### Use of html2pdf4doc
+
+**MID**: 95f0e0198d8446a38eb1c7fc0f409522 \
+**UID**: SDOC-LLR-203
+
+**Statement**:
+
 StrictDoc shall export HTML documents using html2pdf4doc library with the
 following document types supported already:
 
 - StrictDoc's main DOC document type/screen.
-<<<
-RATIONALE: >>>
-html2pdf4doc is part of the StrictDoc project that is developed by the core
+
+**Rationale**: html2pdf4doc is part of the StrictDoc project that is developed by the core
 team. It allows printing PDF pages directly from StrictDoc HTML and gives the
 developers a full control over the printing mechanics.
-<<<
 
-[REQUIREMENT]
-MID: 335b11da872245c0bf09c82d5909db0e
-UID: SDOC-LLR-204
-STATUS: Active
-TITLE: Use of PyPDF for PDF postprocessing
-STATEMENT: >>>
+### Use of PyPDF for PDF postprocessing
+
+**MID**: 335b11da872245c0bf09c82d5909db0e \
+**UID**: SDOC-LLR-204 \
+**Status**: Active
+**Relations**:
+- **Type**: `Parent` \
+  **ID**: `SDOC-SRS-203`
+
+**Statement**:
+
 StrictDoc shall employ the PyPDF library for the following tasks:
 
 - Rewriting all StrictDoc's LINK/ANCHOR to documents of the same project tree
   into the PDF anchors.
-<<<
-RATIONALE: >>>
-The extra processing with PyPDF is needed because there are limitations of what
+
+**Rationale**: The extra processing with PyPDF is needed because there are limitations of what
 developers can do when printing HTML to PDF with html2pdf4doc based on Google
 Chrome Driver.
-<<<
-RELATIONS:
-- TYPE: Parent
-  VALUE: SDOC-SRS-203
 
-[REQUIREMENT]
-MID: 272338e1e8f244eca573348660464b09
-UID: SDOC-LLR-205
-STATUS: Active
-TITLE: Cross-linking PDF documents from one project tree
-STATEMENT: >>>
+### Cross-linking PDF documents from one project tree
+
+**MID**: 272338e1e8f244eca573348660464b09 \
+**UID**: SDOC-LLR-205 \
+**Status**: Active
+**Relations**:
+- **Type**: `Parent` \
+  **ID**: `SDOC-SRS-203`
+
+**Statement**:
+
 When exporting HTML documents to PDF, StrictDoc shall rewrite all LINK/ANCHOR to
 documents of the same project tree into the PDF document links/anchors according
 to the following rule:
@@ -302,35 +245,38 @@ to the following rule:
   without the leading slash character.
 - If one PDF is in a nested folder compared to another PDF, the link to this PDF
   anchor shall have relative `../` path components.
-<<<
-RATIONALE: >>>
-Allows a reader to navigate between PDF documents of the same project as
+
+**Rationale**: Allows a reader to navigate between PDF documents of the same project as
 requested by the parent requirement.
-<<<
-COMMENT: >>>
-The PDF cross-document linking is supported by the PDF format natively but is
+
+**Comment**: The PDF cross-document linking is supported by the PDF format natively but is
 known to not work in all PDF viewers. For example, it is known to work well in
 Linux PDF viewers, but not macOS Preview viewer.
-<<<
-RELATIONS:
-- TYPE: Parent
-  VALUE: SDOC-SRS-203
 
-[[/SECTION]]
+## Source code parsing
 
-[[SECTION]]
-MID: 7055d55c999d4c46bdfc847038a00978
-TITLE: Source code parsing
+**Type**: SECTION \
+**MID**: 7055d55c999d4c46bdfc847038a00978
 
-[[SECTION]]
-MID: e18dcfcb9b99459d9c7f560f35d01ff8
-TITLE: Rust
+### Rust
 
-[REQUIREMENT]
-MID: d83cab2dcd014d328b348acc37c6f4a6
-UID: SDOC-LLR-164
-TITLE: Auto-scoped relation markers in Rust docs
-STATEMENT: >>>
+**Type**: SECTION \
+**MID**: e18dcfcb9b99459d9c7f560f35d01ff8
+
+#### Auto-scoped relation markers in Rust docs
+
+**MID**: d83cab2dcd014d328b348acc37c6f4a6 \
+**UID**: SDOC-LLR-164
+**Relations**:
+- **Type**: `Parent` \
+  **ID**: `SDOC-SRS-34`
+- **Type**: `Parent` \
+  **ID**: `SDOC-SRS-137`
+- **Type**: `Parent` \
+  **ID**: `SDOC-SRS-204`
+
+**Statement**:
+
 If a StrictDoc relation marker is inside a [Rust doc comment](https://doc.rust-lang.org/rust-by-example/meta/doc.html#doc-comments), the marker scope
 shall be set to exact the item the Rust language defines as target of the
 containing doc comment. The `@relation(scope=...)` parameter shall
@@ -349,142 +295,132 @@ therefore be optional and shall be ignored if provided.
 In the given example, the first marker shall link REQ-1 to the `impl Foo`
 implementation, highlighting lines 1 to 7. The second marker shall link REQ-2 to
 the `fn foo()` function, highlighting lines 4 to 6.
-<<<
-COMMENT: >>>
-Note that doc comments are syntactic sugar for [doc attribute](https://doc.rust-lang.org/rustdoc/write-documentation/the-doc-attribute.html) s, which shall
+
+**Comment**: Note that doc comments are syntactic sugar for [doc attribute](https://doc.rust-lang.org/rustdoc/write-documentation/the-doc-attribute.html) s, which shall
 also be supported. To figure detailed doc comment rules from the rust-lang
 specification it's sometimes useful to check for general attribute rules, if
 explicit doc comment rules are missing.
-<<<
-RELATIONS:
-- TYPE: Parent
-  VALUE: SDOC-SRS-34
-- TYPE: Parent
-  VALUE: SDOC-SRS-137
-- TYPE: Parent
-  VALUE: SDOC-SRS-204
 
-[REQUIREMENT]
-MID: 91c7b9fd9c514327bb012639cdf1515b
-UID: SDOC-LLR-165
-STATUS: Active
-TITLE: Inner doc attributes
-STATEMENT: >>>
-StrictDoc shall support relation markers in [inner](https://doc.rust-lang.org/reference/attributes.html#r-attributes.inner) [doc attribute](https://doc.rust-lang.org/rustdoc/write-documentation/the-doc-attribute.html#the-doc-attribute) s.
-<<<
-RELATIONS:
-- TYPE: Parent
-  VALUE: SDOC-SRS-204
+#### Inner doc attributes
 
-[REQUIREMENT]
-MID: 002bfab5383e4cb785049c4738651f43
-UID: SDOC-LLR-166
-STATUS: Active
-TITLE: Inner line docs
-STATEMENT: >>>
-StrictDoc shall support auto-scoped relation relation markers in [inner line
+**MID**: 91c7b9fd9c514327bb012639cdf1515b \
+**UID**: SDOC-LLR-165 \
+**Status**: Active
+**Relations**:
+- **Type**: `Parent` \
+  **ID**: `SDOC-SRS-204`
+
+**Statement**: StrictDoc shall support relation markers in [inner](https://doc.rust-lang.org/reference/attributes.html#r-attributes.inner) [doc attribute](https://doc.rust-lang.org/rustdoc/write-documentation/the-doc-attribute.html#the-doc-attribute) s.
+
+#### Inner line docs
+
+**MID**: 002bfab5383e4cb785049c4738651f43 \
+**UID**: SDOC-LLR-166 \
+**Status**: Active
+**Relations**:
+- **Type**: `Parent` \
+  **ID**: `SDOC-SRS-204`
+
+**Statement**: StrictDoc shall support auto-scoped relation relation markers in [inner line
 docs](https://doc.rust-lang.org/reference/comments.html#grammar-INNER_LINE_DOC).
-<<<
-RELATIONS:
-- TYPE: Parent
-  VALUE: SDOC-SRS-204
 
-[REQUIREMENT]
-MID: d04b97d76cc848f982610035bf7d3dc2
-UID: SDOC-LLR-167
-STATUS: Active
-TITLE: Inner block docs
-STATEMENT: >>>
-StrictDoc shall support auto-scoped relation relation markers in [inner block
+#### Inner block docs
+
+**MID**: d04b97d76cc848f982610035bf7d3dc2 \
+**UID**: SDOC-LLR-167 \
+**Status**: Active
+**Relations**:
+- **Type**: `Parent` \
+  **ID**: `SDOC-SRS-204`
+
+**Statement**: StrictDoc shall support auto-scoped relation relation markers in [inner block
 docs](https://doc.rust-lang.org/reference/comments.html#grammar-INNER_BLOCK_DOC).
-<<<
-RELATIONS:
-- TYPE: Parent
-  VALUE: SDOC-SRS-204
 
-[REQUIREMENT]
-MID: 84b351267cfc4e16b3ff2c5db654e9f0
-UID: SDOC-LLR-168
-STATUS: Active
-TITLE: Outer doc attributes
-STATEMENT: >>>
-StrictDoc shall support auto-scoped relation markers in [outer](https://doc.rust-lang.org/reference/attributes.html#r-attributes.outer) [doc attribute](https://doc.rust-lang.org/rustdoc/write-documentation/the-doc-attribute.html#the-doc-attribute)
+#### Outer doc attributes
+
+**MID**: 84b351267cfc4e16b3ff2c5db654e9f0 \
+**UID**: SDOC-LLR-168 \
+**Status**: Active
+**Relations**:
+- **Type**: `Parent` \
+  **ID**: `SDOC-SRS-204`
+
+**Statement**: StrictDoc shall support auto-scoped relation markers in [outer](https://doc.rust-lang.org/reference/attributes.html#r-attributes.outer) [doc attribute](https://doc.rust-lang.org/rustdoc/write-documentation/the-doc-attribute.html#the-doc-attribute)
 s.
-<<<
-RELATIONS:
-- TYPE: Parent
-  VALUE: SDOC-SRS-204
 
-[REQUIREMENT]
-MID: 171978da9f8f4f40b52fb7599caa67e6
-UID: SDOC-LLR-169
-STATUS: Active
-TITLE: Outer line docs
-STATEMENT: >>>
-StrictDoc shall support auto-scoped relation markers in [outer line docs](https://doc.rust-lang.org/reference/comments.html#grammar-OUTER_LINE_DOC).
-<<<
-RELATIONS:
-- TYPE: Parent
-  VALUE: SDOC-SRS-204
+#### Outer line docs
 
-[REQUIREMENT]
-MID: 1a8d558fbe244621818b6242be365638
-UID: SDOC-LLR-170
-STATUS: Active
-TITLE: Outer block docs
-STATEMENT: >>>
-StrictDoc shall support auto-scoped relation markers in [outer block docs](https://doc.rust-lang.org/reference/comments.html#railroad-OUTER_BLOCK_DOC).
-<<<
-RELATIONS:
-- TYPE: Parent
-  VALUE: SDOC-SRS-204
+**MID**: 171978da9f8f4f40b52fb7599caa67e6 \
+**UID**: SDOC-LLR-169 \
+**Status**: Active
+**Relations**:
+- **Type**: `Parent` \
+  **ID**: `SDOC-SRS-204`
 
-[REQUIREMENT]
-MID: e1be1f38dd374f82abd9691d081f293b
-UID: SDOC-LLR-171
-STATUS: Active
-TITLE: File, line and range markers
-STATEMENT: >>>
+**Statement**: StrictDoc shall support auto-scoped relation markers in [outer line docs](https://doc.rust-lang.org/reference/comments.html#grammar-OUTER_LINE_DOC).
+
+#### Outer block docs
+
+**MID**: 1a8d558fbe244621818b6242be365638 \
+**UID**: SDOC-LLR-170 \
+**Status**: Active
+**Relations**:
+- **Type**: `Parent` \
+  **ID**: `SDOC-SRS-204`
+
+**Statement**: StrictDoc shall support auto-scoped relation markers in [outer block docs](https://doc.rust-lang.org/reference/comments.html#railroad-OUTER_BLOCK_DOC).
+
+#### File, line and range markers
+
+**MID**: e1be1f38dd374f82abd9691d081f293b \
+**UID**: SDOC-LLR-171 \
+**Status**: Active
+**Relations**:
+- **Type**: `Parent` \
+  **ID**: `SDOC-SRS-139`
+- **Type**: `Parent` \
+  **ID**: `SDOC-SRS-124`
+- **Type**: `Parent` \
+  **ID**: `SDOC-SRS-138`
+- **Type**: `Parent` \
+  **ID**: `SDOC-SRS-204`
+
+**Statement**:
+
 StrictDoc shall point to lines and line ranges of Rust code by using file, line
 and range markers. These marker types shall be parsed from [regular line and
 block comments](https://doc.rust-lang.org/rust-by-example/hello/comment.html#comments).
 
 Note: File markers may also result from the inner doc comments of the top-level
 module.
-<<<
-RELATIONS:
-- TYPE: Parent
-  VALUE: SDOC-SRS-139
-- TYPE: Parent
-  VALUE: SDOC-SRS-124
-- TYPE: Parent
-  VALUE: SDOC-SRS-138
-- TYPE: Parent
-  VALUE: SDOC-SRS-204
 
-[REQUIREMENT]
-MID: b9b2e4d377db42f5b3fb7aeabaf3f72a
-UID: SDOC-LLR-172
-STATUS: Active
-TITLE: Source nodes from doc comments
-STATEMENT: >>>
-If a Rust doc comments contains custom tags, and the containing Rust source file
+#### Source nodes from doc comments
+
+**MID**: b9b2e4d377db42f5b3fb7aeabaf3f72a \
+**UID**: SDOC-LLR-172 \
+**Status**: Active
+**Relations**:
+- **Type**: `Parent` \
+  **ID**: `SDOC-SRS-141`
+- **Type**: `Parent` \
+  **ID**: `SDOC-SRS-204`
+
+**Statement**: If a Rust doc comments contains custom tags, and the containing Rust source file
 matches an entry in the source node configuration, StrictDoc shall create
 document nodes from the custom tags and automatically link the created node with
 the Rust item targeted by the doc comment.
-<<<
-RELATIONS:
-- TYPE: Parent
-  VALUE: SDOC-SRS-141
-- TYPE: Parent
-  VALUE: SDOC-SRS-204
 
-[REQUIREMENT]
-MID: 9d7e371ad7a146e1968cd9bbb7a6790f
-UID: SDOC-LLR-173
-STATUS: Active
-TITLE: Forward relations to Rust items
-STATEMENT: >>>
+#### Forward relations to Rust items
+
+**MID**: 9d7e371ad7a146e1968cd9bbb7a6790f \
+**UID**: SDOC-LLR-173 \
+**Status**: Active
+**Relations**:
+- **Type**: `Parent` \
+  **ID**: `SDOC-SRS-204`
+
+**Statement**:
+
 StrictDoc shall support linking from a requirement in SDoc to a language item in
 Rust code by using a `FILE` relation of type `FUNCTION`. For example
 
@@ -499,17 +435,18 @@ RELATIONS:
 
 This shall work for all kinds of Rust items that have a [canonical path](https://doc.rust-lang.org/reference/paths.html#canonical-paths),
 including const, enum, fn, mod, static, struct, trait, type, union.
-<<<
-RELATIONS:
-- TYPE: Parent
-  VALUE: SDOC-SRS-204
 
-[REQUIREMENT]
-MID: d01b2204fcb44882b991ca11ce567f52
-UID: SDOC-LLR-174
-STATUS: Active
-TITLE: Forward relation by canonical path
-STATEMENT: >>>
+#### Forward relation by canonical path
+
+**MID**: d01b2204fcb44882b991ca11ce567f52 \
+**UID**: SDOC-LLR-174 \
+**Status**: Active
+**Relations**:
+- **Type**: `Parent` \
+  **ID**: `SDOC-SRS-204`
+
+**Statement**:
+
 The identifier for forward relations shall be the [canonical path](https://doc.rust-lang.org/reference/paths.html#canonical-paths) as the rustc
 compiler would set it when invoked for a single file like
 
@@ -521,8 +458,9 @@ Note: `cargo build` usually result in a different canonical path, since it
 considers the file position relative to the crate root. Using a single file as
 root is a simplification, needed because StrictDoc is unaware of the Rust file
 and directory-based module hierarchy.
-<<<
-COMMENT: >>>
+
+**Comment**:
+
 The canonical path of an item can be observed with `objdump -t lib.o --demangle=rust`. For example, given this source file
 
 ```rust
@@ -556,17 +494,18 @@ RELATIONS:
   VALUE: file.rs
   FUNCTION: <lib::foo::Bar as lib::foo::Foo>::foo
 ```
-<<<
-RELATIONS:
-- TYPE: Parent
-  VALUE: SDOC-SRS-204
 
-[REQUIREMENT]
-MID: 04b5927294c34710995d3671040dd8ae
-UID: SDOC-LLR-175
-STATUS: Active
-TITLE: Collapse doc comments
-STATEMENT: >>>
+#### Collapse doc comments
+
+**MID**: 04b5927294c34710995d3671040dd8ae \
+**UID**: SDOC-LLR-175 \
+**Status**: Active
+**Relations**:
+- **Type**: `Parent` \
+  **ID**: `SDOC-SRS-204`
+
+**Statement**:
+
 Multiple scattered doc comments shall be collapsed as done by the [rustdoc](https://github.com/rust-lang/rust/tree/main/src/tools/rustdoc) tool
 when using the collapse-docs option to determine the highlight range(s).
 
@@ -594,95 +533,89 @@ For example, rustdoc would collapse alle these comments into the description of
 
 In the given example, the StrictDoc highlight range for the relation marker
 shall be from line 1 to line 16.
-<<<
-RELATIONS:
-- TYPE: Parent
-  VALUE: SDOC-SRS-204
 
-[REQUIREMENT]
-MID: e67e8258177847138112589e606c0413
-UID: SDOC-LLR-176
-STATUS: Active
-TITLE: Rust marker descriptions
-STATEMENT: >>>
-StrictDoc should use the marker labels as [rustdoc](https://doc.rust-lang.org/stable/rustdoc/) would set them in the
+#### Rust marker descriptions
+
+**MID**: e67e8258177847138112589e606c0413 \
+**UID**: SDOC-LLR-176 \
+**Status**: Active
+**Relations**:
+- **Type**: `Parent` \
+  **ID**: `SDOC-SRS-204`
+
+**Statement**: StrictDoc should use the marker labels as [rustdoc](https://doc.rust-lang.org/stable/rustdoc/) would set them in the
 description of a documented node.
-<<<
-RELATIONS:
-- TYPE: Parent
-  VALUE: SDOC-SRS-204
 
-[REQUIREMENT]
-MID: 7bf3f26c335741398a50e9679a0d4c84
-UID: SDOC-LLR-177
-STATUS: Active
-TITLE: Valid positions of doc comments
-STATEMENT: >>>
-StrictDoc shall find doc comments where the language [allows](https://doc.rust-lang.org/reference/attributes.html#r-attributes.allowed-position) them and ignore
+#### Valid positions of doc comments
+
+**MID**: 7bf3f26c335741398a50e9679a0d4c84 \
+**UID**: SDOC-LLR-177 \
+**Status**: Active
+**Relations**:
+- **Type**: `Parent` \
+  **ID**: `SDOC-SRS-204`
+
+**Statement**: StrictDoc shall find doc comments where the language [allows](https://doc.rust-lang.org/reference/attributes.html#r-attributes.allowed-position) them and ignore
 those in other positions.
-<<<
-COMMENT: >>>
-Since doc comments are syntactic sugar for doc attributes, allowed position
+
+**Comment**: Since doc comments are syntactic sugar for doc attributes, allowed position
 rules for attributes apply.
-<<<
-RELATIONS:
-- TYPE: Parent
-  VALUE: SDOC-SRS-204
 
-[REQUIREMENT]
-MID: 5e9645177af14db7b5fcaba0298a328b
-UID: SDOC-LLR-178
-STATUS: Active
-TITLE: Inner doc comments for functions
-STATEMENT: >>>
-StrictDoc shall find inner doc comments in function blocks.
-<<<
-RELATIONS:
-- TYPE: Parent
-  VALUE: SDOC-SRS-204
+#### Inner doc comments for functions
 
-[REQUIREMENT]
-MID: b70a27cc49f54b0bb7e7956b055957a4
-UID: SDOC-LLR-179
-STATUS: Active
-TITLE: Inner doc comments for modules
-STATEMENT: >>>
-StrictDoc shall find inner doc comments in module blocks.
-<<<
-RELATIONS:
-- TYPE: Parent
-  VALUE: SDOC-SRS-204
+**MID**: 5e9645177af14db7b5fcaba0298a328b \
+**UID**: SDOC-LLR-178 \
+**Status**: Active
+**Relations**:
+- **Type**: `Parent` \
+  **ID**: `SDOC-SRS-204`
 
-[REQUIREMENT]
-MID: 012e605921954430ab6c11e245fb7378
-UID: SDOC-LLR-180
-STATUS: Active
-TITLE: Inner doc comments for external blocks
-STATEMENT: >>>
-StrictDoc shall find inner doc comments in external blocks.
-<<<
-RELATIONS:
-- TYPE: Parent
-  VALUE: SDOC-SRS-204
+**Statement**: StrictDoc shall find inner doc comments in function blocks.
 
-[REQUIREMENT]
-MID: 2d955dd847954556aa5a32018a7c41fd
-UID: SDOC-LLR-181
-STATUS: Active
-TITLE: Inner doc comments for implementation blocks
-STATEMENT: >>>
-StrictDoc shall find inner doc comments in implementation blocks.
-<<<
-RELATIONS:
-- TYPE: Parent
-  VALUE: SDOC-SRS-204
+#### Inner doc comments for modules
 
-[REQUIREMENT]
-MID: ef8849024b78477496620eb1bf081900
-UID: SDOC-LLR-182
-STATUS: Active
-TITLE: Allowed position for outer docs
-STATEMENT: >>>
+**MID**: b70a27cc49f54b0bb7e7956b055957a4 \
+**UID**: SDOC-LLR-179 \
+**Status**: Active
+**Relations**:
+- **Type**: `Parent` \
+  **ID**: `SDOC-SRS-204`
+
+**Statement**: StrictDoc shall find inner doc comments in module blocks.
+
+#### Inner doc comments for external blocks
+
+**MID**: 012e605921954430ab6c11e245fb7378 \
+**UID**: SDOC-LLR-180 \
+**Status**: Active
+**Relations**:
+- **Type**: `Parent` \
+  **ID**: `SDOC-SRS-204`
+
+**Statement**: StrictDoc shall find inner doc comments in external blocks.
+
+#### Inner doc comments for implementation blocks
+
+**MID**: 2d955dd847954556aa5a32018a7c41fd \
+**UID**: SDOC-LLR-181 \
+**Status**: Active
+**Relations**:
+- **Type**: `Parent` \
+  **ID**: `SDOC-SRS-204`
+
+**Statement**: StrictDoc shall find inner doc comments in implementation blocks.
+
+#### Allowed position for outer docs
+
+**MID**: ef8849024b78477496620eb1bf081900 \
+**UID**: SDOC-LLR-182 \
+**Status**: Active
+**Relations**:
+- **Type**: `Parent` \
+  **ID**: `SDOC-SRS-204`
+
+**Statement**:
+
 StrictDoc shall find outer doc comments in [allowed positions](https://doc.rust-lang.org/reference/attributes.html#r-attributes.allowed-position) as specified by
 the Rust language:
 
@@ -694,22 +627,19 @@ the Rust language:
 - Generic lifetime or type parameter
 - Expressions in limited situations
 - Function, closure and function pointer parameters
-<<<
-RELATIONS:
-- TYPE: Parent
-  VALUE: SDOC-SRS-204
 
-[[/SECTION]]
+### C
 
-[[SECTION]]
-MID: deab09f3aa374b46a639c504267c60f9
-TITLE: C
+**Type**: SECTION \
+**MID**: deab09f3aa374b46a639c504267c60f9
 
-[REQUIREMENT]
-MID: 5d49af5c74794e7ab0a77fe99576243c
-UID: SDOC-LLR-206
-TITLE: Macro definitions
-STATEMENT: >>>
+#### Macro definitions
+
+**MID**: 5d49af5c74794e7ab0a77fe99576243c \
+**UID**: SDOC-LLR-206
+
+**Statement**:
+
 StrictDoc's C reader shall recognize the special macro definitions as function
 definitions:
 
@@ -739,14 +669,15 @@ SYSCALL_DEFINE2(clock_gettime, const clockid_t, which_clock,
 shall be recognized as a function with a title `SYSCALL_DEFINE2(clock_gettime, const clockid_t, which_clock, struct __kernel_timespec __user *, tp)` with all
 newlines character replaced with a space character each but all content and
 punctuation preserved otherwise.
-<<<
 
-[REQUIREMENT]
-MID: a06d47fd0998421a867a9de4376fdfee
-UID: SDOC-LLR-207
-STATUS: Active
-TITLE: Forward links to macro definitions using regexes
-STATEMENT: >>>
+#### Forward links to macro definitions using regexes
+
+**MID**: a06d47fd0998421a867a9de4376fdfee \
+**UID**: SDOC-LLR-207 \
+**Status**: Active
+
+**Statement**:
+
 StrictDoc shall allow linking SDoc nodes to C macro definitions using regexes as
 follows:
 
@@ -769,26 +700,25 @@ ZTEST_USER(semaphore, test_sem_take_multiple) {
   // Some code
 }
 ```
-<<<
 
-[[/SECTION]]
+## Command-line interface
 
-[[/SECTION]]
+**Type**: SECTION \
+**MID**: 6b53bbdf370f49bba360f176d607d50c
 
-[[SECTION]]
-MID: 6b53bbdf370f49bba360f176d607d50c
-TITLE: Command-line interface
+### "new" command
 
-[[SECTION]]
-MID: 0a3dd77d161b443c88842a53d313eb0a
-TITLE: "new" command
+**Type**: SECTION \
+**MID**: 0a3dd77d161b443c88842a53d313eb0a
 
-[REQUIREMENT]
-MID: 91644890fd304d86b2d756c5b1d8c9e8
-UID: SDOC-LLR-208
-STATUS: Active
-TITLE: Create initial StrictDoc project
-STATEMENT: >>>
+#### Create initial StrictDoc project
+
+**MID**: 91644890fd304d86b2d756c5b1d8c9e8 \
+**UID**: SDOC-LLR-208 \
+**Status**: Active
+
+**Statement**:
+
 The "new" StrictDoc CLI command shall generate a documentation skeleton that
 consists of the following artifacts in the provided input directory:
 
@@ -809,26 +739,25 @@ Example of the "new" command usage:
 ```bash
 strictdoc new .
 ```
-<<<
 
-[[/SECTION]]
+## Project config
 
-[[/SECTION]]
+**Type**: SECTION \
+**MID**: eb0685f50def4479b361cc475d4bd795
 
-[[SECTION]]
-MID: eb0685f50def4479b361cc475d4bd795
-TITLE: Project config
+### ProjectConfig
 
-[[SECTION]]
-MID: 17ee741a300748f2989cd85d0638906c
-TITLE: ProjectConfig
+**Type**: SECTION \
+**MID**: 17ee741a300748f2989cd85d0638906c
 
-[REQUIREMENT]
-MID: 50d648852d7b4dafa2a3b87779d11f7e
-UID: SDOC-LLR-209
-STATUS: Active
-TITLE: Config rule for custom node prefix
-STATEMENT: >>>
+#### Config rule for custom node prefix
+
+**MID**: 50d648852d7b4dafa2a3b87779d11f7e \
+**UID**: SDOC-LLR-209 \
+**Status**: Active
+
+**Statement**:
+
 The ProjectConfig shall provide an argument/property that allows a user to
 define a custom Python function where a custom node prefix can be defined for
 the following combination of inputs: (node, grammar_element, document,
@@ -841,25 +770,22 @@ function implementation. Example:
 
 ```py
 def custom_node_prefix(
-    node,
-    grammar_element,
-    document,
-    traceability_index,
-    project_config
+    node, grammar_element, document, traceability_index, project_config
 ):
     if document.reserved_uid == "MY_UID":
         return "MY_UID_PREFIX"
     # Default prefix.
     return None
 ```
-<<<
 
-[REQUIREMENT]
-MID: 6a1cf6b5efc84fdca6a0ff5cc3f52f0c
-UID: SDOC-LLR-210
-STATUS: Active
-TITLE: Config rule for custom node UID
-STATEMENT: >>>
+#### Config rule for custom node UID
+
+**MID**: 6a1cf6b5efc84fdca6a0ff5cc3f52f0c \
+**UID**: SDOC-LLR-210 \
+**Status**: Active
+
+**Statement**:
+
 The ProjectConfig shall provide an argument/property that allows a user to
 define a custom Python function where a node's full UID can be composed from
 its resolved prefix and next available number, for the following combination
@@ -879,78 +805,77 @@ def custom_node_uid(
     grammar_element,
     document,
     traceability_index,
-    project_config
+    project_config,
 ):
     if document.reserved_uid == "MY_UID":
         return f"{prefix}{next_number:04d}"
     # Default UID.
     return None
 ```
-<<<
 
-[[/SECTION]]
+### strictdoc_config.py
 
-[[SECTION]]
-MID: e92f1e6fa2c84636a0a7c3d4d7cbe75f
-TITLE: strictdoc_config.py
+**Type**: SECTION \
+**MID**: e92f1e6fa2c84636a0a7c3d4d7cbe75f
 
-[REQUIREMENT]
-MID: da446e6d3c6d4b13badd4a47bdbcc5a3
-UID: SDOC-SRS-37
-STATUS: Active
-TITLE: strictdoc_config.py config file
-STATEMENT: >>>
-StrictDoc shall support a configuration of project-level options through a
+#### strictdoc_config.py config file
+
+**MID**: da446e6d3c6d4b13badd4a47bdbcc5a3 \
+**UID**: SDOC-SRS-37 \
+**Status**: Active
+**Relations**:
+- **Type**: `File` \
+  **Path**: `strictdoc/core/project_config.py`
+- **Type**: `Parent` \
+  **ID**: `SDOC-SRS-205`
+
+**Statement**: StrictDoc shall support a configuration of project-level options through a
 Python file named `strictdoc_config.py`.
-<<<
-RELATIONS:
-- TYPE: File
-  FORMAT: Sourcecode
-  PATH: strictdoc/core/project_config.py
-- TYPE: Parent
-  VALUE: SDOC-SRS-205
 
-[[/SECTION]]
+## Assets
 
-[[/SECTION]]
+**Type**: SECTION \
+**MID**: b0138705e9b24886bd2792faff067410
 
-[[SECTION]]
-MID: b0138705e9b24886bd2792faff067410
-TITLE: Assets
+### Asset directory resolution
 
-[REQUIREMENT]
-MID: 992a734673884c4a89ada5cb1fd640c4
-UID: SDOC-LLR-211
-TITLE: Asset directory resolution
-STATEMENT: >>>
+**MID**: 992a734673884c4a89ada5cb1fd640c4 \
+**UID**: SDOC-LLR-211
+
+**Statement**:
+
 StrictDoc shall associate a local \_assets directory with every document to store assets.
 
 Documents shall reference assets via relative paths.
-<<<
-RATIONALE: >>>
-- The local assets directory preserves compatibility with standard relative paths.
-<<<
 
-[REQUIREMENT]
-MID: da0c32fb66434bcd80d959613a35a446
-UID: SDOC-LLR-212
-TITLE: Asset Exporting
-STATEMENT: >>>
+**Rationale**:
+
+- The local assets directory preserves compatibility with standard relative paths.
+
+### Asset Exporting
+
+**MID**: da0c32fb66434bcd80d959613a35a446 \
+**UID**: SDOC-LLR-212
+
+**Statement**:
+
 When exporting, StrictDoc shall copy the contents of the Local Asset Directories to the output folder.
 
 The directory structure of the assets within the output folder shall mirror their relative structure in the source project tree to preserve relative path integrity.
-<<<
 
-[[SECTION]]
-MID: ce512ba0998d4ea1a85cfed432007922
-TITLE: Image upload
+### Image upload
 
-[REQUIREMENT]
-MID: 9413c36f26424fea9c520e4ff78e4089
-UID: SDOC-LLR-218
-STATUS: Active
-TITLE: Supported image formats
-STATEMENT: >>>
+**Type**: SECTION \
+**MID**: ce512ba0998d4ea1a85cfed432007922
+
+#### Supported image formats
+
+**MID**: 9413c36f26424fea9c520e4ff78e4089 \
+**UID**: SDOC-LLR-218 \
+**Status**: Active
+
+**Statement**:
+
 StrictDoc shall support the following image formats:
 
 - SVG (`.svg`, `image/svg+xml`)
@@ -961,14 +886,15 @@ StrictDoc shall support the following image formats:
 - AVIF (`.avif`, `image/avif`)
 
 SVG is a vector format. PNG, GIF, JPG, JPEG, WebP and AVIF are raster formats.
-<<<
 
-[REQUIREMENT]
-MID: 7768b2575117435e80c3b26515382b23
-UID: SDOC-LLR-214
-STATUS: Active
-TITLE: Image upload
-STATEMENT: >>>
+#### Image upload
+
+**MID**: 7768b2575117435e80c3b26515382b23 \
+**UID**: SDOC-LLR-214 \
+**Status**: Active
+
+**Statement**:
+
 The Web Editor shall support image upload in multi-line text fields via paste and drag-and-drop:
 
 1. Intercept *drop* and *paste* events and prevent default browser behaviour.
@@ -992,16 +918,16 @@ The Web Editor shall support image upload in multi-line text fields via paste an
 6. On failure, remove the upload placeholder and show a dismissible notification that identifies the affected files and reports the error.
 
 7. When an upload overwrites an image already referenced in the edited field, do not insert another image reference. Show a dismissible notification that identifies the updated file.
-<<<
-RATIONALE: >>>
-Supports standard editor interactions and removes manual file handling, improving usability and reducing potential for user errors.
-<<<
 
-[REQUIREMENT]
-MID: 7cdd7a0838fc4212a43b336eba5ccde8
-UID: SDOC-LLR-215
-TITLE: Asset upload endpoint
-STATEMENT: >>>
+**Rationale**: Supports standard editor interactions and removes manual file handling, improving usability and reducing potential for user errors.
+
+#### Asset upload endpoint
+
+**MID**: 7cdd7a0838fc4212a43b336eba5ccde8 \
+**UID**: SDOC-LLR-215
+
+**Statement**:
+
 The StrictDoc web server shall provide an `/actions/document/upload_asset` endpoint that accepts image uploads and stores them in a node-specific subfolder.
 
 The endpoint shall:
@@ -1015,39 +941,43 @@ The endpoint shall:
 7. Sync the assets to the web server so it can be served immediately.
 8. When successful, return HTTP 200 with the stored filename expressed as relative paths.
 9. When unsuccessful, return an error response.
-<<<
-RATIONALE: >>>
+
+**Rationale**:
+
 Defines a consistent and predictable storage model for image assets:
 
 - preventing image filename collisions between requirements,
 - allowing the user to update an image through re-uploading,
 - allowing the user to upload images when creating a new requirement
-<<<
 
-[REQUIREMENT]
-MID: 27981746203042b299b216295b6a7588
-UID: SDOC-LLR-213
-TITLE: Asset path resolution strategy
-STATEMENT: >>>
+#### Asset path resolution strategy
+
+**MID**: 27981746203042b299b216295b6a7588 \
+**UID**: SDOC-LLR-213
+
+**Statement**:
+
 When storing an uploaded asset, the system shall determine the correct node-specific subfolder within the document local `_assets` directory based on the following strategy:
 
 - If the node has a permanent MID, or if MIDs are explicitly enabled in the document options, the subfolder shall be `_assets/<MID>/`. (This allows uploads for not-yet-existing requirements when MIDs are enabled).
 - Otherwise, if the node exists and has a UID, the subfolder shall be `_assets/<UID>/`.
 - Otherwise, if the node exists but lacks both a permanent MID and UID, the asset shall be stored in the document local `_assets/` directory.
 - If the node does not yet exist and MIDs are disabled, the upload shall be rejected.
-<<<
-RATIONALE: >>>
+
+**Rationale**:
+
 Defines a consistent storage model that prevents image filename collisions between requirements.
 
 - Prioritizing the MID over the UID ensures asset paths remain stable even if a requirement's human-readable UID is changed later.
 - When MIDs are disabled, the asset storage path depends entirely on the node's UID, which is only established after the node is created. Therefore, image upload attempts at node creation time must be rejected to prevent orphaned files.
-<<<
 
-[REQUIREMENT]
-MID: 82dd31e22ccf44bd8b6b924ae9591b0c
-UID: SDOC-LLR-217
-TITLE: Orphaned asset cleanup
-STATEMENT: >>>
+#### Orphaned asset cleanup
+
+**MID**: 82dd31e22ccf44bd8b6b924ae9591b0c \
+**UID**: SDOC-LLR-217
+
+**Statement**:
+
 StrictDoc shall provide a CLI command `strictdoc manage assets` to identify and remove orphaned assets.
 
 An asset file shall be considered orphaned if it is an image file, and not referenced by any requirement.
@@ -1065,11 +995,5 @@ shall respect `include_doc_paths` and `exclude_doc_paths`.
 
 The command shall recognize `_assets` references with no path prefix or a
 `./` prefix.
-<<<
-RATIONALE: >>>
-Prevents accumulation of orphaned assets. This would for instance happen if requirement creation is aborted after already having uploaded images.
-<<<
 
-[[/SECTION]]
-
-[[/SECTION]]
+**Rationale**: Prevents accumulation of orphaned assets. This would for instance happen if requirement creation is aborted after already having uploaded images.

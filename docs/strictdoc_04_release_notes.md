@@ -1,62 +1,27 @@
-[DOCUMENT]
-MID: 4277890572a94f49bda9f32a80e43c06
-TITLE: Release Notes
-VERSION: Git commit: @GIT_VERSION, Git branch: @GIT_BRANCH
-DATE: @GIT_COMMIT_DATETIME
-OPTIONS:
-  ENABLE_MID: True
-  MARKUP: Markdown
+# Release Notes
 
-[GRAMMAR]
-ELEMENTS:
-- TAG: SECTION
-  PROPERTIES:
-    IS_COMPOSITE: True
-  FIELDS:
-  - TITLE: MID
-    TYPE: String
-    REQUIRED: True
-  - TITLE: UID
-    TYPE: String
-    REQUIRED: False
-  - TITLE: LEVEL
-    TYPE: String
-    REQUIRED: False
-  - TITLE: PREFIX
-    TYPE: String
-    REQUIRED: False
-  - TITLE: TITLE
-    TYPE: String
-    REQUIRED: True
-- TAG: TEXT
-  FIELDS:
-  - TITLE: MID
-    TYPE: String
-    REQUIRED: False
-  - TITLE: STATEMENT
-    TYPE: String
-    REQUIRED: True
-  RELATIONS:
-  - TYPE: Parent
-  - TYPE: File
+**Grammar**: strictdoc_04_release_notes.gra.md \
+**Version**: Git commit: @GIT_VERSION, Git branch: @GIT_BRANCH \
+**Date**: @GIT_COMMIT_DATETIME \
+**Enable MID**: True
 
-[TEXT]
-MID: 0dd2649ec4784c9480eac6f4aef3158b
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: 0dd2649ec4784c9480eac6f4aef3158b
+
 This document maintains a record of all changes to StrictDoc since November
 2023\. It serves as a user-friendly version of the changelog, complementing the
 automatically generated, commit-by-commit changelog available as GitHub
 releases:
 [StrictDoc Releases](https://github.com/strictdoc-project/strictdoc/releases).
-<<<
 
-[[SECTION]]
-MID: b6e1e041e4c843a7acd03e1aa1e1a4ad
-TITLE: Unreleased
+## Unreleased
 
-[TEXT]
-MID: f5188fa3a89b40aaba1606fb23e738ed
-STATEMENT: >>>
+**Type**: SECTION \
+**MID**: b6e1e041e4c843a7acd03e1aa1e1a4ad
+
+**Type**: TEXT \
+**MID**: f5188fa3a89b40aaba1606fb23e738ed
+
 This release contains the following enhancements:
 
 1\) Configuration management with Git and GitLab (experimental, project
@@ -158,17 +123,15 @@ markups are removed, and docutils is no longer a dependency.
   suspect links. See the user guide, "Moving SDoc documents to Markdown files".
 - Not done: the node-by-node merge of a synchronization conflict is for `.sdoc`
   files only, and the Word import writes `.sdoc` files.
-<<<
 
-[[/SECTION]]
+## 0.30.2 (2026-10-09)
 
-[[SECTION]]
-MID: 94dfec2aad924748bc13f9dff81965ca
-TITLE: 0.30.2 (2026-10-09)
+**Type**: SECTION \
+**MID**: 94dfec2aad924748bc13f9dff81965ca
 
-[TEXT]
-MID: 8d060217bc674e388837e81626726d0b
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: 8d060217bc674e388837e81626726d0b
+
 This release contains the following enhancements:
 
 1\) HTML export now includes default styles for Docutils output, based on
@@ -181,17 +144,15 @@ longer shrinks to one or two characters wide.
 
 3\) Fixed: when several error messages appear at once, the notification
 toast now stacks them in a column, so each message stays readable.
-<<<
 
-[[/SECTION]]
+## 0.30.1 (2026-09-15)
 
-[[SECTION]]
-MID: 8a13de7253c14afb8dfc95f88948b22f
-TITLE: 0.30.1 (2026-09-15)
+**Type**: SECTION \
+**MID**: 8a13de7253c14afb8dfc95f88948b22f
 
-[TEXT]
-MID: 9c24ef8364d25b09fce06f99a059c33d
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: 9c24ef8364d25b09fce06f99a059c33d
+
 This release contains the following enhancements:
 
 1\) Added a `--chrome-binary` CLI option (and matching
@@ -207,17 +168,15 @@ is submitted immediately after typing.
 4\) Fixed remaining race conditions in the table screen's inline cell
 editing, so a late save response no longer overwrites a value entered
 afterward.
-<<<
 
-[[/SECTION]]
+## 0.30.0 (2026-09-13)
 
-[[SECTION]]
-MID: a1b2c3d4e5f647a8b9c0d1e2f3a4b5c6
-TITLE: 0.30.0 (2026-09-13)
+**Type**: SECTION \
+**MID**: a1b2c3d4e5f647a8b9c0d1e2f3a4b5c6
 
-[TEXT]
-MID: b2c3d4e5f6a748b9c0d1e2f3a4b5c6d7
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: b2c3d4e5f6a748b9c0d1e2f3a4b5c6d7
+
 This release contains the following enhancements:
 
 1\) Users can now drag and drop images into text fields, or paste them
@@ -270,17 +229,15 @@ overflowing.
 
 8\) Added a project configuration option to disable the SSL certificate
 check during export.
-<<<
 
-[[/SECTION]]
+## 0.29.0 (2026-08-30)
 
-[[SECTION]]
-MID: 5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e
-TITLE: 0.29.0 (2026-08-30)
+**Type**: SECTION \
+**MID**: 5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e
 
-[TEXT]
-MID: c42d4f9213c04aac9ff29a2ed2fcb6c8
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: c42d4f9213c04aac9ff29a2ed2fcb6c8
+
 This release contains the following enhancements:
 
 1\) StrictDoc now supports PlantUML diagrams. SDoc/RST documents can embed a
@@ -302,33 +259,29 @@ them. Previously, a screen that added its own stylesheet after the shared
 end up loading after `custom_css_path` and silently win instead.
 
 4\) Fixed: the default color scheme no longer has a bluish tint.
-<<<
 
-[[/SECTION]]
+## 0.28.3 (2026-08-25)
 
-[[SECTION]]
-MID: f4a1c9b3e5d64f7a8b9c0d1e2f3a4b5c
-TITLE: 0.28.3 (2026-08-25)
+**Type**: SECTION \
+**MID**: f4a1c9b3e5d64f7a8b9c0d1e2f3a4b5c
 
-[TEXT]
-MID: a8f3c1d2e4b54c6d8e9f0a1b2c3d4e5f
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: a8f3c1d2e4b54c6d8e9f0a1b2c3d4e5f
+
 This release contains the following enhancements:
 
 1\) The "Clone" node action now respects `custom_node_prefix_function` and
 `custom_node_uid_function` hooks registered in the Python config file, so
 a cloned node's UID is generated the same way as a newly created node's.
-<<<
 
-[[/SECTION]]
+## 0.28.2 (2026-08-23)
 
-[[SECTION]]
-MID: eca20c606a77412da02c5cb76031f78b
-TITLE: 0.28.2 (2026-08-23)
+**Type**: SECTION \
+**MID**: eca20c606a77412da02c5cb76031f78b
 
-[TEXT]
-MID: dd83b89ed8044798b93084e439f6d6a1
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: dd83b89ed8044798b93084e439f6d6a1
+
 This release contains the following enhancements:
 
 1\) Users can move a node, along with its subtree, to a different location in
@@ -358,17 +311,15 @@ mixes flat requirements, which used to produce an ambiguous structure. Add
 5\) Fixed: deep links to nodes without a title now resolve correctly.
 
 6\) Fixed: the traceability matrix now lists normative nodes only.
-<<<
 
-[[/SECTION]]
+## 0.28.1 (2026-08-18)
 
-[[SECTION]]
-MID: 1b7f0c4a2e3d4f5e8a1b6c7d9e0f1a2b
-TITLE: 0.28.1 (2026-08-18)
+**Type**: SECTION \
+**MID**: 1b7f0c4a2e3d4f5e8a1b6c7d9e0f1a2b
 
-[TEXT]
-MID: 2c8e1d3f4a5b6c7d8e9f0a1b2c3d4e5f
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: 2c8e1d3f4a5b6c7d8e9f0a1b2c3d4e5f
+
 This release contains the following enhancements:
 
 1\) The command-line interface now prints a single, in-place progress line
@@ -396,17 +347,15 @@ return a function pointer.
 6\) Fixed: `pygments` is now pinned to a specific version to avoid
 inconsistent syntax highlighting of source files caused by unpinned
 upstream releases.
-<<<
 
-[[/SECTION]]
+## 0.28.0 (2026-08-11)
 
-[[SECTION]]
-MID: 295e21753ef346d88c2ccb0ceecd0657
-TITLE: 0.28.0 (2026-08-11)
+**Type**: SECTION \
+**MID**: 295e21753ef346d88c2ccb0ceecd0657
 
-[TEXT]
-MID: c9ceba5f4cc74d04b7f389962b1f127a
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: c9ceba5f4cc74d04b7f389962b1f127a
+
 This release contains the following enhancements:
 
 1\) Both the web interface and the static HTML export now render large documents
@@ -444,17 +393,15 @@ multiple validation errors.
 
 8\) Fixed: node dropdown menus near the bottom of the scroll area are now
 kept fully visible instead of being clipped.
-<<<
 
-[[/SECTION]]
+## 0.27.1 (2026-07-26)
 
-[[SECTION]]
-MID: a7ffb392d48244969318ec115e4695bd
-TITLE: 0.27.1 (2026-07-26)
+**Type**: SECTION \
+**MID**: a7ffb392d48244969318ec115e4695bd
 
-[TEXT]
-MID: 0046268453bf439b8a826ecc57abbe91
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: 0046268453bf439b8a826ecc57abbe91
+
 This release contains the following enhancements:
 
 1\) The Markdown format now supports `Version`, `Date` and
@@ -499,17 +446,15 @@ viewports.
 10\) Fixed: following a fragment link (an anchor or a table of contents
 entry) on a short document no longer jumps the page further down than the
 target, past the end of the content.
-<<<
 
-[[/SECTION]]
+## 0.27.0 (2026-07-13)
 
-[[SECTION]]
-MID: 8a4b0e6f9d3c4c5b8e1a2f7d6c9b0a3e
-TITLE: 0.27.0 (2026-07-13)
+**Type**: SECTION \
+**MID**: 8a4b0e6f9d3c4c5b8e1a2f7d6c9b0a3e
 
-[TEXT]
-MID: 7c2d5e8f1a9b4c6d8e0f2a4b6c8d0e2f
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: 7c2d5e8f1a9b4c6d8e0f2a4b6c8d0e2f
+
 **This is a breaking change release for users of the Python API**
 (`strictdoc.api.*` and any code importing StrictDoc's internal modules
 directly). See item 1 and the note on `Format`/`Feature` abstractions
@@ -560,17 +505,15 @@ internal modules directly (generators, readers, or ad hoc
 `strictdoc/features/*` wiring) should migrate to `strictdoc.api.*` and
 the `Format`/`Feature` interfaces, since the internal module layout
 they replace may keep changing with or without notice.
-<<<
 
-[[/SECTION]]
+## 0.26.0 (2026-07-05)
 
-[[SECTION]]
-MID: 650087b6a70d4451af7ddffde5e8b567
-TITLE: 0.26.0 (2026-07-05)
+**Type**: SECTION \
+**MID**: 650087b6a70d4451af7ddffde5e8b567
 
-[TEXT]
-MID: 39b43201403544e585fa3dda188e24ec
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: 39b43201403544e585fa3dda188e24ec
+
 This release contains the following enhancements:
 
 1\) An `[ANCHOR: uid, title]` title can now contain hyphens and most other
@@ -616,17 +559,15 @@ easier to see which release a diffed commit belongs to.
 traceability: auto-generated `TEST_RESULT` nodes are now automatically
 linked to the `TEST_CASE` node of the source node they were derived from,
 even when the source node has no explicit traceability markers.
-<<<
 
-[[/SECTION]]
+## 0.25.1 (2026-07-02)
 
-[[SECTION]]
-MID: 68a0524db27443c1a5bb0785dd595c1b
-TITLE: 0.25.1 (2026-07-02)
+**Type**: SECTION \
+**MID**: 68a0524db27443c1a5bb0785dd595c1b
 
-[TEXT]
-MID: 2f8bb0831a3d4c5a9cf97303f50b771e
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: 2f8bb0831a3d4c5a9cf97303f50b771e
+
 This release contains the following enhancements:
 
 1\) The StrictDoc server gained an opt-in `--watch` mode. When the server is
@@ -647,17 +588,15 @@ with the default name `strictdoc_config.py`. Names like `my_config.py` or
 4\) Fixed: pinned `py-tree-sitter` to 0.25.2 to avoid a dangling-pointer bug
 introduced upstream in 0.26.0 that could crash parsing of source files with
 doc comments.
-<<<
 
-[[/SECTION]]
+## 0.25.0 (2026-06-23)
 
-[[SECTION]]
-MID: 543c64859a9649eebba0b56dbdd3442b
-TITLE: 0.25.0 (2026-06-23)
+**Type**: SECTION \
+**MID**: 543c64859a9649eebba0b56dbdd3442b
 
-[TEXT]
-MID: c98e785de7b8429bb0e4f2daed3312f5
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: c98e785de7b8429bb0e4f2daed3312f5
+
 This release contains the following enhancements:
 
 1\) The TABLE screen now supports full inline editing. Every cell type can be
@@ -708,17 +647,15 @@ type the new node should use. When omitted, the command defaults to
 has no explicit grammar at all). If the grammar is custom and contains no
 `REQUIREMENT` element, the command exits with an error and prompts the user
 to supply `--node-type`.
-<<<
 
-[[/SECTION]]
+## 0.24.0 (2026-06-15)
 
-[[SECTION]]
-MID: b5181ae005fb1160e73e1fcd4cc972dd
-TITLE: 0.24.0 (2026-06-15)
+**Type**: SECTION \
+**MID**: b5181ae005fb1160e73e1fcd4cc972dd
 
-[TEXT]
-MID: 055660bc7cf09fbf5d00cf516111e80f
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: 055660bc7cf09fbf5d00cf516111e80f
+
 This release contains the following enhancements:
 
 1\) A new `document_line_width` project configuration option and a
@@ -787,17 +724,15 @@ C-only constructs were fed to the C++ parser.
 13\) Fixed: Markdown documents containing exactly one section and one
 requirement now parse correctly. A regression introduced in the Markdown grammar
 work caused this common structure to be rejected.
-<<<
 
-[[/SECTION]]
+## 0.23.1 (2026-06-05)
 
-[[SECTION]]
-MID: 71592b7fb5c44af4a8b308b75fab9491
-TITLE: 0.23.1 (2026-06-05)
+**Type**: SECTION \
+**MID**: 71592b7fb5c44af4a8b308b75fab9491
 
-[TEXT]
-MID: 39d572931ce144479f3f3927234589c9
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: 39d572931ce144479f3f3927234589c9
+
 This release contains the following enhancements:
 
 1\) Source code traceability for C/C++ now recognizes Google Benchmark
@@ -810,17 +745,15 @@ warnings instead of aborting the whole export.
 Saving a node discards empty relation rows instead of raising a validation
 error, while clearing an existing relation UID still produces a proper
 validation error.
-<<<
 
-[[/SECTION]]
+## 0.23.0 (2026-06-04)
 
-[[SECTION]]
-MID: 0a1b2c3d4e5f60718293a4b5c6d7e8f9
-TITLE: 0.23.0 (2026-06-04)
+**Type**: SECTION \
+**MID**: 0a1b2c3d4e5f60718293a4b5c6d7e8f9
 
-[TEXT]
-MID: f9e8d7c6b5a4039281706f5e4d3c2b1a
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: f9e8d7c6b5a4039281706f5e4d3c2b1a
+
 This release contains the following enhancements:
 
 1\) The JUnit XML test report reader gained a new flavor, `cargo-nextest`
@@ -860,17 +793,15 @@ instead of always validating the content as RST.
 When the `MERMAID` project feature is enabled, Markdown fences marked with
 `mermaid` are exported in the same Mermaid-compatible HTML form as SDoc/RST
 content.
-<<<
 
-[[/SECTION]]
+## 0.22.0 (2026-05-31)
 
-[[SECTION]]
-MID: a0d62ae8f15350e070b3f58976c2e714
-TITLE: 0.22.0 (2026-05-31)
+**Type**: SECTION \
+**MID**: a0d62ae8f15350e070b3f58976c2e714
 
-[TEXT]
-MID: eb054084551944a114c189c12fcec60b
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: eb054084551944a114c189c12fcec60b
+
 This release contains the following enhancements:
 
 1\) Markdown documents can now declare and round-trip all StrictDoc relation
@@ -907,17 +838,15 @@ tolerant of parser errors.
 from `[Documentation]` sections. StrictDoc can extract generated test case
 fields and relation markers from Robot files and link them to requirements and
 test session reports.
-<<<
 
-[[/SECTION]]
+## 0.21.1 (2026-05-17)
 
-[[SECTION]]
-MID: 1f6323f4461a5fe3d95b3f3dbeb0fcaa
-TITLE: 0.21.1 (2026-05-17)
+**Type**: SECTION \
+**MID**: 1f6323f4461a5fe3d95b3f3dbeb0fcaa
 
-[TEXT]
-MID: be1c3bd631f9b6c7b8f937e1a28912e7
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: be1c3bd631f9b6c7b8f937e1a28912e7
+
 This release contains the following enhancements:
 
 1\) Users can now edit the project title from the Project Index screen and
@@ -945,17 +874,15 @@ is more consistent.
 
 6\) The traceability matrix HTML layout now works around a Safari-specific
 sticky header overflow issue.
-<<<
 
-[[/SECTION]]
+## 0.21.0 (2026-05-14)
 
-[[SECTION]]
-MID: e3826dd8648f9da69b87d32a49cc3382
-TITLE: 0.21.0 (2026-05-14)
+**Type**: SECTION \
+**MID**: e3826dd8648f9da69b87d32a49cc3382
 
-[TEXT]
-MID: 2ed81eb30f5dcabea18e3d721929e789
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: 2ed81eb30f5dcabea18e3d721929e789
+
 This release contains the following enhancements:
 
 1\) The SDoc grammar handling of single-line and multiline fields is now more
@@ -991,17 +918,15 @@ files.
 
 6\) The bundled HTML2PDF tooling was updated to `html2pdf4doc` version
 `0.0.33`.
-<<<
 
-[[/SECTION]]
+## 0.20.0 (2026-04-27)
 
-[[SECTION]]
-MID: 6e6ac78ae4c44856a37ac492b23f8f7d
-TITLE: 0.20.0 (2026-04-27)
+**Type**: SECTION \
+**MID**: 6e6ac78ae4c44856a37ac492b23f8f7d
 
-[TEXT]
-MID: 58efd4f91ca54465be2238ba624af6cb
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: 58efd4f91ca54465be2238ba624af6cb
+
 This release contains the following enhancements:
 
 1\) The HTML2PDF export now supports cross-document PDF links and anchors for
@@ -1025,17 +950,15 @@ exporting only one document as a single self-contained HTML with all assets
 embedded in it (the original motivation) is not really a common use case. We
 prefer to concentrate on the most used features and functionalities moving
 forward.
-<<<
 
-[[/SECTION]]
+## 0.19.0 (2026-03-15)
 
-[[SECTION]]
-MID: 214e954aafa146dda04de0630c1a142e
-TITLE: 0.19.0 (2026-03-15)
+**Type**: SECTION \
+**MID**: 214e954aafa146dda04de0630c1a142e
 
-[TEXT]
-MID: 6a185e24981f4ed0abae7cb1d32fa7a5
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: 6a185e24981f4ed0abae7cb1d32fa7a5
+
 This release contains the following enhancements:
 
 1\) StrictDoc now includes the first stage of Markdown support. Markdown
@@ -1065,33 +988,29 @@ improved for C++ and GoogleTest code including namespace-aware parsing and
 type-parameterized tests, and several HTML screens received layout fixes for
 dashboard sizing, node controls, search field placement, TOC overlap, and
 code blocks with line numbers.
-<<<
 
-[[/SECTION]]
+## 0.18.1 (2026-02-26)
 
-[[SECTION]]
-MID: 148139b430d041619eccd8759d5c3fe6
-TITLE: 0.18.1 (2026-02-26)
+**Type**: SECTION \
+**MID**: 148139b430d041619eccd8759d5c3fe6
 
-[TEXT]
-MID: 9684f37a5b134a82ad453ffa90ff7565
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: 9684f37a5b134a82ad453ffa90ff7565
+
 This minor bugfix release ensures that the default server output path is
 correctly set to `output/server/`, while the default static export path
 remains `output/`. This fixes an issue introduced several weeks ago where the
 server output path was set to `output/`, which caused undefined behavior when
 a user used both static and server workflows at the same time.
-<<<
 
-[[/SECTION]]
+## 0.18.0 (2026-02-22)
 
-[[SECTION]]
-MID: 407d74b1ef3245e7986481076dc3355b
-TITLE: 0.18.0 (2026-02-22)
+**Type**: SECTION \
+**MID**: 407d74b1ef3245e7986481076dc3355b
 
-[TEXT]
-MID: e6947272bf5c4cf896bdc92a6b6a2e1c
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: e6947272bf5c4cf896bdc92a6b6a2e1c
+
 This release contains the following enhancements:
 
 1\) The web server receives several updates to allow a single service instance
@@ -1105,33 +1024,29 @@ prevent races and enable reasonably fast concurrent usage.
 2\) The Excel import function was extended to strip trailing newlines from all
 cell values, convert float values like 1.2 to strings, and avoid duplicating
 default grammar fields if they are present in the input Excel file.
-<<<
 
-[[/SECTION]]
+## 0.17.1 (2026-02-11)
 
-[[SECTION]]
-MID: 39dd2c627bd340e8b7be00730c72e341
-TITLE: 0.17.1 (2026-02-11)
+**Type**: SECTION \
+**MID**: 39dd2c627bd340e8b7be00730c72e341
 
-[TEXT]
-MID: 0a4fbb22a5514e0b8f29328db5469987
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: 0a4fbb22a5514e0b8f29328db5469987
+
 This release contains the following enhancements:
 
 1\) The bundled Mermaid was updated from 10.3.1 to 11.12.2. This includes fixes
 for CVE-2025-57347 and CVE-2025-26791 and adds useful features like "Note over"
 and `@{ "type" : stereotype }` syntax.
-<<<
 
-[[/SECTION]]
+## 0.17.0 (2026-02-09)
 
-[[SECTION]]
-MID: 2881011284ce4a32a99b6172566f3eb9
-TITLE: 0.17.0 (2026-02-09)
+**Type**: SECTION \
+**MID**: 2881011284ce4a32a99b6172566f3eb9
 
-[TEXT]
-MID: 6862b81a3a8e4c1e9a9848e79ba96f10
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: 6862b81a3a8e4c1e9a9848e79ba96f10
+
 This release contains the following enhancements:
 
 1\) Rust support was added to the tracing to source files feature in StrictDoc.
@@ -1150,48 +1065,42 @@ helps protect content integrity and raises awareness of concurrent user actions.
 
 4\) Python 3.9 was removed to align with libraries that dropped it some time ago
 and to enable use of the newer tree-sitter API.
-<<<
 
-[[/SECTION]]
+## 0.16.4 (2026-01-28)
 
-[[SECTION]]
-MID: 1111cf2f85144c008bd0d5075c972222
-TITLE: 0.16.4 (2026-01-28)
+**Type**: SECTION \
+**MID**: 1111cf2f85144c008bd0d5075c972222
 
-[TEXT]
-MID: 55555ee72197400f9d0e6ce34377a55b
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: 55555ee72197400f9d0e6ce34377a55b
+
 This small release contains a single improvement that makes the StrictDoc web
 server re-render the Mermaid diagrams after they are edited and saved. Thanks to
 @scootermon for contributing the patch.
-<<<
 
-[[/SECTION]]
+## 0.16.3 (2026-01-18)
 
-[[SECTION]]
-MID: 4e92cf2f85144c008bd0d5075c97fe9a
-TITLE: 0.16.3 (2026-01-18)
+**Type**: SECTION \
+**MID**: 4e92cf2f85144c008bd0d5075c97fe9a
 
-[TEXT]
-MID: 122e1ee72197400f9d0e6ce34377a55b
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: 122e1ee72197400f9d0e6ce34377a55b
+
 This small release improves the Python API used to write custom scripts based on
 StrictDoc classes. It fixes an issue reported by a user where calling the Python
 configuration API without *validate_and_finalize()* caused undefined behavior.
 
 The change reduces the creation of ProjectConfig to a single function call,
 which lowers the risk of incorrect usage and confusion.
-<<<
 
-[[/SECTION]]
+## 0.16.2 (2026-01-11)
 
-[[SECTION]]
-MID: 6456cd05251c465ca4fa48ed378b29a7
-TITLE: 0.16.2 (2026-01-11)
+**Type**: SECTION \
+**MID**: 6456cd05251c465ca4fa48ed378b29a7
 
-[TEXT]
-MID: e3772c3016f448b0a191948b1aa6aed8
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: e3772c3016f448b0a191948b1aa6aed8
+
 This small release introduces a deprecation of the `strictdoc.toml`,
 TOML-based config file, in favor of the new `strictdoc_config.py` Python-based
 config. From now on, a deprecation message will be printed if a user project
@@ -1200,31 +1109,27 @@ user guide has been updated accordingly to contain the Python config examples.
 
 This release also contains fixes for several issues related to the new
 .gitignore-based exclude filters, grammar aliases, and relative path resolution.
-<<<
 
-[[/SECTION]]
+## 0.16.1 (2026-01-05)
 
-[[SECTION]]
-MID: 91ec1cc14745499c9723930b9739c7d6
-TITLE: 0.16.1 (2026-01-05)
+**Type**: SECTION \
+**MID**: 91ec1cc14745499c9723930b9739c7d6
 
-[TEXT]
-MID: 2bdbba2b2ae04499b984d1ff35e26468
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: 2bdbba2b2ae04499b984d1ff35e26468
+
 This is a small bugfix release. The only issue being fixed is support for search
 path filters with the `~` character, as found on Windows systems and produced
 by MS Office tools.
-<<<
 
-[[/SECTION]]
+## 0.16.0 (2026-01-04)
 
-[[SECTION]]
-MID: 4d7680f589d54d808714f13b5b527de3
-TITLE: 0.16.0 (2026-01-04)
+**Type**: SECTION \
+**MID**: 4d7680f589d54d808714f13b5b527de3
 
-[TEXT]
-MID: a14fc4cd52d648eab3c42a43df0cc352
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: a14fc4cd52d648eab3c42a43df0cc352
+
 This release contains the following enhancements:
 
 1\) The code block syntax highlighting has been enabled for all RST `.. code::`
@@ -1265,17 +1170,15 @@ project's root .gitignore file into account. From now on, the contents of
 .gitignore are automatically added to the exclude filters for documents and
 source files. This ticket had been on the roadmap since long ago, and thanks to
 @KlfJoat for additionally requesting it.
-<<<
 
-[[/SECTION]]
+## 0.15.3 (2025-12-18)
 
-[[SECTION]]
-MID: d4efd073a4c64123b3acfff0e0d4acee
-TITLE: 0.15.3 (2025-12-18)
+**Type**: SECTION \
+**MID**: d4efd073a4c64123b3acfff0e0d4acee
 
-[TEXT]
-MID: 369768b722cd4140b13fdaa8981a214e
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: 369768b722cd4140b13fdaa8981a214e
+
 This release contains the following enhancements and fixes:
 
 1) The SingleChoice field grammar was made to support field values with
@@ -1299,32 +1202,28 @@ This release contains the following enhancements and fixes:
    migrate to the latest version of StrictDoc, so to support their use case,
    StrictDoc should have an exact version pinning to avoid html2pdf4doc running
    away from what the older StrictDoc versions can support.
-<<<
 
-[[/SECTION]]
+## 0.15.2 (2025-11-30)
 
-[[SECTION]]
-MID: 56d44b3868f04e13b00f1c3a6278c00e
-TITLE: 0.15.2 (2025-11-30)
+**Type**: SECTION \
+**MID**: 56d44b3868f04e13b00f1c3a6278c00e
 
-[TEXT]
-MID: 079aad4ade4446fa8ffda1c7b6dc6072
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: 079aad4ade4446fa8ffda1c7b6dc6072
+
 This is an intermediate release while we are waiting for the major layout fixes
 to be released in the upstream JS repository. Even without the complete release,
 this intermediate release should address several layout bugs that were reported
 by StrictDoc users.
-<<<
 
-[[/SECTION]]
+## 0.15.1 (2025-11-28)
 
-[[SECTION]]
-MID: bc41f8bb39b84edb87088bda5b462dbc
-TITLE: 0.15.1 (2025-11-28)
+**Type**: SECTION \
+**MID**: bc41f8bb39b84edb87088bda5b462dbc
 
-[TEXT]
-MID: ff80bff8ecb24703ab26aba8b74f5b00
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: ff80bff8ecb24703ab26aba8b74f5b00
+
 This release contains the following improvements:
 
 1. Our work on the Linux kernel requirements template proposal has continued.
@@ -1342,17 +1241,15 @@ This release contains the following improvements:
    created a follow-up ticket to unify the requirement identifier regex so that
    it is shared across all parsers and grammars. Thanks to @xw-mk for reporting
    the issue.
-<<<
 
-[[/SECTION]]
+## 0.15.0 (2025-11-08)
 
-[[SECTION]]
-MID: c2ee8e32a2324963a90e7ba81f95ee0d
-TITLE: 0.15.0 (2025-11-08)
+**Type**: SECTION \
+**MID**: c2ee8e32a2324963a90e7ba81f95ee0d
 
-[TEXT]
-MID: 12345f3b28ea4bfe9ca8afe6b21826a8
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: 12345f3b28ea4bfe9ca8afe6b21826a8
+
 This release includes several enhancements, the removal of legacy @sdoc markers,
 several bug fixes, and improvements for edge cases.
 
@@ -1394,17 +1291,15 @@ our proof-of-concept work on modeling Linux kernel requirements directly within
 the Linux source code. Some aspects of this work are not yet documented but will
 be once the overall concept becomes more mature. Many thanks to @haxtibal for
 contributing these improvements.
-<<<
 
-[[/SECTION]]
+## 0.14.0 (2025-10-05)
 
-[[SECTION]]
-MID: 403c9f0ad6c34b50b25133f1d9357335
-TITLE: 0.14.0 (2025-10-05)
+**Type**: SECTION \
+**MID**: 403c9f0ad6c34b50b25133f1d9357335
 
-[TEXT]
-MID: 9baeff3b28ea4bfe9ca8afe6b21826a8
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: 9baeff3b28ea4bfe9ca8afe6b21826a8
+
 This release introduces several improvements: configuring StrictDoc using a
 Python file instead of a TOML file, improvements to parsing SDoc nodes from
 source files, the removal of the legacy `Section/[SECTION]` element, dropped
@@ -1439,17 +1334,15 @@ to the new syntax.
 4\) **Dropped Python 3.8 support:** We could stay with Python 3.8 a little
 longer, but several important pip packages that StrictDoc depends on have
 already dropped support for it, most notably tree-sitter and docutils.
-<<<
 
-[[/SECTION]]
+## 0.13.0 (2025-09-28)
 
-[[SECTION]]
-MID: 9e294d6a047b42bf8c55c090fb685b4a
-TITLE: 0.13.0 (2025-09-28)
+**Type**: SECTION \
+**MID**: 9e294d6a047b42bf8c55c090fb685b4a
 
-[TEXT]
-MID: ab6e1c508d224bf1bfb303a808f33f9f
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: ab6e1c508d224bf1bfb303a808f33f9f
+
 This release contains a new feature and several bug fixes.
 
 A new experimental screen, Tree Map, provides visualizations of the overall
@@ -1467,29 +1360,25 @@ In the background, we have started removing the legacy `Section/[SECTION]`
 code. The core still supports the old `[SECTION]` syntax, but we are
 incrementally migrating all unit, integration, and end-to-end tests to the new
 `[[SECTION]]` syntax.
-<<<
 
-[[/SECTION]]
+## 0.12.1 (2025-09-18)
 
-[[SECTION]]
-MID: 27d526d90cda48dfa5cbf17df88299ba
-TITLE: 0.12.1 (2025-09-18)
+**Type**: SECTION \
+**MID**: 27d526d90cda48dfa5cbf17df88299ba
 
-[TEXT]
-MID: 7433a733b3794983b5e17169897c3732
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: 7433a733b3794983b5e17169897c3732
+
 This bugfix release contains several HTML2PDF layout fixes.
-<<<
 
-[[/SECTION]]
+## 0.12.0 (2025-09-17)
 
-[[SECTION]]
-MID: f2a70deaf8164240951fca48510d7aa4
-TITLE: 0.12.0 (2025-09-17)
+**Type**: SECTION \
+**MID**: f2a70deaf8164240951fca48510d7aa4
 
-[TEXT]
-MID: a7e0cee58f054a50818f07a02bab7230
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: a7e0cee58f054a50818f07a02bab7230
+
 This release contains a change in how the source code line markers work, as well
 as several small HTML2PDF layout fixes.
 
@@ -1504,17 +1393,15 @@ The HTML2PDF fixes include an important correction for an issue where running
 titles were not displayed on some pages in certain cases. For now, we have
 implemented a workaround, and the complete fix is being tracked in the upstream
 html2pdf4doc repository.
-<<<
 
-[[/SECTION]]
+## 0.11.3 (2025-09-07)
 
-[[SECTION]]
-MID: 721b576103a748c8a63d3147ec771b95
-TITLE: 0.11.3 (2025-09-07)
+**Type**: SECTION \
+**MID**: 721b576103a748c8a63d3147ec771b95
 
-[TEXT]
-MID: e60129ab582946319616595111296e76
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: e60129ab582946319616595111296e76
+
 This release contains two enhancements.
 
 1\) The HTML2PDF functionality was updated to support the `html2pdf_strict`
@@ -1532,17 +1419,15 @@ terminate with a non-zero exit code.
 2\) Parsing of SDoc nodes from source files was adjusted so that the `manage
 auto-uid` command no longer causes auto-generated content to be written back to
 the template SDoc files. Thanks to @johanenglund for reporting this issue.
-<<<
 
-[[/SECTION]]
+## 0.11.2 (2025-09-02)
 
-[[SECTION]]
-MID: 4bd05b9073254db38322102f4bbc5096
-TITLE: 0.11.2 (2025-09-02)
+**Type**: SECTION \
+**MID**: 4bd05b9073254db38322102f4bbc5096
 
-[TEXT]
-MID: 7776a30d522b4b5f9a6e405d20241566
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: 7776a30d522b4b5f9a6e405d20241566
+
 This release contains a single bug fix.
 
 The html2pdf4doc_python library has been updated to the latest version, which
@@ -1553,17 +1438,15 @@ The bug report:
 [Bug: Large TOC overflows into footer / header #46](https://github.com/strictdoc-project/html2pdf4doc_python/issues/46).
 
 Thanks to @thseiler for reporting this issue.
-<<<
 
-[[/SECTION]]
+## 0.11.1 (2025-09-01)
 
-[[SECTION]]
-MID: 3e3043021e034cb69dfd9b62eecadbb3
-TITLE: 0.11.1 (2025-09-01)
+**Type**: SECTION \
+**MID**: 3e3043021e034cb69dfd9b62eecadbb3
 
-[TEXT]
-MID: 9a4bbed442b94d72859d70d31282efc1
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: 9a4bbed442b94d72859d70d31282efc1
+
 This release includes further optimizations of the static HTML search feature:
 
 The size of the generated search index was reduced by using original integer
@@ -1576,17 +1459,15 @@ The search index is now loaded only after the entire page has finished loading.
 This means that search is unavailable for very large pages until the search
 JavaScript has been loaded. We will look into improving this aspect of the user
 experience in the future.
-<<<
 
-[[/SECTION]]
+## 0.11.0 (2025-08-26)
 
-[[SECTION]]
-MID: f53df5a2e9674373a8f52f1a01b5010d
-TITLE: 0.11.0 (2025-08-26)
+**Type**: SECTION \
+**MID**: f53df5a2e9674373a8f52f1a01b5010d
 
-[TEXT]
-MID: 177963dca83748d89bfaeb01b3d663a8
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: 177963dca83748d89bfaeb01b3d663a8
+
 This release includes the following enhancements and bug fixes.
 
 A new static HTML search has been added to the HTML export, making it possible
@@ -1607,17 +1488,15 @@ file.
 
 Numbering of math equations has been fixed for RST markup. Thanks to @thseiler
 for contributing this improvement.
-<<<
 
-[[/SECTION]]
+## 0.10.1 (2025-07-25)
 
-[[SECTION]]
-MID: a5ab8dd5bc4045e99299eff729e430e6
-TITLE: 0.10.1 (2025-07-25)
+**Type**: SECTION \
+**MID**: a5ab8dd5bc4045e99299eff729e430e6
 
-[TEXT]
-MID: 6d0bb97e7ef74fc1ae93cf2a91480e6a
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: 6d0bb97e7ef74fc1ae93cf2a91480e6a
+
 This release includes the following enhancements and bugfixes.
 
 **1) Debug option to print detailed stack traces.**
@@ -1652,17 +1531,15 @@ and others. As a result, the issue manifested as a no-op where updates, such as
 changing a HUMAN_TITLE, were not saved to disk after submitting the form.
 
 Thanks to @zheylmun for reporting this issue.
-<<<
 
-[[/SECTION]]
+## 0.10.0 (2025-07-20)
 
-[[SECTION]]
-MID: 447ab1fa1d38453ab46e0002e6eb852d
-TITLE: 0.10.0 (2025-07-20)
+**Type**: SECTION \
+**MID**: 447ab1fa1d38453ab46e0002e6eb852d
 
-[TEXT]
-MID: c536381cea6842f0b77c1aa5ac942ce0
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: c536381cea6842f0b77c1aa5ac942ce0
+
 This release includes the following enhancements and bugfixes.
 
 **1) A small improvement to the behavior of the LEVEL/AUTO_LEVEL fields.**
@@ -1745,50 +1622,44 @@ treated as multiline by default.
 In the future, we may introduce a separate field for the GrammarElement field
 declarations, for example, to explicitly specify whether a field should be
 interpreted as Title, Meta, Content, etc.
-<<<
 
-[[/SECTION]]
+## 0.9.4 (2025-07-12)
 
-[[SECTION]]
-MID: aa45a90bad3f4273ab46dade039ef4c6
-TITLE: 0.9.4 (2025-07-12)
+**Type**: SECTION \
+**MID**: aa45a90bad3f4273ab46dade039ef4c6
 
-[TEXT]
-MID: a25dd134646e462ca09e850481bccb2b
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: a25dd134646e462ca09e850481bccb2b
+
 This release contains two enhancements:
 
 - [rst: support for sphinx-style math syntax #2367](https://github.com/strictdoc-project/strictdoc/pull/2367)
   This PR adds support for the Sphinx-style `.. math::` directive and the `:math:` role for inline formulas in StrictDoc. These formulas are rendered by MathJax when it is enabled as a feature. \[@thseiler\]
 - [tests/integration: connecting source file to \[\[SECTION\]\] in included document #2366](https://github.com/strictdoc-project/strictdoc/pull/2366)
   Previously, there was no explicit integration test verifying the link between a source file and a `SECTION` element. This feature was requested by a user. During implementation, it was discovered that an outdated assertion had to be removed to enable rendering of a `SECTION` that links to a source file.
-<<<
 
-[[/SECTION]]
+## 0.9.3 (2025-07-03)
 
-[[SECTION]]
-MID: eca2ad204c8246a8b0f29a5eb8d7f799
-TITLE: 0.9.3 (2025-07-03)
+**Type**: SECTION \
+**MID**: eca2ad204c8246a8b0f29a5eb8d7f799
 
-[TEXT]
-MID: 64706a3d4d9c4beda3597ffa9d92921a
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: 64706a3d4d9c4beda3597ffa9d92921a
+
 This release includes a single change: the licensing update of the
 `html2pdf4doc` component. Its license has been finalized as Apache 2.0,
 replacing the previous combined Apache 2.0/TBD licensing. From now on,
 html2pdf4doc is fully licensed under Apache 2.0, without any restrictions, for
 use both within and outside of StrictDoc.
-<<<
 
-[[/SECTION]]
+## 0.9.2 (2025-06-28)
 
-[[SECTION]]
-MID: 6665c867a01f49f59968ae83d2e928fe
-TITLE: 0.9.2 (2025-06-28)
+**Type**: SECTION \
+**MID**: 6665c867a01f49f59968ae83d2e928fe
 
-[TEXT]
-MID: d56dfede85b84e07bd5ecddc82a576fc
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: d56dfede85b84e07bd5ecddc82a576fc
+
 This update fixes two important problems:
 
 **Problem 1: StrictDoc crashing or hanging on Windows (infrequently)**
@@ -1822,17 +1693,15 @@ relation markers, SDoc node declarations, and regular comments and turning off
 this feature by default. From now on, if you want to use this feature, you need
 to add `source_nodes` to your strictdoc.toml settings file. See
 [LINK: SECTION-UG-Parsing-SDoc-source-nodes] for the feature description.
-<<<
 
-[[/SECTION]]
+## 0.9.1 (2025-06-14)
 
-[[SECTION]]
-MID: a5ab3ca7210f4c18a465e7686e71c15f
-TITLE: 0.9.1 (2025-06-14)
+**Type**: SECTION \
+**MID**: a5ab3ca7210f4c18a465e7686e71c15f
 
-[TEXT]
-MID: fbf2c4dcf8154779b3ac914d9ff335c4
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: fbf2c4dcf8154779b3ac914d9ff335c4
+
 This release contains only one change related to how StrictDoc manages the cache
 path.
 
@@ -1854,17 +1723,15 @@ For example, for StrictDoc version 0.9.1, the default cache folder will be:
 `output/_cache/0.9.1`.
 
 </div>
-<<<
 
-[[/SECTION]]
+## 0.9.0 (2025-06-10)
 
-[[SECTION]]
-MID: 71b0ec45b5644c5083085c83ef6be95e
-TITLE: 0.9.0 (2025-06-10)
+**Type**: SECTION \
+**MID**: 71b0ec45b5644c5083085c83ef6be95e
 
-[TEXT]
-MID: 72d1a7e4b54d44e38778d87c74075dc8
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: 72d1a7e4b54d44e38778d87c74075dc8
+
 This release introduces a major migration and several new features.
 
 1\) A new syntax has been introduced for composite nodes: `[[NODE]]`. It is
@@ -1928,17 +1795,15 @@ missing tests were added, and a substantial amount of unused or outdated code
 was removed. Several mypy-related commits have been merged, resulting in the
 overall stronger typing system in StrictDoc. Thanks to @thseiler for supporting
 the Code Climate work.
-<<<
 
-[[/SECTION]]
+## 0.8.0 (2025-04-13)
 
-[[SECTION]]
-MID: d64fb5003399496bbb18ffb6e05efaf4
-TITLE: 0.8.0 (2025-04-13)
+**Type**: SECTION \
+**MID**: d64fb5003399496bbb18ffb6e05efaf4
 
-[TEXT]
-MID: a7bd074d2dcd40a6af106e91720d90d3
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: a7bd074d2dcd40a6af106e91720d90d3
+
 This release includes the following enhancements.
 
 1\) The source file traceability mechanism now supports specifying roles for
@@ -1982,17 +1847,15 @@ WARNING:  Current configuration will not reload as not all conditions are met, p
 
 Thanks to @MartyLake for pointing it out – it helped us prioritize fixing the
 issue.
-<<<
 
-[[/SECTION]]
+## 0.7.0 (2025-03-03)
 
-[[SECTION]]
-MID: 58b99c15df8445ce9832e24a17588e2c
-TITLE: 0.7.0 (2025-03-03)
+**Type**: SECTION \
+**MID**: 58b99c15df8445ce9832e24a17588e2c
 
-[TEXT]
-MID: c5725f24fcd24d54929e155f6ad47b44
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: c5725f24fcd24d54929e155f6ad47b44
+
 This release includes the following enhancements.
 
 The autocompletion dropdown has been added to the relation editor in the Web
@@ -2018,17 +1881,15 @@ codebase. As part of the ongoing refactoring of StrictDoc's type system, more
 type annotations have been added to the core StrictDoc model classes (Document,
 Node, Section, DocumentFromFile, etc.). These improvements should further reduce
 the risk of future regressions due to stronger static type checking.
-<<<
 
-[[/SECTION]]
+## 0.6.0 (2025-02-16)
 
-[[SECTION]]
-MID: ff59e375101145b3bf12465ce2b5fc14
-TITLE: 0.6.0 (2025-02-16)
+**Type**: SECTION \
+**MID**: ff59e375101145b3bf12465ce2b5fc14
 
-[TEXT]
-MID: 3ddfc6462bec45b2ac69a1799293c7da
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: 3ddfc6462bec45b2ac69a1799293c7da
+
 This release includes the following enhancements:
 
 The HTML2PDF library has been extracted into a separate Python package, which
@@ -2045,17 +1906,15 @@ errors occur \[@mplum\].
 
 The TextX dependency has been upgraded to resolve a conflict, and minor
 improvements have been made to StrictDoc's documentation \[@nogjam\].
-<<<
 
-[[/SECTION]]
+## 0.5.0 (2025-01-06)
 
-[[SECTION]]
-MID: d9e164994bb941ada8aecc73000bd51d
-TITLE: 0.5.0 (2025-01-06)
+**Type**: SECTION \
+**MID**: d9e164994bb941ada8aecc73000bd51d
 
-[TEXT]
-MID: d0d93f5eb37247079cc182e924dabd14
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: d0d93f5eb37247079cc182e924dabd14
+
 This release contains several enhancements, bug fixes, and performance
 improvements:
 
@@ -2071,17 +1930,15 @@ improvements:
 - Asset search optimization: Asset-finding code now filters out irrelevant
   directories early, avoiding repeated and unnecessary searches, improving
   efficiency.
-<<<
 
-[[/SECTION]]
+## 0.4.0 (2024-12-25)
 
-[[SECTION]]
-MID: e7df8274f42c4e01b02ad840e6b2569c
-TITLE: 0.4.0 (2024-12-25)
+**Type**: SECTION \
+**MID**: e7df8274f42c4e01b02ad840e6b2569c
 
-[TEXT]
-MID: f4e63483a11b442993c47b5d0574e89b
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: f4e63483a11b442993c47b5d0574e89b
+
 This release introduces language-aware tracing between requirements and C++
 source code.
 
@@ -2111,17 +1968,15 @@ requirements compliance tracking. The example is located at
 Additionally, a minor HTML2PDF formatting issue has been resolved. Previously,
 the RST admonitions in StrictDoc's own documentation were not rendered correctly
 when spanning across two pages.
-<<<
 
-[[/SECTION]]
+## 0.3.0 (2024-11-21)
 
-[[SECTION]]
-MID: 591c1b85c6fb4453aee08e23cb9f257a
-TITLE: 0.3.0 (2024-11-21)
+**Type**: SECTION \
+**MID**: 591c1b85c6fb4453aee08e23cb9f257a
 
-[TEXT]
-MID: b39a3b3d9f8640e380dad5a2fdb75d79
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: b39a3b3d9f8640e380dad5a2fdb75d79
+
 This release includes an enhancement to the feature for tracing requirements to
 C source code.
 
@@ -2131,17 +1986,15 @@ requirement to the corresponding C function definition. This allows a
 `@relation` marker to be placed in the main documentation block, typically
 located above C function declarations, while ensuring the requirement is also
 linked to the function definition.
-<<<
 
-[[/SECTION]]
+## 0.2.1 (2024-11-10)
 
-[[SECTION]]
-MID: f4cd860f07b1479ba1845bce3c749d68
-TITLE: 0.2.1 (2024-11-10)
+**Type**: SECTION \
+**MID**: f4cd860f07b1479ba1845bce3c749d68
 
-[TEXT]
-MID: 26043bba142a4e739dd206e229829202
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: 26043bba142a4e739dd206e229829202
+
 This release includes a new feature, a bug fix, and some documentation updates.
 
 - The `[LINK: ...]` feature now supports linking to documents by UID.
@@ -2155,17 +2008,15 @@ The documentation now includes two new pages:
 - The Troubleshooting document offers advice on clearing the user cache, one of
   the common solutions to user issues. We plan to expand this section with more
   tips over time.
-<<<
 
-[[/SECTION]]
+## 0.2.0 (2024-11-04)
 
-[[SECTION]]
-MID: f76d863243b5410788e457b9c3bf1d2b
-TITLE: 0.2.0 (2024-11-04)
+**Type**: SECTION \
+**MID**: f76d863243b5410788e457b9c3bf1d2b
 
-[TEXT]
-MID: 611e8df13d464fd1b22e5026cf3ce531
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: 611e8df13d464fd1b22e5026cf3ce531
+
 This release introduces several enhancements to the source code processing
 introduced in release 0.1.0.
 
@@ -2185,17 +2036,15 @@ Additionally, caching has been centralized, and the cache directory is now
 configurable. The project configuration file now supports a `cache_dir`
 option, which can be set to values such as `./output/build`. This setting can
 help make caching artifacts visible alongside documentation artifacts.
-<<<
 
-[[/SECTION]]
+## 0.1.0 (2024-11-01)
 
-[[SECTION]]
-MID: 83878b68483f4da2930bfb3712c08aa3
-TITLE: 0.1.0 (2024-11-01)
+**Type**: SECTION \
+**MID**: 83878b68483f4da2930bfb3712c08aa3
 
-[TEXT]
-MID: e37e230c932448798bd9978d4f27f32c
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: e37e230c932448798bd9978d4f27f32c
+
 This backward-compatible release introduces several new features for tracing
 requirements to source files:
 
@@ -2213,17 +2062,15 @@ With this release, we are also transitioning to a more
 [semantic versioning](https://semver.org)-oriented release scheme. From now
 on, the MAJOR.MINOR.PATCH version components will be maintained according to the
 recommendations of the semantic versioning specification.
-<<<
 
-[[/SECTION]]
+## 0.0.60 (2024-10-26)
 
-[[SECTION]]
-MID: 771fb5350bf840e4b30485fe9e8d9452
-TITLE: 0.0.60 (2024-10-26)
+**Type**: SECTION \
+**MID**: 771fb5350bf840e4b30485fe9e8d9452
 
-[TEXT]
-MID: 65daf4400b464021ba3cb7a06061e651
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: 65daf4400b464021ba3cb7a06061e651
+
 This is a bugfix release with several fixes:
 
 - Web UI: Add 'TAG' as a supported fieldtype for requirement nodes. Previously,
@@ -2233,17 +2080,15 @@ This is a bugfix release with several fixes:
   \[@mplum\]
 - Project Statistics: Fix generated search URLs for project statistics
   \[@haxtibal\]
-<<<
 
-[[/SECTION]]
+## 0.0.59 (2024-10-13)
 
-[[SECTION]]
-MID: 4538fe1994bc4730b7febe3dc624f704
-TITLE: 0.0.59 (2024-10-13)
+**Type**: SECTION \
+**MID**: 4538fe1994bc4730b7febe3dc624f704
 
-[TEXT]
-MID: e9d5e3f8f6b04647afb95bae6b2f503a
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: e9d5e3f8f6b04647afb95bae6b2f503a
+
 This release includes several important improvements. Thanks to @haxtibal for
 implementing and testing many of the implemented changes.
 
@@ -2272,17 +2117,15 @@ implementing and testing many of the implemented changes.
   between them, based on a report by @elfman2.
 - The Python 3.7 support was removed. The lowest Python baseline will now be 3.8
   for some time.
-<<<
 
-[[/SECTION]]
+## 0.0.58 (2024-06-25)
 
-[[SECTION]]
-MID: 306a619f550f4be18db6dbb987df3248
-TITLE: 0.0.58 (2024-06-25)
+**Type**: SECTION \
+**MID**: 306a619f550f4be18db6dbb987df3248
 
-[TEXT]
-MID: fd7f4d5b58e54f64aa43349684a675c4
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: fd7f4d5b58e54f64aa43349684a675c4
+
 This is a release with a single fix and a minor documentation update.
 
 The `manage auto-uid` command is now compatible with grammars that define the
@@ -2303,17 +2146,15 @@ compared to the multiline fields, such as `STATEMENT`, `RATIONALE`,
 > All fields before the content field are considered meta information. Meta information fields are assumed to be single-line. The content field and all following fields accept single-line and multiline strings.
 
 See the updated User Guide for more details.
-<<<
 
-[[/SECTION]]
+## 0.0.57 (2024-06-23)
 
-[[SECTION]]
-MID: 0795627e25e343f3b1b476b673a543ab
-TITLE: 0.0.57 (2024-06-23)
+**Type**: SECTION \
+**MID**: 0795627e25e343f3b1b476b673a543ab
 
-[TEXT]
-MID: f99185cb69cf47d4bc6e1bd404b67467
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: f99185cb69cf47d4bc6e1bd404b67467
+
 This release contains a significant, non-breaking change that affects the entire
 StrictDoc codebase and the SDoc data model: the `FREETEXT-TEXT` migration.
 
@@ -2334,17 +2175,15 @@ Other changes in this release:
 - The experimental Graphviz/Dot traceability graph generator has been removed
   because this feature didn't show much value, mainly due to the static and
   non-programmable nature of PDF and SVG outputs produced by Graphviz.
-<<<
 
-[[/SECTION]]
+## 0.0.56 (2024-06-02)
 
-[[SECTION]]
-MID: cd994052a0354410a550858a1f25d426
-TITLE: 0.0.56 (2024-06-02)
+**Type**: SECTION \
+**MID**: cd994052a0354410a550858a1f25d426
 
-[TEXT]
-MID: 61f17be85ac442a0b70003825d671ced
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: 61f17be85ac442a0b70003825d671ced
+
 This is an intermediate bugfix release before the release which will contain
 major changes.
 
@@ -2374,17 +2213,15 @@ explaining the use case.
 `ran into an integration issue with the datauri library installing tests to the
 virtual environment. The library maintainer was kind enough to quickly resolve
 the issue in fcurella/python-datauri#14.` Thanks @DomenicP!
-<<<
 
-[[/SECTION]]
+## 0.0.55 (2024-04-28)
 
-[[SECTION]]
-MID: 938f1a0fdcc94c5aaa87ddb18b880afe
-TITLE: 0.0.55 (2024-04-28)
+**Type**: SECTION \
+**MID**: 938f1a0fdcc94c5aaa87ddb18b880afe
 
-[TEXT]
-MID: 00abb07e55534a75a8cfd50d8cfc5732
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: 00abb07e55534a75a8cfd50d8cfc5732
+
 The ReqIF export/import feature was extended to support three new command-line
 options for an improved export/import interfacing with Polarion. See
 [LINK: SECTION-UG-ReqIF-options] for more details.
@@ -2402,17 +2239,15 @@ refactorings in StrictDoc's data model. In this specific case, the previous
 `FragmentFromFile` Python class was renamed to `DocumentFromFile` and that
 caused problems when unpickling outdated cached content on a user machine.
 Thanks to @nashif for reporting this.
-<<<
 
-[[/SECTION]]
+## 0.0.54 (2024-04-17)
 
-[[SECTION]]
-MID: 055ee004b28647629eead8165f198579
-TITLE: 0.0.54 (2024-04-17)
+**Type**: SECTION \
+**MID**: 055ee004b28647629eead8165f198579
 
-[TEXT]
-MID: e5bf489ac0684ea4b626574b5439c7dd
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: e5bf489ac0684ea4b626574b5439c7dd
+
 1) Two improvements were made to the Composable Documents feature, when included
    document's root node is edited in including document:
 
@@ -2429,17 +2264,15 @@ STATEMENT: >>>
    closed state independently of its parent section. Previously, there was some
    dependency between child and parent TOC nodes, which made quick editing of
    the TOC more challenging.
-<<<
 
-[[/SECTION]]
+## 0.0.53 (2024-04-01)
 
-[[SECTION]]
-MID: 87b7b54fa4024959bdcb42ded18f77f2
-TITLE: 0.0.53 (2024-04-01)
+**Type**: SECTION \
+**MID**: 87b7b54fa4024959bdcb42ded18f77f2
 
-[TEXT]
-MID: 2ac296f6326b4481beb7d67b95dbb23c
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: 2ac296f6326b4481beb7d67b95dbb23c
+
 The JSON export algorithm was extended to support composable documents. By
 default, the included documents are exported only as part of their including
 documents. To export both the including documents and included documents'
@@ -2451,51 +2284,45 @@ StrictDoc project tree. This work was left unfinished for a long time and became
 unused legacy code over time. See the PR:
 [Remove all BibTeX bibliography-related code and pybtex dependency](https://github.com/strictdoc-project/strictdoc/pull/1744)
 for more explanation.
-<<<
 
-[[/SECTION]]
+## 0.0.52 (2024-03-25)
 
-[[SECTION]]
-MID: 36a70af62b3e4a5d8bf08d9345fda095
-TITLE: 0.0.52 (2024-03-25)
+**Type**: SECTION \
+**MID**: 36a70af62b3e4a5d8bf08d9345fda095
 
-[TEXT]
-MID: 72d6e38e89cc471b8d3f46ae5654e0e6
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: 72d6e38e89cc471b8d3f46ae5654e0e6
+
 The **Grammar from File** feature has been implemented. Now it is possible to
 declare a usual StrictDoc `[GRAMMAR]` in a dedicated file with an `.sgra`
 extension. When a grammar is declared in a separate file, it is possible to
 share this grammar between several documents. Editing of the grammars defined in
 `.sgra` files can be only done with a text editor, it is not implemented yet
 in the editable web interface.
-<<<
 
-[[/SECTION]]
+## 0.0.51 (2024-03-20)
 
-[[SECTION]]
-MID: 6c72f8654ea1401ea2a6e4ab82cf76e4
-TITLE: 0.0.51 (2024-03-20)
+**Type**: SECTION \
+**MID**: 6c72f8654ea1401ea2a6e4ab82cf76e4
 
-[TEXT]
-MID: e81c4206bcb148979762ee3f2aa5c9ba
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: e81c4206bcb148979762ee3f2aa5c9ba
+
 This is a bugfix release with only one change.
 
 A regression was introduced during recent internal refactoring, resulting in
 malfunctions on the Search screen when opening search links like "Find all
 requirements" or "Find all sections." This release fixes the introduced
 regression.
-<<<
 
-[[/SECTION]]
+## 0.0.50 (2024-03-19)
 
-[[SECTION]]
-MID: 413952c14412434fb237c3e909101707
-TITLE: 0.0.50 (2024-03-19)
+**Type**: SECTION \
+**MID**: 413952c14412434fb237c3e909101707
 
-[TEXT]
-MID: a9d7c449d1a7400496504926c744e500
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: a9d7c449d1a7400496504926c744e500
+
 **Breaking change:** The "Fragments" feature has been replaced by the
 "Composable documents" feature:
 
@@ -2519,17 +2346,15 @@ STATEMENT: >>>
 - The functionality of the HTML2PDF script on Windows has been corrected for
   scenarios where StrictDoc is operated within a virtual environment. Special
   thanks to @Timotheous for highlighting this issue.
-<<<
 
-[[/SECTION]]
+## 0.0.49 (2024-03-11)
 
-[[SECTION]]
-MID: 3a03dd169ffb4fe0b64f48b365a77d2e
-TITLE: 0.0.49 (2024-03-11)
+**Type**: SECTION \
+**MID**: 3a03dd169ffb4fe0b64f48b365a77d2e
 
-[TEXT]
-MID: 0b8c8f40923744b089845afeb44223e9
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: 0b8c8f40923744b089845afeb44223e9
+
 The web interface code has been extended to allow editing arbitrary nodes.
 Previously, only editing the REQUIREMENT type was possible. From now on, it is
 possible to use the web interface to create custom grammar elements and nodes of
@@ -2564,17 +2389,15 @@ The Excel export algorithm was extended to support generating multiple Excel
 files for documentation tree with requirements that link to each other across
 documents. The issue manifested itself as `KeyError`. Thanks to @Dynteq for
 reporting this.
-<<<
 
-[[/SECTION]]
+## 0.0.48 (2024-01-24)
 
-[[SECTION]]
-MID: a7ed1eaf155d4f588b27ba31ecc88d4d
-TITLE: 0.0.48 (2024-01-24)
+**Type**: SECTION \
+**MID**: a7ed1eaf155d4f588b27ba31ecc88d4d
 
-[TEXT]
-MID: 6cff333594d6430886053b59b265e806
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: 6cff333594d6430886053b59b265e806
+
 The requirement-to-source traceability feature was extended to support linking
 requirements to the RST files.
 
@@ -2613,17 +2436,15 @@ enables printing of documents directly from a browser, which can be done either
 through the "PDF" screen view or by utilizing the "Export to PDF" button. By
 default, the HTML2PDF feature is disabled. To activate it, you need to indicate
 the `HTML2PDF` feature in the strictdoc.toml project configuration file.
-<<<
 
-[[/SECTION]]
+## 0.0.47 (2023-11-20)
 
-[[SECTION]]
-MID: 7a3620eecd1b4bd1a8eba7a373f14723
-TITLE: 0.0.47 (2023-11-20)
+**Type**: SECTION \
+**MID**: 7a3620eecd1b4bd1a8eba7a373f14723
 
-[TEXT]
-MID: c422af340d5b45c48bfe89130e1bba52
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: c422af340d5b45c48bfe89130e1bba52
+
 A **query search engine** is introduced which allows filtering a documentation
 tree by queries like `(node.is_requirement and "System" in node["TITLE"])`.
 Building on the search engine capability, the "Search" screen is introduced in
@@ -2663,6 +2484,3 @@ the `drafts/requirements` folder.
 The User Guide has been updated to include the **"Security Considerations"
 chapter**, which provides a warning about unsafe use of StrictDoc if it is
 deployed to a server on a public network.
-<<<
-
-[[/SECTION]]

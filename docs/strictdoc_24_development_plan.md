@@ -1,61 +1,26 @@
-[DOCUMENT]
-MID: e776a9eb7ba0455eb589787028aa0529
-TITLE: Development Plan
-VERSION: Git commit: @GIT_VERSION, Git branch: @GIT_BRANCH
-DATE: @GIT_COMMIT_DATETIME
-OPTIONS:
-  ENABLE_MID: True
-  MARKUP: Markdown
-  VIEW_STYLE: Narrative
-  NODE_IN_TOC: True
+# Development Plan
 
-[GRAMMAR]
-ELEMENTS:
-- TAG: SECTION
-  PROPERTIES:
-    IS_COMPOSITE: True
-  FIELDS:
-  - TITLE: MID
-    TYPE: String
-    REQUIRED: True
-  - TITLE: UID
-    TYPE: String
-    REQUIRED: False
-  - TITLE: LEVEL
-    TYPE: String
-    REQUIRED: False
-  - TITLE: PREFIX
-    TYPE: String
-    REQUIRED: False
-  - TITLE: TITLE
-    TYPE: String
-    REQUIRED: True
-- TAG: TEXT
-  FIELDS:
-  - TITLE: MID
-    TYPE: String
-    REQUIRED: False
-  - TITLE: STATEMENT
-    TYPE: String
-    REQUIRED: True
-  RELATIONS:
-  - TYPE: Parent
-  - TYPE: File
+**Grammar**: strictdoc_24_development_plan.gra.md \
+**Version**: Git commit: @GIT_VERSION, Git branch: @GIT_BRANCH \
+**Date**: @GIT_COMMIT_DATETIME \
+**Enable MID**: True \
+**View style**: Narrative \
+**Node in TOC**: True
 
-[TEXT]
-MID: 2ba509874f1744cf899643b58a6a2095
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: 2ba509874f1744cf899643b58a6a2095
+
 This document presents the goals of the StrictDoc project and describes how the
 project is developed.
-<<<
 
-[[SECTION]]
-MID: 24b0bc5efe074a419b441900d30b2876
-TITLE: Project goals
+## Project goals
 
-[TEXT]
-MID: bdbd5aecefdc41bca1c88b9bce71d512
-STATEMENT: >>>
+**Type**: SECTION \
+**MID**: 24b0bc5efe074a419b441900d30b2876
+
+**Type**: TEXT \
+**MID**: bdbd5aecefdc41bca1c88b9bce71d512
+
 StrictDoc is an open-source tool for writing technical documentation and
 requirements management. The long-term goal of the project is to provide a
 capable, open-source platform for creating and managing technical documentation.
@@ -87,17 +52,15 @@ StrictDoc shall be compatible with other software and engineering tools. This
 includes at least the compatibility with the Python ecosystem, the model-based
 systems engineering tools, such as Capella, and the formats providing Software
 Bill of Materials, such as SPDX.
-<<<
 
-[[/SECTION]]
+## Roadmap
 
-[[SECTION]]
-MID: 10fba42c4c444be89823d82944f7326f
-TITLE: Roadmap
+**Type**: SECTION \
+**MID**: 10fba42c4c444be89823d82944f7326f
 
-[TEXT]
-MID: ae3ab626e10a4aff9b7748bee75fd816
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: ae3ab626e10a4aff9b7748bee75fd816
+
 All StrictDoc work is tracked on GitHub via the
 [StrictDoc issues](https://github.com/strictdoc-project/strictdoc/issues) and
 [StrictDoc Pull Requests](https://github.com/strictdoc-project/strictdoc/pulls)
@@ -109,16 +72,16 @@ In particular, features aligned with the core roadmap and those strongly
 requested by active users are usually given the highest priority. StrictDoc also
 benefits from contributions by users who want a particular feature and are
 willing to develop it themselves.
-<<<
 
-[[SECTION]]
-MID: f1e3c17829fd4eebbd390fceaeb95619
-UID: SECTION-DP-Project-milestones
-TITLE: Project milestones
+### Project milestones
 
-[TEXT]
-MID: fd9294fdd2b546de993f649767371394
-STATEMENT: >>>
+**Type**: SECTION \
+**MID**: f1e3c17829fd4eebbd390fceaeb95619 \
+**UID**: SECTION-DP-Project-milestones
+
+**Type**: TEXT \
+**MID**: fd9294fdd2b546de993f649767371394
+
 The work is loosely organized in quarters which are maintained as
 [GitHub milestones](https://github.com/strictdoc-project/strictdoc/milestones),
 such as 2025-Q1, 2025-Q2, etc.
@@ -159,17 +122,15 @@ such as 2025-Q1, 2025-Q2, etc.
 <tr><td>2026-Q3</td><td>Further Markdown work. Drag-and-drop image upload (WIP). Nix flake, migrate from Tox to uv. Lazy loading of documents. Moving nodes between sections/documents. Performance improvements for large documents.</td></tr>
 </tbody>
 </table>
-<<<
 
-[[/SECTION]]
+### Roadmap diagram
 
-[[SECTION]]
-MID: bf9f3f05501140da8d35cde39493c72f
-TITLE: Roadmap diagram
+**Type**: SECTION \
+**MID**: bf9f3f05501140da8d35cde39493c72f
 
-[TEXT]
-MID: 53e101acb20e44e89de27f0f77c5f0cb
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: 53e101acb20e44e89de27f0f77c5f0cb
+
 Additionally, a StrictDoc project maintains a high-level roadmap overview using
 a draw.io diagram.
 
@@ -178,75 +139,65 @@ represents the already open StrictDoc GitHub issues, as well as some concepts in
 the backlog that are yet to be worked on.
 
 <img src="_assets/StrictDoc_Workspace-Roadmap.drawio.png" alt="Development plan diagram" width="100%" />
-<<<
 
-[[/SECTION]]
+### Backlog
 
-[[SECTION]]
-MID: 0adcf781ba5b47b0b2e421db2fd97acb
-TITLE: Backlog
+**Type**: SECTION \
+**MID**: 0adcf781ba5b47b0b2e421db2fd97acb
 
-[TEXT]
-MID: 4c253eba99644f2dad971e0b0d79f143
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: 4c253eba99644f2dad971e0b0d79f143
+
 StrictDoc maintains its backlog in a dedicated SDoc document (see
 [LINK: SDOC_BACKLOG]), as well as among the GitHub issues specifically tracked
 under the milestone
 [Backlog](https://github.com/strictdoc-project/strictdoc/issues?q=is%3Aissue%20state%3Aopen%20milestone%3A20XX-Backlog).
-<<<
 
-[[/SECTION]]
+### Backlog diagram
 
-[[SECTION]]
-MID: 21917df7f66d464a9d9a717def2e10db
-TITLE: Backlog diagram
+**Type**: SECTION \
+**MID**: 21917df7f66d464a9d9a717def2e10db
 
-[TEXT]
-MID: c34b77865324416f98a36aa8bdb0fcaa
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: c34b77865324416f98a36aa8bdb0fcaa
+
 The following diagram contains the backlog work items at the epic and single
 task levels.
 
 <img src="_assets/StrictDoc_Workspace-Backlog.drawio.png" alt="StrictDoc Backlog" width="100%" />
-<<<
 
-[[/SECTION]]
+## Versioning
 
-[[/SECTION]]
+**Type**: SECTION \
+**MID**: 625560c790a3492eaf45466b787602d7
 
-[[SECTION]]
-MID: 625560c790a3492eaf45466b787602d7
-TITLE: Versioning
+**Type**: TEXT \
+**MID**: ae2a2af6e3f24f65845c6c37ea7da2e2
 
-[TEXT]
-MID: ae2a2af6e3f24f65845c6c37ea7da2e2
-STATEMENT: >>>
 As of release 0.1.0 (2024-11-01), StrictDoc follows a
 [semantic versioning](https://semver.org)-oriented release scheme. The
 MAJOR.MINOR.PATCH components are managed according to the guidelines of the
 semantic versioning specification.
-<<<
 
-[[/SECTION]]
+## Quality
 
-[[SECTION]]
-MID: ef6bde37e1c54f49afdbd3c6785fd01c
-TITLE: Quality
+**Type**: SECTION \
+**MID**: ef6bde37e1c54f49afdbd3c6785fd01c
 
-[TEXT]
-MID: 14d0e79fcadc43f1a1cee2d66ae6b763
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: 14d0e79fcadc43f1a1cee2d66ae6b763
+
 StrictDoc's development incorporates quality measures to ensure a high standard
 of code quality.
-<<<
 
-[[SECTION]]
-MID: 185776da602c49589f9252b46a9ce663
-TITLE: Bug reporting and tracking
+### Bug reporting and tracking
 
-[TEXT]
-MID: a7874a49450448dfbfb557f9495f2b6e
-STATEMENT: >>>
+**Type**: SECTION \
+**MID**: 185776da602c49589f9252b46a9ce663
+
+**Type**: TEXT \
+**MID**: a7874a49450448dfbfb557f9495f2b6e
+
 StrictDoc provides an issue template for bug reports, which users can use to
 report bugs and other issues.
 
@@ -254,43 +205,37 @@ All known bugs in StrictDoc are reported as GitHub issues and labeled with the
 Bug tag:
 
 [Known StrictDoc issues and bugs](https://github.com/strictdoc-project/strictdoc/issues?q=is%3Aissue%20state%3Aopen%20type%3ABug)
-<<<
 
-[[/SECTION]]
+### Linting of code
 
-[[SECTION]]
-MID: bc49b1e28fff4386b3bf5788a6686a79
-TITLE: Linting of code
+**Type**: SECTION \
+**MID**: bc49b1e28fff4386b3bf5788a6686a79
 
-[TEXT]
-MID: f6de78d4a95b4970ab55563e18472a92
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: f6de78d4a95b4970ab55563e18472a92
+
 StrictDoc uses [Ruff](https://docs.astral.sh/ruff/formatter/) to ensure
 consistent code formatting and to check for common issues in Python code.
-<<<
 
-[[/SECTION]]
+### Static analysis
 
-[[SECTION]]
-MID: 38ce17138405490b80e06037b40dc49d
-TITLE: Static analysis
+**Type**: SECTION \
+**MID**: 38ce17138405490b80e06037b40dc49d
 
-[TEXT]
-MID: ad63541e341d4648ab59b4a0817a7e3c
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: ad63541e341d4648ab59b4a0817a7e3c
+
 StrictDoc uses [mypy](https://github.com/python/mypy) to statically check the
 robustness of its Python type system.
-<<<
 
-[[/SECTION]]
+### Testing
 
-[[SECTION]]
-MID: 2834756354a7420499d0deecfe0ee9c4
-TITLE: Testing
+**Type**: SECTION \
+**MID**: 2834756354a7420499d0deecfe0ee9c4
 
-[TEXT]
-MID: ee541e7062704b3f919bcaac2bce2723
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: ee541e7062704b3f919bcaac2bce2723
+
 StrictDoc has three groups of tests: unit, integration, end-to-end tests.
 
 The unit tests are based on [pytest](https://docs.pytest.org/en/stable/).
@@ -304,17 +249,15 @@ for a good description.
 
 The end-to-end web interface tests are based on the
 [SeleniumBase](https://seleniumbase.io/) test framework.
-<<<
 
-[[/SECTION]]
+### Traceability between StrictDoc requirements, code, and tests
 
-[[SECTION]]
-MID: 2004550abd54486d9aa5f98282eef6e1
-TITLE: Traceability between StrictDoc requirements, code, and tests
+**Type**: SECTION \
+**MID**: 2004550abd54486d9aa5f98282eef6e1
 
-[TEXT]
-MID: f829d28d2e3d4bcaa38f44ffb1ac0373
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: f829d28d2e3d4bcaa38f44ffb1ac0373
+
 Most of StrictDoc's implemented features are tested through its own
 documentation artifacts. In terms of traceability, StrictDoc maintains a growing
 number of trace links between:
@@ -325,33 +268,27 @@ number of trace links between:
 
 The goal is to achieve 100% traceability across all artifacts in the StrictDoc
 codebase.
-<<<
 
-[[/SECTION]]
+### Continuous integration (CI)
 
-[[SECTION]]
-MID: 30b874ab3eac4d429633537e1e89677f
-TITLE: Continuous integration (CI)
+**Type**: SECTION \
+**MID**: 30b874ab3eac4d429633537e1e89677f
 
-[TEXT]
-MID: 85e3915270f144c7a76ccfa0e088d93d
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: 85e3915270f144c7a76ccfa0e088d93d
+
 Contributions to StrictDoc are made through GitHub pull requests. Each pull
 request is validated by a series of checks and test jobs run on GitHub Actions
 CI servers.
-<<<
 
-[[/SECTION]]
+## Python baseline
 
-[[/SECTION]]
+**Type**: SECTION \
+**MID**: 2ae3a8822a424a9e8ad6976c2476d109
 
-[[SECTION]]
-MID: 2ae3a8822a424a9e8ad6976c2476d109
-TITLE: Python baseline
+**Type**: TEXT \
+**MID**: 081ee6266bab4a3a80f290c95e055a25
 
-[TEXT]
-MID: 081ee6266bab4a3a80f290c95e055a25
-STATEMENT: >>>
 The supported version of Python is kept to be as low as possible. As of 2025-Q4,
 the currently supported version is Python 3.10.
 
@@ -363,6 +300,3 @@ dependencies. As these dependencies stop supporting the older versions of
 Python, StrictDoc must be upgraded to maintain compatibility. With the existing
 dependency graph, this happens rather infrequently as most dependencies also
 maintain the compatibility with the older Python versions.
-<<<
-
-[[/SECTION]]

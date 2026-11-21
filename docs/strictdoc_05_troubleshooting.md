@@ -1,55 +1,26 @@
-[DOCUMENT]
-MID: 5680165c90f44903b3b1dc1013b8cb59
-TITLE: Troubleshooting
-UID: SDOC_TROUBLESHOOTING
-VERSION: Git commit: @GIT_VERSION, Git branch: @GIT_BRANCH
-DATE: @GIT_COMMIT_DATETIME
-OPTIONS:
-  ENABLE_MID: True
-  MARKUP: Markdown
-  VIEW_STYLE: Narrative
+# Troubleshooting
 
-[GRAMMAR]
-ELEMENTS:
-- TAG: SECTION
-  PROPERTIES:
-    IS_COMPOSITE: True
-  FIELDS:
-  - TITLE: MID
-    TYPE: String
-    REQUIRED: False
-  - TITLE: UID
-    TYPE: String
-    REQUIRED: False
-  - TITLE: TITLE
-    TYPE: String
-    REQUIRED: True
-- TAG: TEXT
-  FIELDS:
-  - TITLE: MID
-    TYPE: String
-    REQUIRED: False
-  - TITLE: STATEMENT
-    TYPE: String
-    REQUIRED: True
-  RELATIONS:
-  - TYPE: Parent
-  - TYPE: File
+**Grammar**: strictdoc_05_troubleshooting.gra.md \
+**UID**: SDOC_TROUBLESHOOTING \
+**Version**: Git commit: @GIT_VERSION, Git branch: @GIT_BRANCH \
+**Date**: @GIT_COMMIT_DATETIME \
+**Enable MID**: True \
+**View style**: Narrative
 
-[TEXT]
-MID: 7e3481d51ad14767b5c97132cad2e0a6
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: 7e3481d51ad14767b5c97132cad2e0a6
+
 This document summarizes solutions to the most common issues reported by
 StrictDoc users.
-<<<
 
-[[SECTION]]
-MID: 17152ac7de9f4c138b85e2956091206f
-TITLE: Caching issues
+## Caching issues
 
-[TEXT]
-MID: 9a32ac13510d401cbc1a608259652c78
-STATEMENT: >>>
+**Type**: SECTION \
+**MID**: 17152ac7de9f4c138b85e2956091206f
+
+**Type**: TEXT \
+**MID**: 9a32ac13510d401cbc1a608259652c78
+
 <div class="sdoc-admonition sdoc-note" role="note">
 <p class="sdoc-admonition-title">Note</p>
 
@@ -67,6 +38,3 @@ SDocNode or SDocDocument objects gain a new property or a property type
 changes), an outdated object may be read from the cache after upgrading to a new
 StrictDoc version. While a more systematic solution might be implemented in the
 future, the current workaround is to manually delete the StrictDoc cache folder.
-<<<
-
-[[/SECTION]]

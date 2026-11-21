@@ -1,60 +1,28 @@
-[DOCUMENT]
-MID: a434bc71a7324efaaed7f5a58e56e544
-TITLE: F.A.Q.
-UID: SDOC_FAQ
-VERSION: Git commit: @GIT_VERSION, Git branch: @GIT_BRANCH
-DATE: @GIT_COMMIT_DATETIME
-OPTIONS:
-  ENABLE_MID: True
-  MARKUP: Markdown
-  VIEW_STYLE: Inline
-  NODE_IN_TOC: True
+# F.A.Q.
 
-[GRAMMAR]
-ELEMENTS:
-- TAG: SECTION
-  PROPERTIES:
-    IS_COMPOSITE: True
-    VIEW_STYLE: Narrative
-  FIELDS:
-  - TITLE: MID
-    TYPE: String
-    REQUIRED: False
-  - TITLE: UID
-    TYPE: String
-    REQUIRED: False
-  - TITLE: TITLE
-    TYPE: String
-    REQUIRED: True
-- TAG: TEXT
-  PROPERTIES:
-    VIEW_STYLE: Narrative
-  FIELDS:
-  - TITLE: MID
-    TYPE: String
-    REQUIRED: False
-  - TITLE: STATEMENT
-    TYPE: String
-    REQUIRED: True
-  RELATIONS:
-  - TYPE: Parent
-  - TYPE: File
+**Grammar**: strictdoc_03_faq.gra.md \
+**UID**: SDOC_FAQ \
+**Version**: Git commit: @GIT_VERSION, Git branch: @GIT_BRANCH \
+**Date**: @GIT_COMMIT_DATETIME \
+**Enable MID**: True \
+**View style**: Inline \
+**Node in TOC**: True
 
-[TEXT]
-MID: 5acdfccd5771492f95b70328bd599cf7
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: 5acdfccd5771492f95b70328bd599cf7
+
 This document is a list of questions that people ask about StrictDoc.
 
 Missing a question or an answer? Ask it here: [LINK: SDOC_UG_CONTACT].
-<<<
 
-[[SECTION]]
-MID: e972c79015524961863e095280a81aab
-TITLE: What is StrictDoc?
+## What is StrictDoc?
 
-[TEXT]
-MID: d8d92e4eb8254cbda8dcb37709a9df45
-STATEMENT: >>>
+**Type**: SECTION \
+**MID**: e972c79015524961863e095280a81aab
+
+**Type**: TEXT \
+**MID**: d8d92e4eb8254cbda8dcb37709a9df45
+
 StrictDoc is software for writing technical requirements specifications.
 
 StrictDoc is a spare-time open-source project developed by Stanislav Pankevich
@@ -66,21 +34,20 @@ The project exists since mid-2019.
 For a quick overview of the project, check out the
 [StrictDoc project](https://github.com/strictdoc-project/strictdoc/blob/main/about/StrictDoc.pdf)
 slide deck.
-<<<
 
-[[/SECTION]]
+## Resources about StrictDoc
 
-[[SECTION]]
-MID: 86827c92ec3a493d8a2382b75b5277a8
-TITLE: Resources about StrictDoc
+**Type**: SECTION \
+**MID**: 86827c92ec3a493d8a2382b75b5277a8
 
-[[SECTION]]
-MID: f7083cf6a84e4b858b5e551f8c8a555a
-TITLE: Presentations
+### Presentations
 
-[TEXT]
-MID: 52342105083e4f80884959d4ca7f4dba
-STATEMENT: >>>
+**Type**: SECTION \
+**MID**: f7083cf6a84e4b858b5e551f8c8a555a
+
+**Type**: TEXT \
+**MID**: 52342105083e4f80884959d4ca7f4dba
+
 1\)
 [StrictDoc project](https://github.com/strictdoc-project/strictdoc/blob/main/about/StrictDoc.pdf)
 
@@ -130,17 +97,15 @@ This presentation introduces the SPDX Safety Profile and details its application
 within the context of the Zephyr Project. There is also a presentation of the
 Zephyr project's methodology for capturing requirements using StrictDoc and a
 discussion of the upcoming plans for the integration of SPDX into StrictDoc.
-<<<
 
-[[/SECTION]]
+### Blog posts
 
-[[SECTION]]
-MID: d22b63a405264a6a80d4ab3f9b2bf9c5
-TITLE: Blog posts
+**Type**: SECTION \
+**MID**: d22b63a405264a6a80d4ab3f9b2bf9c5
 
-[TEXT]
-MID: b2f5aea77e504ee1b64a67be24bd3c58
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: b2f5aea77e504ee1b64a67be24bd3c58
+
 1\)
 [From Code to Compliance – Part1: IEC 62443 Certification with Industrial Grade Linux Operating System](https://www.linutronix.de/blog/From-Code-to-Compliance-Part1-IEC-62443-Certification-with)
 by Linutronix.
@@ -152,32 +117,26 @@ block in their development workflow.
 2\)
 [Requirement Traceability with All Substance and No Fuss](https://www.bugseng.com/requirement-traceability-with-all-substance-and-no-fuss/)
 by BUGSENG.
-<<<
 
-[[/SECTION]]
+### Screencasts / tutorials
 
-[[SECTION]]
-MID: d75bd4d35b4b425b90ec8667ffffe191
-TITLE: Screencasts / tutorials
+**Type**: SECTION \
+**MID**: d75bd4d35b4b425b90ec8667ffffe191
 
-[TEXT]
-MID: 9d23e77aa7f848cb8efca49f5cf41f77
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: 9d23e77aa7f848cb8efca49f5cf41f77
+
 [Automotive SPICE in opensource StrictDoc tool, with System Architecure ideas](https://www.youtube.com/watch?v=k2MCFWvCs7E)
 by Lukasz Juranek.
-<<<
 
-[[/SECTION]]
+## Which web server is recommended for StrictDoc documentation?
 
-[[/SECTION]]
+**Type**: SECTION \
+**MID**: 74235945ec4a4116aecbc883ffba54b7
 
-[[SECTION]]
-MID: 74235945ec4a4116aecbc883ffba54b7
-TITLE: Which web server is recommended for StrictDoc documentation?
+**Type**: TEXT \
+**MID**: 966a5c3babf84fc7a1454b2799d13470
 
-[TEXT]
-MID: 966a5c3babf84fc7a1454b2799d13470
-STATEMENT: >>>
 This question can be answered in two ways. First of all, StrictDoc has its own
 web server that can be run with `strictdoc server ...`. Refer to the User
 Guide for further information.
@@ -200,17 +159,15 @@ If the project is private, you could use any server that reads HTML files from a
 folder. For example, Python has an embedded Web Server, see
 [this for example](https://pythonbasics.org/webserver). Also you could try any
 web server based on Node.JS.
-<<<
 
-[[/SECTION]]
+## Is StrictDoc compatible with Sphinx?
 
-[[SECTION]]
-MID: 2e911dedb13348bf827f078bbbca44f4
-TITLE: Is StrictDoc compatible with Sphinx?
+**Type**: SECTION \
+**MID**: 2e911dedb13348bf827f078bbbca44f4
 
-[TEXT]
-MID: ac35a712b4a84f4ab2b61feb15c1550d
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: ac35a712b4a84f4ab2b61feb15c1550d
+
 StrictDoc is only partially compatible with Sphinx.
 
 StrictDoc does not have Sphinx in its dependency tree, and it does not use any
@@ -226,41 +183,37 @@ specific and actionable outcome. This comment is
 [especially relevant](https://github.com/strictdoc-project/strictdoc/issues/1093#issuecomment-1505108384)
 as well as the one about a
 [possible implementation](https://github.com/strictdoc-project/strictdoc/issues/1093#issuecomment-1545599711).
-<<<
 
-[[/SECTION]]
+## How did the SDoc text language become what it is?
 
-[[SECTION]]
-MID: 235122d2c10748918c7c6ff736e39d18
-UID: SECTION-FAQ-How-did-the-SDoc-text-language-become-what-it-is
-TITLE: How did the SDoc text language become what it is?
+**Type**: SECTION \
+**MID**: 235122d2c10748918c7c6ff736e39d18 \
+**UID**: SECTION-FAQ-How-did-the-SDoc-text-language-become-what-it-is
 
-[TEXT]
-MID: b3561dd4f8e64f11a251c3471022aece
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: b3561dd4f8e64f11a251c3471022aece
+
 See [LINK: SECTION-FM-SDoc-text-markup] for a description of the SDoc feature.
-<<<
 
-[[/SECTION]]
+## How StrictDoc compares to other tools?
 
-[[SECTION]]
-MID: 1d4220cc9a5444a5bdbaee91c8c50670
-TITLE: How StrictDoc compares to other tools?
+**Type**: SECTION \
+**MID**: 1d4220cc9a5444a5bdbaee91c8c50670
 
-[TEXT]
-MID: 45093addf6ec4772a0289fd958ae61dc
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: 45093addf6ec4772a0289fd958ae61dc
+
 This section compares some requirements management tools that are similar to
 StrictDoc.
-<<<
 
-[[SECTION]]
-MID: a4533ae81bfe446295242add9156198e
-TITLE: Doorstop
+### Doorstop
 
-[TEXT]
-MID: d0c305180d8747a1b70254eaf2c4f201
-STATEMENT: >>>
+**Type**: SECTION \
+**MID**: a4533ae81bfe446295242add9156198e
+
+**Type**: TEXT \
+**MID**: d0c305180d8747a1b70254eaf2c4f201
+
 The StrictDoc project is a close successor of another project called
 [Doorstop](https://github.com/doorstop-dev/doorstop).
 
@@ -305,17 +258,15 @@ StrictDoc differs from Doorstop in a number of aspects:
 
 The roadmap of StrictDoc contains a work item for supporting the export/import
 to/from Doorstop format.
-<<<
 
-[[/SECTION]]
+### Sphinx
 
-[[SECTION]]
-MID: 5012af516d18447caa3a2dbce97d3e4a
-TITLE: Sphinx
+**Type**: SECTION \
+**MID**: 5012af516d18447caa3a2dbce97d3e4a
 
-[TEXT]
-MID: 74b6be0dc2bb485987d8731348cdf5ce
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: 74b6be0dc2bb485987d8731348cdf5ce
+
 Both Sphinx and StrictDoc are both documentation generators but StrictDoc is at
 a higher level of abstraction: StrictDoc's specialization is requirements and
 specifications documents. StrictDoc can generate documentation to a number of
@@ -324,32 +275,26 @@ formats including HTML and Markdown.
 This documentation itself (the website you may currently be reading at
 <https://strictdoc.readthedocs.io>) is generated directly by StrictDoc's HTML
 and PDF (HTML2PDF) exports, without going through RST or Sphinx.
-<<<
 
-[[/SECTION]]
+### Other tools
 
-[[SECTION]]
-MID: 723731c256fc43dfb315a300f6429945
-TITLE: Other tools
+**Type**: SECTION \
+**MID**: 723731c256fc43dfb315a300f6429945
 
-[TEXT]
-MID: ad24dca8ed9c449ab76c1798f38eb37c
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: ad24dca8ed9c449ab76c1798f38eb37c
+
 See also this GitHub gist for an overview of more tools available on GitHub:
 <https://gist.github.com/stanislaw/aa40eb7de9f522ad482e5d239c435ff8>.
-<<<
 
-[[/SECTION]]
+## How long has the StrictDoc project been around?
 
-[[/SECTION]]
+**Type**: SECTION \
+**MID**: ff143a18e98144bd86e10e29616c187b
 
-[[SECTION]]
-MID: ff143a18e98144bd86e10e29616c187b
-TITLE: How long has the StrictDoc project been around?
+**Type**: TEXT \
+**MID**: 47d60404cf574aebb8c83795589c4137
 
-[TEXT]
-MID: 47d60404cf574aebb8c83795589c4137
-STATEMENT: >>>
 <div class="sdoc-admonition sdoc-note" role="note">
 <p class="sdoc-admonition-title">Note</p>
 
@@ -397,17 +342,15 @@ document data model which is called "grammar".
 
 The custom RST parser was replaced with a TextX-based DSL. Since then, StrictDoc
 has been using TextX for parsing SDoc files.
-<<<
 
-[[/SECTION]]
+## Which StrictDoc statistics are available?
 
-[[SECTION]]
-MID: 6e5ed6bb36634220a0c583d21c96295f
-TITLE: Which StrictDoc statistics are available?
+**Type**: SECTION \
+**MID**: 6e5ed6bb36634220a0c583d21c96295f
 
-[TEXT]
-MID: 730bfedff6b24c34a6d6331051fd76d3
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: 730bfedff6b24c34a6d6331051fd76d3
+
 Most relevant GitHub statistics:
 
 - [StrictDoc contributors](https://github.com/strictdoc-project/strictdoc/graphs/contributors)
@@ -415,6 +358,3 @@ Most relevant GitHub statistics:
   download stats.
   - The `reqif` satellite project is included for comparison as well: [strictdoc vs reqif](https://piptrends.com/compare/strictdoc-vs-reqif).
 - [Known StrictDoc issues](https://github.com/strictdoc-project/strictdoc/issues?q=is%3Aissue%20state%3Aopen%20type%3ABug)
-<<<
-
-[[/SECTION]]

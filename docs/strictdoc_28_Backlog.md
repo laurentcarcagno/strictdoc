@@ -1,76 +1,15 @@
-[DOCUMENT]
-MID: cabef7629dda4f2fb34255d01fea8d5f
-TITLE: StrictDoc Backlog
-UID: SDOC_BACKLOG
-VERSION: Git commit: @GIT_VERSION, Git branch: @GIT_BRANCH
-DATE: @GIT_COMMIT_DATETIME
-PREFIX: SDOC-BACKLOG-
-OPTIONS:
-  ENABLE_MID: True
-  MARKUP: Markdown
+# StrictDoc Backlog
 
-[GRAMMAR]
-ELEMENTS:
-- TAG: SECTION
-  PROPERTIES:
-    IS_COMPOSITE: True
-  FIELDS:
-  - TITLE: MID
-    TYPE: String
-    REQUIRED: True
-  - TITLE: UID
-    TYPE: String
-    REQUIRED: False
-  - TITLE: LEVEL
-    TYPE: String
-    REQUIRED: False
-  - TITLE: PREFIX
-    TYPE: String
-    REQUIRED: False
-  - TITLE: TITLE
-    TYPE: String
-    REQUIRED: True
-- TAG: TEXT
-  FIELDS:
-  - TITLE: MID
-    TYPE: String
-    REQUIRED: True
-  - TITLE: UID
-    TYPE: String
-    REQUIRED: False
-  - TITLE: STATEMENT
-    TYPE: String
-    REQUIRED: False
-- TAG: REQUIREMENT
-  FIELDS:
-  - TITLE: MID
-    TYPE: String
-    REQUIRED: False
-  - TITLE: UID
-    TYPE: String
-    REQUIRED: False
-  - TITLE: STATUS
-    TYPE: String
-    REQUIRED: False
-  - TITLE: TITLE
-    TYPE: String
-    REQUIRED: False
-  - TITLE: STATEMENT
-    TYPE: String
-    REQUIRED: False
-  - TITLE: RATIONALE
-    TYPE: String
-    REQUIRED: False
-  - TITLE: COMMENT
-    TYPE: String
-    REQUIRED: False
-  RELATIONS:
-  - TYPE: Parent
-  - TYPE: File
+**Grammar**: strictdoc_28_Backlog.gra.md \
+**UID**: SDOC_BACKLOG \
+**Version**: Git commit: @GIT_VERSION, Git branch: @GIT_BRANCH \
+**Date**: @GIT_COMMIT_DATETIME \
+**Prefix**: SDOC-BACKLOG- \
+**Enable MID**: True
 
-[TEXT]
-MID: 35bc1e28ec724aefbcff864c89399877
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: 35bc1e28ec724aefbcff864c89399877
+
 This document outlines the future work items for StrictDoc.
 
 The following items are listed in descending order of priority, with the topmost
@@ -80,357 +19,328 @@ While this backlog overlaps with StrictDoc's
 [GitHub issues tracker](https://github.com/strictdoc-project/strictdoc/issues)
 by more than 50%, it includes more strategic items compared to the GitHub
 issues, which are primarily focused on actual implementation work.
-<<<
 
-[[SECTION]]
-MID: 7614a9f4f7bd4b1c9899995ac3d1e6ad
-UID: SECTION-SB-Backlog
-TITLE: Backlog
+## Backlog
 
-[REQUIREMENT]
-MID: e61e7224e27d41ceacad9bf6051bd6f0
-UID: SDOC-BACKLOG-6
-STATUS: Backlog
-TITLE: Auto-commit to Git repository
+**Type**: SECTION \
+**MID**: 7614a9f4f7bd4b1c9899995ac3d1e6ad \
+**UID**: SECTION-SB-Backlog
 
-[REQUIREMENT]
-MID: 07a9636655314912a996ecf5692ae3d5
-UID: SDOC-SRS-86
-STATUS: Backlog
-TITLE: Auto-generate section UIDs
-STATEMENT: >>>
-TBD
-<<<
+### Auto-commit to Git repository
 
-[[SECTION]]
-MID: 0425151bf3944e0ebc1c5acabcb35905
-UID: SECTION-SRS-Screen-Project-home
-TITLE: Screen: Project home
+**MID**: e61e7224e27d41ceacad9bf6051bd6f0 \
+**UID**: SDOC-BACKLOG-6 \
+**Status**: Backlog
 
-[REQUIREMENT]
-MID: 0a158ddac310483489ef08f618ba8741
-UID: SDOC-SRS-52
-STATUS: Backlog
-TITLE: View project home page
+### Auto-generate section UIDs
 
-[[/SECTION]]
+**MID**: 07a9636655314912a996ecf5692ae3d5 \
+**UID**: SDOC-SRS-86 \
+**Status**: Backlog
 
-[[SECTION]]
-MID: 1d8a2c3cf8c24e1b92fe212ab7efacf2
-TITLE: Screen: Traceability navigator
+**Statement**: TBD
 
-[REQUIREMENT]
-MID: dbfe92e9ec3b44e9a3e1c9e89a0e9ef5
-UID: SDOC-SRS-113
-STATUS: Backlog
-TITLE: Traceability navigator
-STATEMENT: >>>
-StrictDoc shall provide a traceability navigator screen.
-<<<
-RATIONALE: >>>
-Provide an interactive 1000-ft view of a requirements project.
-<<<
-RELATIONS:
-- TYPE: Parent
-  VALUE: SDOC-SSS-56
+### Screen: Project home
 
-[[/SECTION]]
+**Type**: SECTION \
+**MID**: 0425151bf3944e0ebc1c5acabcb35905 \
+**UID**: SECTION-SRS-Screen-Project-home
 
-[[SECTION]]
-MID: 2654d541d5ce4cb6ad9fcfe2eaa9abb4
-UID: SECTION-SB-Formal-modeling
-TITLE: Formal modeling
+#### View project home page
 
-[REQUIREMENT]
-MID: 5958a5c0aad8486b84ad31bc014d4ad3
-UID: SDOC-RMC-27
-STATUS: Backlog
-TITLE: Integration with other systems engineering processes
-STATEMENT: >>>
-The Requirements Tool shall provide capabilities for integration with other
+**MID**: 0a158ddac310483489ef08f618ba8741 \
+**UID**: SDOC-SRS-52 \
+**Status**: Backlog
+
+### Screen: Traceability navigator
+
+**Type**: SECTION \
+**MID**: 1d8a2c3cf8c24e1b92fe212ab7efacf2
+
+#### Traceability navigator
+
+**MID**: dbfe92e9ec3b44e9a3e1c9e89a0e9ef5 \
+**UID**: SDOC-SRS-113 \
+**Status**: Backlog
+**Relations**:
+- **Type**: `Parent` \
+  **ID**: `SDOC-SSS-56`
+
+**Statement**: StrictDoc shall provide a traceability navigator screen.
+
+**Rationale**: Provide an interactive 1000-ft view of a requirements project.
+
+### Formal modeling
+
+**Type**: SECTION \
+**MID**: 2654d541d5ce4cb6ad9fcfe2eaa9abb4 \
+**UID**: SECTION-SB-Formal-modeling
+
+#### Integration with other systems engineering processes
+
+**MID**: 5958a5c0aad8486b84ad31bc014d4ad3 \
+**UID**: SDOC-RMC-27 \
+**Status**: Backlog
+
+**Statement**: The Requirements Tool shall provide capabilities for integration with other
 systems engineering tools.
-<<<
 
-[REQUIREMENT]
-MID: 99e84f704c074cf28de51ce6fb183a66
-UID: SDOC-RMC-29
-STATUS: Backlog
-TITLE: Integration with Capella
-STATEMENT: >>>
-The Requirements Tool shall provide integration with Capella MBSE tool.
-<<<
-RATIONALE: >>>
-Eclipse Capella is a capable open-source tool for Model-Based Systems
+#### Integration with Capella
+
+**MID**: 99e84f704c074cf28de51ce6fb183a66 \
+**UID**: SDOC-RMC-29 \
+**Status**: Backlog
+
+**Statement**: The Requirements Tool shall provide integration with Capella MBSE tool.
+
+**Rationale**: Eclipse Capella is a capable open-source tool for Model-Based Systems
 Engineering, <https://www.eclipse.org/capella/>. It should be beneficial for the
 requirements tool to interface with the Capella engineering community.
-<<<
-COMMENT: >>>
-At the very least, the integration can happen through the ReqIF interface that
+
+**Comment**: At the very least, the integration can happen through the ReqIF interface that
 Capella is known to support.
-<<<
 
-[REQUIREMENT]
-MID: 44b30591f6674ede821324fe527babd9
-UID: SDOC-RMC-55
-STATUS: Backlog
-TITLE: Support STPA method
-STATEMENT: >>>
-The Requirements Tool shall provide support for the STPA method.
-<<<
+#### Support STPA method
 
-[REQUIREMENT]
-MID: 045aee37b0a24b3cb62cabd8b614aaf7
-UID: SDOC-RMC-28
-STATUS: Backlog
-TITLE: Formalized statements
-STATEMENT: >>>
-The Requirements Tool shall provide capabilities for hardening requirements
+**MID**: 44b30591f6674ede821324fe527babd9 \
+**UID**: SDOC-RMC-55 \
+**Status**: Backlog
+
+**Statement**: The Requirements Tool shall provide support for the STPA method.
+
+#### Formalized statements
+
+**MID**: 045aee37b0a24b3cb62cabd8b614aaf7 \
+**UID**: SDOC-RMC-28 \
+**Status**: Backlog
+
+**Statement**: The Requirements Tool shall provide capabilities for hardening requirements
 content with formal semantics.
-<<<
-COMMENT: >>>
+
+**Comment**:
+
 The directions to explore:
 
 - NASA FRET
 - bmw-software-engineering/trlc
-<<<
 
-[REQUIREMENT]
-MID: 7e0fd5af118b4f5d8ecbf0d8ef3841e6
-UID: SDOC-RMC-30
-STATUS: Backlog
-TITLE: AI Assistant
-STATEMENT: >>>
-The Requirements Tool shall provide integration with AI tools (e.g., ChatGPT).
-<<<
+#### AI Assistant
 
-[[/SECTION]]
+**MID**: 7e0fd5af118b4f5d8ecbf0d8ef3841e6 \
+**UID**: SDOC-RMC-30 \
+**Status**: Backlog
 
-[[SECTION]]
-MID: 061392f275b04c93b664faad9ed4f483
-UID: SECTION-SRS-LaTeX-export
-TITLE: LaTeX export
+**Statement**: The Requirements Tool shall provide integration with AI tools (e.g., ChatGPT).
 
-[REQUIREMENT]
-MID: 9ec7f471ccb243ea9d86cf2756403b8f
-UID: SDOC-SRS-76
-STATUS: Backlog
-TITLE: Export to Tex
+### LaTeX export
 
-[[/SECTION]]
+**Type**: SECTION \
+**MID**: 061392f275b04c93b664faad9ed4f483 \
+**UID**: SECTION-SRS-LaTeX-export
 
-[REQUIREMENT]
-MID: 5a0304abcd8a44dab5d032dce6625a5d
-UID: SDOC-BACKLOG-1
-STATUS: Backlog
-TITLE: Focused mode: Edit a single section / requirement
-STATEMENT: >>>
-StrictDoc shall allow focused editing of single sections and requirements on a
+#### Export to Tex
+
+**MID**: 9ec7f471ccb243ea9d86cf2756403b8f \
+**UID**: SDOC-SRS-76 \
+**Status**: Backlog
+
+### Focused mode: Edit a single section / requirement
+
+**MID**: 5a0304abcd8a44dab5d032dce6625a5d \
+**UID**: SDOC-BACKLOG-1 \
+**Status**: Backlog
+
+**Statement**: StrictDoc shall allow focused editing of single sections and requirements on a
 dedicated screen.
-<<<
-COMMENT: >>>
-This is partially implemented with the composable documents feature. An included
+
+**Comment**: This is partially implemented with the composable documents feature. An included
 document can be edited as a standalone document.
-<<<
 
-[REQUIREMENT]
-MID: 162a3da4d9d74c15b5078c9859657ce3
-UID: SDOC-BACKLOG-2
-STATUS: Backlog
-TITLE: Interoperability with Doxygen
+### Interoperability with Doxygen
 
-[REQUIREMENT]
-MID: 0e69828e1d914e20852aef7cfc4e87c4
-UID: SDOC-BACKLOG-9
-STATUS: Backlog
-TITLE: Derived requirements
-STATEMENT: >>>
-StrictDoc shall provide first-class support for Derived requirements.
-<<<
-RELATIONS:
-- TYPE: Parent
-  VALUE: DO178-18
+**MID**: 162a3da4d9d74c15b5078c9859657ce3 \
+**UID**: SDOC-BACKLOG-2 \
+**Status**: Backlog
 
-[REQUIREMENT]
-MID: 3f50a97bc70842dbabeea911f653ef90
-UID: SDOC-BACKLOG-7
-STATUS: Backlog
-TITLE: Language Server Protocol (LSP)
+### Derived requirements
 
-[REQUIREMENT]
-MID: 72285f9b09de48a29fef8f85431e4a94
-UID: SDOC-BACKLOG-8
-STATUS: Backlog
-TITLE: UML
+**MID**: 0e69828e1d914e20852aef7cfc4e87c4 \
+**UID**: SDOC-BACKLOG-9 \
+**Status**: Backlog
+**Relations**:
+- **Type**: `Parent` \
+  **ID**: `DO178-18`
 
-[REQUIREMENT]
-MID: bdedcdd91c7f4efb8787b5a82cfec49b
-UID: SDOC-SRS-114
-STATUS: Backlog
-TITLE: Web API
-STATEMENT: >>>
-StrictDoc shall provide a web API.
-<<<
-RATIONALE: >>>
-A web API allows integration with tools and workflows external to StrictDoc
+**Statement**: StrictDoc shall provide first-class support for Derived requirements.
+
+### Language Server Protocol (LSP)
+
+**MID**: 3f50a97bc70842dbabeea911f653ef90 \
+**UID**: SDOC-BACKLOG-7 \
+**Status**: Backlog
+
+### UML
+
+**MID**: 72285f9b09de48a29fef8f85431e4a94 \
+**UID**: SDOC-BACKLOG-8 \
+**Status**: Backlog
+
+### Web API
+
+**MID**: bdedcdd91c7f4efb8787b5a82cfec49b \
+**UID**: SDOC-SRS-114 \
+**Status**: Backlog
+**Relations**:
+- **Type**: `Parent` \
+  **ID**: `SDOC-SSS-68`
+- **Type**: `Parent` \
+  **ID**: `SDOC-SSS-79`
+- **Type**: `Parent` \
+  **ID**: `SDOC-SSS-85`
+
+**Statement**: StrictDoc shall provide a web API.
+
+**Rationale**: A web API allows integration with tools and workflows external to StrictDoc
 itself.
-<<<
-RELATIONS:
-- TYPE: Parent
-  VALUE: SDOC-SSS-68
-- TYPE: Parent
-  VALUE: SDOC-SSS-79
-- TYPE: Parent
-  VALUE: SDOC-SSS-85
 
-[[SECTION]]
-MID: 478c38d2cca94107b18fe3dc5b8bfefd
-TITLE: Multi-user workflow
+### Multi-user workflow
 
-[REQUIREMENT]
-MID: e5b2aff0c1db4b11a8c75c278813300b
-UID: SDOC-SRS-130
-STATUS: Backlog
-TITLE: User accounts
-STATEMENT: >>>
-StrictDoc shall support user accounts.
-<<<
-RELATIONS:
-- TYPE: Parent
-  VALUE: SDOC-SSS-65
+**Type**: SECTION \
+**MID**: 478c38d2cca94107b18fe3dc5b8bfefd
 
-[REQUIREMENT]
-MID: 440f0bc311b84421a7e8bea9dfd2448b
-UID: SDOC-SRS-131
-STATUS: Backlog
-TITLE: Update notifications
-STATEMENT: >>>
-StrictDoc shall support notifying a user (users) about updated requirements.
-<<<
-RELATIONS:
-- TYPE: Parent
-  VALUE: SDOC-SSS-66
-- TYPE: Parent
-  VALUE: SDOC-SSS-74
+#### User accounts
 
-[[/SECTION]]
+**MID**: e5b2aff0c1db4b11a8c75c278813300b \
+**UID**: SDOC-SRS-130 \
+**Status**: Backlog
+**Relations**:
+- **Type**: `Parent` \
+  **ID**: `SDOC-SSS-65`
 
-[REQUIREMENT]
-MID: caecd704ed634d718deff07ba0db7fa6
-UID: SDOC-SRS-116
-STATUS: Backlog
-TITLE: Requirement validation according to EARS syntax
-STATEMENT: >>>
-The SDoc model shall provide validation of requirements according to the EARS
+**Statement**: StrictDoc shall support user accounts.
+
+#### Update notifications
+
+**MID**: 440f0bc311b84421a7e8bea9dfd2448b \
+**UID**: SDOC-SRS-131 \
+**Status**: Backlog
+**Relations**:
+- **Type**: `Parent` \
+  **ID**: `SDOC-SSS-66`
+- **Type**: `Parent` \
+  **ID**: `SDOC-SSS-74`
+
+**Statement**: StrictDoc shall support notifying a user (users) about updated requirements.
+
+### Requirement validation according to EARS syntax
+
+**MID**: caecd704ed634d718deff07ba0db7fa6 \
+**UID**: SDOC-SRS-116 \
+**Status**: Backlog
+**Relations**:
+- **Type**: `Parent` \
+  **ID**: `SDOC-SSS-57`
+
+**Statement**: The SDoc model shall provide validation of requirements according to the EARS
 syntax.
-<<<
-RELATIONS:
-- TYPE: Parent
-  VALUE: SDOC-SSS-57
 
-[REQUIREMENT]
-MID: b74a7a3209d247f6b357513b0cce5000
-UID: SDOC-SRS-121
-STATUS: Backlog
-TITLE: WYSIWYG editing
-STATEMENT: >>>
-StrictDoc shall provide WYSIWYG kind of editing for all multiline text input
+### WYSIWYG editing
+
+**MID**: b74a7a3209d247f6b357513b0cce5000 \
+**UID**: SDOC-SRS-121 \
+**Status**: Backlog
+**Relations**:
+- **Type**: `Parent` \
+  **ID**: `DO178-19`
+- **Type**: `Parent` \
+  **ID**: `SDOC-SSS-80`
+
+**Statement**: StrictDoc shall provide WYSIWYG kind of editing for all multiline text input
 fields.
-<<<
-RATIONALE: >>>
-WYSIWYG improves the user experience, especially for non-programmer users.
-<<<
-RELATIONS:
-- TYPE: Parent
-  VALUE: DO178-19
-- TYPE: Parent
-  VALUE: SDOC-SSS-80
 
-[REQUIREMENT]
-MID: fa7fd8fd3a694d8e93953fd60e19fdde
-UID: SDOC-SRS-61
-STATUS: Backlog
-TITLE: Tables HTML editor
-STATEMENT: >>>
-StrictDoc shall provide a solution for editing tables in its web interface.
-<<<
+**Rationale**: WYSIWYG improves the user experience, especially for non-programmer users.
 
-[REQUIREMENT]
-MID: 45b8513623744776899abfbf99c95286
-UID: SDOC-SRS-58
-STATUS: Backlog
-TITLE: Attach image to requirement
+### Tables HTML editor
 
-[REQUIREMENT]
-MID: c02a65f2716f4a86b8f83e3a7b4cd31c
-UID: SDOC-SRS-60
-STATUS: Backlog
-TITLE: Provide contextual help about RST markup
+**MID**: fa7fd8fd3a694d8e93953fd60e19fdde \
+**UID**: SDOC-SRS-61 \
+**Status**: Backlog
 
-[REQUIREMENT]
-MID: 7aa5316dd056465e97044e221412290b
-UID: SDOC-SRS-63
-STATUS: Backlog
-TITLE: TBL: Hide/show columns
-STATEMENT: >>>
-StrictDoc's Table screen shall allow hiding/showing columns.
-<<<
+**Statement**: StrictDoc shall provide a solution for editing tables in its web interface.
 
-[REQUIREMENT]
-MID: 229378602d1847cb83c61ab3e97bb22b
-UID: SDOC-SRS-64
-STATUS: Backlog
-TITLE: TBL: Select/deselect tags
-STATEMENT: >>>
-StrictDoc's Table screen shall allow filtering content based on the
+### Attach image to requirement
+
+**MID**: 45b8513623744776899abfbf99c95286 \
+**UID**: SDOC-SRS-58 \
+**Status**: Backlog
+
+### Provide contextual help about RST markup
+
+**MID**: c02a65f2716f4a86b8f83e3a7b4cd31c \
+**UID**: SDOC-SRS-60 \
+**Status**: Backlog
+
+### TBL: Hide/show columns
+
+**MID**: 7aa5316dd056465e97044e221412290b \
+**UID**: SDOC-SRS-63 \
+**Status**: Backlog
+
+**Statement**: StrictDoc's Table screen shall allow hiding/showing columns.
+
+### TBL: Select/deselect tags
+
+**MID**: 229378602d1847cb83c61ab3e97bb22b \
+**UID**: SDOC-SRS-64 \
+**Status**: Backlog
+
+**Statement**: StrictDoc's Table screen shall allow filtering content based on the
 selection/deselection of available tags.
-<<<
 
-[[SECTION]]
-MID: b3472533d57145bc9790724efe56075c
-TITLE: Screen: Impact analysis
+### Screen: Impact analysis
 
-[REQUIREMENT]
-MID: f5feb38777064d9db939279d32f79130
-UID: SDOC-SRS-117
-STATUS: Backlog
-TITLE: Impact analysis
-STATEMENT: >>>
+**Type**: SECTION \
+**MID**: b3472533d57145bc9790724efe56075c
+
+#### Impact analysis
+
+**MID**: f5feb38777064d9db939279d32f79130 \
+**UID**: SDOC-SRS-117 \
+**Status**: Backlog
+**Relations**:
+- **Type**: `Parent` \
+  **ID**: `SDOC-SSS-74`
+- **Type**: `Parent` \
+  **ID**: `DO178-11`
+
+**Statement**:
+
 StrictDoc shall provide the Impact Analysis screen.
 
 NOTE: The Impact Analysis screen helps to get information about the impact that
 a given change to a requirement has on the other requirements in the project
 tree.
-<<<
-RATIONALE: >>>
-The impact analysis is one of the core functions of a requirements management
+
+**Rationale**: The impact analysis is one of the core functions of a requirements management
 tool. Analyzing the impact that a requirement has on other requirements and an
 overall project's technical definition helps to perform effective change
 management.
-<<<
-RELATIONS:
-- TYPE: Parent
-  VALUE: SDOC-SSS-74
-- TYPE: Parent
-  VALUE: DO178-11
 
-[[/SECTION]]
+### ReqXLS
 
-[REQUIREMENT]
-MID: a7c504087df04cedb5541d83ed988e9b
-UID: SDOC-SRS-75
-STATUS: Backlog
-TITLE: ReqXLS
+**MID**: a7c504087df04cedb5541d83ed988e9b \
+**UID**: SDOC-SRS-75 \
+**Status**: Backlog
 
-[[/SECTION]]
+## Backlog: Web-based user interface
 
-[[SECTION]]
-MID: 4a49c79a1bdd4d4aae5f62bc1d2a56d0
-UID: SECTION-SB-Backlog-Web-based-user-interface
-TITLE: Backlog: Web-based user interface
+**Type**: SECTION \
+**MID**: 4a49c79a1bdd4d4aae5f62bc1d2a56d0 \
+**UID**: SECTION-SB-Backlog-Web-based-user-interface
 
-[TEXT]
-MID: d10cddd846de4961bbb0bc8b8c6550d3
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: d10cddd846de4961bbb0bc8b8c6550d3
+
 - Uploading images via Web interface.
 - Editing remaining document options: Inline/Table, Requirements in TOC, etc.
 - **Integration with Git repository.** Make the server commit changes to .sdoc
@@ -447,18 +357,16 @@ STATEMENT: >>>
   child.
 - ReqIF: Export complete documentation tree or a single document.
 - ReqIF: Import complete documentation tree or a single document.
-<<<
 
-[[/SECTION]]
+## Backlog: Nice to have
 
-[[SECTION]]
-MID: 866a55f2e47b477ebcd52ea57da4f037
-UID: SECTION-SB-Backlog-Nice-to-have
-TITLE: Backlog: Nice to have
+**Type**: SECTION \
+**MID**: 866a55f2e47b477ebcd52ea57da4f037 \
+**UID**: SECTION-SB-Backlog-Nice-to-have
 
-[TEXT]
-MID: d02e104a518c4627ac918a33ad165c96
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: d02e104a518c4627ac918a33ad165c96
+
 - Configuration file options:
   - CLI command to dump default config file
   - Project prefix?
@@ -484,18 +392,16 @@ STATEMENT: >>>
 - Similar to the possibility of creating a child requirement to a section, one
   could provide a button for each of the relations defined in the grammar which
   would allow to quickly build a tree structure.
-<<<
 
-[[/SECTION]]
+## Backlog: Technical debt
 
-[[SECTION]]
-MID: eb1fab2bbea541c8b00f70780326c9fc
-UID: SECTION-SB-Backlog-Technical-debt
-TITLE: Backlog: Technical debt
+**Type**: SECTION \
+**MID**: eb1fab2bbea541c8b00f70780326c9fc \
+**UID**: SECTION-SB-Backlog-Technical-debt
 
-[TEXT]
-MID: 85e94802132048d29ca73cf2096c6758
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: 85e94802132048d29ca73cf2096c6758
+
 - When a document is added, the whole documentation is rebuilt from the file
   system from scratch. A more fine-grained re-indexing of documentation tree can
   be implemented. The current idea is to introduce a layer of pickled cached
@@ -515,23 +421,22 @@ STATEMENT: >>>
   are unstable. A more ecological composition of classes has to be found.
   `Traceability` index is rightfully a "god object" because it contains all
   information about the in-memory documentation graph.
-<<<
 
-[[/SECTION]]
+## Open questions
 
-[[SECTION]]
-MID: 6ef8c2ad683d46af948674727c7a52b4
-UID: SECTION-SB-Open-questions
-TITLE: Open questions
+**Type**: SECTION \
+**MID**: 6ef8c2ad683d46af948674727c7a52b4 \
+**UID**: SECTION-SB-Open-questions
 
-[[SECTION]]
-MID: 717df91623014fb98ba34ab8173b94ab
-UID: SECTION-SB-One-or-many-input-sdoc-trees
-TITLE: One or many input sdoc trees
+### One or many input sdoc trees
 
-[TEXT]
-MID: b778a18ede89464c936be2b2af492e24
-STATEMENT: >>>
+**Type**: SECTION \
+**MID**: 717df91623014fb98ba34ab8173b94ab \
+**UID**: SECTION-SB-One-or-many-input-sdoc-trees
+
+**Type**: TEXT \
+**MID**: b778a18ede89464c936be2b2af492e24
+
 StrictDoc supports this for HTML already but not for RST.
 
 When passed `strictdoc export ... /path/to/doctree1, /path/to/doctree2, /path/to/doctree3`, the following is generated:
@@ -551,8 +456,3 @@ space with cross-linking possible.
 
 The question is if it is worth supporting this case further or StrictDoc should
 only work with one input folder with a single doc tree.
-<<<
-
-[[/SECTION]]
-
-[[/SECTION]]

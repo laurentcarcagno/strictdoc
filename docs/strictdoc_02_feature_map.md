@@ -1,118 +1,61 @@
-[DOCUMENT]
-MID: 1696d73230f046d589d2d87dd29d48a9
-TITLE: StrictDoc Feature Map
-UID: SDOC_FEATURE_MAP
-VERSION: Git commit: @GIT_VERSION, Git branch: @GIT_BRANCH
-DATE: @GIT_COMMIT_DATETIME
-PREFIX: SDOC-FEAT-
-OPTIONS:
-  ENABLE_MID: True
-  MARKUP: Markdown
-  VIEW_STYLE: Narrative
+# StrictDoc Feature Map
 
-[GRAMMAR]
-ELEMENTS:
-- TAG: SECTION
-  PROPERTIES:
-    IS_COMPOSITE: True
-    VIEW_STYLE: Narrative
-  FIELDS:
-  - TITLE: MID
-    TYPE: String
-    REQUIRED: False
-  - TITLE: UID
-    TYPE: String
-    REQUIRED: False
-  - TITLE: TITLE
-    TYPE: String
-    REQUIRED: True
-- TAG: TEXT
-  FIELDS:
-  - TITLE: MID
-    TYPE: String
-    REQUIRED: True
-  - TITLE: UID
-    TYPE: String
-    REQUIRED: False
-  - TITLE: STATEMENT
-    TYPE: String
-    REQUIRED: False
-- TAG: FEATURE
-  FIELDS:
-  - TITLE: MID
-    TYPE: String
-    REQUIRED: False
-  - TITLE: UID
-    TYPE: String
-    REQUIRED: False
-  - TITLE: STATUS
-    TYPE: String
-    REQUIRED: False
-  - TITLE: TITLE
-    TYPE: String
-    REQUIRED: False
-  - TITLE: STATEMENT
-    TYPE: String
-    REQUIRED: True
-  - TITLE: RATIONALE
-    TYPE: String
-    REQUIRED: False
-  - TITLE: DOCUMENTATION
-    TYPE: String
-    REQUIRED: False
-  - TITLE: COMMENT
-    TYPE: String
-    REQUIRED: False
-  RELATIONS:
-  - TYPE: Parent
+**Grammar**: strictdoc_02_feature_map.gra.md \
+**UID**: SDOC_FEATURE_MAP \
+**Version**: Git commit: @GIT_VERSION, Git branch: @GIT_BRANCH \
+**Date**: @GIT_COMMIT_DATETIME \
+**Prefix**: SDOC-FEAT- \
+**Enable MID**: True \
+**View style**: Narrative
 
-[TEXT]
-MID: f405431dc66e4d6786be020a62a4e5a3
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: f405431dc66e4d6786be020a62a4e5a3
+
 This document provides a comprehensive overview of all available features in
 StrictDoc from the user's perspective. It includes descriptions and relevant
 screenshots to illustrate each feature's functionality. Each entry is linked to
 additional documentation, such as the [LINK: SDOC_UG], offering further details,
 usage instructions, and examples to help users understand and effectively
 utilize StrictDoc’s capabilities.
-<<<
 
-[[SECTION]]
-MID: 01c07ca347a24181a92a5be6c8431094
-UID: SECTION-FM-SDoc-text-markup
-TITLE: SDoc text markup
+## SDoc text markup
 
-[[SECTION]]
-MID: dfd4d2d77c7247819e476f360ffff639
-TITLE: Definition
+**Type**: SECTION \
+**MID**: 01c07ca347a24181a92a5be6c8431094 \
+**UID**: SECTION-FM-SDoc-text-markup
 
-[FEATURE]
-MID: 4c40803dd0f04af88fd722ba6b732270
-UID: SDOC-FEAT-1
-STATUS: Stable
-TITLE: SDoc text markup
-STATEMENT: >>>
-The SDoc markup language is a hybrid format inspired by TOML, YAML, ASN.1, and
+### Definition
+
+**Type**: SECTION \
+**MID**: dfd4d2d77c7247819e476f360ffff639
+
+#### SDoc text markup
+
+**Type**: FEATURE \
+**MID**: 4c40803dd0f04af88fd722ba6b732270 \
+**UID**: SDOC-FEAT-1 \
+**Status**: Stable
+
+**Statement**: The SDoc markup language is a hybrid format inspired by TOML, YAML, ASN.1, and
 HTML/XML, designed specifically for structuring technical documents with large
 volumes of requirements. It aims to encode documents that span up to several
 hundred or even a few thousand A4-printed pages, while keeping the markup noise
 minimal to maintain readability. The format supports both shallow and deeply
 nested document structures, accommodating up to 9-10 levels of chapter nesting,
 and allows for multiple meta-information fields around each requirement.
-<<<
-DOCUMENTATION: >>>
+
+**DOCUMENTATION**:
+
 - [LINK: SECTION-UG-SDoc-syntax]
-<<<
 
-[[/SECTION]]
+### Use case
 
-[[SECTION]]
-MID: 3f422abd9abe4717a995ae4150df12e3
-TITLE: Use case
+**Type**: SECTION \
+**MID**: 3f422abd9abe4717a995ae4150df12e3
 
-[TEXT]
-MID: 8ea5b080819e47afa78bc346d671cf30
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: 8ea5b080819e47afa78bc346d671cf30
+
 The main use case for SDoc is to model a structure of a technical document that
 consists of tens and hundreds of technical requirements. The following
 high-level requirements for the markup are therefore relevant:
@@ -129,17 +72,15 @@ The SDoc markup has been pretty stable since its inception but the flexibility
 of the TextX parser allows easy modifications of the language in case of future
 evolutions. Any feedback to the current design of the markup language is
 appreciated.
-<<<
 
-[[/SECTION]]
+### Inspirations
 
-[[SECTION]]
-MID: fa7b37153def4eb4a6e9dcee079cba2a
-TITLE: Inspirations
+**Type**: SECTION \
+**MID**: fa7b37153def4eb4a6e9dcee079cba2a
 
-[TEXT]
-MID: 104b6ff4623f4ac9a965aa789c4cf001
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: 104b6ff4623f4ac9a965aa789c4cf001
+
 The SDoc markup is a hybrid of TOML and YAML with some influence from HTML/XML
 and [ASN.1](https://en.wikipedia.org/wiki/ASN.1). Using each of these formats
 as-is, and also the JSON format, was considered but discarded during the design.
@@ -227,37 +168,35 @@ are designed to be used for configuration files or data serialization and not
 for large documents with hundreds of requirements. The most obvious problems for
 reusing either of TOML or YAML directly would have been with encoding the deeply
 nested documents and supporting readable and non-nested multiline strings.
-<<<
 
-[[/SECTION]]
+### Screenshots
 
-[[SECTION]]
-MID: 87b1538be72a4ff7945b5bb95f856471
-TITLE: Screenshots
+**Type**: SECTION \
+**MID**: 87b1538be72a4ff7945b5bb95f856471
 
-[TEXT]
-MID: f48ae881c5134f77885202b019e124d4
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: f48ae881c5134f77885202b019e124d4
+
 <img src="_assets/Feature_Screenshot_SDoc.png" alt="SDoc markup" width="100%" />
-<<<
 
-[[/SECTION]]
+## HTML export
 
-[[/SECTION]]
+**Type**: SECTION \
+**MID**: 27bb9f0875d84d79bb882f6ca98ee1fa
 
-[[SECTION]]
-MID: 27bb9f0875d84d79bb882f6ca98ee1fa
-TITLE: HTML export
+### Definition
 
-[[SECTION]]
-MID: 4a0844b5938a488a89ac4b379fc7d956
-TITLE: Definition
+**Type**: SECTION \
+**MID**: 4a0844b5938a488a89ac4b379fc7d956
 
-[FEATURE]
-MID: 8e6604c8b27b450cbd21c12dc8572291
-UID: SDOC-FEAT-2
-TITLE: StrictDoc HTML export
-STATEMENT: >>>
+#### StrictDoc HTML export
+
+**Type**: FEATURE \
+**MID**: 8e6604c8b27b450cbd21c12dc8572291 \
+**UID**: SDOC-FEAT-2
+
+**Statement**:
+
 StrictDoc's static HTML export feature allows users to generate comprehensive
 documentation from .sdoc files into a well-structured HTML format. It leverages
 an efficient in-memory representation of document trees, supporting large-scale
@@ -269,42 +208,39 @@ relationships, to facilitate traceability and coverage analysis.
 Additionally, StrictDoc's incremental generation mechanism ensures quick updates
 by only regenerating modified documents, enabling efficient handling of
 extensive requirements specifications.
-<<<
-DOCUMENTATION: >>>
+
+**DOCUMENTATION**:
+
 - [LINK: SECTION-UG-Static-HTML-export]
-<<<
 
-[[/SECTION]]
+### Screenshots
 
-[[SECTION]]
-MID: 4e46063e2031418298b55a1861179900
-TITLE: Screenshots
+**Type**: SECTION \
+**MID**: 4e46063e2031418298b55a1861179900
 
-[TEXT]
-MID: 586f8745588b483b8e027021d90931ac
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: 586f8745588b483b8e027021d90931ac
+
 <img src="_assets/Feature_Screenshot_HTMLExport_01_Index.png" alt="StrictDoc HTML export – Project tree" width="100%" />
-<<<
 
-[[/SECTION]]
+## Web-based graphical user interface
 
-[[/SECTION]]
+**Type**: SECTION \
+**MID**: 3ef4254efd8547a8adaf37e100f22724
 
-[[SECTION]]
-MID: 3ef4254efd8547a8adaf37e100f22724
-TITLE: Web-based graphical user interface
+### Definition
 
-[[SECTION]]
-MID: bd3e1273cb244616956bddfc22c05638
-TITLE: Definition
+**Type**: SECTION \
+**MID**: bd3e1273cb244616956bddfc22c05638
 
-[FEATURE]
-MID: 2c1cde585d5944b5b7b5a0d5f72a98ed
-UID: SDOC-FEAT-3
-STATUS: Stable
-TITLE: StrictDoc web-based graphical user interface
-STATEMENT: >>>
-StrictDoc features an editable web interface that enables users to view and
+#### StrictDoc web-based graphical user interface
+
+**Type**: FEATURE \
+**MID**: 2c1cde585d5944b5b7b5a0d5f72a98ed \
+**UID**: SDOC-FEAT-3 \
+**Status**: Stable
+
+**Statement**: StrictDoc features an editable web interface that enables users to view and
 modify requirements directly within their browser. This interface provides a
 user-friendly way to interact with .sdoc files, allowing real-time editing of
 documents and requirements. Changes made through the web interface are
@@ -313,44 +249,41 @@ between the user interface and the underlying document structure. The web
 interface also supports visualization of requirement hierarchies and
 relationships, making it easier to manage complex documents with multiple nested
 levels and linked requirements.
-<<<
-DOCUMENTATION: >>>
+
+**DOCUMENTATION**:
+
 - [LINK: SECTION-UG-Web-server]
 - [LINK: SDOC_UG_LIMIT_WEB]
-<<<
 
-[[/SECTION]]
+### Screenshots
 
-[[SECTION]]
-MID: 6b5989db0e984c42b12440993c885987
-TITLE: Screenshots
+**Type**: SECTION \
+**MID**: 6b5989db0e984c42b12440993c885987
 
-[TEXT]
-MID: 28ce32fe182c45ce882b65c835620339
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: 28ce32fe182c45ce882b65c835620339
+
 <img src="_assets/Feature_Screenshot_WebUI.png" alt="StrictDoc web interface" width="100%" />
 
 <img src="_assets/Feature_Screenshot_WebUI_2.png" alt="StrictDoc web interface" width="100%" />
-<<<
 
-[[/SECTION]]
+## Traceability between requirements and source code
 
-[[/SECTION]]
+**Type**: SECTION \
+**MID**: 5ac3e3c690494371bd9de04be5eae0b0
 
-[[SECTION]]
-MID: 5ac3e3c690494371bd9de04be5eae0b0
-TITLE: Traceability between requirements and source code
+### Definition
 
-[[SECTION]]
-MID: 538d26fae4644debbc8f244709b8be7b
-TITLE: Definition
+**Type**: SECTION \
+**MID**: 538d26fae4644debbc8f244709b8be7b
 
-[FEATURE]
-MID: e14eee106ea443e598378e55401914dc
-UID: SDOC-FEAT-4
-TITLE: Traceability between requirements and source code
-STATEMENT: >>>
-StrictDoc supports traceability between requirements and source code, enabling
+#### Traceability between requirements and source code
+
+**Type**: FEATURE \
+**MID**: e14eee106ea443e598378e55401914dc \
+**UID**: SDOC-FEAT-4
+
+**Statement**: StrictDoc supports traceability between requirements and source code, enabling
 the creation of links from requirements specified in .sdoc files to relevant
 source code files. This feature ensures that each requirement is adequately
 addressed in the implementation by associating it with corresponding segments of
@@ -360,43 +293,40 @@ capability is essential for compliance, validation, and maintaining consistency
 between documentation and actual implementation. These connections can be
 visualized in the generated HTML exports, providing a clear and navigable
 overview of the relationship between requirements and the codebase​.
-<<<
-DOCUMENTATION: >>>
+
+**DOCUMENTATION**:
+
 - [LINK: SECTION-TRACEABILITY-REQS-TO-SOURCE-CODE]
-<<<
 
-[[/SECTION]]
+### Screenshots
 
-[[SECTION]]
-MID: ceec313d9ec040b9bcaaf64967ed6af8
-TITLE: Screenshots
+**Type**: SECTION \
+**MID**: ceec313d9ec040b9bcaaf64967ed6af8
 
-[TEXT]
-MID: 363aae23cbb44f30aff42ef6a430ffdf
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: 363aae23cbb44f30aff42ef6a430ffdf
+
 <img src="_assets/Feature_Screenshot_TraceabilityToSource_1.png" alt="Traceability to source 1" width="100%" />
 
 <img src="_assets/Feature_Screenshot_TraceabilityToSource_2.png" alt="Traceability to source 2" width="100%" />
-<<<
 
-[[/SECTION]]
+## Document grammar
 
-[[/SECTION]]
+**Type**: SECTION \
+**MID**: a436d31c5f324eb0bb6b35f0a6ce598d
 
-[[SECTION]]
-MID: a436d31c5f324eb0bb6b35f0a6ce598d
-TITLE: Document grammar
+### Definition
 
-[[SECTION]]
-MID: f20223cddcb14e40b45f99045e2d3a3a
-TITLE: Definition
+**Type**: SECTION \
+**MID**: f20223cddcb14e40b45f99045e2d3a3a
 
-[FEATURE]
-MID: 0bfcb6144dde487791d4f01164dd7e7c
-UID: SDOC-FEAT-5
-TITLE: Custom document grammars
-STATEMENT: >>>
-The "Document grammar" feature allows users to extend the default grammar to fit
+#### Custom document grammars
+
+**Type**: FEATURE \
+**MID**: 0bfcb6144dde487791d4f01164dd7e7c \
+**UID**: SDOC-FEAT-5
+
+**Statement**: The "Document grammar" feature allows users to extend the default grammar to fit
 specific project needs, particularly useful for industries with specialized
 requirements documentation, such as automotive or aerospace. This feature
 supports defining custom fields like "PRIORITY," "VERIFICATION," or
@@ -405,67 +335,65 @@ grammars are declared at the document level using the `[GRAMMAR]` directive,
 enabling users to specify custom fields and their data types, such as
 `String`, `SingleChoice`, `MultipleChoice`. These fields can be marked as
 mandatory, ensuring consistency across requirements documents.
-<<<
-DOCUMENTATION: >>>
+
+**DOCUMENTATION**:
+
 - [LINK: SECTION-UG-DOCUMENT-GRAMMAR]
-<<<
 
-[[/SECTION]]
+### Screenshots
 
-[[SECTION]]
-MID: f4763b00f9624cfd8b44f8e571f2aec6
-TITLE: Screenshots
+**Type**: SECTION \
+**MID**: f4763b00f9624cfd8b44f8e571f2aec6
 
-[TEXT]
-MID: 3d3d3e2c1c974ed4a2382770225212d7
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: 3d3d3e2c1c974ed4a2382770225212d7
+
 <img src="_assets/Feature_Screenshot_Grammar.png" alt="Document grammar" width="75%" />
-<<<
 
-[[/SECTION]]
+## Composable documents
 
-[[/SECTION]]
+**Type**: SECTION \
+**MID**: 5b511eac439c4e0a8aa2c60499be88d0
 
-[[SECTION]]
-MID: 5b511eac439c4e0a8aa2c60499be88d0
-TITLE: Composable documents
+### Definition
 
-[[SECTION]]
-MID: ab4bc7b948154dbfbd4956d41cda8b75
-TITLE: Definition
+**Type**: SECTION \
+**MID**: ab4bc7b948154dbfbd4956d41cda8b75
 
-[FEATURE]
-MID: e7b2d61545eb414f97345ecac25c52cc
-UID: SDOC-FEAT-6
-TITLE: Composable documents
-STATEMENT: >>>
-The "Composable Documents" feature in StrictDoc enables users to create
+#### Composable documents
+
+**Type**: FEATURE \
+**MID**: e7b2d61545eb414f97345ecac25c52cc \
+**UID**: SDOC-FEAT-6
+
+**Statement**: The "Composable Documents" feature in StrictDoc enables users to create
 composite documents made up of smaller, independent SDoc documents. This modular
 approach allows each document fragment to be managed separately, which is
 particularly useful when dealing with large, complex requirements documents.
-<<<
-DOCUMENTATION: >>>
+
+**DOCUMENTATION**:
+
 - [LINK: UG_COMPOSABLE_DOCUMENTS]
-<<<
 
-[[/SECTION]]
+## Export to PDF
 
-[[/SECTION]]
+**Type**: SECTION \
+**MID**: 2e8e39a2198e4f8aa18a470a892e4d25
 
-[[SECTION]]
-MID: 2e8e39a2198e4f8aa18a470a892e4d25
-TITLE: Export to PDF
+### Definition
 
-[[SECTION]]
-MID: 381ebcd10ee241aaaa9fe3654870961c
-TITLE: Definition
+**Type**: SECTION \
+**MID**: 381ebcd10ee241aaaa9fe3654870961c
 
-[FEATURE]
-MID: 5be4f35be2eb49faae7c33b5a2d83251
-UID: SDOC-FEAT-10
-STATUS: Experimental
-TITLE: Export to PDF
-STATEMENT: >>>
+#### Export to PDF
+
+**Type**: FEATURE \
+**MID**: 5be4f35be2eb49faae7c33b5a2d83251 \
+**UID**: SDOC-FEAT-10 \
+**Status**: Experimental
+
+**Statement**:
+
 The HTML2PDF feature in StrictDoc enables web-based printing to PDF by
 leveraging ChromeDriver and Google Chrome. This approach uses the Selenium
 Python library to automate the printing of HTML content directly to PDF format,
@@ -476,158 +404,149 @@ The feature allows the user to export content to PDF via a web interface or
 through a command-line interface. This ensures that the output closely resembles
 the web page, with no need for additional formatting or adjustments to the
 content.
-<<<
-DOCUMENTATION: >>>
+
+**DOCUMENTATION**:
+
 - [LINK: SECTION-UG-HTML2PDF-document-generator]
-<<<
 
-[[/SECTION]]
+### Screenshots
 
-[[SECTION]]
-MID: 2d8b04efe57d4c0aa543ed974ace868e
-TITLE: Screenshots
+**Type**: SECTION \
+**MID**: 2d8b04efe57d4c0aa543ed974ace868e
 
-[[/SECTION]]
+## Query engine and search screen
 
-[[/SECTION]]
+**Type**: SECTION \
+**MID**: 15d6e791674c4c0ab54afb6a781f35c9
 
-[[SECTION]]
-MID: 15d6e791674c4c0ab54afb6a781f35c9
-TITLE: Query engine and search screen
+### Definition
 
-[[SECTION]]
-MID: 91177d3444d9437e87032875ac8fcd7d
-TITLE: Definition
+**Type**: SECTION \
+**MID**: 91177d3444d9437e87032875ac8fcd7d
 
-[FEATURE]
-MID: 9c1e6cb601294891bcaae2b8c9042c59
-UID: SDOC-FEAT-7
-STATUS: Experimental
-TITLE: Query engine and search screen
-STATEMENT: >>>
-The "Query Engine and Search Screen" feature in StrictDoc offers tools for
+#### Query engine and search screen
+
+**Type**: FEATURE \
+**MID**: 9c1e6cb601294891bcaae2b8c9042c59 \
+**UID**: SDOC-FEAT-7 \
+**Status**: Experimental
+
+**Statement**: The "Query Engine and Search Screen" feature in StrictDoc offers tools for
 searching and filtering requirements within documents. It uses a Python-inspired
 syntax to perform complex queries on the document tree, allowing users to find
 specific sections or requirements based on attributes like titles, parent-child
 relationships, or custom fields. The search screen is integrated into the web
 interface, where users can craft queries with logical operators (e.g., AND, OR)
 and attribute filters (e.g., `node.is_requirement`).
-<<<
-DOCUMENTATION: >>>
+
+**DOCUMENTATION**:
+
 - [LINK: SECTION-UG-Search-and-filtering]
-<<<
 
-[[/SECTION]]
+### Screenshots
 
-[[SECTION]]
-MID: 631f1620053342c8a398a1a5d458f873
-TITLE: Screenshots
+**Type**: SECTION \
+**MID**: 631f1620053342c8a398a1a5d458f873
 
-[TEXT]
-MID: 64afc2abdab847439c0c18420db7ba47
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: 64afc2abdab847439c0c18420db7ba47
+
 <img src="_assets/Feature_Screenshot_SearchScreen_01.png" alt="StrictDoc Search Screen" width="100%" />
-<<<
 
-[[/SECTION]]
+## Project statistics
 
-[[/SECTION]]
+**Type**: SECTION \
+**MID**: 3475f60f31b5488aab981fd2b7b12d4c
 
-[[SECTION]]
-MID: 3475f60f31b5488aab981fd2b7b12d4c
-TITLE: Project statistics
+### Definition
 
-[[SECTION]]
-MID: 9bbcc02a46194852b9616ea4437ce976
-TITLE: Definition
+**Type**: SECTION \
+**MID**: 9bbcc02a46194852b9616ea4437ce976
 
-[FEATURE]
-MID: 2dd0b514a24f43a287a4096d0be0af58
-UID: SDOC-FEAT-11
-STATUS: Experimental
-TITLE: Project Statistics
-STATEMENT: >>>
-The "Project Statistics" feature in StrictDoc provides insights into the overall
+#### Project Statistics
+
+**Type**: FEATURE \
+**MID**: 2dd0b514a24f43a287a4096d0be0af58 \
+**UID**: SDOC-FEAT-11 \
+**Status**: Experimental
+
+**Statement**: The "Project Statistics" feature in StrictDoc provides insights into the overall
 status and details of a documentation project. It offers statistical data that
 can include information about requirements, document structure, and coverage.
-<<<
-DOCUMENTATION: >>>
+
+**DOCUMENTATION**:
+
 - [LINK: SECTION-UG-Project-statistics-screen]
-<<<
 
-[[/SECTION]]
+### Screenshots
 
-[[SECTION]]
-MID: 7d215ba517fc4aee9dfb381279297cc7
-TITLE: Screenshots
+**Type**: SECTION \
+**MID**: 7d215ba517fc4aee9dfb381279297cc7
 
-[TEXT]
-MID: bd5a4763e2ca4df497dbaeeff9ffbd71
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: bd5a4763e2ca4df497dbaeeff9ffbd71
+
 <img src="_assets/Feature_Screenshot_StatisticsScreen_01.png" alt="Project statistics" width="100%" />
 
 <img src="_assets/Feature_Screenshot_StatisticsScreen_02.png" alt="Project statistics" width="100%" />
-<<<
 
-[[/SECTION]]
+## Documentation diff/changelog
 
-[[/SECTION]]
+**Type**: SECTION \
+**MID**: 0b3d7fad0ee643ef83617745c51e8e72
 
-[[SECTION]]
-MID: 0b3d7fad0ee643ef83617745c51e8e72
-TITLE: Documentation diff/changelog
+### Definition
 
-[[SECTION]]
-MID: 9cdf4d3af1014aea923f77b112e6b1e3
-TITLE: Definition
+**Type**: SECTION \
+**MID**: 9cdf4d3af1014aea923f77b112e6b1e3
 
-[FEATURE]
-MID: e9da42f8e39b438a8e8eada16b280706
-UID: SDOC-FEAT-12
-STATUS: Experimental
-TITLE: Documentation diff/changelog
-STATEMENT: >>>
-The "Documentation diff/changelog" feature in StrictDoc allows users to track
+#### Documentation diff/changelog
+
+**Type**: FEATURE \
+**MID**: e9da42f8e39b438a8e8eada16b280706 \
+**UID**: SDOC-FEAT-12 \
+**Status**: Experimental
+
+**Statement**: The "Documentation diff/changelog" feature in StrictDoc allows users to track
 and compare changes made between different versions of project documentation.
 This feature can highlight modifications at a granular level, such as added,
 deleted, or altered content within the document.
-<<<
-DOCUMENTATION: >>>
+
+**DOCUMENTATION**:
+
 - [LINK: SECTION-UG-Diff-changelog-screen]
-<<<
 
-[[/SECTION]]
+### Screenshots
 
-[[SECTION]]
-MID: c60c6fab5740469aa251bfa3a805f21f
-TITLE: Screenshots
+**Type**: SECTION \
+**MID**: c60c6fab5740469aa251bfa3a805f21f
 
-[TEXT]
-MID: 1fad67b63724450bb63738cf7e29d051
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: 1fad67b63724450bb63738cf7e29d051
+
 <img src="_assets/Feature_Screenshot_DiffChangelog_1.png" alt="StrictDoc Diff/Changelog 1" width="100%" />
 
 <img src="_assets/Feature_Screenshot_DiffChangelog_2.png" alt="StrictDoc Diff/Changelog 2" width="100%" />
-<<<
 
-[[/SECTION]]
+## ReqIF support
 
-[[/SECTION]]
+**Type**: SECTION \
+**MID**: f655f9a2bde044489233fa03d2891de1
 
-[[SECTION]]
-MID: f655f9a2bde044489233fa03d2891de1
-TITLE: ReqIF support
+### Definition
 
-[[SECTION]]
-MID: 1627a126e1184c5e9050206f2f1ab725
-TITLE: Definition
+**Type**: SECTION \
+**MID**: 1627a126e1184c5e9050206f2f1ab725
 
-[FEATURE]
-MID: 2845463f977d4b51ac788c2fc9cbd894
-UID: SDOC-FEAT-13
-STATUS: Experimental
-TITLE: ReqIF support
-STATEMENT: >>>
+#### ReqIF support
+
+**Type**: FEATURE \
+**MID**: 2845463f977d4b51ac788c2fc9cbd894 \
+**UID**: SDOC-FEAT-13 \
+**Status**: Experimental
+
+**Statement**:
+
 The ReqIF support feature in StrictDoc allows for both importing and exporting
 to the ReqIF format, facilitating interoperability with other requirements
 management tools.
@@ -643,29 +562,30 @@ depending on the tools involved. StrictDoc provides its own model for converting
 between ReqIF and SDoc, making it adaptable for specific use cases while
 striving for compatibility with the ReqIF format recommended by the ReqIF
 Implementation Guide​.
-<<<
-DOCUMENTATION: >>>
+
+**DOCUMENTATION**:
+
 - [LINK: SECTION-UG-ReqIF-support]
-<<<
 
-[[/SECTION]]
+## Word support
 
-[[/SECTION]]
+**Type**: SECTION \
+**MID**: 52b0247b93234fc1a78cf497740b740d
 
-[[SECTION]]
-MID: 52b0247b93234fc1a78cf497740b740d
-TITLE: Word support
+### Definition
 
-[[SECTION]]
-MID: fae1ff97e14642b2b0024c161e759aaf
-TITLE: Definition
+**Type**: SECTION \
+**MID**: fae1ff97e14642b2b0024c161e759aaf
 
-[FEATURE]
-MID: 73ad2b34824f401da05022e6504764e6
-UID: SDOC-FEAT-14
-STATUS: Experimental
-TITLE: Word support
-STATEMENT: >>>
+#### Word support
+
+**Type**: FEATURE \
+**MID**: 73ad2b34824f401da05022e6504764e6 \
+**UID**: SDOC-FEAT-14 \
+**Status**: Experimental
+
+**Statement**:
+
 The Word support feature in StrictDoc imports requirements from a Word (.docx)
 document into SDoc and exports SDoc back to Word.
 
@@ -677,28 +597,29 @@ update it and write the differences as Word tracked changes.
 
 The web interface offers the same actions as dialogs, with a preview of the
 report, when the `DOCX` feature is activated.
-<<<
-DOCUMENTATION: >>>
+
+**DOCUMENTATION**:
+
 - [LINK: SECTION-UG-Word-support]
-<<<
 
-[[/SECTION]]
+## Project configuration
 
-[[/SECTION]]
+**Type**: SECTION \
+**MID**: e1109c5b3b1c4068a0eace811684f0c0
 
-[[SECTION]]
-MID: e1109c5b3b1c4068a0eace811684f0c0
-TITLE: Project configuration
+### Definition
 
-[[SECTION]]
-MID: 3c2a1a37e11c425184042d6dab3f050a
-TITLE: Definition
+**Type**: SECTION \
+**MID**: 3c2a1a37e11c425184042d6dab3f050a
 
-[FEATURE]
-MID: 8fc72d79bfe940aba2cf041e263b92df
-UID: SDOC-FEAT-9
-TITLE: Project configuration
-STATEMENT: >>>
+#### Project configuration
+
+**Type**: FEATURE \
+**MID**: 8fc72d79bfe940aba2cf041e263b92df \
+**UID**: SDOC-FEAT-9
+
+**Statement**:
+
 The "strictdoc_config.py" file is a project-level configuration file used in
 StrictDoc to manage various project settings. This configuration file allows
 customization for features such as selected functionalities, document paths,
@@ -718,23 +639,17 @@ of a given project, making it more flexible and adaptable​.
 StrictDoc previously used a "strictdoc.toml" file for the same purpose. TOML
 configuration is deprecated and will trigger a warning; see
 SECTION-UG-MIGRATE-CONFIG-2025-Q4 for migration instructions.
-<<<
-DOCUMENTATION: >>>
+
+**DOCUMENTATION**:
+
 - [LINK: SDOC_UG_OPTIONS_PROJECT_LEVEL]
-<<<
 
-[[/SECTION]]
+### Screenshots
 
-[[SECTION]]
-MID: 275658296e5342acab72102589096f15
-TITLE: Screenshots
+**Type**: SECTION \
+**MID**: 275658296e5342acab72102589096f15
 
-[TEXT]
-MID: 100daefc4121415989324de1978d1f59
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: 100daefc4121415989324de1978d1f59
+
 <img src="_assets/Feature_Screenshot_StrictDocTOML.png" alt="StrictDoc config file (legacy strictdoc.toml format, superseded by strictdoc_config.py)" width="100%" />
-<<<
-
-[[/SECTION]]
-
-[[/SECTION]]

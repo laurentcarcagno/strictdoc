@@ -1,85 +1,16 @@
-[DOCUMENT]
-MID: b3727ea826c24d42a84e88983e7c1e24
-TITLE: Technical Note: DO-178C requirements tool requirements
-VERSION: Git commit: @GIT_VERSION, Git branch: @GIT_BRANCH
-DATE: @GIT_COMMIT_DATETIME
-CLASSIFICATION: Draft
-PREFIX: DO178-
-ROOT: True
-OPTIONS:
-  ENABLE_MID: True
-  MARKUP: Markdown
+# Technical Note: DO-178C requirements tool requirements
 
-[GRAMMAR]
-ELEMENTS:
-- TAG: SECTION
-  PROPERTIES:
-    IS_COMPOSITE: True
-  FIELDS:
-  - TITLE: MID
-    TYPE: String
-    REQUIRED: True
-  - TITLE: UID
-    TYPE: String
-    REQUIRED: False
-  - TITLE: LEVEL
-    TYPE: String
-    REQUIRED: False
-  - TITLE: PREFIX
-    TYPE: String
-    REQUIRED: False
-  - TITLE: TITLE
-    TYPE: String
-    REQUIRED: True
-- TAG: TEXT
-  FIELDS:
-  - TITLE: MID
-    TYPE: String
-    REQUIRED: True
-  - TITLE: UID
-    TYPE: String
-    REQUIRED: False
-  - TITLE: STATEMENT
-    TYPE: String
-    REQUIRED: False
-- TAG: REQUIREMENT
-  FIELDS:
-  - TITLE: MID
-    TYPE: String
-    REQUIRED: False
-  - TITLE: UID
-    TYPE: String
-    REQUIRED: False
-  - TITLE: COMPLIANCE
-    TYPE: String
-    REQUIRED: False
-  - TITLE: LEVEL
-    TYPE: String
-    REQUIRED: False
-  - TITLE: STATUS
-    TYPE: String
-    REQUIRED: False
-  - TITLE: TAGS
-    TYPE: String
-    REQUIRED: False
-  - TITLE: TITLE
-    TYPE: String
-    REQUIRED: False
-  - TITLE: STATEMENT
-    TYPE: String
-    REQUIRED: False
-  - TITLE: RATIONALE
-    TYPE: String
-    REQUIRED: False
-  - TITLE: COMMENT
-    TYPE: String
-    REQUIRED: False
-  RELATIONS:
-  - TYPE: Parent
+**Grammar**: strictdoc_40_DO178_requirements.gra.md \
+**Version**: Git commit: @GIT_VERSION, Git branch: @GIT_BRANCH \
+**Date**: @GIT_COMMIT_DATETIME \
+**Classification**: Draft \
+**Prefix**: DO178- \
+**Root**: True \
+**Enable MID**: True
 
-[TEXT]
-MID: fc77215d50134f17aa242b4df7310099
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: fc77215d50134f17aa242b4df7310099
+
 This document outlines a set of high-level requirements for StrictDoc, a
 text-based requirements management system. While StrictDoc already meets many of
 these requirements, a further discussion is needed to clarify any remaining
@@ -90,270 +21,241 @@ These requirements are recommended by engineers who adhere to the DO-178B and
 DO-178C standards of the aviation industry. For a visual summary of the DO-178
 standard, please refer to this link:
 <https://upload.wikimedia.org/wikipedia/commons/4/4f/DO-178B_Process_Visual_Summary_Rev_A.pdf>.
-<<<
 
-[[SECTION]]
-MID: 6be4dbe02b4346df9849eaa6fe077e0e
-UID: SECTION-DR-Already-implemented-features
-TITLE: Already implemented features
+## Already implemented features
 
-[REQUIREMENT]
-MID: af14393406e64ab6b2911eefa4358f33
-UID: DO178-1
-COMPLIANCE: C
-STATUS: Active
-TITLE: Document concept
-STATEMENT: >>>
-StrictDoc shall store requirements in document files.
-<<<
-RATIONALE: >>>
+**Type**: SECTION \
+**MID**: 6be4dbe02b4346df9849eaa6fe077e0e \
+**UID**: SECTION-DR-Already-implemented-features
+
+### Document concept
+
+**MID**: af14393406e64ab6b2911eefa4358f33 \
+**UID**: DO178-1 \
+**COMPLIANCE**: C \
+**Status**: Active
+
+**Statement**: StrictDoc shall store requirements in document files.
+
+**Rationale**:
+
 A concept of a "document file with requirements" helps to structure requirements
 like they are normally structured in the documents.
 
 An alternative implementation of "1 file per 1 requirement" can be very
 restrictive in some use cases. For example, one needs to open lots of files to
 edit, if one file can only have one requirement.
-<<<
 
-[REQUIREMENT]
-MID: 0a19cae3756a4d2f9f0be9e57c44a8fa
-UID: DO178-2
-COMPLIANCE: C
-STATUS: Active
-TITLE: Strict specified grammar
-STATEMENT: >>>
-StrictDoc shall feature a specified document grammar.
-<<<
-RATIONALE: >>>
-The grammar helps to standardize a document structure.
-<<<
-COMMENT: >>>
-N: StrictDoc is nice.
-<<<
+### Strict specified grammar
 
-[REQUIREMENT]
-MID: dd075d6cd4fb4ad2b731a9b8068efade
-UID: DO178-14
-STATUS: Active
-TITLE: Requirement UID autocompletion
-STATEMENT: >>>
+**MID**: 0a19cae3756a4d2f9f0be9e57c44a8fa \
+**UID**: DO178-2 \
+**COMPLIANCE**: C \
+**Status**: Active
+
+**Statement**: StrictDoc shall feature a specified document grammar.
+
+**Rationale**: The grammar helps to standardize a document structure.
+
+**Comment**: N: StrictDoc is nice.
+
+### Requirement UID autocompletion
+
+**MID**: dd075d6cd4fb4ad2b731a9b8068efade \
+**UID**: DO178-14 \
+**Status**: Active
+
+**Statement**:
+
 StrictDoc shall provide autocompletion feature for requirement UID identifiers.
 
 Note: Most immediate use case: adding/editing parent requirements.
-<<<
-COMMENT: >>>
-N: When adding parent links, StrictDoc GUI shall present a selection list of
+
+**Comment**: N: When adding parent links, StrictDoc GUI shall present a selection list of
 UID, with a completion filter, then compute the sha1 of the selected parent req.
-<<<
-COMMENT: >>>
-N: Upon req editing, a completion list of already existing reqs (+ "derived"
+
+**Comment**: N: Upon req editing, a completion list of already existing reqs (+ "derived"
 item) would be definitely nice in Webgui ! and would be the ultimate argument to
 NOT text edit.
-<<<
 
-[REQUIREMENT]
-MID: 03346e43cd0b43529cc3b958a00d8d35
-UID: DO178-3
-COMPLIANCE: C
-STATUS: Active
-TITLE: Multiple git repositories document assembly
-STATEMENT: >>>
-StrictDoc shall support generating requirement trees from multiple Git
+### Multiple git repositories document assembly
+
+**MID**: 03346e43cd0b43529cc3b958a00d8d35 \
+**UID**: DO178-3 \
+**COMPLIANCE**: C \
+**Status**: Active
+
+**Statement**: StrictDoc shall support generating requirement trees from multiple Git
 repositories.
-<<<
-COMMENT: >>>
-N: StrictDoc is compliant.
-<<<
 
-[REQUIREMENT]
-MID: 4f0809d49292413eb621a47a8b405bc7
-UID: DO178-4
-COMPLIANCE: C
-STATUS: Active
-TITLE: Document fragments in separate files
-STATEMENT: >>>
-StrictDoc shall support assembly of documents from multiple files.
-<<<
-COMMENT: >>>
-S: StrictDoc supports document fragments. A document fragment corresponds to a
+**Comment**: N: StrictDoc is compliant.
+
+### Document fragments in separate files
+
+**MID**: 4f0809d49292413eb621a47a8b405bc7 \
+**UID**: DO178-4 \
+**COMPLIANCE**: C \
+**Status**: Active
+
+**Statement**: StrictDoc shall support assembly of documents from multiple files.
+
+**Comment**: S: StrictDoc supports document fragments. A document fragment corresponds to a
 section that can be kept in a separate file. A document stored in another file
 can import the fragment and have it included in the main document.
-<<<
 
-[REQUIREMENT]
-MID: c74bba92cec34bf7b1046689c2dfc54c
-UID: DO178-5
-COMPLIANCE: C
-STATUS: Active
-TITLE: PDF and HTML publishing
-STATEMENT: >>>
-StrictDoc shall support publication of documents to HTML and PDF formats.
-<<<
+### PDF and HTML publishing
 
-[REQUIREMENT]
-MID: 8b73ce9efcc840b2be272d5aaef08e70
-UID: DO178-6
-COMPLIANCE: C
-STATUS: Active
-TITLE: Graphical user interface (GUI)
-STATEMENT: >>>
-StrictDoc shall support a graphical user interface.
-<<<
-COMMENT: >>>
-N: A Web GUI in StrictDoc is nice in daily work, especially for non developer
+**MID**: c74bba92cec34bf7b1046689c2dfc54c \
+**UID**: DO178-5 \
+**COMPLIANCE**: C \
+**Status**: Active
+
+**Statement**: StrictDoc shall support publication of documents to HTML and PDF formats.
+
+### Graphical user interface (GUI)
+
+**MID**: 8b73ce9efcc840b2be272d5aaef08e70 \
+**UID**: DO178-6 \
+**COMPLIANCE**: C \
+**Status**: Active
+
+**Statement**: StrictDoc shall support a graphical user interface.
+
+**Comment**: N: A Web GUI in StrictDoc is nice in daily work, especially for non developer
 people.
-<<<
-COMMENT: >>>
-N: GUI for editing is NTH but it shall scale well to thousands of requirements.
+
+**Comment**: N: GUI for editing is NTH but it shall scale well to thousands of requirements.
 And it could also contribute to traceability feature.
-<<<
 
-[REQUIREMENT]
-MID: 8c654ff659a94cceb0c7a52bc8ae4073
-UID: DO178-8
-STATUS: Active
-TITLE: Configuration: 'Host' parameter
-STATEMENT: >>>
-StrictDoc shall provide an option to configure a host where a server is
+### Configuration: 'Host' parameter
+
+**MID**: 8c654ff659a94cceb0c7a52bc8ae4073 \
+**UID**: DO178-8 \
+**Status**: Active
+
+**Statement**: StrictDoc shall provide an option to configure a host where a server is
 deployed.
-<<<
-COMMENT: >>>
-N: Binding to any local address (localhost) with an option would enable to edit
+
+**Comment**: N: Binding to any local address (localhost) with an option would enable to edit
 from a smartphone bound to a Raspberry server, for instance.
-<<<
 
-[REQUIREMENT]
-MID: cfdb3867a4a64b3eb9405e998c11ae72
-UID: DO178-7
-COMPLIANCE: C
-STATUS: Active
-TITLE: No use of proprietary technology
-STATEMENT: >>>
-StrictDoc shall not use any proprietary tools.
-<<<
-RATIONALE: >>>
-Use of proprietary tools complicates the workflows and the interoperability
+### No use of proprietary technology
+
+**MID**: cfdb3867a4a64b3eb9405e998c11ae72 \
+**UID**: DO178-7 \
+**COMPLIANCE**: C \
+**Status**: Active
+
+**Statement**: StrictDoc shall not use any proprietary tools.
+
+**Rationale**: Use of proprietary tools complicates the workflows and the interoperability
 between companies and teams.
-<<<
-COMMENT: >>>
-S: StrictDoc is written using Python and supports the ReqIF format out of the
-box. All StrictDoc's dependencies are open-source software components.
-<<<
 
-[REQUIREMENT]
-MID: 40d4a56263d0420691dbde5d7889895a
-UID: DO178-13
-STATUS: Active
-TITLE: Source file coverage
-STATEMENT: >>>
-StrictDoc shall support generation of source code coverage information.
-<<<
-COMMENT: >>>
-S: Source file coverage is StrictDoc's experimental feature. With a more
+**Comment**: S: StrictDoc is written using Python and supports the ReqIF format out of the
+box. All StrictDoc's dependencies are open-source software components.
+
+### Source file coverage
+
+**MID**: 40d4a56263d0420691dbde5d7889895a \
+**UID**: DO178-13 \
+**Status**: Active
+
+**Statement**: StrictDoc shall support generation of source code coverage information.
+
+**Comment**: S: Source file coverage is StrictDoc's experimental feature. With a more
 detailed specification, we can turn it to a more advanced and clear presentation
 of the needed aspects.
-<<<
 
-[REQUIREMENT]
-MID: 8bd26640450f448c8228464223c21373
-UID: DO178-9
-COMPLIANCE: C
-STATUS: Active
-TITLE: Project-level grammar
-STATEMENT: >>>
-StrictDoc shall support creation of a project-level grammar.
-<<<
-RATIONALE: >>>
-A single grammar defined for a project (same grammar for several documents)
+### Project-level grammar
+
+**MID**: 8bd26640450f448c8228464223c21373 \
+**UID**: DO178-9 \
+**COMPLIANCE**: C \
+**Status**: Active
+
+**Statement**: StrictDoc shall support creation of a project-level grammar.
+
+**Rationale**: A single grammar defined for a project (same grammar for several documents)
 helps to standardize the structure of all documents in a documentation tree and
 reduces the effort needed to create identical grammars all the time.
-<<<
-COMMENT: >>>
-S: This feature is easy to implement. The easiest implementation path is to
+
+**Comment**: S: This feature is easy to implement. The easiest implementation path is to
 include a config parameter, such as `project_grammar` in the already-existing
 `strictdoc_config.py` file. At startup, StrictDoc recognizes the parameter and
 reads the grammar from a separate file. The project grammar becomes a single
 source of truth for all documents in the project tree but the option to override
 a grammar for a given document is still preserved.
-<<<
 
-[[/SECTION]]
+## Needs discussion
 
-[[SECTION]]
-MID: 09f3e3faa1b84aafb19f26e22ab06c95
-UID: SECTION-DR-Needs-discussion
-TITLE: Needs discussion
+**Type**: SECTION \
+**MID**: 09f3e3faa1b84aafb19f26e22ab06c95 \
+**UID**: SECTION-DR-Needs-discussion
 
-[REQUIREMENT]
-MID: db4336a8f119443cae6a70d74a0601da
-UID: DO178-19
-STATUS: Active
-TITLE: WYSIWYG editing
-STATEMENT: >>>
-StrictDoc's GUI shall support a WYSIWYG text editing.
-<<<
-COMMENT: >>>
-Simplifies editing of formatted text.
-<<<
+### WYSIWYG editing
 
-[REQUIREMENT]
-MID: 7d18b7674050495c935dc4669dfb260e
-UID: DO178-15
-STATUS: Active
-TITLE: Diff between document trees
-STATEMENT: >>>
+**MID**: db4336a8f119443cae6a70d74a0601da \
+**UID**: DO178-19 \
+**Status**: Active
+
+**Statement**: StrictDoc's GUI shall support a WYSIWYG text editing.
+
+**Comment**: Simplifies editing of formatted text.
+
+### Diff between document trees
+
+**MID**: 7d18b7674050495c935dc4669dfb260e \
+**UID**: DO178-15 \
+**Status**: Active
+
+**Statement**:
+
 StrictDoc shall allow calculating Diff between two document trees.
 
 Note: The primary use case is calculating a diff between two Git revisions.
-<<<
-COMMENT: >>>
-N: Highlight a req diff with its previous version (Git).
-<<<
 
-[REQUIREMENT]
-MID: b0c13e71074242ab91d6344514b82657
-UID: DO178-10
-COMPLIANCE: C
-STATUS: Active
-TITLE: Traceability matrices
-STATEMENT: >>>
-StrictDoc shall support generation of forward and backward traceability
+**Comment**: N: Highlight a req diff with its previous version (Git).
+
+### Traceability matrices
+
+**MID**: b0c13e71074242ab91d6344514b82657 \
+**UID**: DO178-10 \
+**COMPLIANCE**: C \
+**Status**: Active
+
+**Statement**: StrictDoc shall support generation of forward and backward traceability
 matrices.
-<<<
-COMMENT: >>>
-N: Trace matrix publishing (both ways : is covered by ... and covers ...)
+
+**Comment**: N: Trace matrix publishing (both ways : is covered by ... and covers ...)
 published in HTML/PDF.
-<<<
-COMMENT: >>>
-S: This feature, especially a very basic initial one, is very easy to implement,
+
+**Comment**: S: This feature, especially a very basic initial one, is very easy to implement,
 and it is already on the nearest roadmap, see
 <https://github.com/strictdoc-project/strictdoc/issues/964#issuecomment-1497900436>>.
 We only need to agree on if we are on the same page about how the produced
 matrices look like.
-<<<
 
-[REQUIREMENT]
-MID: 7e8a475859084e9d95eda3f2c1381ae7
-UID: DO178-11
-COMPLIANCE: C
-STATUS: Active
-TITLE: Impact analysis
-STATEMENT: >>>
-StrictDoc shall support generation of Impact Analysis information.
-<<<
-COMMENT: >>>
-N: Impact analysis – upon modification of a requirement: report the recursive
+### Impact analysis
+
+**MID**: 7e8a475859084e9d95eda3f2c1381ae7 \
+**UID**: DO178-11 \
+**COMPLIANCE**: C \
+**Status**: Active
+
+**Statement**: StrictDoc shall support generation of Impact Analysis information.
+
+**Comment**: N: Impact analysis – upon modification of a requirement: report the recursive
 list of impacted items.
-<<<
-COMMENT: >>>
-S: This feature is doable and a basic variant can be derived from the existing
+
+**Comment**: S: This feature is doable and a basic variant can be derived from the existing
 code that generates the Deep Traceability screen. A more advanced one includes a
 document-to-document Diff between version control revisions, including "tell me
 what changed between the latest commit and my changes". Based on this
 information, a full impact analysis package can be generated. This is less
 trivial to implement and requires prioritization.
-<<<
-COMMENT: >>>
+
+**Comment**:
+
 N: For impact analysis we were thinking about some design which help to satisfy
 these feature: upon modification of a requirement which owns some parent links,
 a SHA1 of each parent requirement statement is computed and set in the edited
@@ -363,86 +265,81 @@ CLI command to perform this tagging.
 For overall analysis, a CLI command could parse the tree and compute the SHA1
 and tel which requirement are to be updated because one of there ancestor were
 modified. This is almost the same feature called review status in doorstop.
-<<<
-COMMENT: >>>
-N: When adding parent links, the GUI could present a selection list of UID, with
+
+**Comment**: N: When adding parent links, the GUI could present a selection list of UID, with
 a completion filter, then compute the SHA1 of the selected parent req. Then
 highlight uncovered requirement, and requirements impacted by parent change.
-<<<
 
-[REQUIREMENT]
-MID: 23c11790799c4457804bcb9d6288931e
-UID: DO178-12
-COMPLIANCE: C
-STATUS: Active
-TITLE: Uncovered requirement report
-STATEMENT: >>>
+### Uncovered requirement report
+
+**MID**: 23c11790799c4457804bcb9d6288931e \
+**UID**: DO178-12 \
+**COMPLIANCE**: C \
+**Status**: Active
+
+**Statement**:
+
 StrictDoc shall support generation of uncovered requirement report.
 
 Note: An uncovered requirement is one that has no children.
-<<<
-COMMENT: >>>
-S: This is easy to implement but would be nice to have it specified in terms of
+
+**Comment**: S: This is easy to implement but would be nice to have it specified in terms of
 how exactly it should look like. The requirements coverage screen was one
 experimental attempt to visualize and highlight the uncovered requirements but
 we didn't stabilize the feature in terms of the visual clarity.
-<<<
 
-[REQUIREMENT]
-MID: a1fb2f7cd7cd4c8eb33c3407a791fd88
-UID: DO178-16
-COMPLIANCE: PC
-STATUS: Backlog
-TITLE: Interoperability with Sphinx
-STATEMENT: >>>
+### Interoperability with Sphinx
+
+**MID**: a1fb2f7cd7cd4c8eb33c3407a791fd88 \
+**UID**: DO178-16 \
+**COMPLIANCE**: PC \
+**Status**: Backlog
+
+**Statement**:
+
 StrictDoc shall support interoperability with Sphinx:
 
 1) StrictDoc shall read RST fragments with Sphinx directives without errors.
 2) StrictDoc shall render Sphinx plugins natively.
-<<<
-COMMENT: >>>
-N: Support various fragments (images, csv, doxygen, uml, math expr...) => Sphinx
+
+**Comment**: N: Support various fragments (images, csv, doxygen, uml, math expr...) => Sphinx
 extensions nice.
-<<<
-COMMENT: >>>
-S: It should be possible to achieve the goal 1 by implementing a complete or
+
+**Comment**: S: It should be possible to achieve the goal 1 by implementing a complete or
 limited behavior of each Sphinx plugin feature like I already suggested
 [here](https://github.com/strictdoc-project/strictdoc/issues/1093#issuecomment-1505108384).
 For each needed plugin, we can implement a simulative directive using Docutils,
 and I expected that for many plugins we can achieve a good compatible behavior.
 The goal 2 needs a special R&D activity where it has to be decided what would be
 the interface between StrictDoc and Sphinx.
-<<<
-COMMENT: >>>
-N: `image.*` is MTH to enable both HTML and pdf. breathe is required for the
+
+**Comment**: N: `image.*` is MTH to enable both HTML and pdf. breathe is required for the
 Software Design Description document which defines software architecture, low
 level requirements and code component interfaces. But it could be Split in 2
 separate documents. LLR in .sdoc and code component interface with
 sphinx/breathe. So I consider it as NTH.
-<<<
 
-[REQUIREMENT]
-MID: 756503f4934a4aed81dfe090b2538e2a
-UID: DO178-17
-COMPLIANCE: NC
-STATUS: Backlog
-TITLE: Multi-user editing of documents
-STATEMENT: >>>
-StrictDoc shall allow multi-user editing of documents.
-<<<
-COMMENT: >>>
-N: .sdoc file lock?
-<<<
+### Multi-user editing of documents
 
-[REQUIREMENT]
-MID: 8120b4f6be4e4ecd83c0b69a3424e0be
-UID: DO178-18
-STATUS: Backlog
-TITLE: Support for Derived requirements
-STATEMENT: >>>
-StrictDoc shall provide first-class support for Derived requirements.
-<<<
-COMMENT: >>>
+**MID**: 756503f4934a4aed81dfe090b2538e2a \
+**UID**: DO178-17 \
+**COMPLIANCE**: NC \
+**Status**: Backlog
+
+**Statement**: StrictDoc shall allow multi-user editing of documents.
+
+**Comment**: N: .sdoc file lock?
+
+### Support for Derived requirements
+
+**MID**: 8120b4f6be4e4ecd83c0b69a3424e0be \
+**UID**: DO178-18 \
+**Status**: Backlog
+
+**Statement**: StrictDoc shall provide first-class support for Derived requirements.
+
+**Comment**:
+
 N: I would mention another important feature related to DO178. The requirement
 which have not parent are "derived" and shall be assessed by safety.
 
@@ -454,6 +351,3 @@ Two issues when a parent ref is set to `REQUIRED: True` in grammar:
 I worked around this, using a top .sdoc with grammar parent ref optional.
 Including a specific requirement titled "derived" on which all other .sdoc
 derived reqd will point as parent ref. But this might be improved.
-<<<
-
-[[/SECTION]]

@@ -173,7 +173,7 @@ SVG vers PNG avec resvg-py, pour le repli de l'image dans Word. L'envoi
 ## Navigation, cadre des écrans et page d'un item (branche `feature/refactor-ui`, SRS-208 à 216)
 
 Lot de travaux d'interface (commits de `e45fcba42` à `0c4566ad6`). Les exigences
-sont dans la section « Navigation » de `docs/strictdoc_21_l2_high_level_requirements.sdoc`.
+sont dans la section « Navigation » de `docs/strictdoc_21_l2_high_level_requirements.md`.
 
 | Exigence | Sujet | Où |
 |---|---|---|

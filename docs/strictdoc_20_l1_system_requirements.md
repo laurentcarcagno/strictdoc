@@ -1,78 +1,15 @@
-[DOCUMENT]
-MID: b7bcca934cd148c3855beb4c85723bc5
-TITLE: Requirements Tool Specification (L1)
-VERSION: Git commit: @GIT_VERSION, Git branch: @GIT_BRANCH
-DATE: @GIT_COMMIT_DATETIME
-PREFIX: SDOC-SSS-
-ROOT: True
-OPTIONS:
-  ENABLE_MID: True
-  MARKUP: Markdown
+# Requirements Tool Specification (L1)
 
-[GRAMMAR]
-ELEMENTS:
-- TAG: SECTION
-  PROPERTIES:
-    IS_COMPOSITE: True
-  FIELDS:
-  - TITLE: MID
-    TYPE: String
-    REQUIRED: True
-  - TITLE: UID
-    TYPE: String
-    REQUIRED: False
-  - TITLE: LEVEL
-    TYPE: String
-    REQUIRED: False
-  - TITLE: PREFIX
-    TYPE: String
-    REQUIRED: False
-  - TITLE: TITLE
-    TYPE: String
-    REQUIRED: True
-- TAG: TEXT
-  FIELDS:
-  - TITLE: MID
-    TYPE: String
-    REQUIRED: True
-  - TITLE: UID
-    TYPE: String
-    REQUIRED: False
-  - TITLE: STATEMENT
-    TYPE: String
-    REQUIRED: False
-- TAG: REQUIREMENT
-  PROPERTIES:
-    VIEW_STYLE: Table
-  FIELDS:
-  - TITLE: MID
-    TYPE: String
-    REQUIRED: False
-  - TITLE: UID
-    TYPE: String
-    REQUIRED: False
-  - TITLE: STATUS
-    TYPE: String
-    REQUIRED: False
-  - TITLE: TITLE
-    TYPE: String
-    REQUIRED: False
-  - TITLE: STATEMENT
-    TYPE: String
-    REQUIRED: False
-  - TITLE: RATIONALE
-    TYPE: String
-    REQUIRED: False
-  - TITLE: COMMENT
-    TYPE: String
-    REQUIRED: False
-  RELATIONS:
-  - TYPE: Parent
-  - TYPE: File
+**Grammar**: strictdoc_20_l1_system_requirements.gra.md \
+**Version**: Git commit: @GIT_VERSION, Git branch: @GIT_BRANCH \
+**Date**: @GIT_COMMIT_DATETIME \
+**Prefix**: SDOC-SSS- \
+**Root**: True \
+**Enable MID**: True
 
-[TEXT]
-MID: c455f0297eb648c6aa9c6d239f043e0d
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: c455f0297eb648c6aa9c6d239f043e0d
+
 The StrictDoc project is structured around two distinct requirement documents
 that guide its development:
 
@@ -91,26 +28,26 @@ In contrast, the StrictDoc Requirements Specification, the second document,
 delves deeply into the 'HOW' aspect of StrictDoc’s implementation. It builds
 upon the high-level requirements set out in this document, treating them as
 parent requirements to guide its detailed development approach.
-<<<
 
-[[SECTION]]
-MID: 668d18a7489043b38dd435933319e8e7
-TITLE: Summary of user needs
+## Summary of user needs
 
-[TEXT]
-MID: 7a94c3f55e32498187603400923bfae4
-STATEMENT: >>>
+**Type**: SECTION \
+**MID**: 668d18a7489043b38dd435933319e8e7
+
+**Type**: TEXT \
+**MID**: 7a94c3f55e32498187603400923bfae4
+
 This section offers an overview of the necessary capabilities of a requirements
 and documentation management tool.
-<<<
 
-[[SECTION]]
-MID: 1cbe275272994922a942fd088fa969d8
-TITLE: Free and open source tool
+### Free and open source tool
 
-[TEXT]
-MID: 3ca29d12a7804f089f5b2aa955e4da59
-STATEMENT: >>>
+**Type**: SECTION \
+**MID**: 1cbe275272994922a942fd088fa969d8
+
+**Type**: TEXT \
+**MID**: 3ca29d12a7804f089f5b2aa955e4da59
+
 The primary user need and entry point for this Requirements Tool specification
 is the availability of free, lightweight, yet capable software for creating
 requirements specifications and other technical documentation. The tool should
@@ -122,17 +59,15 @@ It is assumed throughout this document that the requirements tool will be
 developed as open-source software available at no cost. However, with minor
 adjustments, these requirements could also apply to commercial requirements
 tools. See [LINK: SECTION-SSSS-Licensing-and-distribution].
-<<<
 
-[[/SECTION]]
+### Document types
 
-[[SECTION]]
-MID: 18136bcb9a5b4226a7a95d27dae49805
-TITLE: Document types
+**Type**: SECTION \
+**MID**: 18136bcb9a5b4226a7a95d27dae49805
 
-[TEXT]
-MID: 14383453f84747d3abdce6b5dce50c7f
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: 14383453f84747d3abdce6b5dce50c7f
+
 A requirements tool is very often also a documentation writing and management
 tool, so, besides the requirements editing functionality, the tool shall be able
 to accommodate for the variety of documents and templates used in different
@@ -161,16 +96,16 @@ Examples of typical document types include:
 The documentation/requirements management requirements for a Requirements Tool
 are specified in the sections [LINK: SECTION-RTS-Documentation-management] and
 [LINK: SECTION-RTS-Requirements-management].
-<<<
 
-[[SECTION]]
-MID: 973b586b8a89411ab4f083fd4c262cf5
-UID: SECTION-RTC-Appendix-A-Document-archetypes
-TITLE: Document structure differences
+#### Document structure differences
 
-[TEXT]
-MID: 4a847b9a58444e4a9be056db1f23272c
-STATEMENT: >>>
+**Type**: SECTION \
+**MID**: 973b586b8a89411ab4f083fd4c262cf5 \
+**UID**: SECTION-RTC-Appendix-A-Document-archetypes
+
+**Type**: TEXT \
+**MID**: 4a847b9a58444e4a9be056db1f23272c
+
 The table below summarizes various differences observed across industry
 documents.
 
@@ -187,20 +122,16 @@ documents.
 <tr><td>Requirement titles</td><td>Not all documents provide requirement titles. When the requirement titles are missing, the grouping is may be provided by sections/chapters. When the titles are present, the requirement titles can also be section titles.</td></tr>
 </tbody>
 </table>
-<<<
 
-[[/SECTION]]
+### Workflows
 
-[[/SECTION]]
+**Type**: SECTION \
+**MID**: 52b6175f03d7495a9fa8dbffa36aeff4 \
+**UID**: SECTION-LRTS-Workflows
 
-[[SECTION]]
-MID: 52b6175f03d7495a9fa8dbffa36aeff4
-UID: SECTION-LRTS-Workflows
-TITLE: Workflows
+**Type**: TEXT \
+**MID**: c537b8fa5b54417eb9dff6478553f6d7
 
-[TEXT]
-MID: c537b8fa5b54417eb9dff6478553f6d7
-STATEMENT: >>>
 Besides supporting a variety of document types, a Requirements Tool shall also
 support and integrate well with multiple documentation and requirements
 management workflows.
@@ -227,17 +158,15 @@ At least the following workflows have been identified to be relevant:
 
 The section [LINK: SECTION-SSSS-Existing-workflows] contains the
 workflow-related requirements for a Requirements Tool.
-<<<
 
-[[/SECTION]]
+### Target audience
 
-[[SECTION]]
-MID: 08d547a3b04d485ca1f5a3a94a664ee1
-TITLE: Target audience
+**Type**: SECTION \
+**MID**: 08d547a3b04d485ca1f5a3a94a664ee1
 
-[TEXT]
-MID: 847eaab505124e7797bd25c865f9d868
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: 847eaab505124e7797bd25c865f9d868
+
 A Requirements Tool may have different users, each with a different role,
 experience and background which necessitates the requirements towards usability,
 installation, and user experience.
@@ -292,20 +221,16 @@ The requirement sets in the sections
 [LINK: SECTION-SSSS-Implementation-suggestions] aim to equip the Requirements
 Tool with sufficient capabilities to support all of the user groups described
 above.
-<<<
 
-[[/SECTION]]
+## Documentation management
 
-[[/SECTION]]
+**Type**: SECTION \
+**MID**: f1ffdc7f78134d4b98f3c90e9be40cc7 \
+**UID**: SECTION-RTS-Documentation-management
 
-[[SECTION]]
-MID: f1ffdc7f78134d4b98f3c90e9be40cc7
-UID: SECTION-RTS-Documentation-management
-TITLE: Documentation management
+**Type**: TEXT \
+**MID**: 0cacb010f5164118adce5dd8512c3e27
 
-[TEXT]
-MID: 0cacb010f5164118adce5dd8512c3e27
-STATEMENT: >>>
 This section outlines the requirements towards a Requirements Tool as a
 documentation tool.
 
@@ -315,92 +240,92 @@ management:
 - Writing, structuring and managing documents
 - Complementing documents with meta information
 - Versioning documents.
-<<<
 
-[REQUIREMENT]
-MID: 72d0dd23dedd4907b4a8924debe7343b
-UID: SDOC-SSS-3
-STATUS: Active
-TITLE: Documents (CRUD)
-STATEMENT: >>>
+### Documents (CRUD)
+
+**MID**: 72d0dd23dedd4907b4a8924debe7343b \
+**UID**: SDOC-SSS-3 \
+**Status**: Active
+
+**Statement**:
+
 The Requirements Tool shall provide the CRUD operations for document management:
 
 - Create document
 - Read document
 - Update document
 - Delete document.
-<<<
-RATIONALE: >>>
-The CRUD operations are essential operations of document management. They are at
+
+**Rationale**: The CRUD operations are essential operations of document management. They are at
 the core of a documentation management tool.
-<<<
 
-[REQUIREMENT]
-MID: 9841bc9a56d740dd9e7988e52339618c
-UID: SDOC-SSS-91
-STATUS: Active
-TITLE: Browsing documentation tree
-STATEMENT: >>>
-The Requirements Tool shall provide browsing of the documentation tree.
-<<<
+### Browsing documentation tree
 
-[REQUIREMENT]
-MID: c4de5f1f46f343b6b4e8dc2a6121b0a2
-UID: SDOC-SSS-51
-STATUS: Active
-TITLE: Documents with nested sections/chapters structure
-STATEMENT: >>>
-The Requirements Tool shall allow management of documents with nested
+**MID**: 9841bc9a56d740dd9e7988e52339618c \
+**UID**: SDOC-SSS-91 \
+**Status**: Active
+
+**Statement**: The Requirements Tool shall provide browsing of the documentation tree.
+
+### Documents with nested sections/chapters structure
+
+**MID**: c4de5f1f46f343b6b4e8dc2a6121b0a2 \
+**UID**: SDOC-SSS-51 \
+**Status**: Active
+
+**Statement**: The Requirements Tool shall allow management of documents with nested
 sections/chapters structure.
-<<<
 
-[REQUIREMENT]
-MID: 5236f36f278140539e347bacea921118
-UID: SDOC-SSS-52
-STATUS: Active
-TITLE: Assembling documents from fragments
-STATEMENT: >>>
+### Assembling documents from fragments
+
+**MID**: 5236f36f278140539e347bacea921118 \
+**UID**: SDOC-SSS-52 \
+**Status**: Active
+**Relations**:
+- **Type**: `Parent` \
+  **ID**: `ZEP-1`
+
+**Statement**:
+
 The Requirements Tool shall allow composing documents from other documents or
 fragments.
 
 NOTE: If a Requirements Tool implements stores documents in a file system, the
 composition can be arranged at a file level when a parent document file includes
 the child fragment files and produces a composite document.
-<<<
-RATIONALE: >>>
-Composable documents allow assembling documents from multiple smaller documents
+
+**Rationale**: Composable documents allow assembling documents from multiple smaller documents
 which can be standalone documents or document fragments. This feature is
 particularly useful for managing extensive documents that can be more
 effectively organized and handled when divided into smaller document sections.
-<<<
-RELATIONS:
-- TYPE: Parent
-  VALUE: ZEP-1
 
-[REQUIREMENT]
-MID: 8aeecdfa139341588d6ab8c0c3606a9b
-UID: SDOC-SSS-53
-STATUS: Active
-TITLE: Document meta information (UID, version, authors, signatures, etc)
-STATEMENT: >>>
-The Requirements Tool shall support management of document meta information.
-<<<
+### Document meta information (UID, version, authors, signatures, etc)
 
-[REQUIREMENT]
-MID: d1883b65e17442c0a22987d4ad415cb6
-UID: SDOC-SSS-75
-STATUS: Active
-TITLE: Document versioning
-STATEMENT: >>>
-The Requirements Tool shall provide capabilities for document versioning.
-<<<
+**MID**: 8aeecdfa139341588d6ab8c0c3606a9b \
+**UID**: SDOC-SSS-53 \
+**Status**: Active
 
-[REQUIREMENT]
-MID: b8d7b22fd8a6478a9a21ecaa60cf0028
-UID: SDOC-SSS-63
-STATUS: Active
-TITLE: Text formatting capabilities
-STATEMENT: >>>
+**Statement**: The Requirements Tool shall support management of document meta information.
+
+### Document versioning
+
+**MID**: d1883b65e17442c0a22987d4ad415cb6 \
+**UID**: SDOC-SSS-75 \
+**Status**: Active
+
+**Statement**: The Requirements Tool shall provide capabilities for document versioning.
+
+### Text formatting capabilities
+
+**MID**: b8d7b22fd8a6478a9a21ecaa60cf0028 \
+**UID**: SDOC-SSS-63 \
+**Status**: Active
+**Relations**:
+- **Type**: `Parent` \
+  **ID**: `ZEP-9`
+
+**Statement**:
+
 The Requirements Tool shall provide "rich text" formatting capabilities which
 includes but not limited to:
 
@@ -409,36 +334,29 @@ includes but not limited to:
 - Tables
 - UML diagrams
 - etc.
-<<<
-RELATIONS:
-- TYPE: Parent
-  VALUE: ZEP-9
 
-[REQUIREMENT]
-MID: 3bb5252d75bc486b98e7606fb642bac0
-UID: SDOC-SSS-95
-STATUS: Active
-TITLE: Content search
-STATEMENT: >>>
-The Requirements Tool shall provide functionality to search content in the
+### Content search
+
+**MID**: 3bb5252d75bc486b98e7606fb642bac0 \
+**UID**: SDOC-SSS-95 \
+**Status**: Active
+
+**Statement**: The Requirements Tool shall provide functionality to search content in the
 documentation tree.
-<<<
-RATIONALE: >>>
-Efficient navigation of large documentation trees requires search capabilities
+
+**Rationale**: Efficient navigation of large documentation trees requires search capabilities
 so that users can quickly locate relevant information without manually browsing
 through all content.
-<<<
 
-[[/SECTION]]
+## Requirements management
 
-[[SECTION]]
-MID: fd227b9cfdc54d7db3134cdb925bde87
-UID: SECTION-RTS-Requirements-management
-TITLE: Requirements management
+**Type**: SECTION \
+**MID**: fd227b9cfdc54d7db3134cdb925bde87 \
+**UID**: SECTION-RTS-Requirements-management
 
-[TEXT]
-MID: c1e2431cdf2141ca86931f29b9912ff7
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: c1e2431cdf2141ca86931f29b9912ff7
+
 This section outlines the requirements towards a Requirements Tool as a
 requirements management tool.
 
@@ -448,31 +366,37 @@ The following core aspects of the requirements management are covered:
 - Linking requirements with other requirements
 - Managing requirement unique identifiers (UID)
 - Requirement verification.
-<<<
 
-[REQUIREMENT]
-MID: 6e6f1464c47f4ced8e14c4153f40618b
-UID: SDOC-SSS-4
-STATUS: Active
-TITLE: Requirements CRUD
-STATEMENT: >>>
+### Requirements CRUD
+
+**MID**: 6e6f1464c47f4ced8e14c4153f40618b \
+**UID**: SDOC-SSS-4 \
+**Status**: Active
+
+**Statement**:
+
 The Requirements Tool shall enable the main requirements management operations:
 
 - Create a requirement
 - Read / view / browse a requirement
 - Update / edit a requirement
 - Delete a requirement.
-<<<
-RATIONALE: >>>
-The CRUD operations are at the core of the requirements management.
-<<<
 
-[REQUIREMENT]
-MID: db42ad4b504e48e0bf51b4d82529a888
-UID: SDOC-SSS-61
-STATUS: Active
-TITLE: Minimal requirement field set
-STATEMENT: >>>
+**Rationale**: The CRUD operations are at the core of the requirements management.
+
+### Minimal requirement field set
+
+**MID**: db42ad4b504e48e0bf51b4d82529a888 \
+**UID**: SDOC-SSS-61 \
+**Status**: Active
+**Relations**:
+- **Type**: `Parent` \
+  **ID**: `ZEP-10`
+- **Type**: `Parent` \
+  **ID**: `ZEP-14`
+
+**Statement**:
+
 The Requirements Tool shall support at least the following requirement field
 set:
 
@@ -483,153 +407,137 @@ set:
 - RATIONALE
 - COMMENT
 - RELATIONS (connections with other requirements).
-<<<
-RATIONALE: >>>
-The selection of the minimal set is based on what is common in the industries
-(e.g., automotive, space, etc).
-<<<
-COMMENT: >>>
-The other fields common to each industry can be customized with custom fields
-handled by other requirements.
-<<<
-RELATIONS:
-- TYPE: Parent
-  VALUE: ZEP-10
-- TYPE: Parent
-  VALUE: ZEP-14
 
-[REQUIREMENT]
-MID: a69bae43b3224dfc8439a88451a98395
-UID: SDOC-SSS-62
-STATUS: Active
-TITLE: Custom fields
-STATEMENT: >>>
+**Rationale**: The selection of the minimal set is based on what is common in the industries
+(e.g., automotive, space, etc).
+
+**Comment**: The other fields common to each industry can be customized with custom fields
+handled by other requirements.
+
+### Custom fields
+
+**MID**: a69bae43b3224dfc8439a88451a98395 \
+**UID**: SDOC-SSS-62 \
+**Status**: Active
+**Relations**:
+- **Type**: `Parent` \
+  **ID**: `ZEP-3`
+
+**Statement**:
+
 The requirements tool shall support configuring a requirement item with an
 arbitrary set of fields.
 
 NOTE: Examples of typical fields include: UID, Title, Statement, Rationale,
 Comment. Other fields that are used very often are: Status, Tags, Criticality
 level, Priority, etc.
-<<<
-RATIONALE: >>>
-The tool shall not constrain a user in which fields they are able to use for
+
+**Rationale**: The tool shall not constrain a user in which fields they are able to use for
 their projects.
-<<<
-RELATIONS:
-- TYPE: Parent
-  VALUE: ZEP-3
 
-[REQUIREMENT]
-MID: 5f89bdaa6cb74e2a8b9b030b6237b7ef
-UID: SDOC-SSS-64
-STATUS: Active
-TITLE: Structuring requirements in documents
-STATEMENT: >>>
-The Requirements Tool shall support structuring requirements in documents.
-<<<
-RATIONALE: >>>
-The industry works with requirements documents. The documents have
+### Structuring requirements in documents
+
+**MID**: 5f89bdaa6cb74e2a8b9b030b6237b7ef \
+**UID**: SDOC-SSS-64 \
+**Status**: Active
+**Relations**:
+- **Type**: `Parent` \
+  **ID**: `ZEP-13`
+
+**Statement**: The Requirements Tool shall support structuring requirements in documents.
+
+**Rationale**: The industry works with requirements documents. The documents have
 sections/chapters and requirements.
-<<<
-RELATIONS:
-- TYPE: Parent
-  VALUE: ZEP-13
 
-[REQUIREMENT]
-MID: 65575cc8a87e4d4480ccdf89d1fb6d67
-UID: SDOC-SSS-5
-STATUS: Active
-TITLE: Move requirement nodes within document
-STATEMENT: >>>
-The Requirements Tool shall allow moving nodes (sections, requirements) within
+### Move requirement nodes within document
+
+**MID**: 65575cc8a87e4d4480ccdf89d1fb6d67 \
+**UID**: SDOC-SSS-5 \
+**Status**: Active
+
+**Statement**: The Requirements Tool shall allow moving nodes (sections, requirements) within
 the containing document.
-<<<
 
-[REQUIREMENT]
-MID: 06ab121d3c0f4d8c94652323b8f735c6
-UID: SDOC-SSS-70
-STATUS: Active
-TITLE: Move nodes between documents
-STATEMENT: >>>
-The Requirements Tool shall allow moving nodes (sections, requirements) between
+### Move nodes between documents
+
+**MID**: 06ab121d3c0f4d8c94652323b8f735c6 \
+**UID**: SDOC-SSS-70 \
+**Status**: Active
+
+**Statement**: The Requirements Tool shall allow moving nodes (sections, requirements) between
 documents.
-<<<
 
-[REQUIREMENT]
-MID: 637c129a91804d8cbe2280c1af14836d
-UID: SDOC-SSS-6
-STATUS: Active
-TITLE: Auto-provision of Requirement UIDs
-STATEMENT: >>>
-The Requirements Tool shall provide controls for automatic generation of
+### Auto-provision of Requirement UIDs
+
+**MID**: 637c129a91804d8cbe2280c1af14836d \
+**UID**: SDOC-SSS-6 \
+**Status**: Active
+**Relations**:
+- **Type**: `Parent` \
+  **ID**: `ZEP-8`
+
+**Statement**: The Requirements Tool shall provide controls for automatic generation of
 requirements UIDs.
-<<<
-RATIONALE: >>>
-When a document is large, it becomes harder to manage the assignment of the new
+
+**Rationale**: When a document is large, it becomes harder to manage the assignment of the new
 requirements identifiers by manually exploring which requirement UID has not
 been assigned yet. The provision of automatically generated UIDs is a
 convenience feature that improves the user experience significantly.
-<<<
-RELATIONS:
-- TYPE: Parent
-  VALUE: ZEP-8
 
-[REQUIREMENT]
-MID: 1ce495a5194044d4a7a3dd030f766c9f
-UID: SDOC-SSS-7
-STATUS: Active
-TITLE: Link requirements together
-STATEMENT: >>>
-The Requirements Tool shall allow bi-directional linking of requirements nodes
+### Link requirements together
+
+**MID**: 1ce495a5194044d4a7a3dd030f766c9f \
+**UID**: SDOC-SSS-7 \
+**Status**: Active
+**Relations**:
+- **Type**: `Parent` \
+  **ID**: `ZEP-4`
+
+**Statement**: The Requirements Tool shall allow bi-directional linking of requirements nodes
 together using Parent or Child relations.
-<<<
-RATIONALE: >>>
-The requirement ensures a classic capability of a requirement tool: linking
+
+**Rationale**: The requirement ensures a classic capability of a requirement tool: linking
 requirements together enables bi-directional traceability which helps in
 understanding how the requirements are related to each other.
-<<<
-RELATIONS:
-- TYPE: Parent
-  VALUE: ZEP-4
 
-[REQUIREMENT]
-MID: 44b9d75e50c84d6c8424cfb8a42a0771
-UID: SDOC-SSS-8
-STATUS: Active
-TITLE: Multiple link roles
-STATEMENT: >>>
+### Multiple link roles
+
+**MID**: 44b9d75e50c84d6c8424cfb8a42a0771 \
+**UID**: SDOC-SSS-8 \
+**Status**: Active
+**Relations**:
+- **Type**: `Parent` \
+  **ID**: `ZEP-5`
+
+**Statement**:
+
 The Requirements Tool shall support the link roles.
 
 Example of roles for a child-to-parent link: "verifies", "implements",
 "satisfies", etc.
-<<<
-RATIONALE: >>>
-Different industries maintain custom conventions for naming the relations
+
+**Rationale**: Different industries maintain custom conventions for naming the relations
 between requirements and other nodes such as tests or other artefacts.
-<<<
-RELATIONS:
-- TYPE: Parent
-  VALUE: ZEP-5
 
-[REQUIREMENT]
-MID: 387bd5ff0e4a4a97962661e9d7451f19
-UID: SDOC-SSS-71
-STATUS: Active
-TITLE: Reverse parent links
-STATEMENT: >>>
-The Requirements Tool shall support the Reverse Parent relationship.
-<<<
+### Reverse parent links
 
-[REQUIREMENT]
-MID: 3348caaed8d44be0928cc6f3c7414094
-UID: SDOC-SSS-89
-STATUS: Active
-TITLE: Unique identification of requirements
-STATEMENT: >>>
-The Requirements Tool shall provide means for unique identification of every
+**MID**: 387bd5ff0e4a4a97962661e9d7451f19 \
+**UID**: SDOC-SSS-71 \
+**Status**: Active
+
+**Statement**: The Requirements Tool shall support the Reverse Parent relationship.
+
+### Unique identification of requirements
+
+**MID**: 3348caaed8d44be0928cc6f3c7414094 \
+**UID**: SDOC-SSS-89 \
+**Status**: Active
+
+**Statement**: The Requirements Tool shall provide means for unique identification of every
 requirement.
-<<<
-RATIONALE: >>>
+
+**Rationale**:
+
 The requirement ensures a classic capability of a requirement tool:
 
 1) The unique identifiers help the users in identifying the requirements, both
@@ -637,14 +545,15 @@ The requirement ensures a classic capability of a requirement tool:
 2) The unique identifiers are used for linking requirements together. The
    requirements tool stores the identifiers in a global database and can resolve
    the links, following the unique identifiers they point to.
-<<<
 
-[REQUIREMENT]
-MID: 3850f0b8c8294455bf7be9e2acddbd40
-UID: SDOC-SSS-47
-STATUS: Active
-TITLE: Requirements database consistency checks
-STATEMENT: >>>
+### Requirements database consistency checks
+
+**MID**: 3850f0b8c8294455bf7be9e2acddbd40 \
+**UID**: SDOC-SSS-47 \
+**Status**: Active
+
+**Statement**:
+
 The Requirements Tool shall provide a validation mechanism that ensures the
 integrity of requirements and connections between them.
 
@@ -654,110 +563,104 @@ NOTE: Examples of integrity checks:
 - Requirements do not form cycles.
 - Requirements only link to other requirements as specified in a project
   configuration.
-<<<
 
-[REQUIREMENT]
-MID: 1216cb617c0f495a9c96471ef72bf80f
-UID: SDOC-SSS-57
-STATUS: Active
-TITLE: Requirement syntax validation (e.g. EARS)
-STATEMENT: >>>
-The Requirements Tool shall provide capabilities for validating requirements
+### Requirement syntax validation (e.g. EARS)
+
+**MID**: 1216cb617c0f495a9c96471ef72bf80f \
+**UID**: SDOC-SSS-57 \
+**Status**: Active
+
+**Statement**: The Requirements Tool shall provide capabilities for validating requirements
 according to the EARS syntax.
-<<<
 
-[[/SECTION]]
+## Existing workflows
 
-[[SECTION]]
-MID: ec52fa5cc1714b07863eb7da9432be1d
-UID: SECTION-SSSS-Existing-workflows
-TITLE: Existing workflows
+**Type**: SECTION \
+**MID**: ec52fa5cc1714b07863eb7da9432be1d \
+**UID**: SECTION-SSSS-Existing-workflows
 
-[TEXT]
-MID: 33769a5f0ca94b99a4802adc81841037
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: 33769a5f0ca94b99a4802adc81841037
+
 This section captures the requirements towards specific workflows that a
 Requirements Tool should support as outlined in [LINK: SECTION-LRTS-Workflows].
-<<<
 
-[REQUIREMENT]
-MID: 831debedfa0e4e4c8434021569f96bad
-UID: SDOC-SSS-73
-STATUS: Active
-TITLE: Excel-like viewing and editing of requirements
-STATEMENT: >>>
+### Excel-like viewing and editing of requirements
+
+**MID**: 831debedfa0e4e4c8434021569f96bad \
+**UID**: SDOC-SSS-73 \
+**Status**: Active
+
+**Statement**:
+
 The Requirements Tool shall provide an Excel-like user interface for viewing and
 editing requirements.
 
 NOTE: This interface does not have to be the only or a default interface.
-<<<
-RATIONALE: >>>
-As recognized by the parent requirement, some requirements-based workflows are
+
+**Rationale**: As recognized by the parent requirement, some requirements-based workflows are
 naturally easier when the requirements content is presented in a form of a
 table, as opposed to a document with a nested chapter structure.
-<<<
 
-[REQUIREMENT]
-MID: 5d412989005e4bc3b5dcfd94675615dc
-UID: SDOC-SSS-56
-STATUS: Active
-TITLE: 1000-feet view
-STATEMENT: >>>
-The Requirements Tool shall provide a "1000-feet view" kind of requirements
+### 1000-feet view
+
+**MID**: 5d412989005e4bc3b5dcfd94675615dc \
+**UID**: SDOC-SSS-56 \
+**Status**: Active
+
+**Statement**: The Requirements Tool shall provide a "1000-feet view" kind of requirements
 visualization.
-<<<
-RATIONALE: >>>
-Compared to the other visualizations, such a visualization helps to "see the
+
+**Rationale**: Compared to the other visualizations, such a visualization helps to "see the
 forest for the trees". Seeing requirements and their sections all at once helps
 to visualize groups of requirements and better understand the relationships
 between them.
-<<<
 
-[REQUIREMENT]
-MID: 5eb553abd3944bffbd003e37b3d1c5a5
-UID: SDOC-SSS-28
-STATUS: Active
-TITLE: Traceability matrices
-STATEMENT: >>>
-The Requirements Tool shall support generation of traceability matrices.
-<<<
+### Traceability matrices
 
-[REQUIREMENT]
-MID: 06f0bb40f76142f4ba59d037aaedc9de
-UID: SDOC-SSS-48
-STATUS: Active
-TITLE: Compliance matrices
-STATEMENT: >>>
-The Requirements Tool shall allow generating a Compliance Matrix document.
-<<<
+**MID**: 5eb553abd3944bffbd003e37b3d1c5a5 \
+**UID**: SDOC-SSS-28 \
+**Status**: Active
 
-[REQUIREMENT]
-MID: 74ffae6279bc4e4095c03d6a247c3599
-UID: SDOC-SSS-29
-STATUS: Active
-TITLE: Requirements coverage
-STATEMENT: >>>
+**Statement**: The Requirements Tool shall support generation of traceability matrices.
+
+### Compliance matrices
+
+**MID**: 06f0bb40f76142f4ba59d037aaedc9de \
+**UID**: SDOC-SSS-48 \
+**Status**: Active
+
+**Statement**: The Requirements Tool shall allow generating a Compliance Matrix document.
+
+### Requirements coverage
+
+**MID**: 74ffae6279bc4e4095c03d6a247c3599 \
+**UID**: SDOC-SSS-29 \
+**Status**: Active
+
+**Statement**:
+
 The Requirements Tool shall provide means for getting information about the
 requirements coverage of a given project.
 
 NOTE: The requirements coverage can be presented in a tabular form or visualized
 with a set of graphs.
-<<<
-RATIONALE: >>>
-The requirements coverage information helps to assess whether all requirements
+
+**Rationale**: The requirements coverage information helps to assess whether all requirements
 are linked to each other, whether all requirements are connected to
 implementation, test or other artifacts. Additionally, the requirements coverage
 information can provide metrics for measuring a project's progress, e.g., "50%
 of requirements have been traced to the source code". The requirement ensures
 that the requirements tool provides this feature.
-<<<
 
-[REQUIREMENT]
-MID: e0e6d1f883764719919238e4974dccef
-UID: SDOC-SSS-49
-STATUS: Active
-TITLE: Progress report
-STATEMENT: >>>
+### Progress report
+
+**MID**: e0e6d1f883764719919238e4974dccef \
+**UID**: SDOC-SSS-49 \
+**Status**: Active
+
+**Statement**:
+
 The Requirements Tool shall allow generating a Progress Report document.
 
 NOTE: A progress report document shall include at least the following Key
@@ -772,34 +675,40 @@ Project-level KPIs:
 - Tags breakdown
 
 Document-level KPIs: the same but per document.
-<<<
 
-[REQUIREMENT]
-MID: ed4bd232bed84eda977263fa03e75b80
-UID: SDOC-SSS-74
-STATUS: Active
-TITLE: Change management
-STATEMENT: >>>
+### Change management
+
+**MID**: ed4bd232bed84eda977263fa03e75b80 \
+**UID**: SDOC-SSS-74 \
+**Status**: Active
+
+**Statement**:
+
 The Requirements Tool shall provide capabilities for change management:
 
 - Visualizing changes between project tree versions.
 - Visualizing changes between document versions.
 - Visualizing the impact that a changed requirement has on a project tree.
-<<<
 
-[[/SECTION]]
+## Requirements and source code
 
-[[SECTION]]
-MID: 8b1da9907bc847c989dc807b7dff2a05
-UID: SECTION-RTS-Requirements-and-source-code
-TITLE: Requirements and source code
+**Type**: SECTION \
+**MID**: 8b1da9907bc847c989dc807b7dff2a05 \
+**UID**: SECTION-RTS-Requirements-and-source-code
 
-[REQUIREMENT]
-MID: 4692362c77974fb8bcbeefdc248d0e89
-UID: SDOC-SSS-72
-STATUS: Active
-TITLE: Traceability between requirements and source code
-STATEMENT: >>>
+### Traceability between requirements and source code
+
+**MID**: 4692362c77974fb8bcbeefdc248d0e89 \
+**UID**: SDOC-SSS-72 \
+**Status**: Active
+**Relations**:
+- **Type**: `Parent` \
+  **ID**: `ZEP-11`
+- **Type**: `Parent` \
+  **ID**: `ZEP-12`
+
+**Statement**:
+
 The Requirements Tool shall support bi-directional tracing between requirements
 content and implementation source code with only minimal changes needed in the
 source code.
@@ -807,30 +716,22 @@ source code.
 NOTE: The Requirements Tool does not necessarily have to implement the complete
 tracing process. It may delegate parts of the traceability task to other tools,
 e.g., Doxygen, Lobster, etc.
-<<<
-RATIONALE: >>>
-This requirement connects the worlds of requirements and source code which
+
+**Rationale**: This requirement connects the worlds of requirements and source code which
 ensures that the traceability between requirements-implementation and
 requirements-tests can be achieved in an explicit way. Without a direct support
 of tracing requirements to source code by a requirements tool, the users have to
 find workarounds that are less efficient.
-<<<
-RELATIONS:
-- TYPE: Parent
-  VALUE: ZEP-11
-- TYPE: Parent
-  VALUE: ZEP-12
 
-[[/SECTION]]
+## Requirements exchange formats (export/import)
 
-[[SECTION]]
-MID: cd9e353e07ae4d50b1aa08999854aa02
-UID: SECTION-RTS-Requirements-exchange-formats-export-import
-TITLE: Requirements exchange formats (export/import)
+**Type**: SECTION \
+**MID**: cd9e353e07ae4d50b1aa08999854aa02 \
+**UID**: SECTION-RTS-Requirements-exchange-formats-export-import
 
-[TEXT]
-MID: ecc76e0991e44d6282776365496193e6
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: ecc76e0991e44d6282776365496193e6
+
 This section captures the requirements related to "Requirements exchange" as
 outlined in the section [LINK: SECTION-LRTS-Workflows].
 
@@ -839,73 +740,67 @@ and requirements with other tools. Importing data into this tool and exporting
 data from it to other tools should be straightforward. The key focus of this
 section's requirements is on enabling seamless access to requirements and
 documentation data.
-<<<
 
-[REQUIREMENT]
-MID: 086eb992322d4c43ad91a40f6c9f9952
-UID: SDOC-SSS-96
-STATUS: Active
-TITLE: PDF export
-STATEMENT: >>>
-The Requirements Tool shall support exporting documentation content to PDF, both
+### PDF export
+
+**MID**: 086eb992322d4c43ad91a40f6c9f9952 \
+**UID**: SDOC-SSS-96 \
+**Status**: Active
+
+**Statement**: The Requirements Tool shall support exporting documentation content to PDF, both
 individual documents and complete documentation trees.
-<<<
-RATIONALE: >>>
-PDF is one of the most common formats for reviewing documentation.
-<<<
 
-[REQUIREMENT]
-MID: 73e70548c2cf415f94adbf1066d5fe4b
-UID: SDOC-SSS-58
-STATUS: Active
-TITLE: ReqIF export/import
-STATEMENT: >>>
-The Requirements Tool shall support exporting/importing requirements content
+**Rationale**: PDF is one of the most common formats for reviewing documentation.
+
+### ReqIF export/import
+
+**MID**: 73e70548c2cf415f94adbf1066d5fe4b \
+**UID**: SDOC-SSS-58 \
+**Status**: Active
+**Relations**:
+- **Type**: `Parent` \
+  **ID**: `ZEP-6`
+
+**Statement**: The Requirements Tool shall support exporting/importing requirements content
 from/to ReqIF format.
-<<<
-RATIONALE: >>>
-ReqIF is a standard for exchanging requirements. There is currently no other
+
+**Rationale**: ReqIF is a standard for exchanging requirements. There is currently no other
 standard of a higher maturity.
-<<<
-RELATIONS:
-- TYPE: Parent
-  VALUE: ZEP-6
 
-[REQUIREMENT]
-MID: c94de32c2c2e454d81c77724a4f29283
-UID: SDOC-SSS-59
-STATUS: Active
-TITLE: CSV export/import
-STATEMENT: >>>
-The Requirements Tool shall support exporting/importing requirements content
+### CSV export/import
+
+**MID**: c94de32c2c2e454d81c77724a4f29283 \
+**UID**: SDOC-SSS-59 \
+**Status**: Active
+**Relations**:
+- **Type**: `Parent` \
+  **ID**: `ZEP-7`
+
+**Statement**: The Requirements Tool shall support exporting/importing requirements content
 from/to CSV.
-<<<
-RELATIONS:
-- TYPE: Parent
-  VALUE: ZEP-7
 
-[REQUIREMENT]
-MID: f7a600a238e34075ac6b65852492cc2f
-UID: SDOC-SSS-60
-STATUS: Active
-TITLE: Excel export/import
-STATEMENT: >>>
-The Requirements Tool shall support exporting/importing requirements content
+### Excel export/import
+
+**MID**: f7a600a238e34075ac6b65852492cc2f \
+**UID**: SDOC-SSS-60 \
+**Status**: Active
+
+**Statement**: The Requirements Tool shall support exporting/importing requirements content
 from/to Excel.
-<<<
 
-[[/SECTION]]
+## Tool configurability
 
-[[SECTION]]
-MID: 7c112f3a5885477084396fd26387a864
-TITLE: Tool configurability
+**Type**: SECTION \
+**MID**: 7c112f3a5885477084396fd26387a864
 
-[REQUIREMENT]
-MID: 4550038552894ef69b85b281cff60c60
-UID: SDOC-SSS-92
-STATUS: Active
-TITLE: Project-level configuration
-STATEMENT: >>>
+### Project-level configuration
+
+**MID**: 4550038552894ef69b85b281cff60c60 \
+**UID**: SDOC-SSS-92 \
+**Status**: Active
+
+**Statement**:
+
 The Requirements Tool shall provide a solution for configuring the project-level
 options.
 
@@ -913,17 +808,17 @@ NOTE: Examples of project-level options:
 
 - Project title.
 - Global settings for the Requirements Tool itself.
-<<<
-RATIONALE: >>>
-The requirement ensures the configurability of the tool for a specific project.
-<<<
 
-[REQUIREMENT]
-MID: 4550b38552894ef69b85b281cff60360
-UID: SDOC-SSS-93
-STATUS: Active
-TITLE: Document-level configuration
-STATEMENT: >>>
+**Rationale**: The requirement ensures the configurability of the tool for a specific project.
+
+### Document-level configuration
+
+**MID**: 4550b38552894ef69b85b281cff60360 \
+**UID**: SDOC-SSS-93 \
+**Status**: Active
+
+**Statement**:
+
 The Requirements Tool shall provide a solution for configuring the
 document-level options.
 
@@ -932,83 +827,74 @@ NOTE: Examples of document-level options:
 - Document title
 - Requirement prefix.
 - Other options local to the content and the presentation of a given document.
-<<<
-RATIONALE: >>>
-Sometimes, the project-level configuration can be not fine-grained enough. The
+
+**Rationale**: Sometimes, the project-level configuration can be not fine-grained enough. The
 requirement ensures that the requirements tool allows a configuration on a
 document level.
-<<<
 
-[[/SECTION]]
+## Performance
 
-[[SECTION]]
-MID: 56dabce670be4691b35434bda6d6bb36
-UID: SECTION-SSSS-Performance
-TITLE: Performance
+**Type**: SECTION \
+**MID**: 56dabce670be4691b35434bda6d6bb36 \
+**UID**: SECTION-SSSS-Performance
 
-[TEXT]
-MID: 68e4b4b1ba78485f8620575ef9e1eaa2
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: 68e4b4b1ba78485f8620575ef9e1eaa2
+
 This section captures the performance requirements towards a Requirements Tool.
-<<<
 
-[REQUIREMENT]
-MID: a0a95079e3c0438bb3ea9e5af7ddddc9
-UID: SDOC-SSS-13
-STATUS: Active
-TITLE: Support large requirements sets
-STATEMENT: >>>
-The Requirements Tool shall support requirement trees with at least 10000
+### Support large requirements sets
+
+**MID**: a0a95079e3c0438bb3ea9e5af7ddddc9 \
+**UID**: SDOC-SSS-13 \
+**Status**: Active
+
+**Statement**: The Requirements Tool shall support requirement trees with at least 10000
 requirements.
-<<<
 
-[REQUIREMENT]
-MID: 64b982c9299a4c8eb7031495e940a3f8
-UID: SDOC-SSS-14
-STATUS: Active
-TITLE: Support large project trees
-STATEMENT: >>>
-The Requirements Tool shall be able to handle documentation packages of at least
+### Support large project trees
+
+**MID**: 64b982c9299a4c8eb7031495e940a3f8 \
+**UID**: SDOC-SSS-14 \
+**Status**: Active
+
+**Statement**: The Requirements Tool shall be able to handle documentation packages of at least
 100 documents without significant performance degradation.
-<<<
 
-[[/SECTION]]
+## Data integrity
 
-[[SECTION]]
-MID: d1a483f3e321414b83bb4a39b1283293
-TITLE: Data integrity
+**Type**: SECTION \
+**MID**: d1a483f3e321414b83bb4a39b1283293
 
-[REQUIREMENT]
-MID: d1323d222a0040b2b6122c59b3c00f06
-UID: SDOC-SSS-94
-STATUS: Active
-TITLE: Data integrity of documentation/requirements
-STATEMENT: >>>
-The Requirements Tool shall ensure the integrity of stored documentation and
+### Data integrity of documentation/requirements
+
+**MID**: d1323d222a0040b2b6122c59b3c00f06 \
+**UID**: SDOC-SSS-94 \
+**Status**: Active
+
+**Statement**: The Requirements Tool shall ensure the integrity of stored documentation and
 requirements data throughout its lifecycle.
-<<<
-RATIONALE: >>>
-The requirement ensures that the tool and the tool's development includes
+
+**Rationale**: The requirement ensures that the tool and the tool's development includes
 measures for reducing the risk of any data corruption.
-<<<
-COMMENT: >>>
-This includes safeguarding against data corruption, loss, and ensuring the
+
+**Comment**: This includes safeguarding against data corruption, loss, and ensuring the
 reliability of links within the documentation.
-<<<
 
-[[/SECTION]]
+## Usability, installation and usage
 
-[[SECTION]]
-MID: 85d2f75b2f074f98ace5ceb5288c09b9
-UID: SECTION-RTC-Usability-installation-and-usage
-TITLE: Usability, installation and usage
+**Type**: SECTION \
+**MID**: 85d2f75b2f074f98ace5ceb5288c09b9 \
+**UID**: SECTION-RTC-Usability-installation-and-usage
 
-[REQUIREMENT]
-MID: 7e33387f373d427d9e1af522f1e5bbc5
-UID: SDOC-SSS-79
-STATUS: Active
-TITLE: General usability
-STATEMENT: >>>
+### General usability
+
+**MID**: 7e33387f373d427d9e1af522f1e5bbc5 \
+**UID**: SDOC-SSS-79 \
+**Status**: Active
+
+**Statement**:
+
 The Requirements Tool shall be accessible to a broad spectrum of users.
 
 NOTE: Factors to consider:
@@ -1018,111 +904,104 @@ NOTE: Factors to consider:
 - The availability of a graphical user interface.
 - The availability of a programmatic access to the functions of a tool.
 - The interoperability of the tool with other tools.
-<<<
-RATIONALE: >>>
-A tool that can be used by a large number of people simplifies its adoption and
+
+**Rationale**: A tool that can be used by a large number of people simplifies its adoption and
 allows more users to work with documentation and requirements.
-<<<
 
-[REQUIREMENT]
-MID: 5461fce7174a4bc79048b3528b699beb
-UID: SDOC-SSS-97
-STATUS: Active
-TITLE: Tool identification
-STATEMENT: >>>
-The Requirements Tool shall provide identifying information, including title,
+### Tool identification
+
+**MID**: 5461fce7174a4bc79048b3528b699beb \
+**UID**: SDOC-SSS-97 \
+**Status**: Active
+
+**Statement**: The Requirements Tool shall provide identifying information, including title,
 release version, and project website links.
-<<<
 
-[REQUIREMENT]
-MID: 57b01915e4624634909dbb40f5d56697
-UID: SDOC-SSS-80
-STATUS: Active
-TITLE: Easy user experience
-STATEMENT: >>>
+### Easy user experience
+
+**MID**: 57b01915e4624634909dbb40f5d56697 \
+**UID**: SDOC-SSS-80 \
+**Status**: Active
+
+**Statement**:
+
 The Requirements Tool shall provide a smooth user experience.
 
 NOTE: Documentation and requirements management are composite activities that
 consist of several types of repetitive tasks. A requirements tool user
 experience should assist in automating these tasks as far as possible and make
 the overall workflow efficient and precise.
-<<<
 
-[REQUIREMENT]
-MID: d3e66072363d4e7ea2e2f9691c094bb2
-UID: SDOC-SSS-81
-STATUS: Active
-TITLE: Support projects with a large number of users
-STATEMENT: >>>
-The Requirements Tool shall be capable of supporting a large number of users.
-<<<
-RATIONALE: >>>
-Many documentation and requirements projects involve large groups of people. The
+### Support projects with a large number of users
+
+**MID**: d3e66072363d4e7ea2e2f9691c094bb2 \
+**UID**: SDOC-SSS-81 \
+**Status**: Active
+
+**Statement**: The Requirements Tool shall be capable of supporting a large number of users.
+
+**Rationale**: Many documentation and requirements projects involve large groups of people. The
 requirements tool should not become a bottleneck when a number of users grows.
-<<<
 
-[REQUIREMENT]
-MID: db495bc2f11f4f96ace60cdb0bef4d66
-UID: SDOC-SSS-82
-STATUS: Active
-TITLE: Individual use (home PC)
-STATEMENT: >>>
-The Requirements Tool shall be usable on the normal personal computers, e.g., do
+### Individual use (home PC)
+
+**MID**: db495bc2f11f4f96ace60cdb0bef4d66 \
+**UID**: SDOC-SSS-82 \
+**Status**: Active
+
+**Statement**: The Requirements Tool shall be usable on the normal personal computers, e.g., do
 not require a special cloud deployment.
-<<<
 
-[REQUIREMENT]
-MID: 90562d92b9a7468ba42567bc72cb6ebf
-UID: SDOC-SSS-83
-STATUS: Active
-TITLE: Server-based deployments (IT-friendly setup)
-STATEMENT: >>>
-The Requirements Tool shall be deployable to the network of computers, e.g.,
+### Server-based deployments (IT-friendly setup)
+
+**MID**: 90562d92b9a7468ba42567bc72cb6ebf \
+**UID**: SDOC-SSS-83 \
+**Status**: Active
+
+**Statement**: The Requirements Tool shall be deployable to the network of computers, e.g.,
 provide a server instance.
-<<<
-COMMENT: >>>
-Scaling from smaller setups (e.g., Raspberry PI in an office network) to
-larger in-house and cloud-base installations.
-<<<
 
-[REQUIREMENT]
-MID: 4312ed066d19487eba18ec677430e60f
-UID: SDOC-SSS-84
-STATUS: Active
-TITLE: Requirements database
-STATEMENT: >>>
-The Requirements Tool shall store documentation and requirements data in a
+**Comment**: Scaling from smaller setups (e.g., Raspberry PI in an office network) to
+larger in-house and cloud-base installations.
+
+### Requirements database
+
+**MID**: 4312ed066d19487eba18ec677430e60f \
+**UID**: SDOC-SSS-84 \
+**Status**: Active
+
+**Statement**: The Requirements Tool shall store documentation and requirements data in a
 database.
-<<<
-RATIONALE: >>>
+
+**Rationale**:
+
 A database allows:
 
 - Persistent storage of documentation/requirements data
 - Versioning
 - Backups
 - Exchange of information and access of the same database by multiple users.
-<<<
 
-[REQUIREMENT]
-MID: 81858dda65844dcd9640fdd74badecee
-UID: SDOC-SSS-85
-STATUS: Active
-TITLE: Programming access via API (Web)
-STATEMENT: >>>
-The Requirements Tool shall provide a Web API interface.
-<<<
-RATIONALE: >>>
-Besides a direct access to the tool's source code, accessing an API deployed to
+### Programming access via API (Web)
+
+**MID**: 81858dda65844dcd9640fdd74badecee \
+**UID**: SDOC-SSS-85 \
+**Status**: Active
+
+**Statement**: The Requirements Tool shall provide a Web API interface.
+
+**Rationale**: Besides a direct access to the tool's source code, accessing an API deployed to
 a server provides additional capabilities for getting and manipulating
 requirements/documentation content.
-<<<
 
-[REQUIREMENT]
-MID: ee96cc5f18e14f6894e2775c546240d8
-UID: SDOC-SSS-86
-STATUS: Active
-TITLE: Programming access via API (SDK)
-STATEMENT: >>>
+### Programming access via API (SDK)
+
+**MID**: ee96cc5f18e14f6894e2775c546240d8 \
+**UID**: SDOC-SSS-86 \
+**Status**: Active
+
+**Statement**:
+
 The Requirements Tool shall provide a Software Development Kit (SDK) that allows
 customization of the Requirements Tool functions.
 
@@ -1133,110 +1012,105 @@ functions that may be used by the users of the tool:
   formats.
 - Implement custom visualization functions.
 - Implement integration with other tools.
-<<<
-RATIONALE: >>>
-A SDK allows a software engineer to extend the Requirements Tool capabilities.
-<<<
 
-[REQUIREMENT]
-MID: f4b122c5081f4b218aa93a119e372a34
-UID: SDOC-SSS-87
-STATUS: Active
-TITLE: Programmatic access to requirements data
-STATEMENT: >>>
-The Requirements Tool shall provide programmatic access to requirements data.
-<<<
-RATIONALE: >>>
-When the requirements data is accessible by a user directly, it is possible to
+**Rationale**: A SDK allows a software engineer to extend the Requirements Tool capabilities.
+
+### Programmatic access to requirements data
+
+**MID**: f4b122c5081f4b218aa93a119e372a34 \
+**UID**: SDOC-SSS-87 \
+**Status**: Active
+
+**Statement**: The Requirements Tool shall provide programmatic access to requirements data.
+
+**Rationale**: When the requirements data is accessible by a user directly, it is possible to
 exchange the data or implement additional scripting procedures.
-<<<
 
-[[/SECTION]]
+## Implementation suggestions
 
-[[SECTION]]
-MID: 29fa83c59e714d0da8b36a9dc65b0c72
-UID: SECTION-SSSS-Implementation-suggestions
-TITLE: Implementation suggestions
+**Type**: SECTION \
+**MID**: 29fa83c59e714d0da8b36a9dc65b0c72 \
+**UID**: SECTION-SSSS-Implementation-suggestions
 
-[REQUIREMENT]
-MID: 3db06eb066b4441290e06b08405da0a9
-UID: SDOC-SSS-30
-STATUS: Active
-TITLE: Static HTML export
-STATEMENT: >>>
-The Requirements Tool shall support generation of documentation to static HTML.
-<<<
-RATIONALE: >>>
+### Static HTML export
+
+**MID**: 3db06eb066b4441290e06b08405da0a9 \
+**UID**: SDOC-SSS-30 \
+**Status**: Active
+
+**Statement**: The Requirements Tool shall support generation of documentation to static HTML.
+
+**Rationale**:
+
 A static HTML export capability enables:
 
 - Viewing requirements in browsers without any additional software.
 - Exchanging HTML content as zip between users.
 - Publishing HTML content via static website hosting providers (GitHub and
   GitLab Pages, Read the Docs, Heroku, etc.).
-<<<
 
-[REQUIREMENT]
-MID: e718af582b0345c2b0ddb6e405cb6d9a
-UID: SDOC-SSS-31
-STATUS: Active
-TITLE: Graphical user interface (GUI)
-STATEMENT: >>>
-The Requirements Tool shall provide a graphical user interface.
-<<<
+### Graphical user interface (GUI)
 
-[REQUIREMENT]
-MID: cd20e9613a65441a8862143ba6407f61
-UID: SDOC-SSS-32
-STATUS: Active
-TITLE: Command-line interface
-STATEMENT: >>>
-The Requirements Tool shall provide a command line interface (CLI).
-<<<
+**MID**: e718af582b0345c2b0ddb6e405cb6d9a \
+**UID**: SDOC-SSS-31 \
+**Status**: Active
 
-[REQUIREMENT]
-MID: 4475857729e5476cbbb409cc844048fd
-UID: SDOC-SSS-68
-STATUS: Active
-TITLE: Web API interface
-STATEMENT: >>>
-The Requirements Tool shall provide an API interface.
-<<<
+**Statement**: The Requirements Tool shall provide a graphical user interface.
 
-[REQUIREMENT]
-MID: 5ac2f3010db84466bff854fc323e944c
-UID: SDOC-SSS-33
-STATUS: Active
-TITLE: Version control (Git)
-STATEMENT: >>>
-The Requirements Tool shall support the software version control systems (e.g.,
+### Command-line interface
+
+**MID**: cd20e9613a65441a8862143ba6407f61 \
+**UID**: SDOC-SSS-32 \
+**Status**: Active
+
+**Statement**: The Requirements Tool shall provide a command line interface (CLI).
+
+### Web API interface
+
+**MID**: 4475857729e5476cbbb409cc844048fd \
+**UID**: SDOC-SSS-68 \
+**Status**: Active
+
+**Statement**: The Requirements Tool shall provide an API interface.
+
+### Version control (Git)
+
+**MID**: 5ac2f3010db84466bff854fc323e944c \
+**UID**: SDOC-SSS-33 \
+**Status**: Active
+
+**Statement**: The Requirements Tool shall support the software version control systems (e.g.,
 Git).
-<<<
-RATIONALE: >>>
+
+**Rationale**:
+
 - Git allows precise tracking of the changes to the documentation.
 - Requirements/documentation content can be release-tagged.
 - The "Time machine" function: ability to review the older state of the
   documentation/requirements tree.
-<<<
 
-[REQUIREMENT]
-MID: b76fb774542849a182e2cdd89fdaab3c
-UID: SDOC-SSS-67
-STATUS: Active
-TITLE: Support major operating systems
-STATEMENT: >>>
+### Support major operating systems
+
+**MID**: b76fb774542849a182e2cdd89fdaab3c \
+**UID**: SDOC-SSS-67 \
+**Status**: Active
+
+**Statement**:
+
 The Requirements Tool shall support at least the following operating systems:
 
 - Linux
 - Windows
 - macOS.
-<<<
 
-[REQUIREMENT]
-MID: 871a7a66eb50436997fde692e90e93eb
-UID: SDOC-SSS-69
-STATUS: Active
-TITLE: Conservative languages for implementation
-STATEMENT: >>>
+### Conservative languages for implementation
+
+**MID**: 871a7a66eb50436997fde692e90e93eb \
+**UID**: SDOC-SSS-69 \
+**Status**: Active
+
+**Statement**:
+
 The Requirements Tool shall be implemented using the popular programming
 languages.
 
@@ -1246,22 +1120,21 @@ NOTE: Examples of the most popular programming languages:
 - C++
 - Python
 - JavaScript
-<<<
-RATIONALE: >>>
-Choosing a less popular programming language can limit the long-term
-maintainability of the tool.
-<<<
-COMMENT: >>>
-Examples of less popular programming languages, with all due respect to their
-powerful features: Haskell, F#, Ada, etc.
-<<<
 
-[REQUIREMENT]
-MID: 0556a0b2773d4ee0b44b22773455a600
-UID: SDOC-SSS-90
-STATUS: Active
-TITLE: Long-term maintainability of a tool
-STATEMENT: >>>
+**Rationale**: Choosing a less popular programming language can limit the long-term
+maintainability of the tool.
+
+**Comment**: Examples of less popular programming languages, with all due respect to their
+powerful features: Haskell, F#, Ada, etc.
+
+### Long-term maintainability of a tool
+
+**MID**: 0556a0b2773d4ee0b44b22773455a600 \
+**UID**: SDOC-SSS-90 \
+**Status**: Active
+
+**Statement**:
+
 The Requirements Tool shall be designed for long-term maintenance.
 
 NOTE: Long-term maintenance aspects to consider:
@@ -1272,132 +1145,123 @@ NOTE: Long-term maintenance aspects to consider:
   the availability of qualified developers in the future.
 - Take into account maintainability by the development team as well as the
   users, e.g., IT/DevOps department.
-<<<
 
-[[/SECTION]]
+## Text-based requirements language (optional)
 
-[[SECTION]]
-MID: 7bdea1a7cb9e4f6fbcf8497670f87278
-UID: SECTION-RTS-Text-based-requirements-language
-TITLE: Text-based requirements language (optional)
+**Type**: SECTION \
+**MID**: 7bdea1a7cb9e4f6fbcf8497670f87278 \
+**UID**: SECTION-RTS-Text-based-requirements-language
 
-[TEXT]
-MID: dfe5a61ed10149bebcf69d9c5c3b1316
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: dfe5a61ed10149bebcf69d9c5c3b1316
+
 Note: Not all requirements tools must be text-based. But when they are, the
 following requirements apply.
-<<<
 
-[REQUIREMENT]
-MID: f472e85f3398413795234a9298d4af3c
-UID: SDOC-SSS-88
-STATUS: Active
-TITLE: Text files for storing documentation and requirements
-STATEMENT: >>>
-The Requirements Tool shall allow storage of documentation and requirements
+### Text files for storing documentation and requirements
+
+**MID**: f472e85f3398413795234a9298d4af3c \
+**UID**: SDOC-SSS-88 \
+**Status**: Active
+
+**Statement**: The Requirements Tool shall allow storage of documentation and requirements
 content using text files.
-<<<
 
-[REQUIREMENT]
-MID: b13bc3dfa7324f238bc06a88baf5edb6
-UID: SDOC-SSS-55
-STATUS: Active
-TITLE: Strict text language syntax
-STATEMENT: >>>
-The Requirements Tool shall provide a strict syntax for its text language.
-<<<
+### Strict text language syntax
 
-[REQUIREMENT]
-MID: 0b47da74f9ec45e6a77573185b95f327
-UID: SDOC-SSS-54
-STATUS: Active
-TITLE: Machine-readable format
-STATEMENT: >>>
-The Requirement Tool's text language shall be machine-readable.
-<<<
-RELATIONS:
-- TYPE: Parent
-  VALUE: ZEP-2
+**MID**: b13bc3dfa7324f238bc06a88baf5edb6 \
+**UID**: SDOC-SSS-55 \
+**Status**: Active
 
-[REQUIREMENT]
-MID: 13f3e7765b494237893c1585a7c9dfd0
-UID: SDOC-SSS-34
-STATUS: Active
-TITLE: Requirements data from multiple repositories
-STATEMENT: >>>
+**Statement**: The Requirements Tool shall provide a strict syntax for its text language.
+
+### Machine-readable format
+
+**MID**: 0b47da74f9ec45e6a77573185b95f327 \
+**UID**: SDOC-SSS-54 \
+**Status**: Active
+**Relations**:
+- **Type**: `Parent` \
+  **ID**: `ZEP-2`
+
+**Statement**: The Requirement Tool's text language shall be machine-readable.
+
+### Requirements data from multiple repositories
+
+**MID**: 13f3e7765b494237893c1585a7c9dfd0 \
+**UID**: SDOC-SSS-34 \
+**Status**: Active
+
+**Statement**:
+
 The Requirement Tool shall allow reading requirements files from multiple
 folders or repositories.
 
 NOTE: The folders/repositories can be arbitrarily nested.
-<<<
 
-[[/SECTION]]
+## Collaboration on requirements
 
-[[SECTION]]
-MID: efaa3e91045c4d49a70232f09a85ad35
-UID: SECTION-RTS-Requirements-collaboration
-TITLE: Collaboration on requirements
+**Type**: SECTION \
+**MID**: efaa3e91045c4d49a70232f09a85ad35 \
+**UID**: SECTION-RTS-Requirements-collaboration
 
-[REQUIREMENT]
-MID: f9d65df46ff24b0da6cb2bf011f0fc70
-UID: SDOC-SSS-65
-STATUS: Draft
-TITLE: Support user accounts
+### Support user accounts
 
-[REQUIREMENT]
-MID: 29d0374556494f38977ec3c928aa894d
-UID: SDOC-SSS-66
-STATUS: Draft
-TITLE: Send notifications about updated requirements
+**MID**: f9d65df46ff24b0da6cb2bf011f0fc70 \
+**UID**: SDOC-SSS-65 \
+**Status**: Draft
 
-[[/SECTION]]
+### Send notifications about updated requirements
 
-[[SECTION]]
-MID: f80a4b7ff03042849c3814c6cd5e5ca4
-UID: SECTION-SSSS-Development-process
-TITLE: Development process
+**MID**: 29d0374556494f38977ec3c928aa894d \
+**UID**: SDOC-SSS-66 \
+**Status**: Draft
 
-[REQUIREMENT]
-MID: f16ea50f686e412f9c21d8096055bb47
-UID: SDOC-SSS-76
-STATUS: Active
-TITLE: Requirements engineering
-STATEMENT: >>>
-The Requirements Tool's development process shall include the Requirements
+## Development process
+
+**Type**: SECTION \
+**MID**: f80a4b7ff03042849c3814c6cd5e5ca4 \
+**UID**: SECTION-SSSS-Development-process
+
+### Requirements engineering
+
+**MID**: f16ea50f686e412f9c21d8096055bb47 \
+**UID**: SDOC-SSS-76 \
+**Status**: Active
+
+**Statement**: The Requirements Tool's development process shall include the Requirements
 Tool's own requirements engineering.
-<<<
-RATIONALE: >>>
-A requirements tool is not a trivial project. A clear set of requirements for
+
+**Rationale**: A requirements tool is not a trivial project. A clear set of requirements for
 the developed tool helps to structure the development and communicate the
 functions of the tool to the developers and the users of the tool.
-<<<
 
-[REQUIREMENT]
-MID: 0bebdf77108a499c87e5c0838204c39c
-UID: SDOC-SSS-50
-STATUS: Active
-TITLE: Self-hosted requirements
-STATEMENT: >>>
-The Requirements Tool's requirements shall be developed and stored using the
+### Self-hosted requirements
+
+**MID**: 0bebdf77108a499c87e5c0838204c39c \
+**UID**: SDOC-SSS-50 \
+**Status**: Active
+**Relations**:
+- **Type**: `Parent` \
+  **ID**: `ZEP-15`
+
+**Statement**: The Requirements Tool's requirements shall be developed and stored using the
 Requirements Tool itself.
-<<<
-RATIONALE: >>>
-While not strictly necessary, developing the requirements for the tool using the
+
+**Rationale**: While not strictly necessary, developing the requirements for the tool using the
 tool itself aids developers in test-driving its functionality during the
 requirement development phase. Moreover, having the tool host its own
 requirements provides a tangible and dynamic illustration of how the tool can be
 employed for crafting requirements documentation.
-<<<
-RELATIONS:
-- TYPE: Parent
-  VALUE: ZEP-15
 
-[REQUIREMENT]
-MID: 1a39a758930040029db320d8466806c1
-UID: SDOC-SSS-77
-STATUS: Active
-TITLE: Test coverage
-STATEMENT: >>>
+### Test coverage
+
+**MID**: 1a39a758930040029db320d8466806c1 \
+**UID**: SDOC-SSS-77 \
+**Status**: Active
+
+**Statement**:
+
 The Requirements Tool's development process shall ensure:
 
 - A testability of the tool.
@@ -1405,78 +1269,68 @@ The Requirements Tool's development process shall ensure:
 - Usage of modern testing methods to ensure adequate coverage of the tool's
   functions (e.g., command-line interface, web interface, smallest units of
   code, etc.).
-<<<
-RATIONALE: >>>
-The presence of tests, the adequate selection of test methods and a high test
-coverage are preconditions for a high quality of the requirements tool.
-<<<
 
-[REQUIREMENT]
-MID: 8cb5ac6812924f4c8f4afd156b2f021c
-UID: SDOC-SSS-78
-STATUS: Active
-TITLE: Tool qualification
-STATEMENT: >>>
-The Requirements Tool's development process shall ensure that the tool can be
+**Rationale**: The presence of tests, the adequate selection of test methods and a high test
+coverage are preconditions for a high quality of the requirements tool.
+
+### Tool qualification
+
+**MID**: 8cb5ac6812924f4c8f4afd156b2f021c \
+**UID**: SDOC-SSS-78 \
+**Status**: Active
+
+**Statement**: The Requirements Tool's development process shall ensure that the tool can be
 qualified for the use in critical product developments as required by the
 rigorous technical standards (e.g., EN IEC 61508).
-<<<
-RATIONALE: >>>
-Many project developments require a qualification of the tools used during the
+
+**Rationale**: Many project developments require a qualification of the tools used during the
 development. A requirements tool is one of the critical tools that affect the
 project development. If a requirement tool is developed to the higher standards
 of quality, it simplifies the argument of bringing the tool forward and using it
 in a particular project.
-<<<
 
-[[/SECTION]]
+## Licensing and distribution
 
-[[SECTION]]
-MID: e4cd429e9ec04deabfd1fb1381c39e38
-UID: SECTION-SSSS-Licensing-and-distribution
-TITLE: Licensing and distribution
+**Type**: SECTION \
+**MID**: e4cd429e9ec04deabfd1fb1381c39e38 \
+**UID**: SECTION-SSSS-Licensing-and-distribution
 
-[TEXT]
-MID: 92bf658bcddb4d2899b78c526fbddf38
-STATEMENT: >>>
+**Type**: TEXT \
+**MID**: 92bf658bcddb4d2899b78c526fbddf38
+
 This section outlines the requirements for the "free and open source" aspect of
 the Requirements Tool.
-<<<
 
-[REQUIREMENT]
-MID: 2f30b94fdc074c8fa5858dfccc6202e8
-UID: SDOC-SSS-38
-STATUS: Active
-TITLE: Open source
-STATEMENT: >>>
-The Requirements Tool's source code shall be publicly available, e.g., hosted on
+### Open source
+
+**MID**: 2f30b94fdc074c8fa5858dfccc6202e8 \
+**UID**: SDOC-SSS-38 \
+**Status**: Active
+
+**Statement**: The Requirements Tool's source code shall be publicly available, e.g., hosted on
 a code hosting platform such as GitHub or GitLab.
-<<<
 
-[REQUIREMENT]
-MID: 27b640de8cae44a680b23429c981bee9
-UID: SDOC-SSS-39
-STATUS: Active
-TITLE: Only open source dependencies
-STATEMENT: >>>
-The Requirement Tool's source code shall be based on open source software
+### Only open source dependencies
+
+**MID**: 27b640de8cae44a680b23429c981bee9 \
+**UID**: SDOC-SSS-39 \
+**Status**: Active
+
+**Statement**: The Requirement Tool's source code shall be based on open source software
 components.
-<<<
 
-[REQUIREMENT]
-MID: 1338faad11204073a97212fa0fd11317
-UID: SDOC-SSS-40
-STATUS: Active
-TITLE: Free
-STATEMENT: >>>
+### Free
+
+**MID**: 1338faad11204073a97212fa0fd11317 \
+**UID**: SDOC-SSS-40 \
+**Status**: Active
+
+**Statement**:
+
 The Requirements Tool shall be licensed under a permissive license, ensuring
 no/minimal constraints on the utilization and dissemination of the project.
 
 NOTE: Example of a permissive license: MIT, Apache 2.
-<<<
-RATIONALE: >>>
-This requirement captures the essence of an open and free requirements
-management tool.
-<<<
 
-[[/SECTION]]
+**Rationale**: This requirement captures the essence of an open and free requirements
+management tool.

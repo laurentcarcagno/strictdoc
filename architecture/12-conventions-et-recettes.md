@@ -44,7 +44,7 @@ Sources : `CLAUDE.md`, `AGENTS.md`, `docs/strictdoc_11_developer_guide.sdoc` (SD
 | Fichiers | `file_open_read_utf8`, `file_open_read_bytes` (retirent le BOM), pas `open()` |
 | Traçabilité | marqueurs `@relation(SDOC-..., scope=...)` dans le code vers `docs/` et `spec/` |
 | Documentation | chaque changement de fonction ou d'infrastructure est documenté ; lignes de 80 caractères |
-| Notes de version | `docs/strictdoc_04_release_notes.sdoc`, section « Unreleased », phrase d'ouverture `This release contains the following enhancements:`, seulement les `feat:` et `fix:` visibles, ne pas toucher aux versions passées, ignorer `CHANGELOG.md` |
+| Notes de version | `docs/strictdoc_04_release_notes.md`, section « Unreleased », phrase d'ouverture `This release contains the following enhancements:`, seulement les `feat:` et `fix:` visibles, ne pas toucher aux versions passées, ignorer `CHANGELOG.md` |
 
 ## Git
 
@@ -70,9 +70,9 @@ Trois niveaux (QUOI/POURQUOI/COMMENT) dans `docs/` :
 
 | Niveau | Fichier | Préfixe | Contenu |
 |---|---|---|---|
-| L1 (pourquoi) | `strictdoc_20_l1_system_requirements.sdoc` | `SDOC-SSS-` | besoins envers « un outil d'exigences », sans référence à StrictDoc |
-| L2 (quoi) | `strictdoc_21_l2_high_level_requirements.sdoc` | `SDOC-SRS-` | exigences de haut niveau envers StrictDoc, organisées par fonction (*Feature*) et capacité |
-| L3 (comment) | `strictdoc_22_l3_low_level_requirements.sdoc` | `SDOC-LLR-` | exigences de bas niveau par composant logiciel |
+| L1 (pourquoi) | `strictdoc_20_l1_system_requirements.md` | `SDOC-SSS-` | besoins envers « un outil d'exigences », sans référence à StrictDoc |
+| L2 (quoi) | `strictdoc_21_l2_high_level_requirements.md` | `SDOC-SRS-` | exigences de haut niveau envers StrictDoc, organisées par fonction (*Feature*) et capacité |
+| L3 (comment) | `strictdoc_22_l3_low_level_requirements.md` | `SDOC-LLR-` | exigences de bas niveau par composant logiciel |
 
 Objectif : traçabilité bidirectionnelle complète L1, L2, L3, puis code et
 tests. Une exigence se retrouve dans le code par un marqueur
@@ -120,7 +120,7 @@ dans `developer/design/`.
 3. Si elle vient du TOML (obsolète) : `_load_from_dictionary`. Ne pas en
    ajouter pour du nouveau code : le format est déprécié.
 4. Méthode `is_activated_*` si c'est une fonction (`ProjectFeature`).
-5. Documentation (`strictdoc_01_user_guide.sdoc`) et test d'intégration.
+5. Documentation (`strictdoc_01_user_guide.md`) et test d'intégration.
 
 ### Ajouter une option de commande
 
@@ -157,7 +157,7 @@ Voir [03](03-formats-et-backends.md) : sous-classe de `Format`, ajout à
    write_router)`, inclus dans `create_main_router`, entrées dans `ROUTE_ROLES`.
 5. Écran : un objet vue et un template qui hérite de `base.jinja.html` ; réponse
    412 si la fonction n'est pas activée.
-6. Test d'intégration ou end2end, ligne dans `docs/strictdoc_02_feature_map.sdoc`
+6. Test d'intégration ou end2end, ligne dans `docs/strictdoc_02_feature_map.md`
    et dans les notes de version.
 
 ### Ajouter un écran de feature dans le cadre du projet
