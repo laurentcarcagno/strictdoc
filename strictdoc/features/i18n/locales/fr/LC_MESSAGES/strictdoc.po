@@ -2876,3 +2876,24 @@ msgstr "Fermer le menu"
 #: strictdoc/export/html/templates/base.jinja.html
 msgid "Menu"
 msgstr "Menu"
+
+#: strictdoc/features/desktop/templates/home.jinja.html:57
+msgid "Welcome to StrictDoc. Choose a project in the catalog to start."
+msgstr "Bienvenue dans StrictDoc. Choisissez un projet dans le catalogue pour commencer."
+
+#: strictdoc/features/desktop/templates/home.jinja.html:66
+msgid "The catalog of projects cannot be shown."
+msgstr "Le catalogue des projets ne peut pas être affiché."
+
+#: strictdoc/features/desktop/templates/home.jinja.html:71
+msgid "The catalog has no project for you."
+msgstr "Le catalogue ne contient aucun projet pour vous."
+
+#: strictdoc/features/desktop/templates/home.jinja.html:76
+#: strictdoc/features/desktop/templates/home.jinja.html:77
+msgid "Search a project by name"
+msgstr "Rechercher un projet par nom"
+
+#: strictdoc/features/desktop/templates/home.jinja.html:83
+msgid "No project matches the search."
+msgstr "Aucun projet ne correspond à la recherche."

@@ -1,0 +1,106 @@
+/* The home screen of the desktop application. Plain and without a framework. */
+:root {
+  color-scheme: light dark;
+  --home-border: #c8ccd0;
+  --home-muted: #5d646b;
+  --home-accent: #1f4f8f;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  line-height: 1.45;
+}
+
+.home {
+  max-width: 52rem;
+  margin: 0 auto;
+  padding: 1.5rem 1.25rem 3rem;
+}
+
+.home__title {
+  margin: 0 0 1rem;
+  font-size: 1.6rem;
+  letter-spacing: 0.04em;
+}
+
+.home__welcome {
+  margin: 0 0 1.5rem;
+  padding: 0.75rem 1rem;
+  border-left: 4px solid var(--home-accent);
+  background: rgba(31, 79, 143, 0.08);
+}
+
+.catalog__title {
+  margin: 0 0 0.75rem;
+  font-size: 1.15rem;
+}
+
+.catalog__search {
+  box-sizing: border-box;
+  width: 100%;
+  margin-bottom: 1rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--home-border);
+  border-radius: 4px;
+  font: inherit;
+}
+
+.catalog__list {
+  margin: 0;
+  padding-left: 1.25rem;
+  list-style: none;
+}
+
+.catalog__tree > .catalog__list {
+  padding-left: 0;
+}
+
+.catalog__folder_name {
+  cursor: pointer;
+  font-weight: 600;
+  padding: 0.2rem 0;
+}
+
+.catalog__project {
+  padding: 0.3rem 0;
+}
+
+.catalog__project_title {
+  font-weight: 500;
+}
+
+.catalog__project_role {
+  margin-left: 0.5rem;
+  color: var(--home-muted);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.catalog__project_description {
+  display: block;
+  color: var(--home-muted);
+  font-size: 0.875rem;
+}
+
+.catalog__error {
+  padding: 0.75rem 1rem;
+  border-left: 4px solid #b3261e;
+  background: rgba(179, 38, 30, 0.08);
+}
+
+.catalog__error p {
+  margin: 0;
+}
+
+.catalog__error_detail {
+  margin-top: 0.4rem;
+  color: var(--home-muted);
+  font-size: 0.875rem;
+  overflow-wrap: anywhere;
+}
+
+[hidden] {
+  display: none !important;
+}

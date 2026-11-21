@@ -5,6 +5,7 @@ The web server of a project for the desktop application.
 @relation(SDOC-SRS-1221, scope=file)
 @relation(SDOC-SRS-1222, scope=file)
 @relation(SDOC-SRS-1225, scope=file)
+@relation(SDOC-SRS-1229, scope=file)
 """
 
 import asyncio
@@ -17,6 +18,7 @@ from types import FrameType
 from typing import Callable, Dict, List, Optional
 
 import uvicorn
+from starlette.applications import Starlette
 
 import strictdoc.server.app as server_app
 from strictdoc import __version__
@@ -56,15 +58,28 @@ def _print_no_welcome_message(project_config: ProjectConfig) -> None:
 
 class LocalServer:
     """
-    One StrictDoc web server of one project, run in a thread of this process.
+    One web server of the desktop application, run in a thread of this
+    process: the server of one project, or the server of the home screen.
 
-    Without a port, the server takes a free port of the loopback address.
+    The server of a project is given its project configuration. Another
+    server is given a function that creates its application. Without a port,
+    the server takes a free port of the loopback address.
     """
 
     def __init__(
-        self, *, project_config: ProjectConfig, port: Optional[int] = None
+        self,
+        *,
+        project_config: Optional[ProjectConfig] = None,
+        application_factory: Optional[Callable[[], Starlette]] = None,
+        port: Optional[int] = None,
     ) -> None:
-        self._project_config: ProjectConfig = project_config
+        assert (project_config is None) != (application_factory is None), (
+            "Give the project configuration or the application factory."
+        )
+        self._project_config: Optional[ProjectConfig] = project_config
+        self._application_factory: Optional[Callable[[], Starlette]] = (
+            application_factory
+        )
         self._requested_port: Optional[int] = port
         self._socket: Optional[socket.socket] = None
         self._server: Optional[uvicorn.Server] = None
@@ -104,12 +119,7 @@ class LocalServer:
         server_socket = self._open_socket()
         try:
             self._socket = server_socket
-            self._project_config.server_host = LOCAL_SERVER_HOST
-            self._project_config.server_port = self.port
-            # create_app starts the banner from its lifespan, which looks the
-            # function up in the module when the server starts.
-            server_app.print_welcome_message = _print_no_welcome_message
-            application = create_app(project_config=self._project_config)
+            application = self._create_application()
             # Added last, so that it is the outermost: no route and no other
             # middleware sees a request that the window did not send.
             application.add_middleware(
@@ -175,6 +185,17 @@ class LocalServer:
         if self._socket is not None:
             self._socket.close()
             self._socket = None
+
+    def _create_application(self) -> Starlette:
+        if self._application_factory is not None:
+            return self._application_factory()
+        assert self._project_config is not None
+        self._project_config.server_host = LOCAL_SERVER_HOST
+        self._project_config.server_port = self.port
+        # create_app starts the banner from its lifespan, which looks the
+        # function up in the module when the server starts.
+        server_app.print_welcome_message = _print_no_welcome_message
+        return create_app(project_config=self._project_config)
 
     def _open_socket(self) -> socket.socket:
         server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

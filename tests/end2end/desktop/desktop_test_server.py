@@ -1,0 +1,111 @@
+"""
+A "strictdoc desktop --no-window" process for the end2end tests.
+
+It follows SDocTestServer: the same port choice, the same log files in the
+temporary folder, the same wait for the start of uvicorn and the same stop,
+which the context manager runs also when the test fails. It differs by the
+command, and because the user of the application is a temporary one: its
+settings, cache and data folders are in a temporary folder, and its settings
+name a catalog read from a JSON file.
+
+@relation(SDOC-SRS-1229, scope=file)
+"""
+
+import os
+import tempfile
+import time
+from pathlib import Path
+from typing import Dict, List, Optional, Tuple
+
+from strictdoc.features.desktop.settings import DesktopSettings, save_settings
+from tests.end2end.conftest import test_environment
+from tests.end2end.server import ReadTimeout, SDocTestServer
+
+START_URL_PREFIX = "StrictDoc desktop server: "
+APPLICATION_NAME = "StrictDoc"
+
+
+class DesktopTestServer(SDocTestServer):
+    def __init__(
+        self,
+        *,
+        input_path: str,
+        fake_catalog_path: Optional[str] = None,
+        project_path: Optional[str] = None,
+        language: Optional[str] = None,
+        port: Optional[int] = None,
+    ) -> None:
+        super().__init__(input_path=input_path, port=port)
+        self.language: Optional[str] = language
+        self.project_path: Optional[str] = project_path
+        self.fake_catalog_path: Optional[str] = fake_catalog_path
+        # Created by run(), removed by close().
+        self.user_path: Optional[str] = None
+
+    def run(self) -> None:
+        user_folder = tempfile.TemporaryDirectory()
+        self.exit_stack.enter_context(user_folder)
+        self.user_path = user_folder.name
+        if self.fake_catalog_path is not None:
+            save_settings(
+                DesktopSettings(
+                    catalog_provider="fake",
+                    fake_catalog_path=self.fake_catalog_path,
+                ),
+                # The path that platformdirs gives under XDG_CONFIG_HOME.
+                path=Path(self._get_config_path()),
+            )
+        super().run()
+
+    def close(self, *, exit_due_exception: Optional[Exception]) -> None:
+        # SDocTestServer.close() expects that the process started. When the
+        # test fails before, only the temporary folders are left to remove,
+        # and the error that stopped the start must not be hidden.
+        if self.process is None:
+            self.exit_stack.close()
+            return
+        super().close(exit_due_exception=exit_due_exception)
+
+    def get_start_url(self) -> str:
+        """
+        The URL that the window would open: it gives the session cookie, once,
+        then redirects to the home page.
+        """
+        deadline = time.monotonic() + test_environment.wait_timeout_seconds
+        while True:
+            with open(self.path_to_out_log, encoding="utf-8") as file_:
+                for line_ in file_:
+                    if line_.startswith(START_URL_PREFIX):
+                        return line_[len(START_URL_PREFIX) :].strip()
+            if time.monotonic() >= deadline:
+                raise ReadTimeout(float(test_environment.wait_timeout_seconds))
+            time.sleep(test_environment.poll_timeout_seconds)
+
+    def _get_strictdoc_command(self) -> Tuple[List[str], Dict[str, str]]:
+        # The command of the web server, with the interpreter and the coverage
+        # options of the other end2end tests, up to the name of the command.
+        server_arguments, strictdoc_env = super()._get_strictdoc_command()
+        command_index = server_arguments.index("server")
+        strictdoc_arguments = server_arguments[:command_index] + [
+            "desktop",
+            "--no-window",
+            "--port",
+            str(self.server_port),
+        ]
+        if self.project_path is not None:
+            strictdoc_arguments.append(self.project_path)
+        assert self.user_path is not None
+        strictdoc_env["XDG_CONFIG_HOME"] = os.path.join(
+            self.user_path, "config"
+        )
+        strictdoc_env["XDG_CACHE_HOME"] = os.path.join(self.user_path, "cache")
+        strictdoc_env["XDG_DATA_HOME"] = os.path.join(self.user_path, "data")
+        if self.language is not None:
+            strictdoc_env["STRICTDOC_LANGUAGE"] = self.language
+        return strictdoc_arguments, strictdoc_env
+
+    def _get_config_path(self) -> str:
+        assert self.user_path is not None
+        return os.path.join(
+            self.user_path, "config", APPLICATION_NAME, "settings.json"
+        )
