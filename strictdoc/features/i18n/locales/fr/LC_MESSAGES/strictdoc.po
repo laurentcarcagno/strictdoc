@@ -3011,3 +3011,113 @@ msgstr "ouvert"
 #: strictdoc/features/desktop/window.py
 msgid "Switch project"
 msgstr "Changer de projet"
+
+#: strictdoc/features/desktop/templates/home.jinja.html
+#, python-format
+msgid "Signed in as %(name)s"
+msgstr "Connecté en tant que %(name)s"
+
+#: strictdoc/features/desktop/templates/home.jinja.html
+msgid "Sign in"
+msgstr "Se connecter"
+
+#: strictdoc/features/desktop/templates/signed_in.jinja.html
+msgid "Signed in. Opening the home screen..."
+msgstr "Connexion réussie. Ouverture de l'accueil…"
+
+#: strictdoc/features/desktop/home_app.py
+msgid "The address of the home screen is not known."
+msgstr "L'adresse de l'accueil n'est pas connue."
+
+#: strictdoc/features/desktop/home_app.py
+#, python-format
+msgid "GitLab refused the sign-in (%(reason)s)."
+msgstr "GitLab a refusé la connexion (%(reason)s)."
+
+#: strictdoc/features/desktop/oauth_gitlab.py
+msgid "GitLab did not give an access token."
+msgstr "GitLab n'a pas donné de jeton d'accès."
+
+#: strictdoc/features/desktop/oauth_gitlab.py
+msgid "GitLab did not tell who the user is."
+msgstr "GitLab n'a pas dit qui est l'utilisateur."
+
+#: strictdoc/features/desktop/oauth_gitlab.py
+msgid ""
+"The sign-in needs the address of GitLab and the identifier of the OAuth "
+"application in the settings."
+msgstr ""
+"La connexion a besoin de l'adresse de GitLab et de l'identifiant de "
+"l'application OAuth dans les réglages."
+
+#: strictdoc/features/desktop/oauth_gitlab.py
+msgid "The sign-in is not valid or has expired. Start it again."
+msgstr "La connexion n'est pas valide ou a expiré. Recommencez-la."
+
+#: strictdoc/features/desktop/oauth_gitlab.py
+#, python-format
+msgid "GitLab refused the request (%(reason)s)."
+msgstr "GitLab a refusé la demande (%(reason)s)."
+
+#: strictdoc/features/desktop/oauth_gitlab.py
+#, python-format
+msgid "GitLab cannot be reached at %(url)s."
+msgstr "GitLab est inaccessible à l'adresse %(url)s."
+
+#: strictdoc/features/desktop/oauth_gitlab.py
+msgid "GitLab sent an answer that cannot be read."
+msgstr "GitLab a envoyé une réponse illisible."
+
+#: strictdoc/features/desktop/session_token.py
+msgid "The sign-in has expired or is no longer valid."
+msgstr "La connexion a expiré ou n'est plus valide."
+
+#: strictdoc/features/desktop/session_token.py
+msgid "Back to the home screen"
+msgstr "Retour à l'accueil"
+
+#: strictdoc/features/desktop/templates/home.jinja.html
+msgid ""
+"You are offline: GitLab cannot be reached. The application tries again by "
+"itself."
+msgstr ""
+"Vous êtes hors ligne : GitLab est inaccessible. L'application réessaie "
+"d'elle-même."
+
+#: strictdoc/features/desktop/templates/home.jinja.html
+msgid "The sign-in has ended. Sign in again."
+msgstr "La connexion est terminée. Connectez-vous de nouveau."
+
+#: strictdoc/features/desktop/token_store.py
+msgid "The keyring did not delete the sign-in."
+msgstr "Le trousseau n'a pas supprimé la connexion."
+
+#: strictdoc/features/desktop/token_store.py
+msgid ""
+"The keyring did not save the sign-in. You will have to sign in again at the "
+"next launch."
+msgstr ""
+"Le trousseau n'a pas enregistré la connexion. Vous devrez vous connecter de "
+"nouveau au prochain lancement."
+
+#: strictdoc/features/desktop/templates/home.jinja.html
+#: strictdoc/features/desktop/home_app.py
+msgid "Sign in to see your projects."
+msgstr "Connectez-vous pour voir vos projets."
+
+#: strictdoc/features/desktop/home_app.py
+msgid "You no longer have access to this project."
+msgstr "Vous n'avez plus accès à ce projet."
+
+#: strictdoc/features/desktop/templates/home.jinja.html
+msgid "Sign out"
+msgstr "Se déconnecter"
+
+#: strictdoc/features/desktop/templates/home.jinja.html
+#: strictdoc/features/desktop/home_app.py
+msgid ""
+"The GitLab settings are incomplete: the address of GitLab and the OAuth "
+"application are needed."
+msgstr ""
+"Les réglages de GitLab sont incomplets : l'adresse de GitLab et "
+"l'application OAuth sont nécessaires."

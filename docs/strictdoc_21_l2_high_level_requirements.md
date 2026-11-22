@@ -823,6 +823,96 @@ reachable.
 **Rationale**: The user sees the documents at once and gets the changes of the others as
 soon as they arrive. Working offline stays possible.
 
+### Sign-in through GitLab OAuth in the application window
+
+**MID**: 78dc36e9fbf341f29598d400ddc8bf94 \
+**UID**: SDOC-SRS-1234 \
+**Status**: Active
+
+**Statement**: StrictDoc shall sign the user in with the OAuth authorization code flow of GitLab,
+with PKCE and a `state` value, shall receive the callback on the loopback
+address of the computer, and shall show the sign-in page in the window of the
+desktop application and not in the browser of the system.
+
+**Rationale**: PKCE and `state` protect the code against interception and forgery. The user
+sees only the sign-in page of the identity provider, in the application.
+
+### Tokens in the keyring and renewal
+
+**MID**: ec6e9681ccd7432fadb9d577ec344c46 \
+**UID**: SDOC-SRS-1235 \
+**Status**: Active
+
+**Statement**: StrictDoc shall keep the access and refresh tokens of the user in the keyring of
+the operating system, shall renew the access token before it expires, and shall
+send the user back to the sign-in page when the renewal fails.
+
+**Rationale**: The user stays signed in without a new login at each launch. A refused renewal
+means that the access is gone, and the user has to sign in again.
+
+### Desktop authentication mode
+
+**MID**: d121afc34a0d43a888c8fcf0dd2b5355 \
+**UID**: SDOC-SRS-1236 \
+**Status**: Active
+
+**Statement**: StrictDoc shall provide an authentication mode named `desktop` in which the user
+of the project server is the GitLab user who signed in to the desktop
+application.
+
+**Rationale**: The server of a project knows who edits without a second account or a second
+password.
+
+### Role per project from the GitLab access level
+
+**MID**: f1bf392233ca4740ab49c65b520f99bd \
+**UID**: SDOC-SRS-1237 \
+**Status**: Active
+
+**Statement**: StrictDoc shall compute the role of the user on a project from the GitLab access
+level of the user on that project, and shall compute it again each time the
+user opens the project.
+
+**Rationale**: An access level can change on GitLab while the application runs. Computing the
+role at each opening keeps the rights of the user in line with GitLab.
+
+### Author of the commits
+
+**MID**: bd4adca7fef04edfbf17d96b484aaf5d \
+**UID**: SDOC-SRS-1238 \
+**Status**: Active
+
+**Statement**: StrictDoc shall record the signed-in GitLab user as the author of the commits made
+by the desktop application, and shall not use a default author.
+
+**Rationale**: The history of a project shows who made each change. A default author would
+hide it.
+
+### Token passed to Git through the environment
+
+**MID**: fb8a1dd1b6e84861be1732200b1ce652 \
+**UID**: SDOC-SRS-1239 \
+**Status**: Active
+
+**Statement**: StrictDoc shall pass the GitLab access token to Git through the environment of
+the Git process, and shall never write the token in a file, in the Git
+configuration or in a remote address.
+
+**Rationale**: A token written in a file or in a remote address is easy to copy and to leak. The
+environment of one process lives only as long as that process.
+
+### GitLab catalog after sign-in
+
+**MID**: f8fccae9906b419a9be3d7516e0ec134 \
+**UID**: SDOC-SRS-1240 \
+**Status**: Active
+
+**Statement**: StrictDoc shall use the GitLab project catalog as soon as the user is signed in,
+with the access token of that user.
+
+**Rationale**: The projects listed are those that GitLab lets this user read, with no separate
+configuration of the catalog.
+
 ## Graph database
 
 **Type**: SECTION \

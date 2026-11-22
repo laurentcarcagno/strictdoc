@@ -2,7 +2,7 @@
 The ASGI middleware that decides who is acting for every request and every
 WebSocket connection, before any route runs.
 
-Two modes (project option ``auth_mode``):
+Three modes (project option ``auth_mode``):
 
 - ``none`` (default): no login in front of the server; every request gets the
   anonymous principal. This is how the server behaves without this feature.
@@ -10,6 +10,11 @@ Two modes (project option ``auth_mode``):
   it comes from a trusted proxy network and carries the identity headers;
   anything else is refused with 401, including static files and the page
   routes.
+- ``desktop``: the server belongs to the desktop application, which knows who
+  is signed in. It gives a function that returns the principal (or None when
+  nobody is signed in: the request is refused like in the proxy mode). The mode
+  needs that function: no project file and no environment variable can switch a
+  server to it.
 """
 
 import ipaddress
@@ -30,6 +35,7 @@ from strictdoc.features.i18n.i18n import gettext
 from strictdoc.features.roles.principal import (
     CURRENT_ROLE,
     Principal,
+    PrincipalProvider,
     principal_from_headers,
 )
 from strictdoc.features.roles.roles import (
@@ -40,7 +46,8 @@ from strictdoc.features.roles.roles import (
 
 AUTH_MODE_NONE = "none"
 AUTH_MODE_PROXY = "proxy"
-AUTH_MODES = (AUTH_MODE_NONE, AUTH_MODE_PROXY)
+AUTH_MODE_DESKTOP = "desktop"
+AUTH_MODES = (AUTH_MODE_NONE, AUTH_MODE_PROXY, AUTH_MODE_DESKTOP)
 
 Scope = Dict[str, Any]
 Receive = Callable[[], Awaitable[Dict[str, Any]]]
@@ -64,10 +71,16 @@ class PrincipalMiddleware:
         trusted_proxies: Sequence[str] = (),
         roles: Optional[Mapping[str, Sequence[str]]] = None,
         member_role: Optional[Callable[[str], Optional[str]]] = None,
+        principal_provider: Optional[PrincipalProvider] = None,
     ) -> None:
         if auth_mode not in AUTH_MODES:
             raise ValueError(
                 f"Invalid auth_mode '{auth_mode}'. Use one of {AUTH_MODES}."
+            )
+        if auth_mode == AUTH_MODE_DESKTOP and principal_provider is None:
+            raise ValueError(
+                "auth_mode 'desktop' needs a function that gives the "
+                "principal: only the desktop application provides one."
             )
         networks = parse_networks(trusted_proxies)
         if auth_mode == AUTH_MODE_PROXY and len(networks) == 0:
@@ -89,6 +102,7 @@ class PrincipalMiddleware:
         self._networks = networks
         # The role that the member list of the project gives to a user name.
         self._member_role = member_role
+        self._principal_provider = principal_provider
 
     async def __call__(
         self, scope: Scope, receive: Receive, send: Send
@@ -111,6 +125,11 @@ class PrincipalMiddleware:
     def _principal(self, scope: Scope) -> Optional[Principal]:
         if self.auth_mode == AUTH_MODE_NONE:
             return Principal.anonymous()
+        if self.auth_mode == AUTH_MODE_DESKTOP:
+            # The provider is not None: the constructor checked it. The
+            # same function serves the requests and the WebSocket connections.
+            assert self._principal_provider is not None
+            return self._principal_provider()
         if not self._is_trusted_peer(scope.get("client")):
             return None
         headers = {

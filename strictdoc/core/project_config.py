@@ -47,6 +47,7 @@ from strictdoc.features.hierarchy.levels import (
 )
 from strictdoc.features.i18n.languages import set_language, validate_language
 from strictdoc.features.llm.config import LLMConfig
+from strictdoc.features.roles.principal import PrincipalProvider
 from strictdoc.features.roles.roles import validate_roles
 from strictdoc.helpers.auto_described import auto_described
 from strictdoc.helpers.deprecation_engine import DEPRECATION_ENGINE
@@ -529,6 +530,9 @@ class ProjectConfig:
         # that the member list gives to a user name, and the object that
         # changes the member list. Not options of the project file.
         self.member_role: Optional[Callable[[str], Optional[str]]] = None
+        # Set by the desktop application with enable_desktop_mode(): who is
+        # acting, when the application knows the signed-in user.
+        self.principal_provider: Optional[PrincipalProvider] = None
         self.members_admin: Optional[Any] = None
         # The levels of the document hierarchy (see features/hierarchy), the
         # check of the Parent relations against them, whether an
@@ -794,6 +798,18 @@ class ProjectConfig:
                     extensions.append(extension)
         return extensions
 
+    def enable_desktop_mode(
+        self, principal_provider: PrincipalProvider
+    ) -> None:
+        """
+        Put the server in the authentication mode "desktop": who is acting is
+        what the function gives. This is the only way to that mode, so that no
+        project file and no environment variable can start a server in it
+        without an identity.
+        """
+        self.principal_provider = principal_provider
+        self.auth_mode = "desktop"
+
     # Some server command settings can override the project config settings.
     def integrate_server_config(
         self, server_config: ServerCommandConfig
@@ -924,7 +940,8 @@ class ProjectConfig:
         if self.auth_mode not in ("none", "proxy"):
             raise StrictDocException(
                 f"config: auth_mode: expected 'none' or 'proxy', got "
-                f"'{self.auth_mode}'."
+                f"'{self.auth_mode}'. The mode 'desktop' belongs to the "
+                "desktop application: it cannot be set here."
             )
         for network_ in self.trusted_proxies:
             try:

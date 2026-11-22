@@ -9,6 +9,9 @@ settings, cache and data folders are in a temporary folder, and its settings
 name a catalog read from a JSON file.
 
 @relation(SDOC-SRS-1229, scope=file)
+@relation(SDOC-SRS-1234, scope=file)
+@relation(SDOC-SRS-1235, scope=file)
+@relation(SDOC-SRS-1240, scope=file)
 """
 
 import os
@@ -22,6 +25,13 @@ from strictdoc.features.desktop.settings import DesktopSettings, save_settings
 from tests.end2end.conftest import test_environment
 from tests.end2end.server import ReadTimeout, SDocTestServer
 
+# The keyring of the system is not used by the tests: the application finds a
+# stand-in for the "keyring" package that keeps its secrets in a file of the
+# temporary user folder.
+STUB_KEYRING_PATH = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "stub_keyring"
+)
+KEYRING_FILE_VARIABLE = "STRICTDOC_TEST_KEYRING_FILE"
 START_URL_PREFIX = "StrictDoc desktop server: "
 APPLICATION_NAME = "StrictDoc"
 
@@ -36,6 +46,9 @@ class DesktopTestServer(SDocTestServer):
         language: Optional[str] = None,
         user_path: Optional[str] = None,
         kept_servers: Optional[int] = None,
+        gitlab_url: Optional[str] = None,
+        oauth_client_id: Optional[str] = None,
+        gitlab_projects_root: Optional[str] = None,
         port: Optional[int] = None,
     ) -> None:
         super().__init__(input_path=input_path, port=port)
@@ -43,6 +56,14 @@ class DesktopTestServer(SDocTestServer):
         self.kept_servers: Optional[int] = kept_servers
         self.project_path: Optional[str] = project_path
         self.fake_catalog_path: Optional[str] = fake_catalog_path
+        # The GitLab of the sign-in and the identifier of its OAuth
+        # application: the settings that make the sign-in available.
+        self.gitlab_url: Optional[str] = gitlab_url
+        self.oauth_client_id: Optional[str] = oauth_client_id
+        # The group of the GitLab catalog. Given without a catalog file, it
+        # makes the catalog the one of GitLab: the projects of the signed-in
+        # user.
+        self.gitlab_projects_root: Optional[str] = gitlab_projects_root
         # The folders of the user. Without a given folder, run() creates a
         # temporary one that close() removes. A test that starts the
         # application twice gives the same folder to both runs: the second run
@@ -54,16 +75,31 @@ class DesktopTestServer(SDocTestServer):
             user_folder = tempfile.TemporaryDirectory()
             self.exit_stack.enter_context(user_folder)
             self.user_path = user_folder.name
-        if self.fake_catalog_path is not None and not os.path.exists(
-            self.get_settings_path()
-        ):
+        if (
+            self.fake_catalog_path is not None
+            or self.gitlab_projects_root is not None
+        ) and not os.path.exists(self.get_settings_path()):
+            defaults = DesktopSettings()
             save_settings(
                 DesktopSettings(
-                    catalog_provider="fake",
-                    fake_catalog_path=self.fake_catalog_path,
+                    catalog_provider="fake"
+                    if self.fake_catalog_path is not None
+                    else "gitlab",
+                    fake_catalog_path=self.fake_catalog_path
+                    if self.fake_catalog_path is not None
+                    else defaults.fake_catalog_path,
+                    gitlab_projects_root=self.gitlab_projects_root
+                    if self.gitlab_projects_root is not None
+                    else defaults.gitlab_projects_root,
                     kept_servers=self.kept_servers
                     if self.kept_servers is not None
-                    else DesktopSettings().kept_servers,
+                    else defaults.kept_servers,
+                    gitlab_url=self.gitlab_url
+                    if self.gitlab_url is not None
+                    else defaults.gitlab_url,
+                    oauth_client_id=self.oauth_client_id
+                    if self.oauth_client_id is not None
+                    else defaults.oauth_client_id,
                 ),
                 # The path that platformdirs gives under XDG_CONFIG_HOME.
                 path=Path(self.get_settings_path()),
@@ -84,6 +120,10 @@ class DesktopTestServer(SDocTestServer):
         return os.path.join(
             self.user_path, "config", APPLICATION_NAME, "settings.json"
         )
+
+    def get_keyring_path(self) -> str:
+        assert self.user_path is not None
+        return os.path.join(self.user_path, "keyring.json")
 
     def get_home_url(self) -> str:
         """
@@ -127,6 +167,10 @@ class DesktopTestServer(SDocTestServer):
         )
         strictdoc_env["XDG_CACHE_HOME"] = os.path.join(self.user_path, "cache")
         strictdoc_env["XDG_DATA_HOME"] = os.path.join(self.user_path, "data")
+        strictdoc_env["PYTHONPATH"] = os.pathsep.join(
+            [STUB_KEYRING_PATH, strictdoc_env["PYTHONPATH"]]
+        )
+        strictdoc_env[KEYRING_FILE_VARIABLE] = self.get_keyring_path()
         if self.language is not None:
             strictdoc_env["STRICTDOC_LANGUAGE"] = self.language
         return strictdoc_arguments, strictdoc_env

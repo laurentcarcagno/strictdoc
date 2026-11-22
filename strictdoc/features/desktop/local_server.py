@@ -6,6 +6,9 @@ The web server of a project for the desktop application.
 @relation(SDOC-SRS-1222, scope=file)
 @relation(SDOC-SRS-1225, scope=file)
 @relation(SDOC-SRS-1229, scope=file)
+@relation(SDOC-SRS-1234, scope=file)
+@relation(SDOC-SRS-1236, scope=file)
+@relation(SDOC-SRS-1238, scope=file)
 """
 
 import asyncio
@@ -24,6 +27,9 @@ import strictdoc.server.app as server_app
 from strictdoc import __version__
 from strictdoc.commands.server_config import ServerCommandConfig
 from strictdoc.core.project_config import ProjectConfig, ProjectConfigLoader
+from strictdoc.features.desktop.commit_author import (
+    create_missing_author_provider,
+)
 from strictdoc.features.desktop.paths import (
     get_project_output_dir,
     get_project_sdoc_cache_dir,
@@ -31,9 +37,13 @@ from strictdoc.features.desktop.paths import (
 from strictdoc.features.desktop.session_token import (
     BOOTSTRAP_CODE_PARAMETER,
     BOOTSTRAP_PATH,
+    PUBLIC_PATHS_STATE_NAME,
     DesktopSessionMiddleware,
     SessionCredentials,
 )
+from strictdoc.features.git_config.git_service import Author
+from strictdoc.features.roles.middleware import PrincipalMiddleware
+from strictdoc.features.roles.principal import PrincipalProvider
 from strictdoc.server.app import create_app
 
 # The host cannot be set: only the program on this computer reaches the server.
@@ -44,16 +54,6 @@ _POLL_INTERVAL_SECONDS = 0.05
 
 class LocalServerError(Exception):
     pass
-
-
-def _print_no_welcome_message(project_config: ProjectConfig) -> None:
-    """
-    Replace the banner of "strictdoc server".
-
-    Its "Server URL" is a URL that answers 403 here, because only the bootstrap
-    URL gives the session cookie.
-    """
-    del project_config
 
 
 class LocalServer:
@@ -72,6 +72,7 @@ class LocalServer:
         project_config: Optional[ProjectConfig] = None,
         application_factory: Optional[Callable[[], Starlette]] = None,
         port: Optional[int] = None,
+        author_provider: Optional[Callable[[], Author]] = None,
     ) -> None:
         assert (project_config is None) != (application_factory is None), (
             "Give the project configuration or the application factory."
@@ -81,6 +82,9 @@ class LocalServer:
             application_factory
         )
         self._requested_port: Optional[int] = port
+        # The author of the commits of a project server, when the user is not
+        # the one that the project configuration names.
+        self._author_provider: Optional[Callable[[], Author]] = author_provider
         self._socket: Optional[socket.socket] = None
         self._server: Optional[uvicorn.Server] = None
         self._thread: Optional[threading.Thread] = None
@@ -151,6 +155,11 @@ class LocalServer:
                         f"localhost:{self.port}",
                     }
                 ),
+                # The application tells which paths can do without the
+                # cookie, and when.
+                public_paths=getattr(
+                    application.state, PUBLIC_PATHS_STATE_NAME, {}
+                ),
             )
         except BaseException:
             server_socket.close()
@@ -214,7 +223,9 @@ class LocalServer:
         # create_app starts the banner from its lifespan, which looks the
         # function up in the module when the server starts.
         server_app.print_welcome_message = _print_no_welcome_message
-        return create_app(project_config=self._project_config)
+        return create_project_application(
+            self._project_config, self._author_provider
+        )
 
     def _open_socket(self) -> socket.socket:
         server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -253,8 +264,69 @@ class LocalServer:
             self._error = exception_
 
 
+def create_project_application(
+    project_config: ProjectConfig,
+    author_provider: Optional[Callable[[], Author]] = None,
+) -> Starlette:
+    """
+    The web application of a project of the desktop application. Every commit,
+    tag and merge takes its author from the function that the application
+    gives, and from nowhere else: without that function the committer refuses,
+    and the author of GitConfig is never used. With a principal provider in the
+    configuration, the user of the server is the one that the function gives.
+    """
+    application = create_app(project_config=project_config)
+    if project_config.principal_provider is not None:
+        give_principal_provider(application, project_config.principal_provider)
+    give_author_provider(
+        application,
+        author_provider
+        if author_provider is not None
+        else create_missing_author_provider(),
+    )
+    return application
+
+
+def give_principal_provider(
+    application: Starlette, principal_provider: PrincipalProvider
+) -> None:
+    """
+    Give the function to the principal middleware of the application. The
+    middleware stack is built at the first request, so the arguments of the
+    middleware can still be completed here. Raise LocalServerError when it
+    cannot be: the server would otherwise run with no user, or with the wrong
+    one.
+    """
+    if application.middleware_stack is not None:
+        raise LocalServerError(
+            "The middleware of the application is already built: the "
+            "principal provider is too late."
+        )
+    for middleware_ in application.user_middleware:
+        if middleware_.cls is PrincipalMiddleware:
+            middleware_.kwargs["principal_provider"] = principal_provider
+            return
+    raise LocalServerError("The application has no principal middleware.")
+
+
+def give_author_provider(
+    application: Starlette, author_provider: Callable[[], Author]
+) -> None:
+    """
+    Make the committer of the project sign the commits with the author that
+    the function gives, at the time of each commit. A project that does not
+    commit (the feature GIT is off) has no committer and nothing to sign.
+    """
+    context = application.state.project_context
+    if context.git_committer is not None:
+        context.git_committer.author_provider = author_provider
+
+
 def create_desktop_project_config(
-    *, input_path: str, port: Optional[int]
+    *,
+    input_path: str,
+    port: Optional[int],
+    principal_provider: Optional[PrincipalProvider] = None,
 ) -> ProjectConfig:
     """
     Read the configuration of a project like the "server" command does.
@@ -263,6 +335,9 @@ def create_desktop_project_config(
     sub-folder per project, so that the project and the current folder stay
     free of generated files. The "output_dir" and "cache_dir" options of the
     project configuration are ignored in this mode.
+
+    With a principal provider, the server is in the authentication mode
+    "desktop": the user of the server is the one that the function gives.
     """
     full_input_path = os.path.abspath(input_path)
     output_dir = str(get_project_output_dir(full_input_path))
@@ -283,6 +358,8 @@ def create_desktop_project_config(
     project_config.dir_for_sdoc_cache = os.path.join(
         str(get_project_sdoc_cache_dir(full_input_path)), __version__
     )
+    if principal_provider is not None:
+        project_config.enable_desktop_mode(principal_provider)
     return project_config
 
 
@@ -313,3 +390,13 @@ def run_until_stop_signal(on_ready: Callable[[], None]) -> None:
     finally:
         for signal_number_, handler_ in previous_handlers.items():
             signal.signal(signal_number_, handler_)  # type: ignore[arg-type]
+
+
+def _print_no_welcome_message(project_config: ProjectConfig) -> None:
+    """
+    Replace the banner of "strictdoc server".
+
+    Its "Server URL" is a URL that answers 403 here, because only the bootstrap
+    URL gives the session cookie.
+    """
+    del project_config

@@ -5,6 +5,7 @@ The file holds no secret: the keys of the AI servers are in a SecretStore.
 
 @relation(SDOC-SRS-1223, scope=file)
 @relation(SDOC-SRS-1224, scope=file)
+@relation(SDOC-SRS-1234, scope=file)
 """
 
 import json
@@ -24,6 +25,12 @@ SETTINGS_SCHEMA_VERSION = 1
 DEFAULT_CATALOG_PROVIDER = "gitlab"
 DEFAULT_KEPT_SERVERS = 3
 DEFAULT_GITLAB_PROJECTS_ROOT = "HERMES/DOCUMENTATION/PROJETS"
+# The test GitLab of the project and its OAuth application "strictdoc-desktop".
+# The identifier is public (a native application has no secret).
+TEST_GITLAB_URL = "https://gitlab.karka.lan"
+TEST_OAUTH_CLIENT_ID = (
+    "7504d842ee0753347afde76f167a6c3cbf81fc6434f758dd920691aad0b32787"
+)
 
 _INVALID_FILE_SUFFIX = ".invalid"
 _AI_SECRET_PREFIX = "ai/"
@@ -52,6 +59,9 @@ class DesktopSettings:
     schema_version: int = SETTINGS_SCHEMA_VERSION
     catalog_provider: str = DEFAULT_CATALOG_PROVIDER
     gitlab_url: str = ""
+    # The identifier of the OAuth application of the sign-in to GitLab. The
+    # loader gives the application of the test GitLab to the test GitLab only.
+    oauth_client_id: str = ""
     # The GitLab group whose projects, sub-groups included, form the catalog.
     gitlab_projects_root: str = DEFAULT_GITLAB_PROJECTS_ROOT
     # The JSON file of the "fake" catalog provider. Empty: none.
@@ -65,6 +75,13 @@ class DesktopSettings:
 
 def get_settings_path() -> Path:
     return get_config_dir() / SETTINGS_FILE_NAME
+
+
+def get_default_oauth_client_id(gitlab_url: str) -> str:
+    """The application of the test GitLab for the test GitLab, else none."""
+    if gitlab_url.strip().rstrip("/") == TEST_GITLAB_URL:
+        return TEST_OAUTH_CLIENT_ID
+    return ""
 
 
 def get_ai_secret_name(server_id: str) -> str:
@@ -148,6 +165,7 @@ def _settings_to_dict(settings: DesktopSettings) -> Dict[str, Any]:
         "schema_version": settings.schema_version,
         "catalog_provider": settings.catalog_provider,
         "gitlab_url": settings.gitlab_url,
+        "oauth_client_id": settings.oauth_client_id,
         "gitlab_projects_root": settings.gitlab_projects_root,
         "fake_catalog_path": settings.fake_catalog_path,
         "kept_servers": settings.kept_servers,
@@ -170,12 +188,16 @@ def _settings_from_dict(content: Dict[str, Any]) -> DesktopSettings:
     kept_servers = content.get("kept_servers")
     project_folders = content.get("project_folders")
     ai_servers = content.get("ai_servers")
+    gitlab_url = _get_str(content, "gitlab_url", defaults.gitlab_url)
     return DesktopSettings(
         schema_version=SETTINGS_SCHEMA_VERSION,
         catalog_provider=_get_str(
             content, "catalog_provider", defaults.catalog_provider
         ),
-        gitlab_url=_get_str(content, "gitlab_url", defaults.gitlab_url),
+        gitlab_url=gitlab_url,
+        oauth_client_id=_get_str(
+            content, "oauth_client_id", get_default_oauth_client_id(gitlab_url)
+        ),
         gitlab_projects_root=_get_str(
             content, "gitlab_projects_root", defaults.gitlab_projects_root
         ),

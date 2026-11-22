@@ -1,0 +1,26 @@
+[
+  {
+    "identifier": "1",
+    "title": "ISIS",
+    "display_path": "Satellites/ISIS",
+    "description": "Instrument de bord",
+    "clone_url": "file:///unused/isis.git",
+    "role": "administrator"
+  },
+  {
+    "identifier": "2",
+    "title": "Pleiades",
+    "display_path": "Satellites/Pleiades",
+    "description": "",
+    "clone_url": "file:///unused/pleiades.git",
+    "role": "author"
+  },
+  {
+    "identifier": "3",
+    "title": "Ariane",
+    "display_path": "Lanceurs/Ariane",
+    "description": "Lanceur lourd",
+    "clone_url": "file:///unused/ariane.git",
+    "role": "reader"
+  }
+]
