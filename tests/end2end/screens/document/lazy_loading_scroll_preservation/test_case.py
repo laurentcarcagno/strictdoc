@@ -35,13 +35,27 @@ UNTITLED_TEXT_25_MID = f"{25:032x}"
 
 
 class Test(E2ECase):
+    original_window_size = None
+
     def setUp(self):
         super().setUp()
         # The fixture geometry (chunk heights) was set when the content column
         # sat beside the project tree panel; the tree is now in the left bar,
         # so the window is narrowed to give the content column its old width.
         size = self.driver.get_window_size()
+        self.original_window_size = size
         self.set_window_size(size["width"] - 346, size["height"])
+
+    def tearDown(self):
+        # The browser is shared by the tests (--reuse-session): the window is
+        # given back as it was, also when the test fails. This runs before
+        # the base class closes the window of the test.
+        if self.original_window_size is not None:
+            self.set_window_size(
+                self.original_window_size["width"],
+                self.original_window_size["height"],
+            )
+        super().tearDown()
 
     def _open_main_document(self):
         screen_project_index = Screen_ProjectIndex(self)
