@@ -11,6 +11,7 @@ window.location to the callback address. It is not a 302 redirect.
 @relation(SDOC-SRS-1234, scope=file)
 @relation(SDOC-SRS-1235, scope=file)
 @relation(SDOC-SRS-1237, scope=file)
+@relation(SDOC-SRS-1238, scope=file)
 @relation(SDOC-SRS-1240, scope=file)
 """
 
@@ -27,6 +28,7 @@ CLIENT_ID = "fake-desktop-application"
 USERNAME = "jdupont"
 DISPLAY_NAME = "Jeanne Dupont"
 EMAIL = "jeanne.dupont@example.org"
+USER_ID = 4242
 CALLBACK_PATH = "/__desktop/oauth/callback"
 # The group of the catalog and its identifier.
 GROUP_PATH = "demo"
@@ -66,6 +68,11 @@ class FakeGitLab:
         # The forms of the renewals, without the refresh token.
         self.refresh_requests: List[Dict[str, str]] = []
         self.user_request_count: int = 0
+        # The addresses that /api/v4/user gives. A user who keeps the primary
+        # address private gets an empty "email".
+        self.user_email: str = EMAIL
+        self.public_email: str = ""
+        self.commit_email: str = ""
         # The projects of the group: their GitLab data, and the access level
         # that the user has on each. A project with no level is not listed.
         self.projects: Dict[int, Dict[str, Any]] = {}
@@ -327,7 +334,14 @@ class FakeGitLab:
         self.send_json(
             handler,
             200,
-            {"username": USERNAME, "name": DISPLAY_NAME, "email": EMAIL},
+            {
+                "id": USER_ID,
+                "username": USERNAME,
+                "name": DISPLAY_NAME,
+                "email": self.user_email,
+                "public_email": self.public_email,
+                "commit_email": self.commit_email,
+            },
         )
 
     def _has_good_token(self, handler: BaseHTTPRequestHandler) -> bool:

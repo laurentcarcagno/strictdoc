@@ -8,6 +8,7 @@ The web server of a project for the desktop application.
 @relation(SDOC-SRS-1229, scope=file)
 @relation(SDOC-SRS-1234, scope=file)
 @relation(SDOC-SRS-1236, scope=file)
+@relation(SDOC-SRS-1238, scope=file)
 """
 
 import asyncio
@@ -26,6 +27,9 @@ import strictdoc.server.app as server_app
 from strictdoc import __version__
 from strictdoc.commands.server_config import ServerCommandConfig
 from strictdoc.core.project_config import ProjectConfig, ProjectConfigLoader
+from strictdoc.features.desktop.commit_author import (
+    create_missing_author_provider,
+)
 from strictdoc.features.desktop.paths import (
     get_project_output_dir,
     get_project_sdoc_cache_dir,
@@ -37,6 +41,7 @@ from strictdoc.features.desktop.session_token import (
     DesktopSessionMiddleware,
     SessionCredentials,
 )
+from strictdoc.features.git_config.git_service import Author
 from strictdoc.features.roles.middleware import PrincipalMiddleware
 from strictdoc.features.roles.principal import PrincipalProvider
 from strictdoc.server.app import create_app
@@ -77,6 +82,7 @@ class LocalServer:
         project_config: Optional[ProjectConfig] = None,
         application_factory: Optional[Callable[[], Starlette]] = None,
         port: Optional[int] = None,
+        author_provider: Optional[Callable[[], Author]] = None,
     ) -> None:
         assert (project_config is None) != (application_factory is None), (
             "Give the project configuration or the application factory."
@@ -86,6 +92,9 @@ class LocalServer:
             application_factory
         )
         self._requested_port: Optional[int] = port
+        # The author of the commits of a project server, when the user is not
+        # the one that the project configuration names.
+        self._author_provider: Optional[Callable[[], Author]] = author_provider
         self._socket: Optional[socket.socket] = None
         self._server: Optional[uvicorn.Server] = None
         self._thread: Optional[threading.Thread] = None
@@ -224,12 +233,9 @@ class LocalServer:
         # create_app starts the banner from its lifespan, which looks the
         # function up in the module when the server starts.
         server_app.print_welcome_message = _print_no_welcome_message
-        application = create_app(project_config=self._project_config)
-        if self._project_config.principal_provider is not None:
-            give_principal_provider(
-                application, self._project_config.principal_provider
-            )
-        return application
+        return create_project_application(
+            self._project_config, self._author_provider
+        )
 
     def _open_socket(self) -> socket.socket:
         server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -268,6 +274,31 @@ class LocalServer:
             self._error = exception_
 
 
+def create_project_application(
+    project_config: ProjectConfig,
+    author_provider: Optional[Callable[[], Author]] = None,
+) -> Starlette:
+    """
+    The web application of a project. In the desktop mode (the configuration
+    has a principal provider) every commit, tag and merge takes its author from
+    the function that the application gives, and from nowhere else: without
+    that function the committer refuses, and the author of GitConfig is never
+    used.
+    """
+    application = create_app(project_config=project_config)
+    if project_config.principal_provider is not None:
+        give_principal_provider(application, project_config.principal_provider)
+        give_author_provider(
+            application,
+            author_provider
+            if author_provider is not None
+            else create_missing_author_provider(),
+        )
+    elif author_provider is not None:
+        give_author_provider(application, author_provider)
+    return application
+
+
 def give_principal_provider(
     application: Starlette, principal_provider: PrincipalProvider
 ) -> None:
@@ -288,6 +319,19 @@ def give_principal_provider(
             middleware_.kwargs["principal_provider"] = principal_provider
             return
     raise LocalServerError("The application has no principal middleware.")
+
+
+def give_author_provider(
+    application: Starlette, author_provider: Callable[[], Author]
+) -> None:
+    """
+    Make the committer of the project sign the commits with the author that
+    the function gives, at the time of each commit. A project that does not
+    commit (the feature GIT is off) has no committer and nothing to sign.
+    """
+    context = application.state.project_context
+    if context.git_committer is not None:
+        context.git_committer.author_provider = author_provider
 
 
 def create_desktop_project_config(

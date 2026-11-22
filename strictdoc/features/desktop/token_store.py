@@ -26,7 +26,7 @@ import os
 import threading
 import time
 from enum import Enum
-from typing import Callable, Optional
+from typing import Any, Callable, Dict, Optional
 from urllib.parse import urlsplit
 
 from strictdoc.features.desktop.oauth_gitlab import (
@@ -96,6 +96,9 @@ def serialize_session(session: GitLabSession) -> str:
             "username": session.user.username,
             "name": session.user.display_name,
             "email": session.user.email,
+            "user_id": session.user.user_id,
+            "public_email": session.user.public_email,
+            "commit_email": session.user.commit_email,
         }
     )
 
@@ -124,6 +127,7 @@ def parse_session(content: str) -> Optional[GitLabSession]:
         return None
     name = record.get("name")
     email = record.get("email")
+    user_id = record.get("user_id")
     return GitLabSession(
         tokens=GitLabTokens(
             access_token=access_token,
@@ -136,6 +140,13 @@ def parse_session(content: str) -> Optional[GitLabSession]:
             if isinstance(name, str) and name != ""
             else username,
             email=email if isinstance(email, str) else "",
+            user_id=(
+                user_id
+                if isinstance(user_id, int) and not isinstance(user_id, bool)
+                else 0
+            ),
+            public_email=_get_stored_text(record, "public_email"),
+            commit_email=_get_stored_text(record, "commit_email"),
         ),
     )
 
@@ -196,6 +207,12 @@ class TokenKeeper:
             ):
                 return SignInStatus.OFFLINE
             return SignInStatus.SIGNED_IN
+
+    @property
+    def gitlab_url(self) -> str:
+        """The GitLab of the session, "" when nobody is signed in."""
+        with self._state_lock:
+            return self._gitlab_url
 
     @property
     def is_refused(self) -> bool:
@@ -429,3 +446,8 @@ class TokenKeeper:
             pass
         finally:
             self._schedule()
+
+
+def _get_stored_text(record: Dict[str, Any], name: str) -> str:
+    value = record.get(name)
+    return value if isinstance(value, str) else ""

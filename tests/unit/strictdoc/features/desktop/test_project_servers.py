@@ -68,9 +68,9 @@ class Context:
         )
 
     def _create_server(
-        self, folder: str, principal_provider: object = None
+        self, folder: str, identity: object = None
     ) -> FakeServer:
-        del principal_provider
+        del identity
         server = FakeServer(folder, len(self.servers))
         self.servers.append(server)
         return server

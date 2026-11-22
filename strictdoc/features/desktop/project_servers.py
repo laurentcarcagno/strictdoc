@@ -10,6 +10,7 @@ stopped.
 @relation(SDOC-SRS-1232, scope=file)
 @relation(SDOC-SRS-1233, scope=file)
 @relation(SDOC-SRS-1236, scope=file)
+@relation(SDOC-SRS-1238, scope=file)
 """
 
 import logging
@@ -21,6 +22,7 @@ from typing import Callable, List, Optional, Protocol, Set
 
 from strictdoc.features.desktop.settings import load_settings
 from strictdoc.features.desktop.workspace import WorkspaceError, pull_project
+from strictdoc.features.git_config.git_service import Author
 from strictdoc.features.roles.principal import PrincipalProvider
 
 logger = logging.getLogger(__name__)
@@ -53,14 +55,19 @@ class ProjectServer(Protocol):
     def stop(self) -> None: ...
 
 
-# Receives the folder and the function that gives the user of the server, if
-# the server has one.
-ProjectServerFactory = Callable[
-    [str, Optional[PrincipalProvider]], ProjectServer
-]
-# Receives the identifier of a project: gives the function that gives the user
-# of its server, or None for a server that has no user.
-PrincipalProviderFactory = Callable[[str], Optional[PrincipalProvider]]
+@dataclass(frozen=True)
+class ProjectIdentity:
+    """Who acts in the server of a project, and who signs its commits."""
+
+    principal_provider: PrincipalProvider
+    author_provider: Callable[[], Author]
+
+
+# Receives the folder and the identity of the server, if it has one.
+ProjectServerFactory = Callable[[str, Optional[ProjectIdentity]], ProjectServer]
+# Receives the identifier of a project: gives the identity of its server, or
+# None for a server that has no user.
+IdentityFactory = Callable[[str], Optional[ProjectIdentity]]
 # Returns True when the update changed files. Raises WorkspaceError.
 ProjectUpdater = Callable[[str], bool]
 
@@ -95,11 +102,9 @@ class ProjectServerManager:
         updater: Optional[ProjectUpdater] = None,
         settings_path: Optional[Path] = None,
         eviction_delay_seconds: float = EVICTION_DELAY_SECONDS,
-        principal_provider_factory: Optional[PrincipalProviderFactory] = None,
+        identity_factory: Optional[IdentityFactory] = None,
     ) -> None:
-        self._principal_provider_factory: Optional[PrincipalProviderFactory] = (
-            principal_provider_factory
-        )
+        self._identity_factory: Optional[IdentityFactory] = identity_factory
         self._server_factory: ProjectServerFactory = (
             server_factory
             if server_factory is not None
@@ -182,12 +187,12 @@ class ProjectServerManager:
             # The folder of the project changed: the old server shows the
             # old folder.
             previous_project.server.stop()
-        principal_provider = (
-            self._principal_provider_factory(identifier)
-            if self._principal_provider_factory is not None
+        identity = (
+            self._identity_factory(identifier)
+            if self._identity_factory is not None
             else None
         )
-        server = self._server_factory(folder, principal_provider)
+        server = self._server_factory(folder, identity)
         server.start()
         try:
             server.wait_until_ready()
@@ -265,7 +270,7 @@ class ProjectServerManager:
 
 
 def _create_local_server(
-    folder: str, principal_provider: Optional[PrincipalProvider]
+    folder: str, identity: Optional[ProjectIdentity]
 ) -> ProjectServer:
     # Imported here: the module needs the web server of the project, which
     # the unit tests of the manager do not start.
@@ -275,6 +280,15 @@ def _create_local_server(
     )
 
     project_config = create_desktop_project_config(
-        input_path=folder, port=None, principal_provider=principal_provider
+        input_path=folder,
+        port=None,
+        principal_provider=(
+            identity.principal_provider if identity is not None else None
+        ),
     )
-    return LocalServer(project_config=project_config)
+    return LocalServer(
+        project_config=project_config,
+        author_provider=(
+            identity.author_provider if identity is not None else None
+        ),
+    )

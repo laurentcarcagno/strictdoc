@@ -36,7 +36,10 @@ from strictdoc.features.desktop.oauth_gitlab import (
 )
 from strictdoc.features.desktop.project_opener import ProjectOpener
 from strictdoc.features.desktop.project_principals import ProjectPrincipals
-from strictdoc.features.desktop.project_servers import ProjectServerManager
+from strictdoc.features.desktop.project_servers import (
+    ProjectIdentity,
+    ProjectServerManager,
+)
 from strictdoc.features.desktop.secret_store import MemorySecretStore
 from strictdoc.features.desktop.settings import (
     DesktopSettings,
@@ -66,11 +69,12 @@ TOKEN_ENV = "STRICTDOC_TEST_ROLES_TOKEN"
 
 class FakeProjectServer:
     def __init__(
-        self, folder: str, principal_provider: Optional[PrincipalProvider]
+        self, folder: str, identity: Optional[ProjectIdentity]
     ) -> None:
         self.folder: str = folder
+        self.identity: Optional[ProjectIdentity] = identity
         self.principal_provider: Optional[PrincipalProvider] = (
-            principal_provider
+            identity.principal_provider if identity is not None else None
         )
         self.is_running: bool = False
         self.is_bootstrapped: bool = False
@@ -126,7 +130,7 @@ class Environment:
             updater=lambda _: False,
             settings_path=self.settings_path,
             eviction_delay_seconds=0,
-            principal_provider_factory=self.principals.create_provider,
+            identity_factory=self.principals.create_identity,
         )
         self.opener: ProjectOpener = ProjectOpener(
             manager=self.manager, settings_path=self.settings_path
@@ -174,9 +178,9 @@ class Environment:
         return provider()
 
     def _create_server(
-        self, folder: str, principal_provider: Optional[PrincipalProvider]
+        self, folder: str, identity: Optional[ProjectIdentity]
     ) -> FakeProjectServer:
-        server = FakeProjectServer(folder, principal_provider)
+        server = FakeProjectServer(folder, identity)
         self.servers.append(server)
         return server
 

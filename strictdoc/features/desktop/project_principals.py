@@ -8,11 +8,14 @@ the function of create_provider().
 
 @relation(SDOC-SRS-1236, scope=file)
 @relation(SDOC-SRS-1237, scope=file)
+@relation(SDOC-SRS-1238, scope=file)
 """
 
 import threading
 from typing import Dict, Optional
 
+from strictdoc.features.desktop.commit_author import create_author_provider
+from strictdoc.features.desktop.project_servers import ProjectIdentity
 from strictdoc.features.desktop.token_store import TokenKeeper
 from strictdoc.features.project_catalog.catalog import CatalogRole
 from strictdoc.features.roles.principal import Principal, PrincipalProvider
@@ -35,6 +38,13 @@ class ProjectPrincipals:
                 self._roles.pop(identifier, None)
             else:
                 self._roles[identifier] = role
+
+    def create_identity(self, identifier: str) -> ProjectIdentity:
+        """The principal and the author of the commits of a project server."""
+        return ProjectIdentity(
+            principal_provider=self.create_provider(identifier),
+            author_provider=create_author_provider(self._keeper),
+        )
 
     def create_provider(self, identifier: str) -> PrincipalProvider:
         """

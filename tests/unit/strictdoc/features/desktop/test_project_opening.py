@@ -83,9 +83,9 @@ class Environment:
         return False
 
     def _create_server(
-        self, folder: str, principal_provider: object = None
+        self, folder: str, identity: object = None
     ) -> FakeProjectServer:
-        del principal_provider
+        del identity
         server = FakeProjectServer(folder)
         self.servers.append(server)
         return server

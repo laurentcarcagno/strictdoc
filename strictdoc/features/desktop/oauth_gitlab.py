@@ -12,6 +12,7 @@ object.
 
 @relation(SDOC-SRS-1234, scope=file)
 @relation(SDOC-SRS-1235, scope=file)
+@relation(SDOC-SRS-1238, scope=file)
 """
 
 import base64
@@ -75,6 +76,12 @@ class GitLabUser:
     username: str
     display_name: str
     email: str
+    # The number of the user in GitLab, 0 when it is not known.
+    user_id: int = 0
+    # GitLab answers an empty "email" for a user who keeps the address private:
+    # these two addresses, when they exist, can take its place.
+    public_email: str = ""
+    commit_email: str = ""
 
 
 @dataclass(frozen=True)
@@ -211,11 +218,18 @@ def fetch_user(gitlab_url: str, access_token: str) -> GitLabUser:
     if not isinstance(username, str) or len(username) == 0:
         raise OAuthError(gettext("GitLab did not tell who the user is."))
     name = answer.get("name")
-    email = answer.get("email")
+    user_id = answer.get("id")
     return GitLabUser(
         username=username,
         display_name=name if isinstance(name, str) and name != "" else username,
-        email=email if isinstance(email, str) else "",
+        email=_get_text(answer, "email"),
+        user_id=(
+            user_id
+            if isinstance(user_id, int) and not isinstance(user_id, bool)
+            else 0
+        ),
+        public_email=_get_text(answer, "public_email"),
+        commit_email=_get_text(answer, "commit_email"),
     )
 
 
@@ -391,6 +405,11 @@ def parse_callback_query(query: Dict[str, List[str]]) -> Dict[str, str]:
         for name_, values_ in query.items()
         if len(values_) == 1
     }
+
+
+def _get_text(answer: Dict[str, Any], name: str) -> str:
+    value = answer.get(name)
+    return value if isinstance(value, str) else ""
 
 
 def _parse_tokens(

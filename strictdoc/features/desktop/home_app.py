@@ -55,7 +55,10 @@ from strictdoc.features.desktop.project_opener import (
     ProjectOpener,
 )
 from strictdoc.features.desktop.project_principals import ProjectPrincipals
-from strictdoc.features.desktop.project_servers import ProjectServerManager
+from strictdoc.features.desktop.project_servers import (
+    ProjectIdentity,
+    ProjectServerManager,
+)
 from strictdoc.features.desktop.secret_store import MemorySecretStore
 from strictdoc.features.desktop.session_token import (
     PUBLIC_PATHS_STATE_NAME,
@@ -79,7 +82,6 @@ from strictdoc.features.project_catalog.registry import (
     GITLAB_PROVIDER_NAME,
     create_catalog,
 )
-from strictdoc.features.roles.principal import PrincipalProvider
 
 _DESKTOP_DIR = os.path.dirname(os.path.abspath(__file__))
 ASSETS_DIR = os.path.join(_DESKTOP_DIR, "assets")
@@ -151,9 +153,7 @@ def create_home_app(
     if principals is None:
         principals = ProjectPrincipals(token_keeper)
 
-    def create_principal_provider(
-        identifier: str,
-    ) -> Optional[PrincipalProvider]:
+    def create_identity(identifier: str) -> Optional[ProjectIdentity]:
         # The projects of a GitLab catalog belong to the signed-in user, with
         # the role that GitLab gives. The other catalogs have no user.
         if (
@@ -161,7 +161,7 @@ def create_home_app(
             != GITLAB_PROVIDER_NAME
         ):
             return None
-        return principals.create_provider(identifier)
+        return principals.create_identity(identifier)
 
     project_opener = (
         opener
@@ -169,7 +169,7 @@ def create_home_app(
         else ProjectOpener(
             manager=ProjectServerManager(
                 settings_path=settings_path,
-                principal_provider_factory=create_principal_provider,
+                identity_factory=create_identity,
             ),
             settings_path=settings_path,
         )

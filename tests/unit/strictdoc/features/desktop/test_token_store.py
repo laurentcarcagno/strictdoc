@@ -217,6 +217,9 @@ def test_001_the_record_holds_the_tokens_the_end_and_the_identity() -> None:
         "username": "jdupont",
         "name": "Jeanne Dupont",
         "email": "j@x.org",
+        "user_id": 0,
+        "public_email": "",
+        "commit_email": "",
     }
     assert parse_session(serialize_session(session)) == session
 
