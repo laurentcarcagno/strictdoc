@@ -110,6 +110,12 @@ class Test(DesktopCase):
                         == "Needs the author role"
                     )
 
+                    # The buttons of the login proxy are not there: the log out
+                    # goes to a page that only the proxy has, and the audit log
+                    # exists only behind it.
+                    self.assert_element_absent('[data-testid="nav-logout"]')
+                    self.assert_element_absent('[data-testid="nav-audit"]')
+
                     # A click on it opens no form.
                     self.execute_script(
                         f"document.querySelector('{EDIT_ACTION}').click()"

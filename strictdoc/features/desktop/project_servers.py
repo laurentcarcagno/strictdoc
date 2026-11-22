@@ -59,7 +59,8 @@ class ProjectServer(Protocol):
 class ProjectIdentity:
     """Who acts in the server of a project, and who signs its commits."""
 
-    principal_provider: PrincipalProvider
+    # None for a server with no user: its roles are not decided by the user.
+    principal_provider: Optional[PrincipalProvider]
     author_provider: Callable[[], Author]
 
 
@@ -171,14 +172,21 @@ class ProjectServerManager:
         if project is not None:
             project.server.stop()
 
-    def stop_all(self) -> None:
-        """Stop every server, when the application ends."""
+    def stop_servers(self) -> None:
+        """
+        Stop every server. A project opened afterwards starts a new one.
+        """
         with self._state_lock:
-            self._is_stopped = True
             projects = list(self._projects.values())
             self._projects.clear()
         for project_ in projects:
             project_.server.stop()
+
+    def stop_all(self) -> None:
+        """Stop every server, when the application ends."""
+        with self._state_lock:
+            self._is_stopped = True
+        self.stop_servers()
 
     def _start_server(self, identifier: str, folder: str) -> OpenProject:
         with self._state_lock:

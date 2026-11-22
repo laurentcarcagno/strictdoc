@@ -9,10 +9,12 @@ import sys
 import tempfile
 import time
 from contextlib import contextmanager
+from pathlib import Path
 from typing import Any, Callable, Dict, Iterator, Optional, Tuple
 
 import pytest
 
+from strictdoc.helpers.file_system import file_open_read_utf8
 from tests.end2end.desktop.desktop_case import DesktopCase
 from tests.end2end.desktop.desktop_test_server import DesktopTestServer
 from tests.end2end.desktop.fake_gitlab import (
@@ -24,6 +26,7 @@ from tests.end2end.desktop.fake_gitlab import (
 from tests.end2end.end2end_test_setup import End2EndTestSetup
 
 SIGN_IN = '[data-testid="sign-in"]'
+SIGN_OUT = '[data-testid="sign-out"]'
 SIGNED_IN_USER = '[data-testid="signed-in-user"]'
 OFFLINE_NOTICE = '[data-testid="offline-notice"]'
 SIGN_IN_EXPIRED = '[data-testid="sign-in-expired"]'
@@ -56,8 +59,8 @@ class Test(DesktopCase):
                 assert record["access_token"] != ""
                 assert record["refresh_token"] != ""
                 assert record["name"] == DISPLAY_NAME
-                with open(
-                    test_server.get_settings_path(), encoding="utf-8"
+                with file_open_read_utf8(
+                    test_server.get_settings_path()
                 ) as file_:
                     settings_text = file_.read()
                 assert record["access_token"] not in settings_text
@@ -173,6 +176,33 @@ class Test(DesktopCase):
                 assert record["access_token"] == old_record["access_token"]
                 assert record["refresh_token"] == old_record["refresh_token"]
 
+    def test_005_the_sign_out_forgets_the_tokens(self) -> None:
+        test_setup = End2EndTestSetup(path_to_test_file=__file__)
+
+        with _create_environment() as (fake_gitlab, user_path):
+            with self._create_server(
+                test_setup, fake_gitlab, user_path
+            ) as test_server:
+                self.open(test_server.get_start_url())
+                self.click(SIGN_IN)
+                self.assert_text(DISPLAY_NAME, SIGNED_IN_USER)
+                assert _read_record(test_server) is not None
+
+                self.click(SIGN_OUT)
+
+                self.assert_element(SIGN_IN)
+                self.assert_element_not_visible(SIGNED_IN_USER)
+                # The keyring holds nothing any more.
+                assert _read_record(test_server, is_required=False) is None
+
+            # Nor does the next launch find a session.
+            with self._create_server(
+                test_setup, fake_gitlab, user_path
+            ) as test_server:
+                self.open(test_server.get_start_url())
+                self.assert_element(SIGN_IN)
+                self.assert_element_not_visible(SIGNED_IN_USER)
+
     @staticmethod
     def _create_server(
         test_setup: End2EndTestSetup, fake_gitlab: FakeGitLab, user_path: str
@@ -217,7 +247,7 @@ def _read_record(
     test_server: DesktopTestServer, *, is_required: bool = True
 ) -> Optional[Dict[str, Any]]:
     """The record of the tokens in the keyring file of the tests."""
-    with open(test_server.get_keyring_path(), encoding="utf-8") as file_:
+    with file_open_read_utf8(test_server.get_keyring_path()) as file_:
         secrets: Dict[str, str] = json.load(file_)
     records = [
         json.loads(value_)
@@ -237,12 +267,13 @@ def _end_access_token(test_server: DesktopTestServer) -> None:
     Make the access token of the record end, as if the application had not run
     for hours: the next launch has to renew it.
     """
-    with open(test_server.get_keyring_path(), encoding="utf-8") as file_:
+    with file_open_read_utf8(test_server.get_keyring_path()) as file_:
         secrets: Dict[str, str] = json.load(file_)
     for key_, value_ in secrets.items():
         if key_.split("\n")[1].startswith("gitlab/"):
             record = json.loads(value_)
             record["expires_at"] = time.time() - 60
             secrets[key_] = json.dumps(record)
-    with open(test_server.get_keyring_path(), "w", encoding="utf-8") as file_:
-        json.dump(secrets, file_)
+    Path(test_server.get_keyring_path()).write_text(
+        json.dumps(secrets), encoding="utf-8"
+    )

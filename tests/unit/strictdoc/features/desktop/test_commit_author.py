@@ -417,9 +417,11 @@ def test_014_the_commit_of_a_server_has_the_signed_in_user_as_author(
     assert DEFAULT_AUTHOR_NAME not in _get_commit_authors(project_path)
 
 
-def test_015_a_project_that_is_not_in_the_desktop_mode_keeps_its_author(
+def test_015_a_project_with_no_gitlab_user_has_no_author_either(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
+    # A project of the fake catalog, or opened by its path: no principal
+    # provider, and no author function either.
     project_path = _create_desktop_project(tmp_path, monkeypatch)
     config = create_desktop_project_config(
         input_path=str(project_path), port=None
@@ -430,8 +432,8 @@ def test_015_a_project_that_is_not_in_the_desktop_mode_keeps_its_author(
 
     committer.on_document_written(_change_document(project_path))
 
-    # The web server of a platform is not concerned: GitConfig names its author.
-    assert _get_commit_authors(project_path)[0] == DEFAULT_AUTHOR_NAME
+    assert "no author" in committer.last_error
+    assert _get_commit_authors(project_path) == ["Seed"]
 
 
 def test_016_a_tag_and_a_sync_without_an_author_are_refused(

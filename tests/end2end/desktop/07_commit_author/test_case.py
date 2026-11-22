@@ -6,6 +6,7 @@ import os
 import sys
 import tempfile
 import time
+from pathlib import Path
 from typing import Tuple
 
 import pytest
@@ -44,33 +45,29 @@ def _create_remote(root: str) -> str:
     """
     work_path = os.path.join(root, "remote_work")
     os.makedirs(work_path)
-    with open(
-        os.path.join(work_path, "doc.sdoc"), "w", encoding="utf-8"
-    ) as file_:
-        file_.write(
-            "[DOCUMENT]\n"
-            f"TITLE: {DOCUMENT_TITLE}\n"
-            "\n"
-            "[REQUIREMENT]\n"
-            "UID: REQ-1\n"
-            "TITLE: Braking\n"
-            "STATEMENT: The system shall brake.\n"
-        )
-    with open(
-        os.path.join(work_path, "strictdoc_config.py"), "w", encoding="utf-8"
-    ) as file_:
-        file_.write(
-            "from strictdoc.core.project_config import ProjectConfig\n"
-            "from strictdoc.features.git_config.config import GitConfig\n"
-            "\n"
-            "\n"
-            "def create_config() -> ProjectConfig:\n"
-            "    return ProjectConfig(\n"
-            '        project_title="Commit author",\n'
-            '        project_features=["GIT"],\n'
-            "        git=GitConfig(push_on_tag=False),\n"
-            "    )\n"
-        )
+    Path(work_path, "doc.sdoc").write_text(
+        "[DOCUMENT]\n"
+        f"TITLE: {DOCUMENT_TITLE}\n"
+        "\n"
+        "[REQUIREMENT]\n"
+        "UID: REQ-1\n"
+        "TITLE: Braking\n"
+        "STATEMENT: The system shall brake.\n",
+        encoding="utf-8",
+    )
+    Path(work_path, "strictdoc_config.py").write_text(
+        "from strictdoc.core.project_config import ProjectConfig\n"
+        "from strictdoc.features.git_config.config import GitConfig\n"
+        "\n"
+        "\n"
+        "def create_config() -> ProjectConfig:\n"
+        "    return ProjectConfig(\n"
+        '        project_title="Commit author",\n'
+        '        project_features=["GIT"],\n'
+        "        git=GitConfig(push_on_tag=False),\n"
+        "    )\n",
+        encoding="utf-8",
+    )
     work_repo = Repo.init(work_path)
     work_repo.index.add(["doc.sdoc", "strictdoc_config.py"])
     work_repo.index.commit("Seed", author=SEED_AUTHOR, committer=SEED_AUTHOR)

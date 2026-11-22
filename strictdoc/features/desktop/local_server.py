@@ -56,16 +56,6 @@ class LocalServerError(Exception):
     pass
 
 
-def _print_no_welcome_message(project_config: ProjectConfig) -> None:
-    """
-    Replace the banner of "strictdoc server".
-
-    Its "Server URL" is a URL that answers 403 here, because only the bootstrap
-    URL gives the session cookie.
-    """
-    del project_config
-
-
 class LocalServer:
     """
     One web server of the desktop application, run in a thread of this
@@ -279,23 +269,21 @@ def create_project_application(
     author_provider: Optional[Callable[[], Author]] = None,
 ) -> Starlette:
     """
-    The web application of a project. In the desktop mode (the configuration
-    has a principal provider) every commit, tag and merge takes its author from
-    the function that the application gives, and from nowhere else: without
-    that function the committer refuses, and the author of GitConfig is never
-    used.
+    The web application of a project of the desktop application. Every commit,
+    tag and merge takes its author from the function that the application
+    gives, and from nowhere else: without that function the committer refuses,
+    and the author of GitConfig is never used. With a principal provider in the
+    configuration, the user of the server is the one that the function gives.
     """
     application = create_app(project_config=project_config)
     if project_config.principal_provider is not None:
         give_principal_provider(application, project_config.principal_provider)
-        give_author_provider(
-            application,
-            author_provider
-            if author_provider is not None
-            else create_missing_author_provider(),
-        )
-    elif author_provider is not None:
-        give_author_provider(application, author_provider)
+    give_author_provider(
+        application,
+        author_provider
+        if author_provider is not None
+        else create_missing_author_provider(),
+    )
     return application
 
 
@@ -402,3 +390,13 @@ def run_until_stop_signal(on_ready: Callable[[], None]) -> None:
     finally:
         for signal_number_, handler_ in previous_handlers.items():
             signal.signal(signal_number_, handler_)  # type: ignore[arg-type]
+
+
+def _print_no_welcome_message(project_config: ProjectConfig) -> None:
+    """
+    Replace the banner of "strictdoc server".
+
+    Its "Server URL" is a URL that answers 403 here, because only the bootstrap
+    URL gives the session cookie.
+    """
+    del project_config

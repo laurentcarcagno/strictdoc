@@ -4,6 +4,7 @@
 @relation(SDOC-SRS-1240, scope=file)
 """
 
+import json
 import os
 import re
 import time
@@ -18,9 +19,11 @@ from starlette.applications import Starlette
 from starlette.testclient import TestClient
 from starlette.websockets import WebSocketDisconnect
 
+from strictdoc.features.desktop.commit_author import CommitAuthorError
 from strictdoc.features.desktop.gitlab_client import (
     create_catalog_client,
     get_system_ca_bundle,
+    is_same_gitlab,
 )
 from strictdoc.features.desktop.home_app import create_home_app
 from strictdoc.features.desktop.local_server import (
@@ -185,7 +188,11 @@ class Environment:
         return server
 
     def _create_bare_repository(self) -> str:
-        work_path = self.tmp_path / "work"
+        return self._create_bare_repository_in(self.tmp_path)
+
+    @staticmethod
+    def _create_bare_repository_in(root: Path) -> str:
+        work_path = root / "work"
         work_path.mkdir()
         (work_path / "doc.sdoc").write_text("[DOCUMENT]\nTITLE: Doc\n")
         work_repo = Repo.init(work_path)
@@ -193,7 +200,7 @@ class Environment:
         actor = Actor("Test", "test@example.org")
         work_repo.index.commit("Add", author=actor, committer=actor)
         work_repo.close()
-        bare_path = self.tmp_path / "remote.git"
+        bare_path = root / "remote.git"
         Repo.clone_from(str(work_path), str(bare_path), bare=True).close()
         return f"file://{bare_path}"
 
@@ -530,3 +537,247 @@ def test_015_the_provider_must_come_before_the_first_request(
 
     with pytest.raises(LocalServerError, match="already built"):
         give_principal_provider(application, provider)
+
+
+# The roles belong to the user who is signed in.
+
+
+def _create_session_of(username: str) -> GitLabSession:
+    return GitLabSession(
+        tokens=GitLabTokens(f"access-{username}", "r", time.time() + 7200),
+        user=GitLabUser(username, username.upper(), f"{username}@x.org"),
+    )
+
+
+def test_016_the_role_of_a_user_is_not_given_to_the_next_user(
+    environment: Environment,
+) -> None:
+    keeper = environment.keeper
+    principals = environment.principals
+    provider = principals.create_provider("X")
+    keeper.adopt(
+        gitlab_url="https://g", client_id="c", session=_create_session_of("a")
+    )
+    principals.set_role("X", CatalogRole.ADMINISTRATOR)
+    principal = provider()
+    assert principal is not None and principal.role == "administrator"
+
+    keeper.sign_out()
+    keeper.adopt(
+        gitlab_url="https://g", client_id="c", session=_create_session_of("b")
+    )
+
+    # The server of the project X stayed open: it does not know a role for B.
+    assert provider() is None
+    principals.set_role("X", CatalogRole.READER)
+    principal = provider()
+    assert principal is not None
+    assert (principal.user, principal.role) == ("b", "reader")
+
+
+def test_017_a_new_sign_in_and_a_refusal_forget_the_roles(
+    environment: Environment,
+) -> None:
+    keeper = environment.keeper
+    principals = environment.principals
+    provider = principals.create_provider("X")
+    keeper.adopt(
+        gitlab_url="https://g", client_id="c", session=_create_session_of("a")
+    )
+    principals.set_role("X", CatalogRole.AUTHOR)
+
+    # The same user signs in again: the role is read again at the next opening.
+    keeper.adopt(
+        gitlab_url="https://g", client_id="c", session=_create_session_of("a")
+    )
+
+    assert provider() is None
+
+
+def test_018_the_catalog_client_goes_to_the_gitlab_of_the_session(
+    environment: Environment,
+) -> None:
+    keeper = environment.keeper
+    keeper.adopt(
+        gitlab_url="https://gitlab.one.org/",
+        client_id="c",
+        session=_create_session_of("a"),
+    )
+    settings = DesktopSettings(
+        catalog_provider="gitlab", gitlab_url="https://gitlab.one.org"
+    )
+
+    assert create_catalog_client(settings, keeper) is not None
+    assert is_same_gitlab("https://GitLab.One.org/", "https://gitlab.one.org")
+
+    # The settings name another GitLab: the token is not sent there.
+    settings.gitlab_url = "https://gitlab.two.org"
+    assert create_catalog_client(settings, keeper) is None
+    settings.gitlab_url = "http://gitlab.one.org"
+    assert create_catalog_client(settings, keeper) is None
+
+
+def test_019_the_home_asks_to_sign_in_again_for_another_gitlab(
+    environment: Environment,
+) -> None:
+    environment.sign_in()
+    client = _create_client(environment)
+    assert 'data-testid="sign-in"' not in client.get("/").text
+    settings = load_settings(environment.settings_path)
+    settings.gitlab_url = "http://localhost:1"
+    save_settings(settings, environment.settings_path)
+
+    page = client.get("/").text
+
+    # The user is named, the catalog is not read, and the sign-in is offered.
+    assert 'data-testid="signed-in-user"' in page
+    assert 'data-testid="catalog-sign-in-required"' in page
+    assert 'data-testid="sign-in"' in page
+    response = client.post("/projects/open", data={"identifier": IDENTIFIER})
+    assert "Sign in to see your projects." in response.text
+
+
+def test_020_incomplete_gitlab_settings_are_said_and_not_a_sign_in(
+    environment: Environment,
+) -> None:
+    client = _create_client(environment)
+    save_settings(
+        DesktopSettings(catalog_provider="gitlab"), environment.settings_path
+    )
+
+    page = client.get("/").text
+
+    assert 'data-testid="catalog-settings-incomplete"' in page
+    assert "The GitLab settings are incomplete" in page
+    assert 'data-testid="catalog-sign-in-required"' not in page
+    assert 'data-testid="sign-in"' not in page
+    response = client.post("/projects/open", data={"identifier": IDENTIFIER})
+    assert "The GitLab settings are incomplete" in response.text
+    i18n.set_language("fr")
+    assert "Les réglages de GitLab sont incomplets" in client.get("/").text
+
+
+def test_021_the_sign_out_ends_the_session_and_stops_the_servers(
+    environment: Environment, tmp_path: Path
+) -> None:
+    environment.sign_in()
+    client = _create_client(environment)
+    folder = tmp_path / "workspace"
+    folder.mkdir()
+    environment.open_project(client, folder)
+    server = environment.servers[0]
+    assert server.is_running
+    assert os.environ[TOKEN_ENV] != ""
+    provider = server.principal_provider
+    assert provider is not None and provider() is not None
+    assert 'data-testid="sign-out"' in client.get("/").text
+
+    response = client.post("/sign-out")
+
+    assert response.status_code == 303
+    assert response.headers["location"] == "/"
+    assert environment.keeper.session is None
+    assert TOKEN_ENV not in os.environ
+    assert not server.is_running
+    assert environment.manager.get_open_identifiers() == set()
+    assert provider() is None
+    page = client.get("/").text
+    assert 'data-testid="sign-in"' in page
+    assert 'data-testid="signed-in-user"' not in page
+    # The tokens are gone for the next launch too.
+    assert environment.keeper.get_access_token() is None
+    # The application goes on: a user who signs in again opens a project.
+    environment.sign_in()
+    environment.open_project(client, folder)
+    assert environment.servers[-1].is_running
+
+
+# The commits of a project that has no GitLab user for its roles.
+
+
+class FakeCatalogEnvironment:
+    """The home application with the "fake" catalog and fake servers."""
+
+    def __init__(self, tmp_path: Path, fake_gitlab: FakeGitLab) -> None:
+        self.settings_path: Path = tmp_path / "config" / "settings.json"
+        catalog_path = tmp_path / "catalog.json"
+        folder = tmp_path / "workspace"
+        folder.mkdir()
+        self.folder: Path = folder
+        remote = Environment._create_bare_repository_in(tmp_path)
+        catalog_path.write_text(
+            json.dumps(
+                [
+                    {
+                        "identifier": IDENTIFIER,
+                        "title": "ISIS",
+                        "display_path": "ISIS",
+                        "description": "",
+                        "clone_url": remote,
+                        "role": "author",
+                    }
+                ]
+            ),
+            encoding="utf-8",
+        )
+        save_settings(
+            DesktopSettings(
+                catalog_provider="fake",
+                fake_catalog_path=str(catalog_path),
+                gitlab_url=fake_gitlab.url,
+                oauth_client_id=CLIENT_ID,
+            ),
+            self.settings_path,
+        )
+        self.servers: List[FakeProjectServer] = []
+        self.keeper: TokenKeeper = TokenKeeper(
+            MemorySecretStore(), token_env=TOKEN_ENV, use_timer=False
+        )
+        self.application = create_home_app(
+            settings_path=self.settings_path,
+            keeper=self.keeper,
+            server_factory=self._create_server,
+        )
+
+    def _create_server(
+        self, folder: str, identity: Optional[ProjectIdentity]
+    ) -> FakeProjectServer:
+        server = FakeProjectServer(folder, identity)
+        self.servers.append(server)
+        return server
+
+
+def test_022_a_project_of_the_fake_catalog_is_signed_by_the_signed_in_user(
+    tmp_path: Path, fake_gitlab: FakeGitLab
+) -> None:
+    environment = FakeCatalogEnvironment(tmp_path, fake_gitlab)
+    with TestClient(environment.application, follow_redirects=False) as client:
+        response = client.post(
+            "/projects/folder",
+            data={
+                "identifier": IDENTIFIER,
+                "folder": str(environment.folder),
+            },
+        )
+        job_url = response.headers["location"]
+        deadline = time.monotonic() + 20
+        while client.get(job_url + "/status").json()["state"] == "running":
+            assert time.monotonic() < deadline
+            time.sleep(0.05)
+        (server,) = environment.servers
+        assert server.identity is not None
+        # No GitLab user for the roles: the server is not in the desktop mode.
+        assert server.identity.principal_provider is None
+        # Nobody is signed in: no commit.
+        with pytest.raises(CommitAuthorError, match="Nobody is signed in"):
+            server.identity.author_provider()
+
+        environment.keeper.adopt(
+            gitlab_url=fake_gitlab.url,
+            client_id=CLIENT_ID,
+            session=_create_session_of("jdupont"),
+        )
+
+        assert server.identity.author_provider().name == "JDUPONT"
+    environment.keeper.close()
+    os.environ.pop(TOKEN_ENV, None)

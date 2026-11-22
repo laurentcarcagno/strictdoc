@@ -26,7 +26,7 @@ import os
 import threading
 import time
 from enum import Enum
-from typing import Any, Callable, Dict, Optional
+from typing import Any, Callable, Dict, List, Optional
 from urllib.parse import urlsplit
 
 from strictdoc.features.desktop.oauth_gitlab import (
@@ -190,6 +190,13 @@ class TokenKeeper:
         self._is_closed: bool = False
         # One renewal at a time.
         self._renew_lock: threading.Lock = threading.Lock()
+        # The access to the SecretStore, one at a time, and never under the
+        # state lock: a slow keyring does not hold up the readers of the state.
+        self._io_lock: threading.Lock = threading.Lock()
+        # Counts the changes of the session. A write or a delete of the record
+        # is for one change; if a newer change came, it is not done any more.
+        self._generation: int = 0
+        self._session_listeners: List[Callable[[], None]] = []
 
     @property
     def session(self) -> Optional[GitLabSession]:
@@ -226,10 +233,19 @@ class TokenKeeper:
         with self._state_lock:
             return self._storage_error
 
+    def add_session_listener(self, listener: Callable[[], None]) -> None:
+        """
+        Call the function after each change of the session: a sign-in, the end
+        of the session, a refusal of GitLab. The renewal of the tokens is not a
+        change of the session.
+        """
+        with self._state_lock:
+            self._session_listeners.append(listener)
+
     def restore(self, *, gitlab_url: str, client_id: str) -> None:
         """
-        Read the record of the GitLab in the SecretStore. A token that is still
-        good is used with no network call. A token that must be renewed is
+        Read the record of the GitLab in the SecretStore. A token that is not
+        ended is used with no network call. A token that must be renewed is
         renewed by the timer thread at once, so that the launch does not wait
         for GitLab.
         """
@@ -238,16 +254,23 @@ class TokenKeeper:
         if session is None:
             return
         with self._state_lock:
+            if self._session is not None:
+                # The user signed in while the record was read.
+                return
             self._gitlab_url = gitlab_url
             self._client_id = client_id
             self._session = session
             self._has_failed_renewal = False
             self._is_refused = False
             self._next_attempt_at = 0.0
-            if not self._needs_renewal(session):
+            self._generation += 1
+            # The token is good until its end, also in the last minutes before
+            # it, when the timer renews it.
+            if self._clock() < session.tokens.expires_at:
                 set_token_environment(
                     self._token_env, session.tokens.access_token
                 )
+        self._notify_session_changed()
         self._schedule()
 
     def adopt(
@@ -258,7 +281,10 @@ class TokenKeeper:
             self._gitlab_url = gitlab_url
             self._client_id = client_id
             self._is_refused = False
-        self._install(session)
+            generation = self._install_locked(session, next_attempt_at=0.0)
+        self._write_record(session, gitlab_url, generation)
+        self._notify_session_changed()
+        self._schedule()
 
     def adopt_sign_in(
         self, pending: PendingSignIn, session: GitLabSession
@@ -288,7 +314,7 @@ class TokenKeeper:
                 return
             old_refresh_token = session.tokens.refresh_token
             if old_refresh_token is None:
-                self._end_session(is_refused=True)
+                self._end_session(is_refused=True, expected_session=session)
                 return
             try:
                 tokens = self._refresh(
@@ -298,34 +324,44 @@ class TokenKeeper:
                     clock=self._clock,
                 )
             except OAuthRejectedError:
-                self._end_session(is_refused=True)
+                # Only the session that was refused ends: not one that a
+                # sign-in made while GitLab answered.
+                self._end_session(is_refused=True, expected_session=session)
                 return
             except OAuthError:
                 with self._state_lock:
-                    self._has_failed_renewal = True
-                    self._next_attempt_at = self._clock() + self._retry_seconds
+                    if self._session is session:
+                        self._has_failed_renewal = True
+                        self._next_attempt_at = (
+                            self._clock() + self._retry_seconds
+                        )
                 raise
+            new_session = GitLabSession(
+                tokens=GitLabTokens(
+                    access_token=tokens.access_token,
+                    refresh_token=(
+                        tokens.refresh_token
+                        if tokens.refresh_token is not None
+                        else old_refresh_token
+                    ),
+                    expires_at=tokens.expires_at,
+                ),
+                user=session.user,
+            )
+            # The check and the change are one step: a sign-out or a new
+            # sign-in cannot come between them.
             with self._state_lock:
                 if self._session is not session:
-                    # The user signed in again or out while GitLab answered.
                     return
-            self._install(
-                GitLabSession(
-                    tokens=GitLabTokens(
-                        access_token=tokens.access_token,
-                        refresh_token=(
-                            tokens.refresh_token
-                            if tokens.refresh_token is not None
-                            else old_refresh_token
-                        ),
-                        expires_at=tokens.expires_at,
+                generation = self._install_locked(
+                    new_session,
+                    next_attempt_at=(
+                        self._clock() + MINIMUM_RENEWAL_INTERVAL_SECONDS
                     ),
-                    user=session.user,
-                ),
-                next_attempt_at=(
-                    self._clock() + MINIMUM_RENEWAL_INTERVAL_SECONDS
-                ),
-            )
+                )
+                gitlab_url = self._gitlab_url
+            self._write_record(new_session, gitlab_url, generation)
+            self._schedule()
 
     def get_access_token(self) -> Optional[str]:
         """
@@ -344,7 +380,7 @@ class TokenKeeper:
 
     def sign_out(self) -> None:
         """End the session: delete the record, remove the token variable."""
-        self._end_session(is_refused=False)
+        self._end_session(is_refused=False, expected_session=None)
 
     def close(self) -> None:
         """Stop the timer. The record stays: the next launch finds it."""
@@ -372,53 +408,100 @@ class TokenKeeper:
                 and self._clock() >= self._next_attempt_at
             )
 
-    def _install(
-        self, session: GitLabSession, *, next_attempt_at: float = 0.0
-    ) -> None:
-        """Make the session current, write the record, set the variable."""
-        with self._state_lock:
-            self._session = session
-            self._has_failed_renewal = False
-            self._next_attempt_at = next_attempt_at
-            self._write_record(session)
-            set_token_environment(self._token_env, session.tokens.access_token)
-        self._schedule()
+    def _install_locked(
+        self, session: GitLabSession, *, next_attempt_at: float
+    ) -> int:
+        """
+        Make the session current and set the variable of the token. Call it
+        with the state lock. It returns the number of the change.
+        """
+        self._session = session
+        self._has_failed_renewal = False
+        self._next_attempt_at = next_attempt_at
+        self._generation += 1
+        set_token_environment(self._token_env, session.tokens.access_token)
+        return self._generation
 
-    def _end_session(self, *, is_refused: bool) -> None:
+    def _end_session(
+        self, *, is_refused: bool, expected_session: Optional[GitLabSession]
+    ) -> None:
+        """
+        End the session. With an expected session, only if it is still the
+        current one: the check and the end are one step.
+        """
         with self._state_lock:
+            if (
+                expected_session is not None
+                and self._session is not expected_session
+            ):
+                return
             gitlab_url = self._gitlab_url
             self._session = None
             self._has_failed_renewal = False
             self._is_refused = is_refused
+            self._generation += 1
+            generation = self._generation
             self._cancel_timer()
             set_token_environment(self._token_env, None)
+        self._delete_record(gitlab_url, generation)
+        self._notify_session_changed()
+
+    def _notify_session_changed(self) -> None:
+        with self._state_lock:
+            listeners = list(self._session_listeners)
+        for listener_ in listeners:
+            listener_()
+
+    def _read_record(self, gitlab_url: str) -> Optional[str]:
+        with self._io_lock:
+            try:
+                return self._secret_store.get(get_token_secret_name(gitlab_url))
+            except (SecretStoreError, ImportError):
+                return None
+
+    def _write_record(
+        self, session: GitLabSession, gitlab_url: str, generation: int
+    ) -> None:
+        """
+        One write for both tokens, so that they are never apart. The write is
+        done when it is the last change of the session, and with no state lock:
+        a slow keyring does not block the readers of the session.
+        """
+        with self._io_lock:
+            if not self._is_last_change(generation):
+                return
+            error: Optional[str] = None
+            try:
+                self._secret_store.set(
+                    get_token_secret_name(gitlab_url),
+                    serialize_session(session),
+                )
+            except (SecretStoreError, ImportError):
+                # The session goes on in the memory of the process.
+                error = gettext(
+                    "The keyring did not save the sign-in. "
+                    "You will have to sign in again at the next launch."
+                )
+            with self._state_lock:
+                if generation == self._generation:
+                    self._storage_error = error
+
+    def _delete_record(self, gitlab_url: str, generation: int) -> None:
+        with self._io_lock:
+            if not self._is_last_change(generation):
+                return
             try:
                 self._secret_store.delete(get_token_secret_name(gitlab_url))
             except (SecretStoreError, ImportError):
-                self._storage_error = gettext(
-                    "The keyring did not delete the sign-in."
-                )
+                with self._state_lock:
+                    if generation == self._generation:
+                        self._storage_error = gettext(
+                            "The keyring did not delete the sign-in."
+                        )
 
-    def _read_record(self, gitlab_url: str) -> Optional[str]:
-        try:
-            return self._secret_store.get(get_token_secret_name(gitlab_url))
-        except (SecretStoreError, ImportError):
-            return None
-
-    def _write_record(self, session: GitLabSession) -> None:
-        """One write for both tokens, so that they are never apart."""
-        try:
-            self._secret_store.set(
-                get_token_secret_name(self._gitlab_url),
-                serialize_session(session),
-            )
-            self._storage_error = None
-        except (SecretStoreError, ImportError):
-            # The session goes on in the memory of the process.
-            self._storage_error = gettext(
-                "The keyring did not save the sign-in. "
-                "You will have to sign in again at the next launch."
-            )
+    def _is_last_change(self, generation: int) -> bool:
+        with self._state_lock:
+            return generation == self._generation
 
     def _schedule(self) -> None:
         if not self._use_timer:

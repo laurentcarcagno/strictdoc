@@ -41,6 +41,7 @@ from starlette.responses import (
 from starlette.staticfiles import StaticFiles
 
 from strictdoc.features.desktop import window
+from strictdoc.features.desktop.commit_author import create_author_provider
 from strictdoc.features.desktop.gitlab_client import create_catalog_client
 from strictdoc.features.desktop.oauth_gitlab import (
     CALLBACK_PATH,
@@ -57,6 +58,7 @@ from strictdoc.features.desktop.project_opener import (
 from strictdoc.features.desktop.project_principals import ProjectPrincipals
 from strictdoc.features.desktop.project_servers import (
     ProjectIdentity,
+    ProjectServerFactory,
     ProjectServerManager,
 )
 from strictdoc.features.desktop.secret_store import MemorySecretStore
@@ -143,6 +145,7 @@ def create_home_app(
     sign_in: Optional[GitLabSignIn] = None,
     keeper: Optional[TokenKeeper] = None,
     principals: Optional[ProjectPrincipals] = None,
+    server_factory: Optional[ProjectServerFactory] = None,
 ) -> FastAPI:
     # The tokens of the user. Without a keeper, they stay in memory.
     token_keeper = (
@@ -153,21 +156,27 @@ def create_home_app(
     if principals is None:
         principals = ProjectPrincipals(token_keeper)
 
-    def create_identity(identifier: str) -> Optional[ProjectIdentity]:
+    def create_identity(identifier: str) -> ProjectIdentity:
         # The projects of a GitLab catalog belong to the signed-in user, with
-        # the role that GitLab gives. The other catalogs have no user.
+        # the role that GitLab gives. The other catalogs have no user for the
+        # roles. In both cases, the commits are signed by the signed-in user,
+        # and are refused when nobody is signed in.
         if (
             load_settings(settings_path).catalog_provider
-            != GITLAB_PROVIDER_NAME
+            == GITLAB_PROVIDER_NAME
         ):
-            return None
-        return principals.create_identity(identifier)
+            return principals.create_identity(identifier)
+        return ProjectIdentity(
+            principal_provider=None,
+            author_provider=create_author_provider(token_keeper),
+        )
 
     project_opener = (
         opener
         if opener is not None
         else ProjectOpener(
             manager=ProjectServerManager(
+                server_factory=server_factory,
                 settings_path=settings_path,
                 identity_factory=create_identity,
             ),
@@ -244,6 +253,18 @@ def create_home_app(
         except OAuthError as exception_:
             return _render_page("message.jinja.html", notice=str(exception_))
         return RedirectResponse(authorization_url, status_code=303)
+
+    @application.post("/sign-out")
+    def sign_out() -> Response:
+        """
+        End the session: the tokens are forgotten (the record of the keyring,
+        the variable of Git), and so are the roles. The servers of the projects
+        stop: they would keep the documents of the user on the screen.
+        """
+        token_keeper.sign_out()
+        principals.clear()
+        manager.stop_servers()
+        return RedirectResponse("/", status_code=303)
 
     @application.get(CALLBACK_PATH)
     def finish_sign_in(request: Request) -> Response:
@@ -381,6 +402,11 @@ def render_home(
         settings.catalog_provider == GITLAB_PROVIDER_NAME
         and gitlab_client is None
     )
+    # The sign-in is for a user who is signed out, or whose sign-in is for
+    # another GitLab than the one of the settings.
+    is_sign_in_offered = is_sign_in_configured(settings) and (
+        user is None or is_sign_in_required
+    )
     if not is_sign_in_required:
         try:
             projects = create_catalog(settings, gitlab_client).list_projects(
@@ -401,7 +427,7 @@ def render_home(
         is_offline=sign_in_status is SignInStatus.OFFLINE,
         is_sign_in_refused=is_sign_in_refused and user is None,
         storage_error=storage_error,
-        is_sign_in_offered=user is None and is_sign_in_configured(settings),
+        is_sign_in_offered=is_sign_in_offered,
     )
     return HTMLResponse(output, headers={"Cache-Control": "no-store"})
 
@@ -449,7 +475,12 @@ def _find_project(
     ):
         return _render_page(
             "message.jinja.html",
-            notice=gettext("Sign in to see your projects."),
+            notice=gettext("Sign in to see your projects.")
+            if is_sign_in_configured(settings)
+            else gettext(
+                "The GitLab settings are incomplete: the address of GitLab "
+                "and the OAuth application are needed."
+            ),
         )
     try:
         projects = create_catalog(settings, gitlab_client).list_projects(

@@ -12,7 +12,7 @@ the function of create_provider().
 """
 
 import threading
-from typing import Dict, Optional
+from typing import Dict, Optional, Tuple
 
 from strictdoc.features.desktop.commit_author import create_author_provider
 from strictdoc.features.desktop.project_servers import ProjectIdentity
@@ -22,22 +22,40 @@ from strictdoc.features.roles.principal import Principal, PrincipalProvider
 
 
 class ProjectPrincipals:
+    """
+    The roles of the signed-in user, per project. A role belongs to a user: it
+    is kept under the user name and the project, and every change of the
+    session (the end of it, a refusal of GitLab, a new sign-in) forgets all of
+    them. A server of a project that stays open never gives the role of the
+    user who left to the user who came.
+    """
+
     def __init__(self, keeper: TokenKeeper) -> None:
         self._keeper: TokenKeeper = keeper
-        self._roles: Dict[str, CatalogRole] = {}
+        self._roles: Dict[Tuple[str, str], CatalogRole] = {}
         self._lock: threading.Lock = threading.Lock()
+        keeper.add_session_listener(self.clear)
+
+    def clear(self) -> None:
+        """Forget every role."""
+        with self._lock:
+            self._roles.clear()
 
     def set_role(self, identifier: str, role: Optional[CatalogRole]) -> None:
         """
-        Remember the role that the catalog gives on the project. None when the
-        user cannot see the project any more: its server then refuses every
-        request.
+        Remember the role that the catalog gives to the signed-in user on the
+        project. None when the user cannot see the project any more: its server
+        then refuses every request. Nothing is kept when nobody is signed in.
         """
+        session = self._keeper.session
+        if session is None:
+            return
+        key = (session.user.username, identifier)
         with self._lock:
             if role is None:
-                self._roles.pop(identifier, None)
+                self._roles.pop(key, None)
             else:
-                self._roles[identifier] = role
+                self._roles[key] = role
 
     def create_identity(self, identifier: str) -> ProjectIdentity:
         """The principal and the author of the commits of a project server."""
@@ -55,9 +73,11 @@ class ProjectPrincipals:
 
         def provide() -> Optional[Principal]:
             session = self._keeper.session
+            if session is None:
+                return None
             with self._lock:
-                role = self._roles.get(identifier)
-            if session is None or role is None:
+                role = self._roles.get((session.user.username, identifier))
+            if role is None:
                 return None
             return Principal(
                 user=session.user.username,

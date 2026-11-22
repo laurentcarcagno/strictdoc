@@ -12,6 +12,7 @@ authority of a company is then reached with no setting.
 import os
 import ssl
 from typing import Any, Optional, Union
+from urllib.parse import urlsplit
 
 import gitlab
 
@@ -53,12 +54,30 @@ def create_catalog_client(
 ) -> Optional[Any]:
     """
     The client that the catalog of the settings uses: a GitLab client with the
-    token of the signed-in user, once the user is signed in. None when the
-    catalog is not the one of GitLab, or when nobody is signed in.
+    token of the signed-in user, once the user is signed in. The client goes to
+    the GitLab that gave the token (the one of the session), and to no other:
+    when the settings name another GitLab, there is no client and the user has
+    to sign in again. None also when the catalog is not the one of GitLab, or
+    when nobody is signed in.
     """
     if settings.catalog_provider != GITLAB_PROVIDER_NAME:
         return None
-    access_token = keeper.get_access_token()
-    if access_token is None or len(settings.gitlab_url.strip()) == 0:
+    session_url = keeper.gitlab_url
+    if len(session_url) == 0 or not is_same_gitlab(
+        session_url, settings.gitlab_url
+    ):
         return None
-    return create_gitlab_client(settings.gitlab_url, access_token)
+    access_token = keeper.get_access_token()
+    if access_token is None:
+        return None
+    return create_gitlab_client(session_url, access_token)
+
+
+def is_same_gitlab(first_url: str, second_url: str) -> bool:
+    """Tell whether two addresses name the same GitLab (scheme, host, port)."""
+    return _get_origin(first_url) == _get_origin(second_url)
+
+
+def _get_origin(url: str) -> str:
+    parts = urlsplit(url.strip())
+    return f"{parts.scheme.lower()}://{parts.netloc.lower()}"

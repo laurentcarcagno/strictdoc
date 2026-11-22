@@ -13,9 +13,11 @@ folder, which the test can read and change.
 
 import json
 import os
+from pathlib import Path
 from typing import Dict, Optional
 
 from keyring.errors import PasswordDeleteError
+from strictdoc.helpers.file_system import file_open_read_utf8
 
 KEYRING_FILE_VARIABLE = "STRICTDOC_TEST_KEYRING_FILE"
 
@@ -47,13 +49,12 @@ def _read() -> Dict[str, str]:
     path = os.environ[KEYRING_FILE_VARIABLE]
     if not os.path.isfile(path):
         return {}
-    with open(path, encoding="utf-8") as file_:
+    with file_open_read_utf8(path) as file_:
         secrets: Dict[str, str] = json.load(file_)
     return secrets
 
 
 def _write(secrets: Dict[str, str]) -> None:
-    with open(
-        os.environ[KEYRING_FILE_VARIABLE], "w", encoding="utf-8"
-    ) as file_:
-        json.dump(secrets, file_)
+    Path(os.environ[KEYRING_FILE_VARIABLE]).write_text(
+        json.dumps(secrets), encoding="utf-8"
+    )

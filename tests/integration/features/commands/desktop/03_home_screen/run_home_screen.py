@@ -1,8 +1,9 @@
 """
 Check the home screen of "strictdoc desktop --no-window" without a project.
 
-The settings of the user are the defaults: the catalog provider is GitLab and
-there is no connection yet, so the page shows the error of the catalog.
+The settings of the user are the defaults: the catalog provider is GitLab, and
+the address of GitLab and the OAuth application are not given, so the page
+shows a message that the settings are incomplete, and no catalog.
 
 Usage: run_home_screen.py <strictdoc command> <user folder>
 """
@@ -48,7 +49,8 @@ def main() -> int:
         'data-testid="home-welcome"' in page,
     )
     _report(
-        "Catalog error shown in the page", 'data-testid="catalog-error"' in page
+        "Settings message shown in the page",
+        'data-testid="catalog-settings-incomplete"' in page,
     )
     _report("Python trace in the page", "Traceback" in page)
 

@@ -4,7 +4,8 @@
   launch, then the catalog of the projects as a tree with a search by name.
   Variables: assets, has_opened_project, error, project_count, root,
   running_identifiers (the projects whose server runs), user (the GitLab user
-  who signed in, or none), is_sign_in_offered, is_offline, is_sign_in_refused, storage_error, is_sign_in_required.
+  who signed in, or none), is_sign_in_offered (the sign-in can be started),
+  is_offline, is_sign_in_refused, storage_error, is_sign_in_required.
 #}
 {%- set role_labels = {
   "reader": _("reader"),
@@ -67,16 +68,21 @@
   {%- endif %}
 
   {%- if user is not none %}
-  <p class="home__user" data-testid="signed-in-user">
+  <div class="home__user" data-testid="signed-in-user">
     {{ _("Signed in as %(name)s", name=user.display_name) }}
     <span class="home__user_name" data-testid="signed-in-username">{{ user.username }}</span>
-  </p>
+    <form method="post" action="/sign-out" class="home__sign_out">
+      <button type="submit" class="home__sign_out_button"
+              data-testid="sign-out">{{ _("Sign out") }}</button>
+    </form>
+  </div>
   {%- if is_offline %}
   <p class="notice" role="status" data-testid="offline-notice">
     {{ _("You are offline: GitLab cannot be reached. The application tries again by itself.") }}
   </p>
   {%- endif %}
-  {%- elif is_sign_in_offered %}
+  {%- endif %}
+  {%- if is_sign_in_offered %}
   {%- if is_sign_in_refused %}
   <p class="notice" role="status" data-testid="sign-in-expired">
     {{ _("The sign-in has ended. Sign in again.") }}
@@ -95,9 +101,13 @@
   <section class="catalog" data-testid="catalog">
     <h2 class="catalog__title">{{ _("Projects") }}</h2>
 
-    {%- if is_sign_in_required %}
+    {%- if is_sign_in_required and is_sign_in_offered %}
     <p class="catalog__empty" data-testid="catalog-sign-in-required">
       {{ _("Sign in to see your projects.") }}
+    </p>
+    {%- elif is_sign_in_required %}
+    <p class="notice" role="alert" data-testid="catalog-settings-incomplete">
+      {{ _("The GitLab settings are incomplete: the address of GitLab and the OAuth application are needed.") }}
     </p>
     {%- elif error is not none %}
     <div class="catalog__error" role="alert" data-testid="catalog-error">

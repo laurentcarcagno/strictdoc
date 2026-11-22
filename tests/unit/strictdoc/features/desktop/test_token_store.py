@@ -97,6 +97,8 @@ class Refresher:
         self.received: List[str] = []
         self.error: Optional[Exception] = None
         self.gate: Optional[threading.Event] = None
+        # Set when a call reaches GitLab, before it waits for the gate.
+        self.entered: threading.Event = threading.Event()
         # The life of the tokens that it gives, in seconds.
         self.lifetime: float = LIFETIME
 
@@ -110,6 +112,7 @@ class Refresher:
     ) -> GitLabTokens:
         assert gitlab_url == GITLAB_URL
         assert client_id == "the-client"
+        self.entered.set()
         if self.gate is not None:
             assert self.gate.wait(10)
         self.received.append(refresh_token)
@@ -813,6 +816,232 @@ def test_027_a_sign_in_keeps_its_record_in_the_store_and_not_in_the_settings(
     assert session.tokens.access_token not in settings_text
     assert session.tokens.refresh_token not in settings_text
     assert "token" not in settings_text
+
+
+# The renewal and the changes of the session.
+
+
+def _create_other_session(clock: Clock) -> GitLabSession:
+    return GitLabSession(
+        tokens=GitLabTokens(
+            access_token="access-B",
+            refresh_token="refresh-B",
+            expires_at=clock() + LIFETIME,
+        ),
+        user=GitLabUser(username="pmartin", display_name="Paul", email=""),
+    )
+
+
+def _start_renewal_during_which(setup: Setup) -> "RenewalInProgress":
+    setup.sign_in()
+    setup.clock.now += LIFETIME
+    return RenewalInProgress(setup)
+
+
+class RenewalInProgress:
+    """A renewal that waits inside GitLab, until the test lets it go."""
+
+    def __init__(self, setup: Setup) -> None:
+        self.setup: Setup = setup
+        self.gate: threading.Event = threading.Event()
+        setup.refresher.gate = self.gate
+        self.errors: List[BaseException] = []
+        self.thread: threading.Thread = threading.Thread(target=self._run)
+        self.thread.start()
+        assert setup.refresher.entered.wait(10)
+
+    def finish(self) -> None:
+        self.gate.set()
+        self.thread.join(10)
+        assert not self.thread.is_alive()
+        assert self.errors == []
+
+    def _run(self) -> None:
+        try:
+            self.setup.keeper.renew()
+        except BaseException as exception_:  # noqa: BLE001
+            self.errors.append(exception_)
+
+
+def test_028_a_sign_out_during_a_renewal_is_not_undone(setup: Setup) -> None:
+    renewal = _start_renewal_during_which(setup)
+
+    setup.keeper.sign_out()
+    renewal.finish()
+
+    # The tokens that GitLab gave after the sign-out are dropped.
+    assert setup.keeper.session is None
+    assert setup.keeper.status is SignInStatus.SIGNED_OUT
+    assert setup.store.get(SECRET_NAME) is None
+    assert TOKEN_ENV not in os.environ
+
+
+def test_029_a_new_sign_in_during_a_renewal_is_not_replaced(
+    setup: Setup,
+) -> None:
+    renewal = _start_renewal_during_which(setup)
+
+    other_session = _create_other_session(setup.clock)
+    setup.keeper.adopt(
+        gitlab_url=GITLAB_URL, client_id="the-client", session=other_session
+    )
+    renewal.finish()
+
+    assert setup.keeper.session == other_session
+    stored = setup.store.get(SECRET_NAME)
+    assert stored is not None
+    assert parse_session(stored) == other_session
+    assert os.environ[TOKEN_ENV] == "access-B"
+
+
+def test_030_a_refusal_during_a_new_sign_in_does_not_end_the_new_session(
+    setup: Setup,
+) -> None:
+    setup.refresher.error = OAuthRejectedError("invalid_grant")
+    renewal = _start_renewal_during_which(setup)
+
+    other_session = _create_other_session(setup.clock)
+    setup.keeper.adopt(
+        gitlab_url=GITLAB_URL, client_id="the-client", session=other_session
+    )
+    renewal.finish()
+
+    assert setup.keeper.session == other_session
+    assert not setup.keeper.is_refused
+    stored = setup.store.get(SECRET_NAME)
+    assert stored is not None
+    assert parse_session(stored) == other_session
+    assert os.environ[TOKEN_ENV] == "access-B"
+
+
+def test_031_a_network_failure_during_a_new_sign_in_spares_the_new_session(
+    setup: Setup,
+) -> None:
+    setup.refresher.error = OAuthError("cannot be reached")
+    setup.sign_in()
+    setup.clock.now += LIFETIME
+    gate = threading.Event()
+    setup.refresher.gate = gate
+    errors: List[BaseException] = []
+
+    def renew() -> None:
+        try:
+            setup.keeper.renew()
+        except OAuthError as exception_:
+            errors.append(exception_)
+
+    thread = threading.Thread(target=renew)
+    thread.start()
+    assert setup.refresher.entered.wait(10)
+    setup.keeper.adopt(
+        gitlab_url=GITLAB_URL,
+        client_id="the-client",
+        session=_create_other_session(setup.clock),
+    )
+    gate.set()
+    thread.join(10)
+
+    assert len(errors) == 1
+    # The new session is not marked as failed, and is due when its time comes.
+    assert setup.keeper.get_seconds_until_renewal() == (
+        LIFETIME - RENEWAL_MARGIN_SECONDS
+    )
+    setup.clock.now += LIFETIME + 1
+    assert setup.keeper.status is SignInStatus.SIGNED_IN
+
+
+def test_032_the_listeners_hear_each_change_of_the_session_and_not_a_renewal(
+    setup: Setup,
+) -> None:
+    calls: List[str] = []
+    setup.keeper.add_session_listener(lambda: calls.append("changed"))
+
+    setup.sign_in()
+    assert calls == ["changed"]
+    setup.clock.now += LIFETIME
+    setup.keeper.renew()
+    assert calls == ["changed"]
+    setup.keeper.sign_out()
+    assert calls == ["changed", "changed"]
+    setup.sign_in()
+    setup.clock.now += LIFETIME
+    setup.refresher.error = OAuthRejectedError("invalid_grant")
+    setup.keeper.renew()
+    assert calls == ["changed"] * 4
+
+
+class SlowStore(CountingStore):
+    """A store whose write waits until the test lets it go."""
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.entered: threading.Event = threading.Event()
+        self.gate: threading.Event = threading.Event()
+
+    def set(self, name: str, value: str) -> None:
+        self.entered.set()
+        assert self.gate.wait(10)
+        super().set(name, value)
+
+
+def test_033_a_slow_keyring_does_not_hold_up_the_readers_of_the_session() -> (
+    None
+):
+    store = SlowStore()
+    clock = Clock()
+    keeper = TokenKeeper(
+        store, clock=clock, token_env=TOKEN_ENV, use_timer=False
+    )
+    thread = threading.Thread(
+        target=keeper.adopt,
+        kwargs={
+            "gitlab_url": GITLAB_URL,
+            "client_id": "the-client",
+            "session": _create_session(clock),
+        },
+    )
+    try:
+        thread.start()
+        assert store.entered.wait(10)
+
+        started_at = time.monotonic()
+        session = keeper.session
+        status = keeper.status
+        url = keeper.gitlab_url
+        token = keeper.get_access_token()
+        elapsed = time.monotonic() - started_at
+
+        # The write is still waiting: the readers did not wait for it.
+        assert thread.is_alive()
+        assert elapsed < 1.0
+        assert session is not None
+        assert status is SignInStatus.SIGNED_IN
+        assert url == GITLAB_URL
+        assert token == "access-0"
+    finally:
+        store.gate.set()
+        thread.join(10)
+        keeper.close()
+        os.environ.pop(TOKEN_ENV, None)
+    assert store.get(SECRET_NAME) is not None
+
+
+def test_034_the_token_is_given_to_git_until_it_ends_also_in_the_margin(
+    setup: Setup,
+) -> None:
+    setup.sign_in()
+    os.environ.pop(TOKEN_ENV)
+    # The token ends in 100 seconds: it is due for renewal, and still good.
+    setup.clock.now += LIFETIME - 100
+
+    setup.restart()
+
+    assert os.environ[TOKEN_ENV] == "access-0"
+    # Once it has ended, it is not given.
+    os.environ.pop(TOKEN_ENV)
+    setup.clock.now += 100
+    setup.restart()
+    assert TOKEN_ENV not in os.environ
 
 
 def _sign_in(fake_gitlab: FakeGitLab, sign_in: GitLabSignIn) -> GitLabSession:

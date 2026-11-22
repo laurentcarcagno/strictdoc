@@ -40,6 +40,21 @@ body {
   color: var(--home-muted);
 }
 
+.home__sign_out {
+  display: inline;
+  margin-left: 1rem;
+}
+
+.home__sign_out_button {
+  padding: 0.2rem 0.6rem;
+  border: 1px solid var(--home-border);
+  border-radius: 4px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+}
+
 .home__sign_in {
   margin: 0 0 1.5rem;
 }

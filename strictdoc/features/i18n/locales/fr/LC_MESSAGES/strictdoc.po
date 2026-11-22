@@ -3108,3 +3108,16 @@ msgstr "Connectez-vous pour voir vos projets."
 #: strictdoc/features/desktop/home_app.py
 msgid "You no longer have access to this project."
 msgstr "Vous n'avez plus accès à ce projet."
+
+#: strictdoc/features/desktop/templates/home.jinja.html
+msgid "Sign out"
+msgstr "Se déconnecter"
+
+#: strictdoc/features/desktop/templates/home.jinja.html
+#: strictdoc/features/desktop/home_app.py
+msgid ""
+"The GitLab settings are incomplete: the address of GitLab and the OAuth "
+"application are needed."
+msgstr ""
+"Les réglages de GitLab sont incomplets : l'adresse de GitLab et "
+"l'application OAuth sont nécessaires."
