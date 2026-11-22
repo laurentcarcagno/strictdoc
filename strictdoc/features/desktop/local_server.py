@@ -7,6 +7,7 @@ The web server of a project for the desktop application.
 @relation(SDOC-SRS-1225, scope=file)
 @relation(SDOC-SRS-1229, scope=file)
 @relation(SDOC-SRS-1234, scope=file)
+@relation(SDOC-SRS-1236, scope=file)
 """
 
 import asyncio
@@ -36,6 +37,8 @@ from strictdoc.features.desktop.session_token import (
     DesktopSessionMiddleware,
     SessionCredentials,
 )
+from strictdoc.features.roles.middleware import PrincipalMiddleware
+from strictdoc.features.roles.principal import PrincipalProvider
 from strictdoc.server.app import create_app
 
 # The host cannot be set: only the program on this computer reaches the server.
@@ -221,7 +224,12 @@ class LocalServer:
         # create_app starts the banner from its lifespan, which looks the
         # function up in the module when the server starts.
         server_app.print_welcome_message = _print_no_welcome_message
-        return create_app(project_config=self._project_config)
+        application = create_app(project_config=self._project_config)
+        if self._project_config.principal_provider is not None:
+            give_principal_provider(
+                application, self._project_config.principal_provider
+            )
+        return application
 
     def _open_socket(self) -> socket.socket:
         server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -260,8 +268,33 @@ class LocalServer:
             self._error = exception_
 
 
+def give_principal_provider(
+    application: Starlette, principal_provider: PrincipalProvider
+) -> None:
+    """
+    Give the function to the principal middleware of the application. The
+    middleware stack is built at the first request, so the arguments of the
+    middleware can still be completed here. Raise LocalServerError when it
+    cannot be: the server would otherwise run with no user, or with the wrong
+    one.
+    """
+    if application.middleware_stack is not None:
+        raise LocalServerError(
+            "The middleware of the application is already built: the "
+            "principal provider is too late."
+        )
+    for middleware_ in application.user_middleware:
+        if middleware_.cls is PrincipalMiddleware:
+            middleware_.kwargs["principal_provider"] = principal_provider
+            return
+    raise LocalServerError("The application has no principal middleware.")
+
+
 def create_desktop_project_config(
-    *, input_path: str, port: Optional[int]
+    *,
+    input_path: str,
+    port: Optional[int],
+    principal_provider: Optional[PrincipalProvider] = None,
 ) -> ProjectConfig:
     """
     Read the configuration of a project like the "server" command does.
@@ -270,6 +303,9 @@ def create_desktop_project_config(
     sub-folder per project, so that the project and the current folder stay
     free of generated files. The "output_dir" and "cache_dir" options of the
     project configuration are ignored in this mode.
+
+    With a principal provider, the server is in the authentication mode
+    "desktop": the user of the server is the one that the function gives.
     """
     full_input_path = os.path.abspath(input_path)
     output_dir = str(get_project_output_dir(full_input_path))
@@ -290,6 +326,8 @@ def create_desktop_project_config(
     project_config.dir_for_sdoc_cache = os.path.join(
         str(get_project_sdoc_cache_dir(full_input_path)), __version__
     )
+    if principal_provider is not None:
+        project_config.enable_desktop_mode(principal_provider)
     return project_config
 
 

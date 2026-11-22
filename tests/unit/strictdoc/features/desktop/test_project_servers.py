@@ -67,7 +67,10 @@ class Context:
             eviction_delay_seconds=0,
         )
 
-    def _create_server(self, folder: str) -> FakeServer:
+    def _create_server(
+        self, folder: str, principal_provider: object = None
+    ) -> FakeServer:
+        del principal_provider
         server = FakeServer(folder, len(self.servers))
         self.servers.append(server)
         return server

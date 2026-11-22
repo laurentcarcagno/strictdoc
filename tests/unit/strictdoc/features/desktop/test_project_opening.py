@@ -82,7 +82,10 @@ class Environment:
         self.updated_folders.append(folder)
         return False
 
-    def _create_server(self, folder: str) -> FakeProjectServer:
+    def _create_server(
+        self, folder: str, principal_provider: object = None
+    ) -> FakeProjectServer:
+        del principal_provider
         server = FakeProjectServer(folder)
         self.servers.append(server)
         return server

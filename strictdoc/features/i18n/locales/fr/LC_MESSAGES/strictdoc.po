@@ -3099,3 +3099,12 @@ msgid ""
 msgstr ""
 "Le trousseau n'a pas enregistré la connexion. Vous devrez vous connecter de "
 "nouveau au prochain lancement."
+
+#: strictdoc/features/desktop/templates/home.jinja.html
+#: strictdoc/features/desktop/home_app.py
+msgid "Sign in to see your projects."
+msgstr "Connectez-vous pour voir vos projets."
+
+#: strictdoc/features/desktop/home_app.py
+msgid "You no longer have access to this project."
+msgstr "Vous n'avez plus accès à ce projet."

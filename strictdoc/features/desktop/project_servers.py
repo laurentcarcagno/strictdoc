@@ -9,6 +9,7 @@ stopped.
 
 @relation(SDOC-SRS-1232, scope=file)
 @relation(SDOC-SRS-1233, scope=file)
+@relation(SDOC-SRS-1236, scope=file)
 """
 
 import logging
@@ -20,6 +21,7 @@ from typing import Callable, List, Optional, Protocol, Set
 
 from strictdoc.features.desktop.settings import load_settings
 from strictdoc.features.desktop.workspace import WorkspaceError, pull_project
+from strictdoc.features.roles.principal import PrincipalProvider
 
 logger = logging.getLogger(__name__)
 
@@ -51,7 +53,14 @@ class ProjectServer(Protocol):
     def stop(self) -> None: ...
 
 
-ProjectServerFactory = Callable[[str], ProjectServer]
+# Receives the folder and the function that gives the user of the server, if
+# the server has one.
+ProjectServerFactory = Callable[
+    [str, Optional[PrincipalProvider]], ProjectServer
+]
+# Receives the identifier of a project: gives the function that gives the user
+# of its server, or None for a server that has no user.
+PrincipalProviderFactory = Callable[[str], Optional[PrincipalProvider]]
 # Returns True when the update changed files. Raises WorkspaceError.
 ProjectUpdater = Callable[[str], bool]
 
@@ -86,7 +95,11 @@ class ProjectServerManager:
         updater: Optional[ProjectUpdater] = None,
         settings_path: Optional[Path] = None,
         eviction_delay_seconds: float = EVICTION_DELAY_SECONDS,
+        principal_provider_factory: Optional[PrincipalProviderFactory] = None,
     ) -> None:
+        self._principal_provider_factory: Optional[PrincipalProviderFactory] = (
+            principal_provider_factory
+        )
         self._server_factory: ProjectServerFactory = (
             server_factory
             if server_factory is not None
@@ -146,6 +159,13 @@ class ProjectServerManager:
         with self._state_lock:
             return set(self._projects)
 
+    def stop_project(self, identifier: str) -> None:
+        """Stop the server of a project that the user cannot open any more."""
+        with self._state_lock:
+            project = self._projects.pop(identifier, None)
+        if project is not None:
+            project.server.stop()
+
     def stop_all(self) -> None:
         """Stop every server, when the application ends."""
         with self._state_lock:
@@ -162,7 +182,12 @@ class ProjectServerManager:
             # The folder of the project changed: the old server shows the
             # old folder.
             previous_project.server.stop()
-        server = self._server_factory(folder)
+        principal_provider = (
+            self._principal_provider_factory(identifier)
+            if self._principal_provider_factory is not None
+            else None
+        )
+        server = self._server_factory(folder, principal_provider)
         server.start()
         try:
             server.wait_until_ready()
@@ -239,7 +264,9 @@ class ProjectServerManager:
                 self._updating.discard(identifier)
 
 
-def _create_local_server(folder: str) -> ProjectServer:
+def _create_local_server(
+    folder: str, principal_provider: Optional[PrincipalProvider]
+) -> ProjectServer:
     # Imported here: the module needs the web server of the project, which
     # the unit tests of the manager do not start.
     from strictdoc.features.desktop.local_server import (  # noqa: PLC0415
@@ -247,5 +274,7 @@ def _create_local_server(folder: str) -> ProjectServer:
         create_desktop_project_config,
     )
 
-    project_config = create_desktop_project_config(input_path=folder, port=None)
+    project_config = create_desktop_project_config(
+        input_path=folder, port=None, principal_provider=principal_provider
+    )
     return LocalServer(project_config=project_config)

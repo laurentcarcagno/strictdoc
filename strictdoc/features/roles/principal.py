@@ -21,7 +21,7 @@ them when a client sends them.
 
 from contextvars import ContextVar
 from dataclasses import dataclass
-from typing import Mapping, Optional, Tuple
+from typing import Callable, Mapping, Optional, Tuple
 
 HEADER_SUBJECT = "x-forwarded-user"
 HEADER_USERNAME = "x-forwarded-preferred-username"
@@ -59,6 +59,12 @@ class Principal:
         return Principal(
             user=ANONYMOUS_USER, authenticated=False, role="administrator"
         )
+
+
+# Who is acting, when the application that runs the server knows it (the
+# desktop application): a function with no argument that gives the principal of
+# the user, or None when nobody is signed in.
+PrincipalProvider = Callable[[], Optional[Principal]]
 
 
 def groups_from_header(value: str) -> Tuple[str, ...]:

@@ -10,6 +10,8 @@ window.location to the callback address. It is not a 302 redirect.
 
 @relation(SDOC-SRS-1234, scope=file)
 @relation(SDOC-SRS-1235, scope=file)
+@relation(SDOC-SRS-1237, scope=file)
+@relation(SDOC-SRS-1240, scope=file)
 """
 
 import base64
@@ -19,13 +21,22 @@ import secrets
 import threading
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from typing import Any, Dict, List, Optional, Set
-from urllib.parse import parse_qs, urlencode, urlparse
+from urllib.parse import parse_qs, unquote, urlencode, urlparse
 
 CLIENT_ID = "fake-desktop-application"
 USERNAME = "jdupont"
 DISPLAY_NAME = "Jeanne Dupont"
 EMAIL = "jeanne.dupont@example.org"
 CALLBACK_PATH = "/__desktop/oauth/callback"
+# The group of the catalog and its identifier.
+GROUP_PATH = "demo"
+GROUP_ID = 7
+
+# GitLab access levels.
+GUEST = 10
+REPORTER = 20
+DEVELOPER = 30
+MAINTAINER = 40
 
 # What the authorization page does.
 MODE_GRANT = "grant"
@@ -55,6 +66,11 @@ class FakeGitLab:
         # The forms of the renewals, without the refresh token.
         self.refresh_requests: List[Dict[str, str]] = []
         self.user_request_count: int = 0
+        # The projects of the group: their GitLab data, and the access level
+        # that the user has on each. A project with no level is not listed.
+        self.projects: Dict[int, Dict[str, Any]] = {}
+        self.access_levels: Dict[int, int] = {}
+        self.project_request_count: int = 0
         # The life of the access tokens that the server gives, in seconds.
         self.expires_in: int = 7200
         self.refresh_mode: str = REFRESH_GRANT
@@ -78,6 +94,8 @@ class FakeGitLab:
                     outer.handle_authorize(self, query)
                 elif url.path == "/api/v4/user":
                     outer.handle_user(self)
+                elif unquote(url.path).startswith("/api/v4/groups/"):
+                    outer.handle_group(self, unquote(url.path), query)
                 else:
                     outer.send_text(self, 404, "Not found")
 
@@ -239,15 +257,71 @@ class FakeGitLab:
             "created_at": 0,
         }
 
+    def add_project(
+        self,
+        project_id: int,
+        name: str,
+        clone_url: str,
+        access_level: int,
+        *,
+        subgroup: str = "",
+    ) -> None:
+        """A project of the group, with the access level of the user."""
+        path = "/".join(
+            part_ for part_ in (GROUP_PATH, subgroup, name.lower()) if part_
+        )
+        self.projects[project_id] = {
+            "id": project_id,
+            "name": name,
+            "path_with_namespace": path,
+            "description": "",
+            "http_url_to_repo": clone_url,
+            "archived": False,
+        }
+        self.access_levels[project_id] = access_level
+
+    def handle_group(
+        self,
+        handler: BaseHTTPRequestHandler,
+        path: str,
+        query: Dict[str, str],
+    ) -> None:
+        """
+        GET /api/v4/groups/<path or id> and /api/v4/groups/<id>/projects, with
+        the filter min_access_level, as python-gitlab asks them.
+        """
+        if not self._has_good_token(handler):
+            self.send_json(handler, 401, {"message": "401 Unauthorized"})
+            return
+        parts = path[len("/api/v4/groups/") :].split("/projects")
+        if parts[0] not in (GROUP_PATH, str(GROUP_ID)):
+            self.send_json(handler, 404, {"message": "404 Group Not Found"})
+            return
+        if len(parts) == 1:
+            self.send_json(
+                handler, 200, {"id": GROUP_ID, "full_path": GROUP_PATH}
+            )
+            return
+        self.project_request_count += 1
+        minimum = int(query.get("min_access_level", "0"))
+        listed = [
+            project_
+            for id_, project_ in sorted(self.projects.items())
+            if id_ in self.access_levels and self.access_levels[id_] >= minimum
+        ]
+        data = json.dumps(listed).encode("utf-8")
+        handler.send_response(200)
+        handler.send_header("Content-Type", "application/json")
+        handler.send_header("Content-Length", str(len(data)))
+        handler.send_header("X-Page", "1")
+        handler.send_header("X-Total-Pages", "1")
+        handler.send_header("X-Total", str(len(listed)))
+        handler.end_headers()
+        handler.wfile.write(data)
+
     def handle_user(self, handler: BaseHTTPRequestHandler) -> None:
         self.user_request_count += 1
-        authorization = handler.headers.get("Authorization", "")
-        token: Optional[str] = (
-            authorization[len("Bearer ") :]
-            if authorization.startswith("Bearer ")
-            else None
-        )
-        if token is None or token not in self._access_tokens:
+        if not self._has_good_token(handler):
             self.send_json(handler, 401, {"message": "401 Unauthorized"})
             return
         self.send_json(
@@ -255,6 +329,15 @@ class FakeGitLab:
             200,
             {"username": USERNAME, "name": DISPLAY_NAME, "email": EMAIL},
         )
+
+    def _has_good_token(self, handler: BaseHTTPRequestHandler) -> bool:
+        authorization = handler.headers.get("Authorization", "")
+        token: Optional[str] = (
+            authorization[len("Bearer ") :]
+            if authorization.startswith("Bearer ")
+            else None
+        )
+        return token is not None and token in self._access_tokens
 
     @staticmethod
     def send_json(

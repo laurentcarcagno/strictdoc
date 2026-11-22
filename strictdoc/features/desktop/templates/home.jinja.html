@@ -4,7 +4,7 @@
   launch, then the catalog of the projects as a tree with a search by name.
   Variables: assets, has_opened_project, error, project_count, root,
   running_identifiers (the projects whose server runs), user (the GitLab user
-  who signed in, or none), is_sign_in_offered, is_offline, is_sign_in_refused, storage_error.
+  who signed in, or none), is_sign_in_offered, is_offline, is_sign_in_refused, storage_error, is_sign_in_required.
 #}
 {%- set role_labels = {
   "reader": _("reader"),
@@ -95,7 +95,11 @@
   <section class="catalog" data-testid="catalog">
     <h2 class="catalog__title">{{ _("Projects") }}</h2>
 
-    {%- if error is not none %}
+    {%- if is_sign_in_required %}
+    <p class="catalog__empty" data-testid="catalog-sign-in-required">
+      {{ _("Sign in to see your projects.") }}
+    </p>
+    {%- elif error is not none %}
     <div class="catalog__error" role="alert" data-testid="catalog-error">
       <p>{{ _("The catalog of projects cannot be shown.") }}</p>
       <p class="catalog__error_detail">{{ error }}</p>

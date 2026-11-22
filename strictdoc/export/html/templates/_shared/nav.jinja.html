@@ -225,7 +225,7 @@
   </a>
 {%- endif -%}
 
-{%- if view_object.project_config.is_running_on_server and view_object.project_config.auth_mode == "proxy" -%}
+{%- if view_object.project_config.is_running_on_server and view_object.project_config.auth_mode in ("proxy", "desktop") -%}
   <a
     data-link="audit"
     class="nav_button"
@@ -276,7 +276,7 @@
   {#- Filled by roles/role_gating.js behind the login proxy. -#}
   <div class="nav__user" id="nav-user" hidden></div>
 
-{%- if view_object.project_config.is_running_on_server and view_object.project_config.auth_mode == "proxy" %}
+{%- if view_object.project_config.is_running_on_server and view_object.project_config.auth_mode in ("proxy", "desktop") %}
   <a
     class="nav_button nav__logout_item"
     href="/oauth2/sign_out"

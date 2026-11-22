@@ -11,13 +11,24 @@ the user starts the application without a project.
 @relation(SDOC-SRS-1232, scope=file)
 @relation(SDOC-SRS-1234, scope=file)
 @relation(SDOC-SRS-1235, scope=file)
+@relation(SDOC-SRS-1236, scope=file)
+@relation(SDOC-SRS-1237, scope=file)
+@relation(SDOC-SRS-1240, scope=file)
 """
 
 import os
 from contextlib import asynccontextmanager
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import AbstractSet, AsyncIterator, Dict, List, Optional, Union
+from typing import (
+    AbstractSet,
+    Any,
+    AsyncIterator,
+    Dict,
+    List,
+    Optional,
+    Union,
+)
 
 from fastapi import FastAPI, Form, Request
 from jinja2 import Environment, FileSystemLoader, select_autoescape
@@ -30,6 +41,7 @@ from starlette.responses import (
 from starlette.staticfiles import StaticFiles
 
 from strictdoc.features.desktop import window
+from strictdoc.features.desktop.gitlab_client import create_catalog_client
 from strictdoc.features.desktop.oauth_gitlab import (
     CALLBACK_PATH,
     GitLabSignIn,
@@ -42,6 +54,7 @@ from strictdoc.features.desktop.project_opener import (
     JobState,
     ProjectOpener,
 )
+from strictdoc.features.desktop.project_principals import ProjectPrincipals
 from strictdoc.features.desktop.project_servers import ProjectServerManager
 from strictdoc.features.desktop.secret_store import MemorySecretStore
 from strictdoc.features.desktop.session_token import (
@@ -62,7 +75,11 @@ from strictdoc.features.project_catalog.catalog import (
     CatalogProject,
     DesktopIdentity,
 )
-from strictdoc.features.project_catalog.registry import create_catalog
+from strictdoc.features.project_catalog.registry import (
+    GITLAB_PROVIDER_NAME,
+    create_catalog,
+)
+from strictdoc.features.roles.principal import PrincipalProvider
 
 _DESKTOP_DIR = os.path.dirname(os.path.abspath(__file__))
 ASSETS_DIR = os.path.join(_DESKTOP_DIR, "assets")
@@ -123,22 +140,41 @@ def create_home_app(
     opener: Optional[ProjectOpener] = None,
     sign_in: Optional[GitLabSignIn] = None,
     keeper: Optional[TokenKeeper] = None,
+    principals: Optional[ProjectPrincipals] = None,
 ) -> FastAPI:
-    project_opener = (
-        opener
-        if opener is not None
-        else ProjectOpener(
-            manager=ProjectServerManager(settings_path=settings_path),
-            settings_path=settings_path,
-        )
-    )
-    manager = project_opener.manager
     # The tokens of the user. Without a keeper, they stay in memory.
     token_keeper = (
         keeper
         if keeper is not None
         else TokenKeeper(MemorySecretStore(), use_timer=False)
     )
+    if principals is None:
+        principals = ProjectPrincipals(token_keeper)
+
+    def create_principal_provider(
+        identifier: str,
+    ) -> Optional[PrincipalProvider]:
+        # The projects of a GitLab catalog belong to the signed-in user, with
+        # the role that GitLab gives. The other catalogs have no user.
+        if (
+            load_settings(settings_path).catalog_provider
+            != GITLAB_PROVIDER_NAME
+        ):
+            return None
+        return principals.create_provider(identifier)
+
+    project_opener = (
+        opener
+        if opener is not None
+        else ProjectOpener(
+            manager=ProjectServerManager(
+                settings_path=settings_path,
+                principal_provider_factory=create_principal_provider,
+            ),
+            settings_path=settings_path,
+        )
+    )
+    manager = project_opener.manager
     gitlab_sign_in = (
         sign_in
         if sign_in is not None
@@ -181,9 +217,12 @@ def create_home_app(
 
     @application.get("/", response_class=HTMLResponse)
     def home() -> HTMLResponse:
+        settings = load_settings(settings_path)
         return render_home(
-            load_settings(settings_path),
+            settings,
             running_identifiers=manager.get_open_identifiers(),
+            gitlab_client=create_catalog_client(settings, token_keeper),
+            identity=_get_identity(token_keeper),
             user=_get_user(token_keeper),
             sign_in_status=token_keeper.status,
             is_sign_in_refused=token_keeper.is_refused,
@@ -237,7 +276,13 @@ def create_home_app(
     @application.post("/projects/open")
     def open_project(identifier: str = Form(...)) -> Response:
         settings = load_settings(settings_path)
-        project = _find_project(settings, identifier)
+        project = _find_project(
+            settings,
+            identifier,
+            keeper=token_keeper,
+            principals=principals,
+            manager=manager,
+        )
         if isinstance(project, HTMLResponse):
             return project
         folder = settings.project_folders.get(identifier)
@@ -263,7 +308,13 @@ def create_home_app(
         identifier: str = Form(...), folder: str = Form("")
     ) -> Response:
         settings = load_settings(settings_path)
-        project = _find_project(settings, identifier)
+        project = _find_project(
+            settings,
+            identifier,
+            keeper=token_keeper,
+            principals=principals,
+            manager=manager,
+        )
         if isinstance(project, HTMLResponse):
             return project
         folder = folder.strip()
@@ -313,6 +364,8 @@ def render_home(
     sign_in_status: SignInStatus = SignInStatus.SIGNED_OUT,
     is_sign_in_refused: bool = False,
     storage_error: Optional[str] = None,
+    gitlab_client: Optional[Any] = None,
+    identity: DesktopIdentity = ANONYMOUS_IDENTITY,
 ) -> HTMLResponse:
     """
     The home page. A catalog that fails is an error shown in the page. The
@@ -323,15 +376,24 @@ def render_home(
     """
     projects: List[CatalogProject] = []
     error: Optional[str] = None
-    try:
-        projects = create_catalog(settings).list_projects(ANONYMOUS_IDENTITY)
-    except CatalogError as exception_:
-        error = str(exception_)
+    # The catalog of GitLab lists what the user can see: it needs the user.
+    is_sign_in_required = (
+        settings.catalog_provider == GITLAB_PROVIDER_NAME
+        and gitlab_client is None
+    )
+    if not is_sign_in_required:
+        try:
+            projects = create_catalog(settings, gitlab_client).list_projects(
+                identity
+            )
+        except CatalogError as exception_:
+            error = str(exception_)
     output = TEMPLATES.get_template("home.jinja.html").render(
         assets=ASSETS_URL,
         # The first launch: no project has ever been opened.
         has_opened_project=len(settings.project_folders) > 0,
         error=error,
+        is_sign_in_required=is_sign_in_required,
         project_count=len(projects),
         root=build_catalog_tree(projects),
         running_identifiers=running_identifiers,
@@ -342,6 +404,15 @@ def render_home(
         is_sign_in_offered=user is None and is_sign_in_configured(settings),
     )
     return HTMLResponse(output, headers={"Cache-Control": "no-store"})
+
+
+def _get_identity(token_keeper: TokenKeeper) -> DesktopIdentity:
+    user = _get_user(token_keeper)
+    if user is None:
+        return ANONYMOUS_IDENTITY
+    return DesktopIdentity(
+        username=user.username, display_name=user.display_name
+    )
 
 
 def _get_user(token_keeper: TokenKeeper) -> Optional[GitLabUser]:
@@ -357,20 +428,46 @@ def _is_callback_expected(
 
 
 def _find_project(
-    settings: DesktopSettings, identifier: str
+    settings: DesktopSettings,
+    identifier: str,
+    *,
+    keeper: TokenKeeper,
+    principals: ProjectPrincipals,
+    manager: ProjectServerManager,
 ) -> Union[CatalogProject, HTMLResponse]:
-    """The project of the catalog, or the page that says it cannot be used."""
+    """
+    The project of the catalog, or the page that says it cannot be used.
+
+    The catalog is read at each opening, and the role that it gives goes to the
+    server of the project. A project that the user cannot see any more (the
+    rights were removed) is not opened, and its server, if it runs, stops.
+    """
+    gitlab_client = create_catalog_client(settings, keeper)
+    if (
+        settings.catalog_provider == GITLAB_PROVIDER_NAME
+        and gitlab_client is None
+    ):
+        return _render_page(
+            "message.jinja.html",
+            notice=gettext("Sign in to see your projects."),
+        )
     try:
-        projects = create_catalog(settings).list_projects(ANONYMOUS_IDENTITY)
+        projects = create_catalog(settings, gitlab_client).list_projects(
+            _get_identity(keeper)
+        )
     except CatalogError as exception_:
         return _render_page("message.jinja.html", notice=str(exception_))
     for project_ in projects:
         if project_.identifier == identifier:
+            principals.set_role(identifier, project_.role)
             return project_
-    return _render_page(
-        "message.jinja.html",
-        notice=gettext("The project is not in the catalog."),
-    )
+    principals.set_role(identifier, None)
+    manager.stop_project(identifier)
+    if identifier in settings.project_folders:
+        notice = gettext("You no longer have access to this project.")
+    else:
+        notice = gettext("The project is not in the catalog.")
+    return _render_page("message.jinja.html", notice=notice)
 
 
 def _choose_folder(opener: ProjectOpener, project: CatalogProject) -> Response:

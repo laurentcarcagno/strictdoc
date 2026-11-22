@@ -11,6 +11,7 @@ name a catalog read from a JSON file.
 @relation(SDOC-SRS-1229, scope=file)
 @relation(SDOC-SRS-1234, scope=file)
 @relation(SDOC-SRS-1235, scope=file)
+@relation(SDOC-SRS-1240, scope=file)
 """
 
 import os
@@ -47,6 +48,7 @@ class DesktopTestServer(SDocTestServer):
         kept_servers: Optional[int] = None,
         gitlab_url: Optional[str] = None,
         oauth_client_id: Optional[str] = None,
+        gitlab_projects_root: Optional[str] = None,
         port: Optional[int] = None,
     ) -> None:
         super().__init__(input_path=input_path, port=port)
@@ -58,6 +60,10 @@ class DesktopTestServer(SDocTestServer):
         # application: the settings that make the sign-in available.
         self.gitlab_url: Optional[str] = gitlab_url
         self.oauth_client_id: Optional[str] = oauth_client_id
+        # The group of the GitLab catalog. Given without a catalog file, it
+        # makes the catalog the one of GitLab: the projects of the signed-in
+        # user.
+        self.gitlab_projects_root: Optional[str] = gitlab_projects_root
         # The folders of the user. Without a given folder, run() creates a
         # temporary one that close() removes. A test that starts the
         # application twice gives the same folder to both runs: the second run
@@ -69,14 +75,22 @@ class DesktopTestServer(SDocTestServer):
             user_folder = tempfile.TemporaryDirectory()
             self.exit_stack.enter_context(user_folder)
             self.user_path = user_folder.name
-        if self.fake_catalog_path is not None and not os.path.exists(
-            self.get_settings_path()
-        ):
+        if (
+            self.fake_catalog_path is not None
+            or self.gitlab_projects_root is not None
+        ) and not os.path.exists(self.get_settings_path()):
             defaults = DesktopSettings()
             save_settings(
                 DesktopSettings(
-                    catalog_provider="fake",
-                    fake_catalog_path=self.fake_catalog_path,
+                    catalog_provider="fake"
+                    if self.fake_catalog_path is not None
+                    else "gitlab",
+                    fake_catalog_path=self.fake_catalog_path
+                    if self.fake_catalog_path is not None
+                    else defaults.fake_catalog_path,
+                    gitlab_projects_root=self.gitlab_projects_root
+                    if self.gitlab_projects_root is not None
+                    else defaults.gitlab_projects_root,
                     kept_servers=self.kept_servers
                     if self.kept_servers is not None
                     else defaults.kept_servers,
