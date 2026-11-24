@@ -53,6 +53,10 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable, Dict, List, Optional, Set
 
+from strictdoc.features.desktop.bundled_tools import (
+    get_hidden_window_flags,
+    get_system_program_environment,
+)
 from strictdoc.features.desktop.commit_author import get_commit_email
 from strictdoc.features.desktop.git_access import (
     GIT_TOKEN_VARIABLE,
@@ -514,12 +518,15 @@ class SendQueue:
                 ],
                 cwd=folder,
                 # The text of Git is read: it is not translated.
-                env={
-                    **os.environ,
-                    **environment,
-                    "LC_ALL": "C",
-                    "LANGUAGE": "",
-                },
+                env=get_system_program_environment(
+                    {
+                        **os.environ,
+                        **environment,
+                        "LC_ALL": "C",
+                        "LANGUAGE": "",
+                    }
+                ),
+                creationflags=get_hidden_window_flags(),
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
                 text=True,
@@ -648,6 +655,7 @@ def _stop_process(process: subprocess.Popen[str]) -> None:
                 capture_output=True,
                 check=False,
                 timeout=10,
+                creationflags=get_hidden_window_flags(),
             )
         else:
             os.killpg(process.pid, signal.SIGTERM)

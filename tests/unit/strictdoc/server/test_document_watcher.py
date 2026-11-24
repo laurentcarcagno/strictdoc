@@ -1,7 +1,21 @@
 import os
 import threading
+import time
+from types import SimpleNamespace
 
-from strictdoc.server.document_watcher import DocumentWatcher
+from watchdog.events import (
+    EVENT_TYPE_CLOSED_NO_WRITE,
+    EVENT_TYPE_OPENED,
+    FileClosedNoWriteEvent,
+    FileModifiedEvent,
+    FileOpenedEvent,
+)
+
+from strictdoc.server.document_watcher import (
+    DocumentWatcher,
+    _ChangeEventHandler,
+    get_event_types_without_change,
+)
 
 
 def _make_watcher(tmp_path, on_documents_changed, output_dir=None):
@@ -149,3 +163,127 @@ def test_start_invokes_callback_when_watched_file_changes(tmp_path):
         assert changed.wait(timeout=5) is True
     finally:
         watcher.stop()
+
+
+# ---------------------------------------------------------------------------
+# Reading a file is not a change. The watcher reads the files that it looks
+# at: without the filter, an event "opened" or "closed_no_write" would start
+# the next turn, and each turn would use an inhibition that nobody took.
+# ---------------------------------------------------------------------------
+
+
+def _make_handler(touched):
+    return _ChangeEventHandler(
+        is_watched_document=lambda path: path.endswith(".sdoc"),
+        on_document_touched=touched.append,
+    )
+
+
+def test_handler_ignores_the_events_of_a_read(tmp_path):
+    """
+    @relation(SDOC-SRS-126, scope=function)
+    """
+    touched = []
+    handler = _make_handler(touched)
+    path = str(tmp_path / "doc.sdoc")
+
+    handler.on_any_event(FileOpenedEvent(path))
+    handler.on_any_event(FileClosedNoWriteEvent(path))
+
+    assert FileOpenedEvent(path).event_type == EVENT_TYPE_OPENED
+    assert FileClosedNoWriteEvent(path).event_type == EVENT_TYPE_CLOSED_NO_WRITE
+    assert touched == []
+
+
+def test_handler_still_reports_a_write(tmp_path):
+    """
+    @relation(SDOC-SRS-126, scope=function)
+    """
+    touched = []
+    handler = _make_handler(touched)
+    path = str(tmp_path / "doc.sdoc")
+
+    handler.on_any_event(FileModifiedEvent(path))
+
+    assert touched == [path]
+
+
+def test_reading_a_watched_file_triggers_nothing_and_keeps_the_inhibition(
+    tmp_path,
+):
+    """
+    @relation(SDOC-SRS-126, scope=function)
+    """
+    called = []
+    document_path = tmp_path / "doc.sdoc"
+    document_path.write_text("[DOCUMENT]\nTITLE: Doc\n", encoding="utf8")
+    watcher = _make_watcher(tmp_path, lambda: called.append(True))
+    watcher.start()
+    try:
+        watcher.inhibit_next_change(str(document_path))
+        # Open, read and close: the events of a read, and no write.
+        for _ in range(3):
+            with open(document_path, "rb") as file_:
+                file_.read()
+        time.sleep(0.5)
+
+        assert called == []
+        assert watcher._pending_paths == set()
+        # The inhibition waits for the write that it was made for.
+        assert watcher._inhibited_paths == {_abs(document_path)}
+    finally:
+        watcher.stop()
+
+
+def test_a_write_after_the_inhibition_is_inhibited(tmp_path):
+    """
+    @relation(SDOC-SRS-126, scope=function)
+    """
+    called = []
+    document_path = tmp_path / "doc.sdoc"
+    document_path.write_text("[DOCUMENT]\nTITLE: Doc\n", encoding="utf8")
+    watcher = _make_watcher(tmp_path, lambda: called.append(True))
+    watcher.start()
+    try:
+        watcher.inhibit_next_change(str(document_path))
+        with open(document_path, "rb") as file_:
+            file_.read()
+        document_path.write_text("[DOCUMENT]\nTITLE: Edited\n", encoding="utf8")
+        deadline = time.monotonic() + 5
+        while len(watcher._inhibited_paths) > 0 and time.monotonic() < deadline:
+            time.sleep(0.02)
+        time.sleep(0.3)
+
+        assert watcher._inhibited_paths == set()
+        assert called == []
+    finally:
+        watcher.stop()
+
+
+def test_event_types_of_a_read_are_the_ones_that_the_module_has():
+    """
+    @relation(SDOC-SRS-126, scope=function)
+    """
+    assert get_event_types_without_change(
+        SimpleNamespace(
+            EVENT_TYPE_OPENED="opened",
+            EVENT_TYPE_CLOSED_NO_WRITE="closed_no_write",
+        )
+    ) == ("opened", "closed_no_write")
+
+
+def test_a_watchdog_without_the_constants_still_loads_the_handler(tmp_path):
+    """
+    @relation(SDOC-SRS-126, scope=function)
+    """
+    # An old watchdog: neither constant exists, or only one of them.
+    assert get_event_types_without_change(SimpleNamespace()) == ()
+    assert get_event_types_without_change(
+        SimpleNamespace(EVENT_TYPE_OPENED="opened")
+    ) == ("opened",)
+    # The handler of this watchdog still reports a write.
+    touched = []
+    handler = _make_handler(touched)
+    path = str(tmp_path / "doc.sdoc")
+    handler.on_any_event(FileModifiedEvent(path))
+    assert touched == [path]

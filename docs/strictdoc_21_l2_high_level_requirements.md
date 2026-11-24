@@ -655,12 +655,14 @@ closed.
 **Statement**: StrictDoc shall refuse with the HTTP status 403 every request to the desktop
 server that does not carry a valid session cookie, and shall set that cookie
 with the HttpOnly and SameSite=Strict attributes in answer to a single-use
-bootstrap code.
+bootstrap code. The server shall also refuse a WebSocket connection that comes
+from another origin.
 
 **Rationale**: Any local process or web page can send requests to a port on 127.0.0.1. The
 session cookie restricts the server to the window that started it, and the
 single-use code keeps the cookie out of the command line and the logs once the
-window is open.
+window is open. A web page open in a browser of the computer must not be able to
+open a WebSocket to the server.
 
 ### Host header check of the desktop server
 
@@ -832,10 +834,14 @@ soon as they arrive. Working offline stays possible.
 **Statement**: StrictDoc shall sign the user in with the OAuth authorization code flow of GitLab,
 with PKCE and a `state` value, shall receive the callback on the loopback
 address of the computer, and shall show the sign-in page in the window of the
-desktop application and not in the browser of the system.
+desktop application and not in the browser of the system. When the user signs
+out, StrictDoc shall delete the cookies of the application window and revoke the
+token of the user.
 
 **Rationale**: PKCE and `state` protect the code against interception and forgery. The user
-sees only the sign-in page of the identity provider, in the application.
+sees only the sign-in page of the identity provider, in the application. After
+the sign-out, neither the window nor a copy of the token can open a session
+again.
 
 ### Tokens in the keyring and renewal
 
@@ -1000,10 +1006,14 @@ the typing of the user or the change of the others.
 **Status**: Active
 
 **Statement**: StrictDoc shall open the merge window when a synchronization finds a conflict,
-and shall send the resolution once the user has validated it.
+and shall send the resolution once the user has validated it. When the conflict
+concerns a file that is not a document, StrictDoc shall keep the local version
+of the file, and shall keep the version of the colleague on the computer,
+outside of any commit.
 
 **Rationale**: A conflict needs the choice of the user. The resolution is shared like any other
-change.
+change. Only documents can be merged. For any other file, the user keeps the
+local version and the other version is not lost.
 
 ### No Git vocabulary in the application
 
@@ -1012,10 +1022,12 @@ change.
 **Status**: Active
 
 **Statement**: StrictDoc shall not show Git vocabulary, such as commit, push, pull, branch or
-rebase, nor the name GitLab, in the interface of the desktop application.
+rebase, nor the name GitLab, in the interface of the desktop application, and
+shall not offer the comparison of Git revisions (DIFF).
 
 **Rationale**: The users of the application are authors, not developers. The labels use the
-vocabulary of their work.
+vocabulary of their work. A comparison of revisions shows Git concepts that
+they do not need.
 
 ### Publication of a version
 
@@ -1094,6 +1106,57 @@ server when that file is missing or invalid.
 **Rationale**: The company decides what leaves its network. A missing policy must not let any
 external server through. The Python configuration of a project is trusted code,
 and this policy does not constrain it.
+
+### Linux package
+
+**MID**: fe207b355c9f4419abd63c85ac6d3958 \
+**UID**: SDOC-SRS-1256 \
+**Status**: Active
+
+**Statement**: StrictDoc shall provide a `.deb` package that installs the desktop application
+with its menu entry, that declares its system dependencies, and whose removal
+deletes everything the package installed.
+
+**Rationale**: The user installs the application with the usual tools of the system. A
+removal that leaves files behind makes later installations unreliable.
+
+### Windows installer
+
+**MID**: 17a29fd2bac446dea948f96eeaaaed82 \
+**UID**: SDOC-SRS-1257 \
+**Status**: Active
+
+**Statement**: StrictDoc shall provide a Windows installer for one user, which includes an
+embedded Git (MinGit), and shall provide a signing step that stays off while
+Windows is used for tests only.
+
+**Rationale**: The installer needs no administrator rights and no Git on the computer. The
+signing step is ready for the day Windows is delivered.
+
+### PDF without a browser of the computer
+
+**MID**: 944da7c1bcb64709b5c48f03356f2b1f \
+**UID**: SDOC-SRS-1258 \
+**Status**: Active
+
+**Statement**: StrictDoc shall export the PDF of the desktop application with the headless
+Chrome and the chromedriver of the package, without any download at run time,
+and shall check at build time the SHA-256 sum of each embedded file.
+
+**Rationale**: The PDF export works offline and does not depend on the browser of the user.
+A wrong sum stops the build, so a modified file cannot be shipped.
+
+### Version and updates
+
+**MID**: 0df341d8299741468957bff52a3a3933 \
+**UID**: SDOC-SRS-1259 \
+**Status**: Active
+
+**Statement**: StrictDoc shall show its version in the settings screen of the desktop
+application, and shall not check for updates over the network.
+
+**Rationale**: The user and the support know which version runs. The deployment tools of the
+company deliver the updates, so the application makes no request for them.
 
 ## Graph database
 

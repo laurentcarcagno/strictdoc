@@ -1,0 +1,25 @@
+# GitLab CI of the desktop application. The repository keeps GitHub Actions for
+# everything else: this file builds one thing, the Linux package, and only for
+# the tags desktop-v* (for example desktop-v0.30.2).
+#
+# The job runs build_deb.py directly: the image is the one that "invoke
+# release-desktop" starts with podman (ubuntu:22.04, the glibc of the oldest
+# target, Ubuntu 22.04 and Debian 12), so no container runs inside the job.
+
+workflow:
+  rules:
+    - if: $CI_COMMIT_TAG =~ /^desktop-v/
+
+build-deb:
+  stage: build
+  image: ubuntu:22.04
+  rules:
+    - if: $CI_COMMIT_TAG =~ /^desktop-v/
+  script:
+    - apt-get update -qq
+    - DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends python3
+    - python3 developer/desktop/build_deb.py --source "$CI_PROJECT_DIR" --output "$CI_PROJECT_DIR/dist"
+  artifacts:
+    paths:
+      - dist/*.deb
+    expire_in: 30 days

@@ -5,8 +5,9 @@
 import hashlib
 import os
 import threading
-from typing import Callable, Dict, List, Optional, Set, Tuple, Union
+from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Union
 
+import watchdog.events
 from watchdog.events import FileSystemEvent, FileSystemEventHandler
 from watchdog.observers import Observer
 from watchdog.observers.api import BaseObserver
@@ -51,6 +52,24 @@ def _hash_file(path: str) -> Optional[str]:
         return None
 
 
+def get_event_types_without_change(events_module: Any) -> Tuple[str, ...]:
+    """
+    The event types of a read: "opened" and "closed_no_write". Reading a file
+    is not a change. Without this filter, the watcher reads a file to hash it,
+    sees its own read as an event and reads the file again. The oldest watchdog
+    that the project accepts has no such constants and sends no such events:
+    the types that the module does not have are left out.
+    """
+    event_types = (
+        getattr(events_module, name_, None)
+        for name_ in ("EVENT_TYPE_OPENED", "EVENT_TYPE_CLOSED_NO_WRITE")
+    )
+    return tuple(type_ for type_ in event_types if isinstance(type_, str))
+
+
+_EVENT_TYPES_WITHOUT_CHANGE = get_event_types_without_change(watchdog.events)
+
+
 class _ChangeEventHandler(FileSystemEventHandler):
     def __init__(
         self,
@@ -63,6 +82,8 @@ class _ChangeEventHandler(FileSystemEventHandler):
 
     def on_any_event(self, event: FileSystemEvent) -> None:
         if event.is_directory:
+            return
+        if event.event_type in _EVENT_TYPES_WITHOUT_CHANGE:
             return
         for path in (event.src_path, getattr(event, "dest_path", "")):
             if path:

@@ -2,6 +2,8 @@
 @relation(SDOC-SRS-1220, scope=file)
 @relation(SDOC-SRS-1221, scope=file)
 @relation(SDOC-SRS-1229, scope=file)
+@relation(SDOC-SRS-1257, scope=file)
+@relation(SDOC-SRS-1258, scope=file)
 """
 
 import argparse
@@ -61,6 +63,9 @@ class DesktopCommand(BaseCommand):
         # stays registered when the package is missing.
         try:
             from strictdoc.features.desktop import (  # noqa: PLC0415
+                bundled_tools as bundled_tools_module,
+            )
+            from strictdoc.features.desktop import (  # noqa: PLC0415
                 home_app as home_app_module,
             )
             from strictdoc.features.desktop import (  # noqa: PLC0415
@@ -79,6 +84,17 @@ class DesktopCommand(BaseCommand):
                 "The desktop application needs the 'platformdirs' package. "
                 "Install it with: pip install platformdirs."
             ) from exception_
+
+        # Before any access to Git, and before the first PDF export.
+        bundled_tools = bundled_tools_module.find_bundled_tools()
+        if bundled_tools.git is not None:
+            bundled_tools_module.use_bundled_git(bundled_tools.git)
+        if bundled_tools.html2pdf4doc is not None:
+            bundled_tools_module.use_bundled_html2pdf4doc(
+                bundled_tools.html2pdf4doc
+            )
+        # The Git of the system must not load the libraries of the package.
+        bundled_tools_module.refresh_git()
 
         if not self.config.no_window:
             # Before the server starts, which takes time: fail at once when

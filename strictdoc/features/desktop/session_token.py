@@ -64,7 +64,10 @@ class SessionCredentials:
         assert token != bootstrap_code
         self.token: str = token
         self._bootstrap_code: str = bootstrap_code
+        # True once any code has been used: the window has had the cookie.
         self._bootstrap_code_used: bool = False
+        # True when the current code was used and works no more.
+        self._is_bootstrap_code_spent: bool = False
         self._lock: threading.Lock = threading.Lock()
         # Called once, when the code is used: the window has the cookie.
         self.bootstrap_listener: Optional[Callable[[], None]] = None
@@ -86,6 +89,18 @@ class SessionCredentials:
         with self._lock:
             return self._bootstrap_code_used
 
+    def renew_bootstrap_code(self) -> str:
+        """
+        Make a new bootstrap code, for a window that lost its cookie (the user
+        signed out and the window forgot its cookies). The old code is void,
+        the token stays.
+        """
+        code = secrets.token_urlsafe(_TOKEN_BYTES)
+        with self._lock:
+            self._bootstrap_code = code
+            self._is_bootstrap_code_spent = False
+        return code
+
     def is_token(self, candidate: str) -> bool:
         return hmac.compare_digest(
             candidate.encode("utf-8"), self.token.encode("utf-8")
@@ -93,14 +108,16 @@ class SessionCredentials:
 
     def consume_bootstrap_code(self, candidate: str) -> bool:
         """True once for the right code, then false for every code."""
-        is_right_code = hmac.compare_digest(
-            candidate.encode("utf-8"), self._bootstrap_code.encode("utf-8")
-        )
         with self._lock:
-            if not is_right_code or self._bootstrap_code_used:
+            is_right_code = hmac.compare_digest(
+                candidate.encode("utf-8"), self._bootstrap_code.encode("utf-8")
+            )
+            if not is_right_code or self._is_bootstrap_code_spent:
                 return False
+            self._is_bootstrap_code_spent = True
+            is_first_use = not self._bootstrap_code_used
             self._bootstrap_code_used = True
-            listener = self.bootstrap_listener
+            listener = self.bootstrap_listener if is_first_use else None
         if listener is not None:
             listener()
         return True
@@ -124,6 +141,8 @@ class DesktopSessionMiddleware:
     - Any other request needs the session cookie.
     - A request that changes something and names its origin (a browser always
       does) must name this server: a page of another port cannot use the cookie.
+    - A WebSocket must name this server as its origin, and is refused without
+      the header.
 
     It covers the HTTP requests and the WebSocket connections.
     """
@@ -205,8 +224,15 @@ class DesktopSessionMiddleware:
         would send the cookie too. The header Origin that the browser adds to
         such a request names the page, so it must be this server. A request
         without the header does not come from a page of a browser.
+
+        A WebSocket is open to the same attack, and no request method makes it
+        safe: its handshake must name this server in the header Origin, and a
+        handshake without the header is refused.
         """
-        if scope["type"] != "http" or scope["method"] in _SAFE_METHODS:
+        is_websocket = scope["type"] == "websocket"
+        if not is_websocket and (
+            scope["type"] != "http" or scope["method"] in _SAFE_METHODS
+        ):
             return True
         origins = [
             value_.decode("latin-1").strip().lower()
@@ -214,7 +240,7 @@ class DesktopSessionMiddleware:
             if name_ == b"origin"
         ]
         if len(origins) == 0:
-            return True
+            return not is_websocket
         return len(origins) == 1 and origins[0] in {
             f"http://{host_}" for host_ in self.allowed_hosts
         }

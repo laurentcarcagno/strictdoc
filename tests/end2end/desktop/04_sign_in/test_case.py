@@ -14,6 +14,7 @@ from tests.end2end.desktop.fake_gitlab import (
     CLIENT_ID,
     DISPLAY_NAME,
     MODE_DENY,
+    REVOKE_FAIL,
     USERNAME,
     FakeGitLab,
 )
@@ -25,6 +26,7 @@ SIGNED_IN_USERNAME = '[data-testid="signed-in-username"]'
 MESSAGE = '[data-testid="message-text"]'
 BACK_TO_CATALOG = '[data-testid="back-to-catalog"]'
 CATALOG = '[data-testid="catalog"]'
+SIGN_OUT = '[data-testid="sign-out"]'
 
 
 @pytest.mark.skipif(
@@ -129,3 +131,65 @@ class Test(DesktopCase):
 
             self.assert_element(CATALOG)
             self.assert_element_not_visible(SIGN_IN)
+
+    def test_005_the_sign_out_revokes_the_tokens_at_gitlab(self) -> None:
+        """
+        @relation(SDOC-SRS-1234, scope=function)
+        """
+        test_setup = End2EndTestSetup(path_to_test_file=__file__)
+
+        with FakeGitLab() as fake_gitlab, DesktopTestServer(
+            input_path=test_setup.path_to_sandbox,
+            fake_catalog_path=os.path.join(
+                test_setup.path_to_sandbox, "catalog.json"
+            ),
+            gitlab_url=fake_gitlab.url,
+            oauth_client_id=CLIENT_ID,
+        ) as test_server:
+            self.open(test_server.get_start_url())
+            self.click(SIGN_IN)
+            self.assert_text(DISPLAY_NAME, SIGNED_IN_USER)
+            assert fake_gitlab.revoke_requests == []
+
+            self.click(SIGN_OUT)
+
+            self.assert_element(SIGN_IN)
+            self.assert_element_not_visible(SIGNED_IN_USER)
+            # GitLab got the revocation of the tokens that it had given.
+            assert len(fake_gitlab.revoke_requests) == 2
+            assert all(
+                request_ == {"client_id": CLIENT_ID}
+                for request_ in fake_gitlab.revoke_requests
+            )
+            assert len(set(fake_gitlab.revoked_tokens)) == 2
+            assert set(fake_gitlab.revoked_tokens) <= (
+                fake_gitlab.get_issued_tokens()
+            )
+
+    def test_006_a_revocation_that_fails_does_not_stop_the_sign_out(
+        self,
+    ) -> None:
+        """
+        @relation(SDOC-SRS-1234, scope=function)
+        """
+        test_setup = End2EndTestSetup(path_to_test_file=__file__)
+
+        with FakeGitLab() as fake_gitlab, DesktopTestServer(
+            input_path=test_setup.path_to_sandbox,
+            fake_catalog_path=os.path.join(
+                test_setup.path_to_sandbox, "catalog.json"
+            ),
+            gitlab_url=fake_gitlab.url,
+            oauth_client_id=CLIENT_ID,
+        ) as test_server:
+            self.open(test_server.get_start_url())
+            self.click(SIGN_IN)
+            self.assert_text(DISPLAY_NAME, SIGNED_IN_USER)
+            fake_gitlab.revoke_mode = REVOKE_FAIL
+
+            self.click(SIGN_OUT)
+
+            self.assert_element(SIGN_IN)
+            self.assert_element_not_visible(SIGNED_IN_USER)
+            assert len(fake_gitlab.revoke_requests) == 2
+            assert fake_gitlab.revoked_tokens == []

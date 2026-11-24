@@ -42,6 +42,9 @@ STATE_LIFETIME_SECONDS = 600.0
 # program that starts sign-ins without ending them.
 MAXIMUM_PENDING_SIGN_INS = 16
 REQUEST_TIMEOUT_SECONDS = 20.0
+# The sign-out waits for the revocation no longer than this: it must not hold
+# the user when GitLab does not answer.
+REVOKE_TIMEOUT_SECONDS = 5.0
 # The lifetime of a GitLab access token when the answer does not give one.
 DEFAULT_TOKEN_LIFETIME_SECONDS = 7200.0
 
@@ -204,6 +207,31 @@ def refresh_tokens(
         gitlab_url=gitlab_url,
     )
     return _parse_tokens(answer, clock)
+
+
+def revoke_token(*, gitlab_url: str, client_id: str, token: str) -> bool:
+    """
+    Tell GitLab that the token is not used any more (RFC 7009), so that it
+    does not work after the sign-out. It returns True when GitLab accepted. It
+    never raises: a revocation that fails leaves the sign-out as it is, and
+    the token ends by itself. Nothing of the token goes to a message.
+
+    @relation(SDOC-SRS-1234, scope=function)
+    """
+    request = urllib.request.Request(
+        f"{_normalize_gitlab_url(gitlab_url)}/oauth/revoke",
+        data=urllib.parse.urlencode(
+            {"client_id": client_id, "token": token}
+        ).encode("ascii"),
+        headers={"Accept": "application/json"},
+    )
+    try:
+        with _OPENER.open(request, timeout=REVOKE_TIMEOUT_SECONDS) as answer_:
+            answer_.read(_MAXIMUM_ANSWER_BYTES)
+    except (OSError, HTTPException):
+        # HTTPError, URLError and timeouts are OSError.
+        return False
+    return True
 
 
 def fetch_user(gitlab_url: str, access_token: str) -> GitLabUser:

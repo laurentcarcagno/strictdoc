@@ -3308,11 +3308,13 @@ msgstr "Le choix n'a pas pu être enregistré. Rien n'est perdu : réessayez."
 
 #: strictdoc/features/desktop/project_sync.py
 msgid ""
-"%(file)s was changed by you and by a colleague. Your version is kept, and "
-"theirs is saved as %(copy)s."
+"%(file)s was changed by you and by a colleague. Your version is kept. "
+"Theirs is saved as %(copy)s on this computer only and is not shared. To "
+"share it, rename the file."
 msgstr ""
 "%(file)s a été modifié par vous et par un collègue. Votre version est "
-"gardée, et la leur est enregistrée sous le nom %(copy)s."
+"gardée. La leur est enregistrée sous le nom %(copy)s, sur cet ordinateur "
+"seulement, et n'est pas partagée. Pour la partager, renommez le fichier."
 
 #: strictdoc/features/desktop/project_sync.py
 msgid ""
@@ -3846,3 +3848,8 @@ msgstr "externe"
 #: strictdoc/features/desktop/templates/ai_servers.jinja.html
 msgid "Add a server"
 msgstr "Ajouter un serveur"
+
+#: strictdoc/features/desktop/templates/settings.jinja.html
+#, python-format
+msgid "Version %(version)s"
+msgstr "Version %(version)s"

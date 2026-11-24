@@ -1,5 +1,6 @@
 import os
 import re
+import shlex
 import shutil
 import sys
 import tempfile
@@ -1127,6 +1128,46 @@ def release(context, test_pypi=False, username=None, password=None):
             twine upload build/dist/strictdoc-*.tar.gz build/dist/strictdoc-*.whl
                 {repository_argument_or_none}
                 {user_password}
+        """,
+    )
+
+
+@task
+def release_desktop(
+    context,
+    output_dir="/tmp/strictdoc-desktop-dist",
+    image="ubuntu:22.04",
+    cache_dir=None,
+):
+    """
+    Build the .deb package of the desktop application in a podman container.
+
+    The image is the oldest target (glibc of Ubuntu 22.04 and Debian 12). The
+    repository is mounted read-only, and only the package goes out, in
+    output_dir. The optional cache_dir keeps the downloads (tools, uv) between
+    two builds.
+    """
+    output_path = os.path.abspath(output_dir)
+    os.makedirs(output_path, exist_ok=True)
+    volumes = (
+        f"-v {shlex.quote(os.path.abspath('.') + ':/source:ro')} "
+        f"-v {shlex.quote(output_path + ':/output')}"
+    )
+    script_options = ""
+    if cache_dir is not None:
+        cache_path = os.path.abspath(cache_dir)
+        os.makedirs(cache_path, exist_ok=True)
+        volumes += f" -v {shlex.quote(cache_path + ':/cache')}"
+        script_options = "--cache-dir /cache"
+    run_invoke(
+        context,
+        f"""
+            podman run --rm {volumes} {shlex.quote(image)} sh -c
+                "apt-get update -qq &&
+                DEBIAN_FRONTEND=noninteractive apt-get install -y
+                --no-install-recommends python3 &&
+                python3 /source/developer/desktop/build_deb.py
+                {script_options}"
         """,
     )
 

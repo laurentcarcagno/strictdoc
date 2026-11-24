@@ -1,0 +1,10 @@
+#!/bin/sh
+# Remove what the application wrote in its own folder while it ran (Qt
+# WebEngine makes folders there). The files of the package are removed by dpkg.
+set -e
+case "$1" in
+    remove | purge)
+        rm -rf /opt/strictdoc-desktop
+        ;;
+esac
+exit 0

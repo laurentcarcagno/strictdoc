@@ -1,7 +1,7 @@
 """
 A small HTTP server that answers like the parts of GitLab that the sign-in of
-the desktop application uses: the authorization page, the token endpoint and
-the user of the API.
+the desktop application uses: the authorization page, the token endpoint, the
+revocation endpoint and the user of the API.
 
 It follows what the test GitLab does (see D2-0): a registered application, a
 loopback callback address with any port, and, once the user is signed in to
@@ -52,6 +52,11 @@ REFRESH_GRANT = "grant"
 # GitLab refuses the refresh token: {"error": "invalid_grant"}.
 REFRESH_INVALID_GRANT = "invalid_grant"
 
+# What the revocation endpoint does.
+REVOKE_GRANT = "grant"
+# GitLab does not answer well: 503.
+REVOKE_FAIL = "fail"
+
 
 class FakeGitLab:
     """
@@ -67,6 +72,11 @@ class FakeGitLab:
         self.token_requests: List[Dict[str, str]] = []
         # The forms of the renewals, without the refresh token.
         self.refresh_requests: List[Dict[str, str]] = []
+        # The forms of the revocations, without the token, and the tokens that
+        # they revoked. With revoke_mode REVOKE_FAIL, GitLab answers 503.
+        self.revoke_requests: List[Dict[str, str]] = []
+        self.revoked_tokens: List[str] = []
+        self.revoke_mode: str = REVOKE_GRANT
         self.user_request_count: int = 0
         # The addresses that /api/v4/user gives. A user who keeps the primary
         # address private gets an empty "email".
@@ -85,6 +95,8 @@ class FakeGitLab:
         # code -> the authorization request that issued it.
         self._codes: Dict[str, Dict[str, str]] = {}
         self._access_tokens: List[str] = []
+        # Every token ever given, revoked or not.
+        self._given: Set[str] = set()
         outer = self
 
         class Handler(BaseHTTPRequestHandler):
@@ -117,6 +129,8 @@ class FakeGitLab:
                 }
                 if url.path == "/oauth/token":
                     outer.handle_token(self, form)
+                elif url.path == "/oauth/revoke":
+                    outer.handle_revoke(self, form)
                 else:
                     outer.send_text(self, 404, "Not found")
 
@@ -250,11 +264,37 @@ class FakeGitLab:
         self._refresh_tokens.discard(refresh_token)
         self.send_json(handler, 200, self._create_tokens("read_user"))
 
+    def handle_revoke(
+        self, handler: BaseHTTPRequestHandler, form: Dict[str, str]
+    ) -> None:
+        self.revoke_requests.append(
+            {
+                name_: value_
+                for name_, value_ in form.items()
+                if name_ != "token"
+            }
+        )
+        if self.revoke_mode == REVOKE_FAIL:
+            self.send_json(handler, 503, {"error": "unavailable"})
+            return
+        token = form.get("token", "")
+        self.revoked_tokens.append(token)
+        # Like GitLab: a token that is revoked does not work any more.
+        if token in self._access_tokens:
+            self._access_tokens.remove(token)
+        self._refresh_tokens.discard(token)
+        self.send_json(handler, 200, {})
+
+    def get_issued_tokens(self) -> Set[str]:
+        """Every access token and refresh token that this server gave."""
+        return set(self._access_tokens) | self._refresh_tokens | self._given
+
     def _create_tokens(self, scope: str) -> Dict[str, Any]:
         access_token = secrets.token_urlsafe(24)
         refresh_token = secrets.token_urlsafe(24)
         self._access_tokens.append(access_token)
         self._refresh_tokens.add(refresh_token)
+        self._given.update((access_token, refresh_token))
         return {
             "access_token": access_token,
             "token_type": "Bearer",

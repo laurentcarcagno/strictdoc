@@ -23,6 +23,7 @@ never logged.
 """
 
 import json
+import logging
 import threading
 import time
 from enum import Enum
@@ -37,6 +38,7 @@ from strictdoc.features.desktop.oauth_gitlab import (
     OAuthRejectedError,
     PendingSignIn,
     refresh_tokens,
+    revoke_token,
 )
 from strictdoc.features.desktop.secret_store import (
     SecretStore,
@@ -52,6 +54,8 @@ RETRY_SECONDS = 60.0
 # GitLab gave a shorter one, the next renewal would be due at once: this wait
 # keeps the application from asking GitLab again and again.
 MINIMUM_RENEWAL_INTERVAL_SECONDS = 10.0
+
+logger = logging.getLogger(__name__)
 
 _SECRET_NAME_PREFIX = "gitlab/"
 _STORED_VERSION = 1
@@ -146,6 +150,7 @@ class TokenKeeper:
         *,
         clock: Callable[[], float] = time.time,
         refresh: Callable[..., GitLabTokens] = refresh_tokens,
+        revoke: Callable[..., bool] = revoke_token,
         margin_seconds: float = RENEWAL_MARGIN_SECONDS,
         retry_seconds: float = RETRY_SECONDS,
         use_timer: bool = True,
@@ -153,6 +158,7 @@ class TokenKeeper:
         self._secret_store: SecretStore = secret_store
         self._clock: Callable[[], float] = clock
         self._refresh: Callable[..., GitLabTokens] = refresh
+        self._revoke: Callable[..., bool] = revoke
         self._margin_seconds: float = margin_seconds
         self._retry_seconds: float = retry_seconds
         self._use_timer: bool = use_timer
@@ -352,8 +358,30 @@ class TokenKeeper:
             return session.tokens.access_token
 
     def sign_out(self) -> None:
-        """End the session: delete the record."""
-        self._end_session(is_refused=False, expected_session=None)
+        """
+        End the session: GitLab is asked to revoke the tokens, then the record
+        is deleted. A revocation that fails changes nothing to the rest: the
+        user is signed out here, and the tokens end by themselves.
+
+        @relation(SDOC-SRS-1234, scope=function)
+        """
+        # No renewal runs from the reading of the session to its end: one that
+        # gave a new pair of tokens meanwhile would leave that pair valid at
+        # GitLab. A renewal that is running finishes first, and its pair is
+        # the one that is revoked. The listeners are told after the lock.
+        with self._renew_lock:
+            with self._state_lock:
+                session = self._session
+                gitlab_url = self._gitlab_url
+                client_id = self._client_id
+            if session is not None and gitlab_url != "" and client_id != "":
+                self._revoke_tokens(gitlab_url, client_id, session.tokens)
+            self._end_session(
+                is_refused=False,
+                expected_session=None,
+                is_notifying=False,
+            )
+        self._notify_session_changed()
 
     def close(self) -> None:
         """Stop the timer. The record stays: the next launch finds it."""
@@ -369,6 +397,24 @@ class TokenKeeper:
             due_at = self._session.tokens.expires_at - self._margin_seconds
             due_at = max(due_at, self._next_attempt_at)
             return max(0.0, due_at - self._clock())
+
+    def _revoke_tokens(
+        self, gitlab_url: str, client_id: str, tokens: GitLabTokens
+    ) -> None:
+        """
+        Ask GitLab to revoke the refresh token and the access token. The call
+        takes no state lock: the network can be slow.
+        """
+        for token_ in (tokens.refresh_token, tokens.access_token):
+            if token_ is None or token_ == "":
+                continue
+            try:
+                self._revoke(
+                    gitlab_url=gitlab_url, client_id=client_id, token=token_
+                )
+            except Exception:  # noqa: BLE001
+                # Nothing of the exception: it could hold the token.
+                logger.warning("The revocation of a token failed.")
 
     def _needs_renewal(self, session: GitLabSession) -> bool:
         return self._clock() >= session.tokens.expires_at - self._margin_seconds
@@ -395,11 +441,16 @@ class TokenKeeper:
         return self._generation
 
     def _end_session(
-        self, *, is_refused: bool, expected_session: Optional[GitLabSession]
+        self,
+        *,
+        is_refused: bool,
+        expected_session: Optional[GitLabSession],
+        is_notifying: bool = True,
     ) -> None:
         """
         End the session. With an expected session, only if it is still the
-        current one: the check and the end are one step.
+        current one: the check and the end are one step. The listeners are told
+        unless the caller does it later (is_notifying False).
         """
         with self._state_lock:
             if (
@@ -415,7 +466,8 @@ class TokenKeeper:
             generation = self._generation
             self._cancel_timer()
         self._delete_record(gitlab_url, generation)
-        self._notify_session_changed()
+        if is_notifying:
+            self._notify_session_changed()
 
     def _notify_session_changed(self) -> None:
         with self._state_lock:

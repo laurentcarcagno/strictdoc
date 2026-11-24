@@ -36,11 +36,13 @@ ended, no credential is given at all.
 
 @relation(SDOC-SRS-1239, scope=file)
 @relation(SDOC-SRS-1241, scope=file)
+@relation(SDOC-SRS-1257, scope=file)
 """
 
 import os
 import re
 import subprocess
+import sys
 import threading
 from contextlib import contextmanager
 from dataclasses import dataclass, replace
@@ -62,6 +64,11 @@ os.environ.setdefault("GIT_PYTHON_REFRESH", "quiet")
 
 from git import GitCommandError  # noqa: E402
 
+from strictdoc.features.desktop.bundled_tools import (  # noqa: E402
+    get_hidden_window_flags,
+    get_library_path_overrides,
+    get_system_program_environment,
+)
 from strictdoc.features.desktop.paths import get_data_dir  # noqa: E402
 from strictdoc.features.desktop.token_store import TokenKeeper  # noqa: E402
 from strictdoc.features.git_config.git_service import (  # noqa: E402
@@ -92,6 +99,11 @@ NETWORK_TIMEOUT_SECONDS = 30.0
 
 # The transports of Git that the application runs.
 ALLOWED_PROTOCOLS = "https:http:file"
+
+# The lines of ".git/info/exclude" that this application writes are in one
+# block between these two lines. The rest of the file is the user's.
+EXCLUDE_BLOCK_BEGIN = "# BEGIN StrictDoc copies of colleagues (do not edit)"
+EXCLUDE_BLOCK_END = "# END StrictDoc copies of colleagues"
 
 _PROFILE_FOLDER_NAME = "git"
 _HOME_FOLDER_NAME = "home"
@@ -223,6 +235,9 @@ class GitAccess:
             network_timeout_seconds=self.network_timeout_seconds,
         )
         environment.update(self._profile.get_environment())
+        # For GitPython too: the Git of the system does not load the
+        # libraries of a frozen package.
+        environment.update(get_library_path_overrides())
         return environment
 
 
@@ -650,8 +665,12 @@ class DesktopGitService(GitService):
         local version stays, and the version of the other side is saved next to
         it under the name copy_relative (the bytes as they are). When one side
         removed the file, the side that kept it wins. It returns "local" or
-        "server", the side whose version is the file now. The files are added
-        to the merge.
+        "server", the side whose version is the file now. The file is added to
+        the merge. The copy is not: it stays on this computer, outside of the
+        index, and ".git/info/exclude" hides it, so that no commit takes it and
+        nothing goes to the team.
+
+        @relation(SDOC-SRS-1247, scope=function)
         """
         root = self.repository_root(path)
         repo = self._repo(root)
@@ -661,9 +680,10 @@ class DesktopGitService(GitService):
             if local is not None:
                 repo.git.checkout("--ours", "--", relative)
                 if server is not None:
+                    # Hidden before it exists: no commit can take it.
+                    self._exclude_path(repo, root, copy_relative)
                     with open(os.path.join(root, copy_relative), "wb") as file_:
                         file_.write(server)
-                    repo.git.add("--", copy_relative)
                 repo.git.add("--", relative)
                 return "local"
             repo.git.checkout("--theirs", "--", relative)
@@ -671,6 +691,50 @@ class DesktopGitService(GitService):
             return "server"
         except (GitCommandError, OSError) as error:
             raise GitServiceError(f"keep failed: {error}") from error
+
+    def prune_local_copies(self, path: str) -> List[str]:
+        """
+        Forget the copies of colleagues that do not exist any more: the lines
+        of the block of the application in ".git/info/exclude" whose file is
+        gone (the user removed it or renamed it). A file that is later saved at
+        that path is then an ordinary file, and it is shared. A line that cannot
+        be read back as a path is kept. It returns the paths that were
+        forgotten, relative to the project.
+
+        @relation(SDOC-SRS-1247, scope=function)
+        """
+        root = self.repository_root(path)
+        repo = self._repo(root)
+        try:
+            exclude_path = self._get_exclude_path(repo, root)
+            lines = _read_exclude_lines(exclude_path)
+            block = _find_exclude_block(lines)
+            if block is None:
+                return []
+            begin, end = block
+            kept: List[str] = []
+            forgotten: List[str] = []
+            for line_ in lines[begin + 1 : end]:
+                relative = _unescape_exclude_pattern(line_)
+                if relative is not None and not os.path.lexists(
+                    os.path.join(root, relative)
+                ):
+                    forgotten.append(relative)
+                else:
+                    kept.append(line_)
+            if len(forgotten) == 0:
+                return []
+            new_block = (
+                [EXCLUDE_BLOCK_BEGIN, *kept, EXCLUDE_BLOCK_END]
+                if len(kept) > 0
+                else []
+            )
+            _write_exclude_lines(
+                exclude_path, lines[:begin] + new_block + lines[end + 1 :]
+            )
+        except (GitCommandError, OSError) as error:
+            raise GitServiceError(f"exclude failed: {error}") from error
+        return forgotten
 
     @staticmethod
     def _read_stage(repo: "Repo", stage: int, relative: str) -> Optional[bytes]:
@@ -808,6 +872,34 @@ class DesktopGitService(GitService):
         del repo
         return {}
 
+    @staticmethod
+    def _get_exclude_path(repo: "Repo", root: str) -> str:
+        exclude_path = str(repo.git.rev_parse("--git-path", "info/exclude"))
+        if not os.path.isabs(exclude_path):
+            exclude_path = os.path.join(root, exclude_path)
+        return exclude_path
+
+    @staticmethod
+    def _exclude_path(repo: "Repo", root: str, relative: str) -> None:
+        """
+        Add the file to the block of the application in ".git/info/exclude" of
+        the repository: one line, a pattern anchored by "/" that matches this
+        file only. Git patterns are read with their special characters, so the
+        name is escaped. The line is written once.
+        """
+        exclude_path = DesktopGitService._get_exclude_path(repo, root)
+        pattern = "/" + _escape_exclude_pattern(relative.replace(os.sep, "/"))
+        lines = _read_exclude_lines(exclude_path)
+        block = _find_exclude_block(lines)
+        if block is None:
+            lines = [*lines, EXCLUDE_BLOCK_BEGIN, pattern, EXCLUDE_BLOCK_END]
+        else:
+            begin, end = block
+            if pattern in lines[begin + 1 : end]:
+                return
+            lines.insert(end, pattern)
+        _write_exclude_lines(exclude_path, lines)
+
     @contextmanager
     def _reach_remote(self, path: str) -> Iterator[None]:
         root = self.repository_root(path)
@@ -845,7 +937,7 @@ def _get_inspection_environment(environment: Dict[str, str]) -> Dict[str, str]:
     The environment of the commands that read the configuration: the profile
     of the application, and no entry of the command line of Git.
     """
-    merged = {**os.environ, **environment}
+    merged = get_system_program_environment({**os.environ, **environment})
     for name_ in list(merged):
         if name_ == "GIT_CONFIG_COUNT" or name_.startswith(
             ("GIT_CONFIG_KEY_", "GIT_CONFIG_VALUE_")
@@ -865,6 +957,7 @@ def _read_configuration(
             capture_output=True,
             check=False,
             timeout=30,
+            creationflags=get_hidden_window_flags(),
         )
     except (OSError, subprocess.SubprocessError):
         return None
@@ -895,6 +988,7 @@ def _run_inspection(
             text=True,
             check=False,
             timeout=30,
+            creationflags=get_hidden_window_flags(),
         )
     except (OSError, subprocess.SubprocessError):
         return []
@@ -935,6 +1029,9 @@ def _get_source_signature() -> Tuple[object, ...]:
 def _write_kept_settings(configuration_path: Path, home: Path) -> None:
     """Write the file of the profile with the settings that are kept."""
     lines: List[str] = []
+    if sys.platform == "win32":
+        # The paths of a project can pass 260 characters.
+        lines.append("[core]\n\tlongpaths = true\n")
     for key_, value_ in _read_global_configuration(home):
         section, _, rest = key_.partition(".")
         subsection, _, name = rest.rpartition(".")
@@ -969,9 +1066,11 @@ def _read_global_configuration(folder: Path) -> List[Tuple[str, str]]:
         result = subprocess.run(
             ["git", "config", "--global", "--list", "-z"],
             cwd=folder,
+            env=get_system_program_environment(),
             capture_output=True,
             check=False,
             timeout=30,
+            creationflags=get_hidden_window_flags(),
         )
     except (OSError, subprocess.SubprocessError):
         return []
@@ -990,3 +1089,70 @@ def _quote(value: str) -> str:
         + value.replace("\\", "\\\\").replace('"', '\\"').replace("\n", "\\n")
         + '"'
     )
+
+
+def _escape_exclude_pattern(relative: str) -> str:
+    """
+    The name of a file as a pattern of ".gitignore" that matches this name
+    only: the backslash, "[", "*" and "?" are escaped, the spaces at the end
+    are kept by an escape, and a line break, which a line cannot hold, becomes
+    the wildcard "?". The "#" and "!" of a name are no special case: the
+    pattern starts with "/".
+    """
+    escaped = re.sub(r"([\\\[*?])", r"\\\1", relative)
+    escaped = escaped.replace("\n", "?").replace("\r", "?")
+    stripped = escaped.rstrip(" ")
+    return stripped + "\\ " * (len(escaped) - len(stripped))
+
+
+def _unescape_exclude_pattern(pattern: str) -> Optional[str]:
+    """
+    The path that a line of the block of the application stands for, the
+    reverse of _escape_exclude_pattern. None for a line that is not a path
+    that this application wrote (no leading "/", a wildcard that stands for a
+    line break).
+    """
+    if not pattern.startswith("/"):
+        return None
+    characters: List[str] = []
+    index = 1
+    while index < len(pattern):
+        character = pattern[index]
+        if character == "\\":
+            index += 1
+            if index >= len(pattern):
+                return None
+            character = pattern[index]
+        elif character in "*?[":
+            return None
+        characters.append(character)
+        index += 1
+    return "".join(characters)
+
+
+def _read_exclude_lines(exclude_path: str) -> List[str]:
+    if not os.path.isfile(exclude_path):
+        return []
+    with file_open_read_utf8(exclude_path) as file_:
+        text = file_.read()
+    lines = text.split("\n")
+    if lines[-1] == "":
+        lines.pop()
+    return lines
+
+
+def _write_exclude_lines(exclude_path: str, lines: List[str]) -> None:
+    os.makedirs(os.path.dirname(exclude_path), exist_ok=True)
+    text = "".join(f"{line_}\n" for line_ in lines)
+    with open(exclude_path, "w", encoding="utf-8", newline="\n") as file_:
+        file_.write(text)
+
+
+def _find_exclude_block(lines: List[str]) -> Optional[Tuple[int, int]]:
+    """The indexes of the first and the last line of the block, if any."""
+    if EXCLUDE_BLOCK_BEGIN not in lines:
+        return None
+    begin = lines.index(EXCLUDE_BLOCK_BEGIN)
+    if EXCLUDE_BLOCK_END not in lines[begin + 1 :]:
+        return None
+    return begin, lines.index(EXCLUDE_BLOCK_END, begin + 1)

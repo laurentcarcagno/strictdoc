@@ -19,8 +19,10 @@ the user starts the application without a project.
 @relation(SDOC-SRS-1243, scope=file)
 @relation(SDOC-SRS-1244, scope=file)
 @relation(SDOC-SRS-1252, scope=file)
+@relation(SDOC-SRS-1259, scope=file)
 """
 
+import logging
 import os
 from contextlib import asynccontextmanager
 from dataclasses import dataclass, field, replace
@@ -29,6 +31,7 @@ from typing import (
     AbstractSet,
     Any,
     AsyncIterator,
+    Callable,
     Dict,
     List,
     Mapping,
@@ -46,6 +49,7 @@ from starlette.responses import (
 )
 from starlette.staticfiles import StaticFiles
 
+from strictdoc import __version__
 from strictdoc.features.desktop import window
 from strictdoc.features.desktop.ai_settings import (
     AiRuntime,
@@ -120,6 +124,8 @@ from strictdoc.features.project_catalog.registry import (
     create_catalog,
 )
 
+logger = logging.getLogger(__name__)
+
 _DESKTOP_DIR = os.path.dirname(os.path.abspath(__file__))
 ASSETS_DIR = os.path.join(_DESKTOP_DIR, "assets")
 ASSETS_URL = "/assets"
@@ -186,6 +192,7 @@ def create_home_app(
     principals: Optional[ProjectPrincipals] = None,
     server_factory: Optional[ProjectServerFactory] = None,
     secret_store: Optional[SecretStore] = None,
+    clear_cookies: Optional[Callable[[], bool]] = None,
 ) -> FastAPI:
     # The language of the user, for the home screen and for every project.
     apply_application_language(load_settings(settings_path))
@@ -341,6 +348,8 @@ def create_home_app(
             ai=ai_runtime.get_overview(),
             ai_form=ai_form,
             ai_kinds=AI_KINDS,
+            # Read from the code: no request goes out to ask for updates.
+            version=__version__,
         )
         response.status_code = status_code
         return response
@@ -518,15 +527,29 @@ def create_home_app(
         return RedirectResponse(authorization_url, status_code=303)
 
     @application.post("/sign-out")
-    def sign_out() -> Response:
+    def sign_out(request: Request) -> Response:
         """
-        End the session: the tokens are forgotten (the record of the keyring,
-        the variable of Git), and so are the roles. The servers of the projects
-        stop: they would keep the documents of the user on the screen.
+        End the session: GitLab revokes the tokens, then they are forgotten
+        (the record of the keyring, the variable of Git), and so are the
+        roles. The servers of the projects stop: they would keep the documents
+        of the user on the screen. The window forgets its cookies, so that the
+        next sign-in does not use the page of GitLab that the window kept.
+
+        The cookies of the window include the session cookie of this server.
+        The window gets it again with a new start path, which the server of
+        this application gives, and nothing else changes for the user.
+
+        @relation(SDOC-SRS-1234, scope=function)
         """
         token_keeper.sign_out()
         principals.clear()
         manager.stop_servers()
+        if _clear_cookies_of_window(clear_cookies):
+            create_restart_path = getattr(
+                request.app.state, "desktop_create_restart_path", None
+            )
+            if create_restart_path is not None:
+                return RedirectResponse(create_restart_path(), status_code=303)
         return RedirectResponse("/", status_code=303)
 
     @application.get(CALLBACK_PATH)
@@ -695,6 +718,28 @@ def render_home(
         unsent_messages=unsent_messages if unsent_messages is not None else {},
     )
     return HTMLResponse(output, headers={"Cache-Control": "no-store"})
+
+
+def _clear_cookies_of_window(
+    clear_cookies: Optional[Callable[[], bool]],
+) -> bool:
+    """
+    Forget the cookies of the window. True when they were forgotten. A failure
+    does not stop the sign-out: the tokens are gone already.
+    """
+    clear = (
+        clear_cookies
+        if clear_cookies is not None
+        else window.clear_window_cookies
+    )
+    try:
+        return clear()
+    except Exception as exception_:  # noqa: BLE001
+        logger.warning(
+            "The cookies of the window were not cleared (%s).",
+            type(exception_).__name__,
+        )
+        return False
 
 
 def _get_unsent_messages(

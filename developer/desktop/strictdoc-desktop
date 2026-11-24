@@ -1,0 +1,8 @@
+#!/bin/sh
+# Launcher of the StrictDoc desktop application.
+case "${1:-}" in
+    --version | -V)
+        exec /opt/strictdoc-desktop/strictdoc --version
+        ;;
+esac
+exec /opt/strictdoc-desktop/strictdoc desktop "$@"

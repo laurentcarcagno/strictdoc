@@ -12,7 +12,7 @@ import threading
 import time
 import urllib.request
 from pathlib import Path
-from typing import Any, Dict, Iterator, List, Optional
+from typing import Any, Dict, Iterator, List, Optional, Tuple
 from urllib.parse import parse_qs, urlparse
 
 import pytest
@@ -138,15 +138,38 @@ def _create_session(
     )
 
 
+class Revoker:
+    """Stands for the revocation at GitLab: it records what it was given."""
+
+    def __init__(self) -> None:
+        # (gitlab_url, client_id, token) of each call, in order.
+        self.calls: List[Tuple[str, str, str]] = []
+        self.error: Optional[Exception] = None
+        # What the store held when the call came: the session ends after.
+        self.record_seen: List[Optional[str]] = []
+        self.store: Optional[MemorySecretStore] = None
+
+    def __call__(self, *, gitlab_url: str, client_id: str, token: str) -> bool:
+        self.calls.append((gitlab_url, client_id, token))
+        if self.store is not None:
+            self.record_seen.append(self.store.get(SECRET_NAME))
+        if self.error is not None:
+            raise self.error
+        return True
+
+
 class Setup:
     def __init__(self) -> None:
         self.clock: Clock = Clock()
         self.store: CountingStore = CountingStore()
         self.refresher: Refresher = Refresher(self.clock)
+        self.revoker: Revoker = Revoker()
+        self.revoker.store = self.store
         self.keeper: TokenKeeper = TokenKeeper(
             self.store,
             clock=self.clock,
             refresh=self.refresher,
+            revoke=self.revoker,
             use_timer=False,
         )
 
@@ -164,6 +187,7 @@ class Setup:
             self.store,
             clock=self.clock,
             refresh=self.refresher,
+            revoke=self.revoker,
             use_timer=False,
         )
         self.keeper.restore(gitlab_url=GITLAB_URL, client_id="the-client")
@@ -551,6 +575,56 @@ def test_017_the_sign_out_deletes_the_record(
     assert setup.store.get(SECRET_NAME) is None
 
 
+def test_017b_the_sign_out_revokes_the_tokens_before_it_forgets_them(
+    setup: Setup,
+) -> None:
+    """
+    @relation(SDOC-SRS-1234, scope=function)
+    """
+    setup.sign_in()
+
+    setup.keeper.sign_out()
+
+    assert setup.revoker.calls == [
+        (GITLAB_URL, "the-client", "refresh-0"),
+        (GITLAB_URL, "the-client", "access-0"),
+    ]
+    # The record was still there when GitLab was asked, and it is gone now.
+    assert all(record_ is not None for record_ in setup.revoker.record_seen)
+    assert setup.store.get(SECRET_NAME) is None
+    assert setup.keeper.status is SignInStatus.SIGNED_OUT
+
+
+def test_017c_a_revocation_that_fails_does_not_keep_the_session(
+    setup: Setup, caplog: pytest.LogCaptureFixture
+) -> None:
+    """
+    @relation(SDOC-SRS-1234, scope=function)
+    """
+    setup.sign_in()
+    setup.revoker.error = RuntimeError("refresh-0 and access-0 are secret")
+
+    with caplog.at_level(logging.DEBUG):
+        setup.keeper.sign_out()
+
+    assert setup.keeper.status is SignInStatus.SIGNED_OUT
+    assert setup.store.get(SECRET_NAME) is None
+    assert setup.keeper.session is None
+    # Both tokens were tried, and no log line holds one.
+    assert len(setup.revoker.calls) == 2
+    assert "refresh-0" not in caplog.text
+    assert "access-0" not in caplog.text
+
+
+def test_017d_without_a_session_nothing_is_revoked(setup: Setup) -> None:
+    """
+    @relation(SDOC-SRS-1234, scope=function)
+    """
+    setup.keeper.sign_out()
+
+    assert setup.revoker.calls == []
+
+
 def test_018_a_store_that_refuses_the_write_keeps_the_session_in_memory(
     setup: Setup,
 ) -> None:
@@ -855,16 +929,90 @@ class RenewalInProgress:
             self.errors.append(exception_)
 
 
+def _sign_out_in_a_thread(setup: Setup) -> threading.Thread:
+    thread = threading.Thread(target=setup.keeper.sign_out)
+    thread.start()
+    return thread
+
+
 def test_028_a_sign_out_during_a_renewal_is_not_undone(setup: Setup) -> None:
     renewal = _start_renewal_during_which(setup)
 
-    setup.keeper.sign_out()
+    sign_out = _sign_out_in_a_thread(setup)
     renewal.finish()
+    sign_out.join(10)
 
+    assert not sign_out.is_alive()
     # The tokens that GitLab gave after the sign-out are dropped.
     assert setup.keeper.session is None
     assert setup.keeper.status is SignInStatus.SIGNED_OUT
     assert setup.store.get(SECRET_NAME) is None
+
+
+def test_028b_a_renewal_during_the_revocation_waits_for_it(
+    setup: Setup,
+) -> None:
+    """
+    @relation(SDOC-SRS-1234, scope=function)
+    """
+    setup.sign_in()
+    setup.clock.now += LIFETIME
+    revocation_started = threading.Event()
+    let_revocation_go = threading.Event()
+    original_revoke = setup.revoker
+
+    def slow_revoke(**keywords: Any) -> bool:
+        revocation_started.set()
+        assert let_revocation_go.wait(10)
+        return original_revoke(**keywords)
+
+    setup.keeper._revoke = slow_revoke
+    sign_out = _sign_out_in_a_thread(setup)
+    assert revocation_started.wait(10)
+
+    renewal = threading.Thread(target=setup.keeper.renew)
+    renewal.start()
+    time.sleep(0.3)
+
+    # The renewal does not reach GitLab: it waits for the sign-out.
+    assert setup.refresher.received == []
+    let_revocation_go.set()
+    sign_out.join(10)
+    renewal.join(10)
+    assert not sign_out.is_alive()
+    assert not renewal.is_alive()
+    # No pair was given after the revocation: the last pair is the one that
+    # was revoked, and the session is over.
+    assert setup.refresher.received == []
+    assert [call_[2] for call_ in setup.revoker.calls] == [
+        "refresh-0",
+        "access-0",
+    ]
+    assert setup.keeper.session is None
+    assert setup.store.get(SECRET_NAME) is None
+
+
+def test_028c_a_sign_out_after_a_renewal_revokes_the_pair_of_the_renewal(
+    setup: Setup,
+) -> None:
+    """
+    @relation(SDOC-SRS-1234, scope=function)
+    """
+    renewal = _start_renewal_during_which(setup)
+    sign_out = _sign_out_in_a_thread(setup)
+    time.sleep(0.3)
+    # The sign-out waits for the renewal that runs.
+    assert setup.revoker.calls == []
+
+    renewal.finish()
+    sign_out.join(10)
+
+    assert not sign_out.is_alive()
+    assert [call_[2] for call_ in setup.revoker.calls] == [
+        "refresh-1",
+        "access-1",
+    ]
+    assert setup.keeper.session is None
 
 
 def test_029_a_new_sign_in_during_a_renewal_is_not_replaced(

@@ -4,6 +4,10 @@
 @relation(SDOC-SRS-1234, scope=file)
 """
 
+import urllib.error
+import urllib.request
+from typing import Any, Optional
+
 import pytest
 from starlette.applications import Starlette
 from starlette.requests import Request
@@ -12,6 +16,7 @@ from starlette.routing import Route, WebSocketRoute
 from starlette.testclient import TestClient
 from starlette.websockets import WebSocket, WebSocketDisconnect
 
+from strictdoc.features.desktop.local_server import LocalServer
 from strictdoc.features.desktop.session_token import (
     BOOTSTRAP_PATH,
     DesktopSessionMiddleware,
@@ -200,6 +205,7 @@ def test_011_websocket_needs_the_cookie(
         "/ws",
         headers={
             "host": HOST,
+            "origin": f"http://{HOST}",
             "cookie": f"{COOKIE_NAME}={credentials.token}",
         },
     ) as websocket:
@@ -210,10 +216,108 @@ def test_011_websocket_needs_the_cookie(
             "/ws",
             headers={
                 "host": "evil.example",
+                "origin": f"http://{HOST}",
                 "cookie": f"{COOKIE_NAME}={credentials.token}",
             },
         ):
             pass
+
+
+@pytest.mark.parametrize(
+    "origin",
+    [
+        # A page of the neighbour port of the same address.
+        f"http://127.0.0.1:{PORT + 1}",
+        f"http://localhost:{PORT + 1}",
+        "http://evil.example",
+        "https://127.0.0.1:" + str(PORT),
+        "null",
+        "",
+    ],
+)
+def test_011b_a_websocket_of_another_origin_is_refused(
+    client: TestClient, credentials: SessionCredentials, origin: str
+) -> None:
+    with pytest.raises(WebSocketDisconnect) as refused:
+        with client.websocket_connect(
+            "/ws",
+            headers={
+                "host": HOST,
+                "origin": origin,
+                "cookie": f"{COOKIE_NAME}={credentials.token}",
+            },
+        ):
+            pass
+
+    assert refused.value.code == 1008
+
+
+def test_011c_a_websocket_without_origin_is_refused(
+    client: TestClient, credentials: SessionCredentials
+) -> None:
+    with pytest.raises(WebSocketDisconnect) as refused:
+        with client.websocket_connect(
+            "/ws",
+            headers={
+                "host": HOST,
+                "cookie": f"{COOKIE_NAME}={credentials.token}",
+            },
+        ):
+            pass
+
+    assert refused.value.code == 1008
+
+
+def test_011d_a_websocket_of_the_server_is_accepted(
+    client: TestClient, credentials: SessionCredentials
+) -> None:
+    for host_ in (f"127.0.0.1:{PORT}", f"localhost:{PORT}"):
+        with client.websocket_connect(
+            "/ws",
+            headers={
+                "host": host_,
+                "origin": f"http://{host_}",
+                "cookie": f"{COOKIE_NAME}={credentials.token}",
+            },
+        ) as websocket:
+            assert websocket.receive_text() == "hello"
+
+
+def test_011e_the_http_requests_keep_their_rule_on_the_origin(
+    client: TestClient, credentials: SessionCredentials
+) -> None:
+    client.get(_bootstrap_path(credentials))
+
+    # No Origin: a program, not a page of a browser. It is accepted still.
+    assert client.post("/edit").status_code == 200
+    assert (
+        client.get("/", headers={"origin": "http://evil.example"}).status_code
+        == 200
+    )
+    assert (
+        client.post(
+            "/edit", headers={"origin": "http://evil.example"}
+        ).status_code
+        == 403
+    )
+
+
+def test_011f_a_new_bootstrap_code_gives_the_same_cookie_again(
+    client: TestClient, credentials: SessionCredentials
+) -> None:
+    first_code = credentials.bootstrap_code
+    client.get(_bootstrap_path(credentials), follow_redirects=False)
+    assert credentials.is_bootstrap_code_used is True
+
+    new_code = credentials.renew_bootstrap_code()
+
+    assert new_code != first_code
+    assert credentials.token not in (first_code, new_code)
+    # The old code is void, and the new one works once.
+    assert credentials.consume_bootstrap_code(first_code) is False
+    assert credentials.consume_bootstrap_code(new_code) is True
+    assert credentials.consume_bootstrap_code(new_code) is False
+    assert credentials.is_bootstrap_code_used is True
 
 
 def test_012_each_server_accepts_only_the_cookie_of_its_port() -> None:
@@ -327,3 +431,46 @@ def test_017_the_page_of_the_public_path_follows_the_language(
     assert "La connexion a expiré ou n&#x27;est plus valide." in response.text
     assert "Retour à l&#x27;accueil" in response.text
     assert '<html lang="fr">' in response.text
+
+
+class _NoRedirect(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, *arguments: Any, **keywords: Any) -> None:
+        del arguments, keywords
+
+
+def _get_cookie_of(url: str) -> Optional[str]:
+    """Follow the URL with no redirect; the cookie that it sets, if any."""
+    opener = urllib.request.build_opener(_NoRedirect)
+    try:
+        answer = opener.open(url, timeout=10)
+    except urllib.error.HTTPError as error_:
+        answer = error_
+    cookie = answer.headers.get("Set-Cookie")
+    return cookie.split(";")[0] if cookie is not None else None
+
+
+def test_018_a_server_gives_the_cookie_again_through_a_new_start_path() -> None:
+    """
+    @relation(SDOC-SRS-1234, scope=function)
+    """
+    server = LocalServer(
+        application_factory=lambda: Starlette(routes=[Route("/", _home)])
+    )
+    server.start()
+    try:
+        server.wait_until_ready()
+        first_start_url = server.start_url
+        first_cookie = _get_cookie_of(first_start_url)
+        assert first_cookie is not None
+        assert server.is_bootstrapped is True
+
+        restart_path = server.create_restart_path()
+
+        assert restart_path.startswith(f"{BOOTSTRAP_PATH}?code=")
+        # The start URL of the first code does not work any more.
+        assert _get_cookie_of(first_start_url) is None
+        assert _get_cookie_of(server.url + restart_path) == first_cookie
+        # And the new code works once.
+        assert _get_cookie_of(server.url + restart_path) is None
+    finally:
+        server.stop()

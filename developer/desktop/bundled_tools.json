@@ -1,0 +1,44 @@
+{
+  "chrome_for_testing_version": "158.0.8127.88",
+  "platforms": {
+    "linux64": [
+      {
+        "name": "chrome-headless-shell",
+        "version": "158.0.8127.88",
+        "url": "https://storage.googleapis.com/chrome-for-testing-public/158.0.8127.88/linux64/chrome-headless-shell-linux64.zip",
+        "sha256": "63401333cc587645bfaeea7f0c90958b327d249251e23954a47f30112ca23d5b",
+        "strip_components": 1
+      },
+      {
+        "name": "chromedriver",
+        "version": "158.0.8127.88",
+        "url": "https://storage.googleapis.com/chrome-for-testing-public/158.0.8127.88/linux64/chromedriver-linux64.zip",
+        "sha256": "afabc2d0f866af4d9e209389f930ce34b5f2d365fb1b6c83874845cc123b0e2e",
+        "strip_components": 1
+      }
+    ],
+    "win64": [
+      {
+        "name": "chrome-headless-shell",
+        "version": "158.0.8127.88",
+        "url": "https://storage.googleapis.com/chrome-for-testing-public/158.0.8127.88/win64/chrome-headless-shell-win64.zip",
+        "sha256": "e935ea2d4633495b5e9ab7bc66bcd982806329c0ee9ecbafc1ac9596a3b34cdb",
+        "strip_components": 1
+      },
+      {
+        "name": "chromedriver",
+        "version": "158.0.8127.88",
+        "url": "https://storage.googleapis.com/chrome-for-testing-public/158.0.8127.88/win64/chromedriver-win64.zip",
+        "sha256": "a30e558b518cb1cfb5983edf14de0b6ab613f26f2a2fe1bdf3f6dee123e1b0e4",
+        "strip_components": 1
+      },
+      {
+        "name": "mingit",
+        "version": "2.56.1",
+        "url": "https://github.com/git-for-windows/git/releases/download/v2.56.1.windows.1/MinGit-2.56.1-64-bit.zip",
+        "sha256": "4a92850b6e917da4fd010669b614b55dccf5b0ec333a534cc4be4700dfefdafd",
+        "strip_components": 0
+      }
+    ]
+  }
+}

@@ -24,7 +24,8 @@ What it never does:
   the merge waits, and the window of the merge opens in the page;
 - a file that is not a document (an image, a ".gitattributes") cannot be
   combined by nodes: the local file stays, the one of the colleague is saved
-  next to it, and the user is told. Nothing is lost and nothing waits;
+  next to it, on this computer only (outside of any commit), and the user is
+  told. Nothing is lost and nothing waits;
 - a user who may not decide (a reader) never gets a window: when his own
   comments overlap with a change of a colleague on the same node, the merge is
   abandoned, the update waits for one of the two sides to move, and the user
@@ -119,7 +120,8 @@ class KeptFile:
     """A file that is not a document, which two people changed."""
 
     path: str
-    # The file next to it that holds the other version, "" when none.
+    # The file next to it that holds the other version, "" when none. It is
+    # on this computer only: outside of the index and of every commit.
     copy_path: str
     # "local": the file of the user stays. "server": the user had removed it
     # and the colleague had changed it, so the changed file is back.
@@ -134,7 +136,8 @@ class DesktopSyncService(SyncService):
     - the commit of a merge goes to the queue of the sending, not to the
       server (_push);
     - a conflict on a file that is not a document keeps both versions
-      (auto_resolve), where the web server abandons the merge;
+      (auto_resolve), where the web server abandons the merge. The version of
+      the colleague stays on this computer, outside of any commit;
     - a file that the user's choice writes is not seen by the watcher as a
       change of somebody else: the inhibition comes before the write, and it
       is taken back if the write fails.
@@ -259,6 +262,7 @@ def synchronize_project(
     synchronization made.
     """
     service = DesktopGitService(folder, git_access)
+    _forget_removed_copies(service, folder)
     try:
         if service.is_operation_in_progress(folder):
             # The user decides first: nothing is fetched, nothing changes.
@@ -497,7 +501,9 @@ def get_kept_files_text(kept_files: List[KeptFile]) -> str:
             sentences.append(
                 gettext(
                     "%(file)s was changed by you and by a colleague. Your "
-                    "version is kept, and theirs is saved as %(copy)s."
+                    "version is kept. Theirs is saved as %(copy)s on this "
+                    "computer only and is not shared. To share it, rename "
+                    "the file."
                 )
                 % {"file": kept_.path, "copy": kept_.copy_path}
             )
@@ -526,6 +532,18 @@ def _answer(state: str, message: str, status_code: int = 200) -> Response:
         status_code=status_code,
         headers={"Cache-Control": "no-store"},
     )
+
+
+def _forget_removed_copies(service: DesktopGitService, folder: str) -> None:
+    """
+    The copies of colleagues that the user removed or renamed are no longer
+    hidden from the files that are sent. A failure is not a reason to stop the
+    synchronization: the lines stay for the next one.
+    """
+    try:
+        service.prune_local_copies(folder)
+    except GitServiceError as error:
+        logger.warning("The copies of colleagues were not checked: %s", error)
 
 
 def _create_on_commit(

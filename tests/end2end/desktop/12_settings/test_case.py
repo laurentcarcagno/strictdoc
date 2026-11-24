@@ -7,6 +7,7 @@ declared in English is shown in the language of the application, and the home
 screen stays in it when the project is opened.
 
 @relation(SDOC-SRS-1252, scope=file)
+@relation(SDOC-SRS-1259, scope=file)
 """
 
 import os
@@ -20,6 +21,7 @@ from typing import Any, Callable, Tuple
 import pytest
 from git import Actor, Repo
 
+from strictdoc import __version__
 from tests.end2end.desktop.desktop_case import DesktopCase
 from tests.end2end.desktop.desktop_test_server import DesktopTestServer
 from tests.end2end.desktop.fake_gitlab import (
@@ -47,6 +49,7 @@ LANGUAGE = '[data-testid="settings-language"]'
 INTERVAL = '[data-testid="settings-interval"]'
 SAVE = '[data-testid="settings-save"]'
 SAVED = '[data-testid="settings-saved"]'
+VERSION = '[data-testid="settings-version"]'
 WAIT_SECONDS = 40.0
 
 
@@ -124,6 +127,8 @@ class Test(DesktopCase):
                 self.assert_text(DISPLAY_NAME)
                 self.click(SETTINGS_LINK)
                 self.assert_element(LANGUAGE)
+                # The version of the application, read from the code.
+                self.assert_text(f"Version {__version__}", VERSION)
                 # The sign-out is reachable from the settings too.
                 self.assert_element('[data-testid="sign-out"]')
                 self._save_settings("fr", "5")

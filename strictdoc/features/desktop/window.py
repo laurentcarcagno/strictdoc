@@ -7,13 +7,22 @@ The window of the desktop application.
 """
 
 import importlib
+import importlib.util
+import sys
+import threading
 from pathlib import Path
-from typing import Any, List, Optional
+from typing import Any, Callable, List, Optional
 
 from strictdoc.features.i18n.i18n import gettext
 
 WINDOW_WIDTH = 1280
 WINDOW_HEIGHT = 800
+# How long a request waits for the thread of the window to do something.
+GUI_THREAD_TIMEOUT_SECONDS = 10.0
+
+# The Python module that each engine of pywebview needs: qtpy for Qt, and
+# clr (pythonnet) for WebView2.
+_ENGINE_REQUIREMENTS = {"qt": "qtpy", "edgechromium": "clr"}
 
 
 class DesktopWindowError(Exception):
@@ -23,6 +32,10 @@ class DesktopWindowError(Exception):
 # The window of this process, while run_window() shows it. None when the
 # application runs without a window (--no-window).
 _window: Optional[Any] = None
+
+# The function that runs a job in the thread of the window, with Qt. None with
+# the other engines, whose pywebview does it by itself.
+_post_to_gui_thread: Optional[Callable[[Callable[[], None]], None]] = None
 
 # The address of the home screen, when the application has one. The menu of the
 # window brings the user back to it.
@@ -83,9 +96,19 @@ _KEEP_OWN_LINKS_IN_WINDOW_SCRIPT = """
 """
 
 
+def get_window_engine(platform: str) -> str:
+    """
+    The engine of the window: WebView2 on Windows, Qt WebEngine elsewhere.
+
+    The engine is the "gui" argument of pywebview.
+    """
+    return "edgechromium" if platform == "win32" else "qt"
+
+
 def check_window_available() -> None:
     """Raise DesktopWindowError if the window cannot be shown."""
-    _import_webview()
+    engine = get_window_engine(sys.platform)
+    _import_webview(engine)
 
 
 def run_window(*, title: str, url: str, storage_path: Path) -> None:
@@ -95,9 +118,14 @@ def run_window(*, title: str, url: str, storage_path: Path) -> None:
     The window keeps its browser profile in the storage folder, so that the
     settings of the pages survive between two runs.
     """
-    global _window  # noqa: PLW0603
-    webview = _import_webview()
+    global _window, _post_to_gui_thread  # noqa: PLW0603
+    engine = get_window_engine(sys.platform)
+    webview = _import_webview(engine)
     storage_path.mkdir(parents=True, exist_ok=True)
+    if engine == "qt":
+        # This is the thread of the window: the jobs of the other threads come
+        # back here, to the loop of Qt that webview.start() runs.
+        _post_to_gui_thread = create_qt_poster()
     window = webview.create_window(
         title, url, width=WINDOW_WIDTH, height=WINDOW_HEIGHT
     )
@@ -109,13 +137,76 @@ def run_window(*, title: str, url: str, storage_path: Path) -> None:
     window.events.loaded += keep_own_links_in_window
     try:
         webview.start(
-            gui="qt",
+            gui=engine,
             private_mode=False,
             storage_path=str(storage_path),
             menu=_create_menu(),
         )
     finally:
         _window = None
+        _post_to_gui_thread = None
+
+
+def create_qt_poster() -> Callable[[Callable[[], None]], None]:
+    """
+    A function that runs a job in the thread that calls this one, which is the
+    main thread of the application and the one of the loop of Qt. Qt objects,
+    the cookie store of the window included, may be used from this thread
+    only: the store crashes the process when another thread calls it.
+    """
+    qt_core = importlib.import_module("qtpy.QtCore")
+
+    class Poster(qt_core.QObject):  # type: ignore[misc, name-defined]
+        requested = qt_core.Signal(object)
+
+        def __init__(self) -> None:
+            super().__init__()
+            self.requested.connect(self.run)
+
+        def run(self, job: Callable[[], None]) -> None:
+            job()
+
+    poster = Poster()
+
+    def post(job: Callable[[], None]) -> None:
+        poster.requested.emit(job)
+
+    return post
+
+
+def run_on_gui_thread(
+    function: Callable[[], None],
+    *,
+    timeout_seconds: float = GUI_THREAD_TIMEOUT_SECONDS,
+) -> bool:
+    """
+    Run the function in the thread of the window, and wait until it is done.
+    It returns False when the thread of the window did not do it in time. An
+    exception of the function is raised here. Without a Qt poster (another
+    engine, whose pywebview moves the call itself), or when this is the thread
+    of the window, the function runs here.
+    """
+    post = _post_to_gui_thread
+    if post is None or threading.current_thread() is threading.main_thread():
+        function()
+        return True
+    done = threading.Event()
+    errors: List[BaseException] = []
+
+    def job() -> None:
+        try:
+            function()
+        except BaseException as exception_:  # noqa: BLE001
+            errors.append(exception_)
+        finally:
+            done.set()
+
+    post(job)
+    if not done.wait(timeout_seconds):
+        return False
+    if len(errors) > 0:
+        raise errors[0]
+    return True
 
 
 def set_home_url(url: Optional[str]) -> None:
@@ -141,6 +232,25 @@ def go_to_settings() -> None:
         _window.load_url(f"{_home_url.rstrip('/')}/settings")
 
 
+def clear_window_cookies() -> bool:
+    """
+    Forget every cookie of the window: the ones of GitLab and of the sign-in
+    service, so that the next sign-in asks for the user again, and the session
+    cookies of the servers of the application. It returns True when a window
+    was cleared, and False when there is none (the application runs with
+    --no-window, or in a test) or when its thread did not answer in time.
+
+    @relation(SDOC-SRS-1234, scope=function)
+    """
+    window = _window
+    if window is None:
+        return False
+    # The cookie store is used in the thread of the window, and the call waits
+    # until it is done: what the window loads next, with a new session cookie,
+    # does not come before the end of the clearing.
+    return run_on_gui_thread(window.clear_cookies)
+
+
 def is_window_open() -> bool:
     """Tell whether this process shows its window, so that it has dialogs."""
     return _window is not None
@@ -157,7 +267,7 @@ def choose_folder(initial_folder: str) -> Optional[str]:
     """
     if _window is None:
         raise DesktopWindowError("There is no window to show a dialog.")
-    webview = _import_webview()
+    webview = _import_webview(get_window_engine(sys.platform))
     file_dialog = getattr(webview, "FileDialog", None)
     dialog_type = (
         file_dialog.FOLDER if file_dialog is not None else webview.FOLDER_DIALOG
@@ -184,14 +294,25 @@ def _create_menu() -> List[Any]:
     ]
 
 
-def _import_webview() -> Any:
+def _import_webview(engine: str) -> Any:
     # The module is imported here and not at the top: the other commands and
     # --no-window do not need pywebview, and it is in an optional group.
     try:
-        return importlib.import_module("webview")
+        webview = importlib.import_module("webview")
+        # The module that the engine needs, found without importing it: the
+        # import of Qt or .NET has side effects.
+        if importlib.util.find_spec(_ENGINE_REQUIREMENTS[engine]) is None:
+            raise ImportError(_ENGINE_REQUIREMENTS[engine])
+        return webview
     except ImportError as exception_:
+        if engine == "edgechromium":
+            hint = "pip install pywebview (it needs WebView2)"
+            name = "WebView2"
+        else:
+            hint = "pip install 'pywebview[qt]'"
+            name = "Qt"
         raise DesktopWindowError(
-            "The desktop window needs the 'pywebview' package with Qt. "
-            "Install it with: pip install 'pywebview[qt]'. "
+            f"The desktop window needs the 'pywebview' package with {name}. "
+            f"Install it with: {hint}. "
             "To run the server without a window, use --no-window."
         ) from exception_

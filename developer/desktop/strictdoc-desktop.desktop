@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=StrictDoc
+GenericName=Requirements and documentation
+Comment=Write and share requirements and documents
+Exec=strictdoc-desktop
+Icon=strictdoc-desktop
+Terminal=false
+Categories=Office;Development;
+StartupWMClass=strictdoc

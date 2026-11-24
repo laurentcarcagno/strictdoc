@@ -3,6 +3,7 @@ The screen of the settings, the language of the application, and the
 protection of the forms.
 
 @relation(SDOC-SRS-1252, scope=file)
+@relation(SDOC-SRS-1259, scope=file)
 """
 
 import json
@@ -18,6 +19,7 @@ from starlette.responses import PlainTextResponse
 from starlette.routing import Route
 from starlette.testclient import TestClient
 
+from strictdoc import __version__
 from strictdoc.features.desktop.application_language import (
     LANGUAGE_VARIABLE,
     apply_application_language,
@@ -432,3 +434,14 @@ def test_018_the_pages_that_a_project_server_kept_are_made_again(
     assert index.index_last_updated > before
     # A server that is not started has nothing to refresh.
     LocalServer(project_config=config).refresh_pages()
+
+
+def test_019_the_screen_shows_the_version_without_a_network_call(
+    settings_path: Path,
+) -> None:
+    client = _create_home_client(settings_path)
+
+    screen = client.get("/settings").text
+
+    assert 'data-testid="settings-version"' in screen
+    assert f"Version {__version__}" in screen

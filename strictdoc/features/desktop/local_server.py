@@ -18,6 +18,7 @@ The web server of a project for the desktop application.
 @relation(SDOC-SRS-1247, scope=file)
 @relation(SDOC-SRS-1250, scope=file)
 @relation(SDOC-SRS-1252, scope=file)
+@relation(SDOC-SRS-1258, scope=file)
 """
 
 import asyncio
@@ -34,6 +35,9 @@ import uvicorn
 from jinja2 import ChoiceLoader, FileSystemLoader
 from starlette.applications import Starlette
 from starlette.middleware import Middleware
+from starlette.requests import Request
+from starlette.responses import PlainTextResponse, Response
+from starlette.routing import Route
 
 import strictdoc.server.app as server_app
 from strictdoc import __version__
@@ -47,6 +51,7 @@ from strictdoc.features.desktop.ai_settings import AiRuntime
 from strictdoc.features.desktop.application_language import (
     restore_application_language,
 )
+from strictdoc.features.desktop.bundled_tools import find_bundled_tools
 from strictdoc.features.desktop.commit_author import (
     create_missing_author_provider,
 )
@@ -112,6 +117,9 @@ RESOLVE_ROLE_GLOBAL = "desktop_resolve_role"
 
 # The host cannot be set: only the program on this computer reaches the server.
 LOCAL_SERVER_HOST = "127.0.0.1"
+
+# The pages of the comparison of Git revisions, which the application hides.
+COMPARISON_PATHS = ("/diff", "/diff_result")
 
 _POLL_INTERVAL_SECONDS = 0.05
 
@@ -196,6 +204,15 @@ class LocalServer:
             f"?{BOOTSTRAP_CODE_PARAMETER}={self._credentials.bootstrap_code}"
         )
 
+    def create_restart_path(self) -> str:
+        """
+        The path that gives the session cookie to a window that lost it, once:
+        the user signed out and the window forgot all its cookies. It comes
+        with a new bootstrap code, and the session token stays.
+        """
+        code = self._credentials.renew_bootstrap_code()
+        return f"{BOOTSTRAP_PATH}?{BOOTSTRAP_CODE_PARAMETER}={code}"
+
     def set_bootstrap_listener(
         self, listener: Optional[Callable[[], None]]
     ) -> None:
@@ -215,6 +232,9 @@ class LocalServer:
             self._socket = server_socket
             application = self._create_application()
             self._application = application
+            application.state.desktop_create_restart_path = (
+                self.create_restart_path
+            )
             # Added last, so that it is the outermost: no route and no other
             # middleware sees a request that the window did not send.
             application.add_middleware(
@@ -413,6 +433,7 @@ def create_project_application(
         git_access if git_access is not None else GitAccess(),
         send_queue,
     )
+    give_no_comparison(application)
     return application
 
 
@@ -608,6 +629,26 @@ def give_synchronization(
             middleware_.kwargs["role_overrides"] = get_route_role_overrides()
 
 
+def give_no_comparison(application: Starlette) -> None:
+    """
+    The comparison of Git revisions (the pages "/diff" and "/diff_result") is
+    not offered: the web server answers these paths with its own message when
+    the feature is off, and the application answers "not found", as for a page
+    that does not exist. The routes come first.
+
+    @relation(SDOC-SRS-1248, scope=function)
+    """
+
+    def answer_not_found(request: Request) -> Response:
+        del request
+        return PlainTextResponse("Not Found", status_code=404)
+
+    application.router.routes[0:0] = [
+        Route(path_, answer_not_found, methods=["GET", "HEAD"])
+        for path_ in COMPARISON_PATHS
+    ]
+
+
 def give_author_provider(
     application: Starlette, author_provider: Callable[[], Author]
 ) -> None:
@@ -669,13 +710,42 @@ def create_desktop_project_config(
     project_config.dir_for_sdoc_cache = os.path.join(
         str(get_project_sdoc_cache_dir(full_input_path)), __version__
     )
+    use_bundled_pdf_tools(project_config)
     enable_git(project_config)
+    disable_comparison(project_config)
     if ai_runtime is not None:
         # The assistant of the project is the one of the AI servers of the user.
         ai_runtime.attach(project_config)
     if principal_provider is not None:
         project_config.enable_desktop_mode(principal_provider)
     return project_config
+
+
+def use_bundled_pdf_tools(project_config: ProjectConfig) -> None:
+    """
+    The PDF export uses the headless Chrome and the chromedriver of the
+    package, when both are there: nothing is downloaded at run time and the
+    browser of the computer is not needed.
+    """
+    tools = find_bundled_tools()
+    if tools.chrome_binary is not None and tools.chromedriver is not None:
+        project_config.chrome_binary = str(tools.chrome_binary)
+        project_config.chromedriver = str(tools.chromedriver)
+
+
+def disable_comparison(project_config: ProjectConfig) -> None:
+    """
+    Turn the feature DIFF off, even when the project declares it: the
+    application does not offer the comparison of Git revisions (see
+    give_no_comparison). The project file is not changed.
+
+    @relation(SDOC-SRS-1248, scope=function)
+    """
+    project_config.project_features = [
+        feature_
+        for feature_ in project_config.project_features
+        if feature_ != ProjectFeature.DIFF
+    ]
 
 
 def enable_git(project_config: ProjectConfig) -> None:

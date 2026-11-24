@@ -7,7 +7,7 @@ import re
 import socket
 import urllib.request
 from pathlib import Path
-from typing import Dict, Iterator
+from typing import Callable, Dict, Iterator, List, Optional
 from urllib.parse import parse_qs, urlparse
 
 import pytest
@@ -29,6 +29,7 @@ from strictdoc.features.desktop.oauth_gitlab import (
     exchange_code,
     fetch_user,
     is_sign_in_configured,
+    revoke_token,
 )
 from strictdoc.features.desktop.session_token import (
     BOOTSTRAP_PATH,
@@ -49,6 +50,7 @@ from tests.end2end.desktop.fake_gitlab import (
     DISPLAY_NAME,
     MODE_DENY,
     MODE_WRONG_STATE,
+    REVOKE_FAIL,
     USERNAME,
     FakeGitLab,
 )
@@ -372,7 +374,12 @@ class HomeClients:
     of GitLab comes from another site: "from_another_site" has no cookie.
     """
 
-    def __init__(self, tmp_path: Path, fake_gitlab: FakeGitLab) -> None:
+    def __init__(
+        self,
+        tmp_path: Path,
+        fake_gitlab: FakeGitLab,
+        clear_cookies: Optional[Callable[[], bool]] = None,
+    ) -> None:
         self.fake_gitlab: FakeGitLab = fake_gitlab
         self.settings_path: Path = tmp_path / "config" / "settings.json"
         catalog_path = tmp_path / "catalog.json"
@@ -386,7 +393,12 @@ class HomeClients:
             )
         )
         credentials = SessionCredentials.create()
-        self.application = create_home_app(settings_path=self.settings_path)
+        self.application = create_home_app(
+            settings_path=self.settings_path,
+            clear_cookies=clear_cookies
+            if clear_cookies is not None
+            else (lambda: False),
+        )
         self.application.add_middleware(
             DesktopSessionMiddleware,
             credentials=credentials,
@@ -597,3 +609,183 @@ def _get_query(path: str) -> Dict[str, str]:
         name_: values_[0]
         for name_, values_ in parse_qs(urlparse(path).query).items()
     }
+
+
+# The sign-out: GitLab revokes the tokens, and the window forgets its cookies.
+
+
+def _sign_in_home(home: HomeClients) -> None:
+    callback_path = home.start_sign_in()
+    assert home.from_another_site.get(callback_path).status_code == 200
+    assert DISPLAY_NAME in home.window.get("/").text
+
+
+def test_030_the_revocation_gives_the_token_and_the_client_to_gitlab(
+    fake_gitlab: FakeGitLab,
+) -> None:
+    """
+    @relation(SDOC-SRS-1234, scope=function)
+    """
+    assert revoke_token(
+        gitlab_url=fake_gitlab.url + "/", client_id=CLIENT_ID, token="a-token"
+    )
+
+    assert fake_gitlab.revoke_requests == [{"client_id": CLIENT_ID}]
+    assert fake_gitlab.revoked_tokens == ["a-token"]
+
+
+def test_031_a_revocation_that_fails_is_false_and_never_raises(
+    fake_gitlab: FakeGitLab,
+) -> None:
+    """
+    @relation(SDOC-SRS-1234, scope=function)
+    """
+    fake_gitlab.revoke_mode = REVOKE_FAIL
+    assert not revoke_token(
+        gitlab_url=fake_gitlab.url, client_id=CLIENT_ID, token="a-token"
+    )
+    with socket.socket() as unused_:
+        unused_.bind(("127.0.0.1", 0))
+        closed_port = unused_.getsockname()[1]
+    # Nobody listens: the connection is refused at once.
+    assert not revoke_token(
+        gitlab_url=f"http://127.0.0.1:{closed_port}",
+        client_id=CLIENT_ID,
+        token="a-token",
+    )
+    assert fake_gitlab.revoked_tokens == []
+
+
+def test_032_the_sign_out_revokes_the_tokens_then_clears_the_cookies(
+    tmp_path: Path, fake_gitlab: FakeGitLab
+) -> None:
+    """
+    @relation(SDOC-SRS-1234, scope=function)
+    """
+    steps: List[str] = []
+
+    def clear_cookies() -> bool:
+        # The tokens are revoked before the window forgets anything.
+        steps.append(f"cleared after {len(fake_gitlab.revoked_tokens)}")
+        return True
+
+    home = HomeClients(tmp_path, fake_gitlab, clear_cookies)
+    try:
+        _sign_in_home(home)
+        given = fake_gitlab.get_issued_tokens()
+
+        response = home.window.post("/sign-out", follow_redirects=False)
+
+        assert response.status_code == 303
+        assert steps == ["cleared after 2"]
+        assert len(fake_gitlab.revoked_tokens) == 2
+        assert set(fake_gitlab.revoked_tokens) == given
+        assert fake_gitlab.revoke_requests == [
+            {"client_id": CLIENT_ID},
+            {"client_id": CLIENT_ID},
+        ]
+        assert DISPLAY_NAME not in home.window.get("/").text
+        assert 'data-testid="sign-in"' in home.window.get("/").text
+    finally:
+        home.close()
+
+
+def test_033_the_sign_out_is_complete_when_the_revocation_fails(
+    tmp_path: Path, fake_gitlab: FakeGitLab
+) -> None:
+    """
+    @relation(SDOC-SRS-1234, scope=function)
+    """
+    steps: List[str] = []
+    home = HomeClients(tmp_path, fake_gitlab, lambda: steps.append("x") is None)
+    try:
+        _sign_in_home(home)
+        fake_gitlab.revoke_mode = REVOKE_FAIL
+
+        response = home.window.post("/sign-out", follow_redirects=False)
+
+        assert response.status_code == 303
+        assert len(fake_gitlab.revoke_requests) == 2
+        assert fake_gitlab.revoked_tokens == []
+        assert steps == ["x"]
+        assert DISPLAY_NAME not in home.window.get("/").text
+    finally:
+        home.close()
+
+
+def test_034_the_sign_out_goes_on_when_the_window_cannot_clear_its_cookies(
+    tmp_path: Path, fake_gitlab: FakeGitLab
+) -> None:
+    """
+    @relation(SDOC-SRS-1234, scope=function)
+    """
+
+    def clear_cookies() -> bool:
+        raise RuntimeError("the window is gone")
+
+    home = HomeClients(tmp_path, fake_gitlab, clear_cookies)
+    try:
+        _sign_in_home(home)
+
+        response = home.window.post("/sign-out", follow_redirects=False)
+
+        assert response.status_code == 303
+        assert response.headers["location"] == "/"
+        assert len(fake_gitlab.revoked_tokens) == 2
+        assert DISPLAY_NAME not in home.window.get("/").text
+    finally:
+        home.close()
+
+
+def test_035_the_window_that_lost_its_cookies_gets_the_session_back(
+    tmp_path: Path, fake_gitlab: FakeGitLab
+) -> None:
+    """
+    The cookies of the window include the session cookie of the home server:
+    the sign-out sends the window through a new start path, once, and the
+    path is made after the cookies are cleared.
+
+    @relation(SDOC-SRS-1234, scope=function)
+    """
+    steps: List[str] = []
+
+    def clear_cookies() -> bool:
+        steps.append("cleared")
+        return True
+
+    def create_restart_path() -> str:
+        steps.append("path made")
+        return f"{BOOTSTRAP_PATH}?code=restart-code"
+
+    home = HomeClients(tmp_path, fake_gitlab, clear_cookies)
+    try:
+        _sign_in_home(home)
+        home.application.state.desktop_create_restart_path = create_restart_path
+
+        response = home.window.post("/sign-out", follow_redirects=False)
+
+        assert response.status_code == 303
+        assert response.headers["location"] == (
+            f"{BOOTSTRAP_PATH}?code=restart-code"
+        )
+        assert steps == ["cleared", "path made"]
+    finally:
+        home.close()
+
+
+def test_036_without_a_window_the_sign_out_goes_back_to_the_home_page(
+    tmp_path: Path, fake_gitlab: FakeGitLab
+) -> None:
+    """
+    @relation(SDOC-SRS-1234, scope=function)
+    """
+    home = HomeClients(tmp_path, fake_gitlab, lambda: False)
+    try:
+        _sign_in_home(home)
+        home.application.state.desktop_create_restart_path = lambda: "/x"
+
+        response = home.window.post("/sign-out", follow_redirects=False)
+
+        assert response.headers["location"] == "/"
+    finally:
+        home.close()

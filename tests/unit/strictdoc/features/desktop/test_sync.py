@@ -9,13 +9,14 @@ are not documents, the roles, and the timers.
 """
 
 import json
+import os
 import re
 import time
 from pathlib import Path
 from typing import Any, Callable, Dict, Iterator, List, Optional
 
 import pytest
-from git import Actor, Repo
+from git import Actor, GitCommandError, Repo
 from starlette.applications import Starlette
 from starlette.requests import Request
 from starlette.responses import PlainTextResponse, Response
@@ -23,7 +24,12 @@ from starlette.routing import Route
 from starlette.testclient import TestClient
 
 from strictdoc.features.desktop import workspace
-from strictdoc.features.desktop.git_access import DesktopGitService, GitAccess
+from strictdoc.features.desktop.git_access import (
+    EXCLUDE_BLOCK_BEGIN,
+    EXCLUDE_BLOCK_END,
+    DesktopGitService,
+    GitAccess,
+)
 from strictdoc.features.desktop.local_server import (
     create_desktop_project_config,
     create_project_application,
@@ -73,7 +79,6 @@ from strictdoc.features.i18n import i18n
 from strictdoc.features.roles.enforcement import RoleMiddleware
 from strictdoc.features.roles.principal import Principal
 from strictdoc.features.roles.route_roles import ROUTE_ROLES
-from strictdoc.server.document_watcher import _ChangeEventHandler
 
 SEED = Actor("Seed", "seed@example.org")
 COLLEAGUE = Actor("Colleague", "colleague@example.org")
@@ -161,6 +166,7 @@ class Project:
         repo = Repo.clone_from(str(self.bare), str(path))
         for name_, content_ in files.items():
             target = path / name_
+            target.parent.mkdir(parents=True, exist_ok=True)
             if isinstance(content_, bytes):
                 target.write_bytes(content_)
             else:
@@ -501,6 +507,7 @@ def test_014_a_file_that_is_not_a_document_keeps_both_versions(
     assert project.runtime.sync_notice_state == "files_kept"
     text = project.runtime.sync_notice_text
     assert "picture.png" in text and "picture (colleague).png" in text
+    assert "on this computer only" in text
     assert project.queue.notified == [str(project.folder)]
 
 
@@ -1120,20 +1127,7 @@ class WatchedProject:
 
 
 @pytest.fixture(name="watched")
-def fixture_watched(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> Iterator[WatchedProject]:
-    # Some platforms tell the watcher when a file is only read, and the watcher
-    # reads the files that it looks at: it keeps itself busy, and each turn
-    # would use an inhibition that nobody took. The platforms that tell only
-    # the writes do not, and the tests are made for them.
-    original = _ChangeEventHandler.on_any_event
-
-    def on_any_event(self: Any, event: Any) -> None:
-        if event.event_type not in ("opened", "closed_no_write"):
-            original(self, event)
-
-    monkeypatch.setattr(_ChangeEventHandler, "on_any_event", on_any_event)
+def fixture_watched(tmp_path: Path) -> Iterator[WatchedProject]:
     watched = WatchedProject(Project(tmp_path))
     yield watched
     watched.watcher.stop()
@@ -1277,3 +1271,294 @@ def test_040_a_reader_who_is_blocked_by_his_comments_is_told_so(
     assert answer.json()["message"] == get_update_blocked_text()
     assert "up to date" not in answer.text
     get_project_runtime(str(project.folder)).leases.close()
+
+
+# The copy of the colleague stays on this computer.
+
+
+def _commit_picture_of_user(project: Project, name: str) -> None:
+    target = project.folder / name
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_bytes(b"\x89PNG mine")
+    repo = Repo(project.folder)
+    repo.index.add([name])
+    repo.index.commit("Mine", author=AUTHOR_ACTOR, committer=AUTHOR_ACTOR)
+    repo.close()
+
+
+def _get_exclude_lines(project: Project) -> List[str]:
+    path = project.folder / ".git" / "info" / "exclude"
+    return [
+        line_
+        for line_ in path.read_text(encoding="utf-8").split("\n")
+        if line_ != "" and not line_.startswith("#")
+    ]
+
+
+def _is_excluded(project: Project, relative: str) -> bool:
+    repo = Repo(project.folder)
+    try:
+        # check-ignore answers 0 for an ignored path and 1 for the others.
+        repo.git.check_ignore("-q", "--", relative)
+    except GitCommandError:
+        return False
+    finally:
+        repo.close()
+    return True
+
+
+def test_041_the_copy_of_the_colleague_is_in_no_commit_and_not_in_status(
+    project: Project,
+) -> None:
+    """
+    @relation(SDOC-SRS-1247, scope=function)
+    """
+    _commit_picture_of_user(project, "picture.png")
+    project.colleague_sends({"picture.png": b"\x89PNG theirs"})
+
+    assert project.synchronize("author") is True
+
+    copy = project.folder / "picture (colleague).png"
+    assert copy.read_bytes() == b"\x89PNG theirs"
+    repo = Repo(project.folder)
+    try:
+        committed = str(repo.git.ls_tree("-r", "--name-only", "HEAD"))
+        status = str(repo.git.status("--porcelain=v1", "--untracked-files=all"))
+        indexed = str(repo.git.ls_files())
+    finally:
+        repo.close()
+    assert "picture.png" in committed.split("\n")
+    assert "picture (colleague).png" not in committed
+    assert "picture (colleague).png" not in indexed
+    assert status == ""
+    assert _get_exclude_lines(project) == ["/picture (colleague).png"]
+    # Nothing of the copy is among the files that wait to be sent.
+    service = DesktopGitService(str(project.folder), GitAccess())
+    assert str(copy) not in service.list_changed_paths(str(project.folder))
+
+
+def test_042_two_copies_of_the_same_file_write_one_line_each(
+    project: Project,
+) -> None:
+    """
+    @relation(SDOC-SRS-1247, scope=function)
+    """
+    _commit_picture_of_user(project, "picture.png")
+    project.colleague_sends({"picture.png": b"\x89PNG theirs"})
+    assert project.synchronize("author") is True
+    project.colleague_sends({"picture.png": b"\x89PNG theirs again"})
+    assert project.synchronize("author") is True
+
+    assert (project.folder / "picture (colleague).png").read_bytes() == (
+        b"\x89PNG theirs"
+    )
+    assert (project.folder / "picture (colleague 2).png").read_bytes() == (
+        b"\x89PNG theirs again"
+    )
+    assert _get_exclude_lines(project) == [
+        "/picture (colleague).png",
+        "/picture (colleague 2).png",
+    ]
+    repo = Repo(project.folder)
+    try:
+        status = str(repo.git.status("--porcelain=v1", "--untracked-files=all"))
+    finally:
+        repo.close()
+    assert status == ""
+
+
+def test_043_a_line_that_exists_is_not_written_again(project: Project) -> None:
+    """
+    @relation(SDOC-SRS-1247, scope=function)
+    """
+    service = DesktopGitService(str(project.folder), GitAccess())
+    repo = Repo(project.folder)
+    try:
+        # A file that has no end of line, as an editor can leave it.
+        exclude = project.folder / ".git" / "info" / "exclude"
+        exclude.write_text("/other", encoding="utf-8")
+        service._exclude_path(repo, str(project.folder), "a (colleague).png")
+        service._exclude_path(repo, str(project.folder), "a (colleague).png")
+    finally:
+        repo.close()
+
+    assert _get_exclude_lines(project) == ["/other", "/a (colleague).png"]
+
+
+@pytest.mark.parametrize(
+    ("name", "other"),
+    [
+        ("pic[1].png", "pic1 (colleague).png"),
+        ("pic*.png", "picture (colleague).png"),
+        ("pic?.png", "picx (colleague).png"),
+        ("#pic.png", "pic (colleague).png"),
+        ("!pic.png", "pic (colleague).png"),
+        ("pic.png ", "pic (colleague).png"),
+        ("pic one.png", "pic (colleague).png"),
+        ("sub folder/pic.png", "pic (colleague).png"),
+    ],
+)
+def test_044_a_name_with_special_characters_is_excluded_as_it_is(
+    project: Project, name: str, other: str
+) -> None:
+    """
+    @relation(SDOC-SRS-1247, scope=function)
+    """
+    _commit_picture_of_user(project, name)
+    project.colleague_sends({name: b"\x89PNG theirs"})
+
+    assert project.synchronize("author") is True
+
+    directory, file_name = os.path.split(name)
+    stem, extension = os.path.splitext(file_name)
+    copy = os.path.join(directory, f"{stem} (colleague){extension}")
+    assert (project.folder / copy).read_bytes() == b"\x89PNG theirs"
+    assert _is_excluded(project, copy) is True
+    # The pattern matches this file and no other: not the file of the user,
+    # and not a name that the special characters would match.
+    assert _is_excluded(project, name) is False
+    assert _is_excluded(project, other) is False
+    repo = Repo(project.folder)
+    try:
+        status = str(repo.git.status("--porcelain=v1", "--untracked-files=all"))
+    finally:
+        repo.close()
+    assert status == ""
+
+
+def test_045_a_backslash_in_the_name_is_escaped(project: Project) -> None:
+    """
+    @relation(SDOC-SRS-1247, scope=function)
+    """
+    service = DesktopGitService(str(project.folder), GitAccess())
+    repo = Repo(project.folder)
+    try:
+        service._exclude_path(repo, str(project.folder), "a\\b (colleague).png")
+    finally:
+        repo.close()
+
+    assert _get_exclude_lines(project) == ["/a\\\\b (colleague).png"]
+    assert _is_excluded(project, "a\\b (colleague).png") is True
+    assert _is_excluded(project, "ab (colleague).png") is False
+
+
+# The lines of the application in ".git/info/exclude" follow their copies.
+
+
+def _get_status(project: Project) -> str:
+    repo = Repo(project.folder)
+    try:
+        return str(repo.git.status("--porcelain=v1", "--untracked-files=all"))
+    finally:
+        repo.close()
+
+
+def _keep_a_copy(project: Project) -> Path:
+    _commit_picture_of_user(project, "picture.png")
+    project.colleague_sends({"picture.png": b"\x89PNG theirs"})
+    assert project.synchronize("author") is True
+    copy = project.folder / "picture (colleague).png"
+    assert copy.exists()
+    return copy
+
+
+def test_046_the_lines_of_the_application_are_in_a_block_of_their_own(
+    project: Project,
+) -> None:
+    """
+    @relation(SDOC-SRS-1247, scope=function)
+    """
+    exclude = project.folder / ".git" / "info" / "exclude"
+    exclude.write_text(exclude.read_text() + "/mine.log\n", encoding="utf-8")
+
+    _keep_a_copy(project)
+
+    lines = exclude.read_text(encoding="utf-8").split("\n")
+    begin = lines.index(EXCLUDE_BLOCK_BEGIN)
+    end = lines.index(EXCLUDE_BLOCK_END)
+    assert lines[begin + 1 : end] == ["/picture (colleague).png"]
+    # What the user wrote stays where it is, outside of the block.
+    assert "/mine.log" in lines[:begin]
+    assert "/mine.log" not in lines[begin:end]
+
+
+def test_047_a_copy_that_is_removed_is_forgotten_at_the_next_update(
+    project: Project,
+) -> None:
+    """
+    @relation(SDOC-SRS-1247, scope=function)
+    """
+    copy = _keep_a_copy(project)
+    # While the copy is there, its line stays through an update.
+    assert project.synchronize("author") is False
+    assert _get_exclude_lines(project) == ["/picture (colleague).png"]
+
+    copy.unlink()
+    project.synchronize("author")
+
+    assert _get_exclude_lines(project) == []
+    # A file saved at this path afterwards is an ordinary file: it is shared.
+    copy.write_bytes(b"a new file")
+    assert _get_status(project) == '?? "picture (colleague).png"'
+    service = DesktopGitService(str(project.folder), GitAccess())
+    assert str(copy) in service.list_changed_paths(str(project.folder))
+    # The lines that are not the application's are not touched.
+    exclude = project.folder / ".git" / "info" / "exclude"
+    assert EXCLUDE_BLOCK_BEGIN not in exclude.read_text(encoding="utf-8")
+
+
+def test_048_a_copy_that_is_renamed_is_shared(project: Project) -> None:
+    """
+    @relation(SDOC-SRS-1247, scope=function)
+    """
+    copy = _keep_a_copy(project)
+    assert _get_status(project) == ""
+
+    copy.rename(project.folder / "picture of the colleague.png")
+
+    # The new name was never hidden, and the old line goes at the next update.
+    assert _get_status(project) == '?? "picture of the colleague.png"'
+    project.synchronize("author")
+    assert _get_exclude_lines(project) == []
+
+
+def test_049_only_the_lines_of_missing_files_are_forgotten(
+    project: Project,
+) -> None:
+    """
+    @relation(SDOC-SRS-1247, scope=function)
+    """
+    first = _keep_a_copy(project)
+    project.colleague_sends({"picture.png": b"\x89PNG theirs again"})
+    assert project.synchronize("author") is True
+    second = project.folder / "picture (colleague 2).png"
+    assert second.exists()
+    exclude = project.folder / ".git" / "info" / "exclude"
+    # A line that is not a path of this application stays.
+    text = exclude.read_text(encoding="utf-8").replace(
+        EXCLUDE_BLOCK_END, "/odd?name.png\n" + EXCLUDE_BLOCK_END
+    )
+    exclude.write_text(text, encoding="utf-8")
+
+    first.unlink()
+    project.synchronize("author")
+
+    assert _get_exclude_lines(project) == [
+        "/picture (colleague 2).png",
+        "/odd?name.png",
+    ]
+    second.unlink()
+    project.synchronize("author")
+    assert _get_exclude_lines(project) == ["/odd?name.png"]
+
+
+def test_050_the_notice_says_how_to_share_the_copy(project: Project) -> None:
+    """
+    @relation(SDOC-SRS-1247, scope=function)
+    """
+    _keep_a_copy(project)
+
+    text = project.runtime.sync_notice_text
+
+    assert "on this computer only" in text
+    assert "rename the file" in text
