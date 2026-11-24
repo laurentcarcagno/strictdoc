@@ -23,6 +23,7 @@ from typing import List, Optional, Tuple
 
 HERE = Path(__file__).resolve().parent
 SOURCE_ROOT = HERE.parent.parent
+HTML2PDF4DOC_FROZEN_NAME = "html2pdf4doc-frozen"
 
 _HIDDEN_IMPORTS = [
     "strictdoc.api",
@@ -102,6 +103,7 @@ def main(argv: Optional[List[str]] = None) -> int:
     )
     if arguments.platform == "linux64":
         remove_system_libraries(app_dir)
+        install_html2pdf4doc_launcher(app_dir / "tools" / "html2pdf4doc")
     fetch_tools(arguments.platform, app_dir, arguments.cache_dir)
     return 0
 
@@ -190,6 +192,30 @@ def remove_system_libraries(app_dir: Path) -> None:
             _SYSTEM_LIBRARY_PREFIXES
         ):
             path_.unlink()
+
+
+def install_html2pdf4doc_launcher(program_dir: Path) -> None:
+    """
+    Put a small launcher in place of the frozen html2pdf4doc program.
+
+    The application sets LD_LIBRARY_PATH to its own folder, and html2pdf4doc
+    would pass it to chromedriver and to Chrome. Chrome then loads the
+    libraries of the build system (Ubuntu 22.04) instead of its own, and it
+    exits at once on Ubuntu 24.04 and Debian 13. The launcher gives back the
+    value that the application had at its start (LD_LIBRARY_PATH_ORIG).
+    """
+    program_path = program_dir / "html2pdf4doc"
+    frozen_path = program_dir / HTML2PDF4DOC_FROZEN_NAME
+    program_path.rename(frozen_path)
+    program_path.write_text(
+        "#!/bin/sh\n"
+        "# Start html2pdf4doc with the library path of the system.\n"
+        'LD_LIBRARY_PATH="${LD_LIBRARY_PATH_ORIG:-}"\n'
+        "export LD_LIBRARY_PATH\n"
+        f'exec "$(dirname "$0")/{HTML2PDF4DOC_FROZEN_NAME}" "$@"\n',
+        encoding="utf8",
+    )
+    program_path.chmod(0o755)
 
 
 def fetch_tools(

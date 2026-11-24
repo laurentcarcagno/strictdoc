@@ -132,13 +132,19 @@ def get_version_from_tag(tag: str, source_version: str) -> str:
 
 
 def get_runtime_packages(control_path: Path) -> List[str]:
-    """The first choice of each entry of the Depends line of the control."""
+    """
+    The last choice of each entry of the Depends line of the control: the
+    name that the build system (Ubuntu 22.04) has. The newer systems have the
+    first choice, the name with the suffix t64. The t64 name goes first
+    because on a system that has it, the old name can be a virtual package
+    that a wrong library provides (liboss4-salsa-asound2 provides libasound2).
+    """
     text = control_path.read_text(encoding="utf8")
     match = re.search(r"^Depends: (.+)$", text, re.MULTILINE)
     if match is None:
         raise RuntimeError(f"No Depends line in {control_path}.")
     return [
-        entry_.split("|")[0].strip()
+        entry_.split("|")[-1].strip()
         for entry_ in match.group(1).split(",")
         if entry_.strip() != ""
     ]

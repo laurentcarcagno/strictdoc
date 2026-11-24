@@ -5131,8 +5131,15 @@ means that no external server is used, and the settings screen says so. A
 project can still run code on the workstation (see below), so the rules do not
 hold against a malicious author.
 
-**Packages.** The command builds the `.deb` in a Podman container based on
-Ubuntu 22.04, the oldest supported system (Ubuntu 22.04 and Debian 12):
+**Packages.** The package installs and starts on Ubuntu 22.04, 24.04 and 26.04
+and on Debian 12 and 13. The command builds the `.deb` in a Podman container
+based on Ubuntu 22.04, the oldest of these systems, so that the libraries it
+carries run on the newer ones. Its `Depends` line asks only for packages that
+all five systems have. A library that a recent system renamed with the suffix
+`t64` is listed under both names, the new one first. When you change the line,
+check each entry with `apt-cache policy` on each of the five images.
+
+Build it with:
 
 ```text
 invoke release-desktop --output-dir /tmp/strictdoc-desktop-dist
