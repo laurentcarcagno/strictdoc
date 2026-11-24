@@ -1146,6 +1146,8 @@ def release_desktop(
     repository is mounted read-only, and only the package goes out, in
     output_dir. The optional cache_dir keeps the downloads (tools, uv) between
     two builds.
+
+    @relation(SDOC-SRS-1256, scope=function)
     """
     output_path = os.path.abspath(output_dir)
     os.makedirs(output_path, exist_ok=True)

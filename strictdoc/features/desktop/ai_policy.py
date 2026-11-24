@@ -4,13 +4,13 @@ classifications that never go to such a server, and the budget of tokens of a
 month.
 
 The rules come from a file that is deployed with the application and that the
-user cannot change: next to the executable of the application (when it is a
-frozen program) and in a folder of the system (/etc/strictdoc on Linux, the
-folder StrictDoc of ProgramData on Windows). The file is read nowhere else:
-not in the settings of the user, not in a variable of the environment, not in
-the project. A file that is missing or that cannot be read means no rule that
-could be trusted: no external server is used, and the screen of the settings
-says so.
+user cannot change, in a folder of the system: /etc/strictdoc on Linux, the
+folder StrictDoc of ProgramData on Windows. The file is read nowhere else: not
+next to the executable (the installer of a user puts the program in a folder
+that the user can write), not in the settings of the user, not in a variable of
+the environment, not in the project. A file that is missing or that cannot be
+read means no rule that could be trusted: no external server is used, and the
+screen of the settings says so.
 
 The file is a JSON object:
 
@@ -81,14 +81,7 @@ def get_policy_paths() -> List[Path]:
     """The places where the file is looked for, the first one first."""
     if _configured_paths is not None:
         return list(_configured_paths)
-    paths: List[Path] = []
-    # Next to a frozen program: a program of the deployment. The interpreter of
-    # a development environment is in a folder of the user, which holds no
-    # rule that a user could not change.
-    if getattr(sys, "frozen", False):
-        paths.append(Path(sys.executable).parent / POLICY_FILE_NAME)
-    paths.append(_get_system_folder() / POLICY_FILE_NAME)
-    return paths
+    return [_get_system_folder() / POLICY_FILE_NAME]
 
 
 def load_ai_policy(paths: Optional[Sequence[Path]] = None) -> AiPolicy:

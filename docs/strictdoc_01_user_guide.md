@@ -4916,6 +4916,259 @@ vendored copy of the PlantUML engine: diagram source never leaves the
 machine viewing the document. PlantUML is enabled by default. No
 configuration is required to use PlantUML diagrams.
 
+## Desktop application (experimental)
+
+**Type**: SECTION \
+**MID**: 76f0fd08f5624f649c6e75a3c6c1772e \
+**UID**: SECTION-UG-Desktop-application
+
+**Type**: TEXT \
+**MID**: da61123b387c4bd6a3a4f2813216389c
+
+The desktop application puts StrictDoc in a window of its own, to write
+documents and share them with a team, the way a word processor does. The
+projects are kept on a GitLab server, but the user never works in GitLab: they
+sign in, choose a project, edit and save. The application is experimental. It is
+built for Linux (a `.deb` package). A per-user installer for Windows exists and
+is still being tried.
+
+**Install.** Install the package with Apt, which also installs Git and the
+system libraries it needs:
+
+```text
+sudo apt install ./strictdoc-desktop_<version>_amd64.deb
+```
+
+The menu entry is called StrictDoc. The same window opens with
+`strictdoc-desktop`, and `strictdoc-desktop --version` prints the version. The
+package carries a headless Chrome and its driver for the PDF export, so the
+application downloads nothing while it runs. It does not look for new versions:
+updates come from the deployment tools of your organization, and the settings
+screen shows the installed version.
+
+**Sign in.** The first window is empty, with a *Sign in* button. It opens the
+sign-in page of your organization (Keycloak) in the application window; GitLab
+shows no page of its own. Once you are in, the home screen lists your projects.
+The tokens that GitLab gives go to the keyring of the system and are renewed
+without asking you. If the home screen says that the sign-in settings are
+incomplete, your administrator has not given the address of the GitLab server or
+the identifier of the OAuth application yet (see the deployment section below).
+When the server cannot be reached, the screen says that you are offline and the
+application tries again by itself.
+
+**Choose a project.** The home screen is a catalog of the projects that you may
+open, each with your role (reader, author or administrator). A search field
+filters it by name. A project where you are only a guest does not show. The
+first time you open a project, the application asks for a folder: an empty
+folder receives a copy of the project, and a folder that already holds a copy is
+used as it is. The application remembers the folder. The first opening of a
+project shows a waiting screen while the project loads. The three projects
+opened last stay running, so that going back to one of them is immediate
+(`kept_servers` in the settings file).
+
+**Edit and save.** Editing works as in the web version of StrictDoc. Each save
+makes a Git commit under the name of your GitLab account and sends it to the
+server at once. Offline, the commits wait on your computer and leave when the
+network comes back. The application retries after a wait that grows up to one
+minute, and at once when you save again. Closing the application loses nothing:
+at the next launch it reads the state of every project folder again and sends
+what is missing. While something waits, a box at the bottom right of the window
+says "Changes not sent" and tells why. A reader sends nothing.
+
+**Update and merge.** The application looks for the changes of your colleagues
+every 5 minutes (see the settings) and when you choose *Update the project* in
+the menu of the project. If you and a colleague changed the same document, a
+merge window asks which version to keep. *Later* closes it, and the button
+*Choose now* of the box at the bottom right opens it again. For a file that is
+not a document, your version stays and the version of your colleague is saved
+next to it, on your computer only: no commit takes it.
+
+**Publish a version.** An administrator can choose *Publish a version* in the
+menu of the project: a draft version (A1, A2, ...) or the next major version (A,
+B, ...). A version marks the whole project as it is now, and it is a Git tag on
+the server. The application publishes only when you are online, no merge is
+waiting, and nothing waits to be sent.
+
+**Roles.** The role comes from your access level on the project in GitLab.
+Reporter gives reader, Developer gives author, Maintainer and Owner give
+administrator, and a Guest does not see the project. A reader receives the
+updates and sends nothing. An author also edits, sends, updates and settles
+merges. An administrator also publishes versions. A service of roles is planned
+to replace this rule.
+
+**Settings.** The settings screen has a language (English, French, or the
+default: the variable `STRICTDOC_LANGUAGE`, else English), the minutes between
+two updates (a whole number from 1 to 120, 5 by default) and the list of AI
+servers. For each AI server you give a name, a protocol (compatible with OpenAI,
+which Ollama, vLLM, STRATA and Mistral speak, or Anthropic), an address, a model
+and whether its data stay in the company. The key goes to the keyring and is
+never shown again; changing the address erases it. An internal server needs an
+address, and its key is optional. An external server needs an https address and
+a key; Anthropic and Mistral are always external. The AI buttons show only when
+at least one server is complete. External servers also need the rules file of
+your administrator: without it, the screen says that no external server is used.
+
+**Sign out.** *Sign out* on the home screen or in the settings revokes the token
+at GitLab, deletes it from the keyring and clears the cookies of the window. The
+next sign-in asks for your Keycloak identifier again.
+
+**PDF export.** The export to PDF is the one of StrictDoc. It uses the Chrome of
+the package, not a browser of your computer.
+
+**Where the data are.** On Linux, by default:
+
+```text
+~/.config/StrictDoc/settings.json   settings (no secret)
+~/.cache/StrictDoc/                  generated pages and index, per project
+~/.local/share/StrictDoc/webview     profile of the window
+~/.local/share/StrictDoc/git         Git configuration of the application
+~/.local/share/StrictDoc/ai_audit    journal of the AI requests
+```
+
+The copies of the projects are in the folders that you chose. The keyring holds
+the service `strictdoc-desktop`, with one entry `gitlab/<host>` for the sign-in
+and one entry `ai/<server id>` for each AI key.
+
+## Deploying the desktop application (experimental)
+
+**Type**: SECTION \
+**MID**: 9fc2d9af4bac40b5a3ff19cf71c388fb \
+**UID**: SECTION-UG-Desktop-deployment
+
+**Type**: TEXT \
+**MID**: 077c01e4334a4c38a00fdb17e747307e
+
+This section is for the administrators of GitLab, Keycloak and the workstations.
+The application needs a GitLab server, an OAuth application on it, a place for
+the packages, and optionally a rules file for external AI servers.
+
+**GitLab OAuth application.** Create one application in the Admin area of the
+instance. A group application cannot be marked trusted, and GitLab shows the
+authorization page for an application that is not. The application has these
+properties:
+
+- public: not confidential, so there is no client secret (the sign-in uses PKCE
+  with the S256 method);
+- trusted, so that GitLab shows no authorization page;
+- scopes `openid read_user read_api read_repository write_repository`;
+- redirect URI `http://127.0.0.1/__desktop/oauth/callback`.
+
+At each launch the application listens on a free port of 127.0.0.1 and asks for
+a redirect URI with that port. GitLab 19.5 accepts any port on this address, so
+the registered URI has no port.
+
+The application has no screen for the address of GitLab and the identifier of
+the OAuth application. They are two fields of the settings file of the user,
+`~/.config/StrictDoc/settings.json` on Linux, and there is no machine-wide
+default:
+
+```json
+{
+  "gitlab_url": "<gitlab_url>",
+  "oauth_client_id": "<application id>"
+}
+```
+
+The catalog lists the projects of one GitLab group, sub-groups included and
+archived projects left out. The group is the field `gitlab_projects_root` of the
+same file, `HERMES/DOCUMENTATION/PROJETS` by default. The catalog asks GitLab
+with the token of the user, so it shows the projects where the user has at least
+the Reporter level.
+
+**Protected branch.** The application sends every commit to the branch of the
+project without force. If that branch is protected (usually `main`), allow the
+Developers to push to it, and keep force push off. A refusal of GitLab is shown
+to the user as a refusal.
+
+**Keycloak.** Declare Keycloak as an OpenID Connect provider of GitLab. To make
+the sign-in end on the Keycloak page only, set the automatic sign-in on this
+provider. For a Linux package installation of GitLab, in `gitlab.rb`:
+
+```ruby
+gitlab_rails['omniauth_auto_sign_in_with_provider'] = 'openid_connect'
+```
+
+Let GitLab create the accounts at the first sign-in, and do not block them.
+Without `omniauth_allow_single_sign_on`, a user who has no account cannot sign
+in. When `omniauth_block_auto_created_users` is true, an administrator has to
+unblock each new user.
+
+```ruby
+gitlab_rails['omniauth_allow_single_sign_on'] = ['openid_connect']
+gitlab_rails['omniauth_block_auto_created_users'] = false
+```
+
+With the automatic sign-in on, the local accounts still sign in on
+`<gitlab_url>/users/sign_in?auto_sign_in=false`.
+
+**Rules for external AI servers.** The rules come from a file named
+`ai_policy.json`, which the user cannot change. The application reads it in one
+place only, `/etc/strictdoc/ai_policy.json` on Linux and
+`%PROGRAMDATA%\StrictDoc\ai_policy.json` on Windows. It does not read a file in
+the folder of the program: on Windows the installer of a user puts the program
+in a folder that the user can write. On Windows, create the folder `StrictDoc`
+of ProgramData yourself and give write access to the administrators only,
+because a user who creates it first owns the rules. The file is a JSON object of
+at most 64 KiB:
+
+```json
+{
+  "version": 1,
+  "cloud_blocked_classifications": ["Secret", "Restricted"],
+  "cloud_token_budget_per_month": 200000
+}
+```
+
+`version` is required and must be 1. The two other fields are optional (an empty
+list and 0 by default). `cloud_blocked_classifications` is a list of at most 100
+names, each non-empty and at most 100 characters long, and
+`cloud_token_budget_per_month` is a whole number, 0 or more. A wrong type makes
+the file invalid. The blocked classifications never go to an external server.
+The budget is a number of tokens per month for the user, all projects together,
+and 0 means no limit. The file is read nowhere else: not in the settings of the
+user, not in a variable, not in a project. A file that is missing or invalid
+means that no external server is used, and the settings screen says so. A
+project can still run code on the workstation (see below), so the rules do not
+hold against a malicious author.
+
+**Packages.** The command builds the `.deb` in a Podman container based on
+Ubuntu 22.04, the oldest supported system (Ubuntu 22.04 and Debian 12):
+
+```text
+invoke release-desktop --output-dir /tmp/strictdoc-desktop-dist
+```
+
+`--image` changes the container image and `--cache-dir` keeps the downloads
+between two builds. The file is named `strictdoc-desktop_<version>_amd64.deb`.
+GitLab CI builds it too: the job `build-deb` of `.gitlab-ci.yml` runs on the
+tags that start with `desktop-v` (for example `desktop-v0.30.2`) and keeps
+`dist/*.deb` for 30 days. The package is large (435 MB for the first release
+candidate), and GitLab refuses artifacts above 100 MB by default, so raise the
+maximum artifact size of the instance. Every build checks the SHA-256 sums of
+the downloaded Chrome and driver.
+
+The version of the package is `strictdoc.__version__`, except on a tag, where
+the build takes it from the tag: `desktop-v0.30.2` gives `0.30.2` and
+`desktop-v0.30.2-rc1` gives `0.30.2~rc1`, which sorts before `0.30.2`. The build
+stops with a message if the number of the tag differs from `__version__`, or if
+the tag has another form.
+
+The application never updates itself. Distribute each new package with the
+deployment tools of your organization.
+
+**Security.**
+
+- A project carries a `strictdoc_config.py` that StrictDoc runs as Python.
+  Whoever can write to a project can run code on the workstation of whoever
+  opens it. Give the right to write only to authors you trust.
+- The GitLab token is in the keyring of the system. Git receives it in the
+  environment of its own process only, and it is written in no file, log or
+  command line.
+- Each project is served on 127.0.0.1 only, behind a random session token kept
+  in a cookie. The server also checks the Host and Origin headers.
+- Connections to GitLab check the certificates of the operating system, so a
+  certificate authority of your company works once the system trusts it.
+
 ## Configuration
 
 **Type**: SECTION \

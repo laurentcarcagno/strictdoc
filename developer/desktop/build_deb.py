@@ -57,6 +57,9 @@ def main(argv: Optional[List[str]] = None) -> int:
     work_dir = arguments.work_dir.resolve()
     work_dir.mkdir(parents=True, exist_ok=True)
     version = get_debian_version(source / "strictdoc" / "__init__.py")
+    tag = os.environ.get("CI_COMMIT_TAG")
+    if tag is not None and tag != "":
+        version = get_version_from_tag(tag, version)
 
     if not arguments.skip_apt:
         # The libraries of the package are installed too: PyInstaller starts
@@ -101,6 +104,31 @@ def get_debian_version(init_path: Path) -> str:
         raise RuntimeError(f"No __version__ in {init_path}.")
     # A pre-release sorts before the release: "0.31.0a1" -> "0.31.0~a1".
     return re.sub(r"(?<=\d)(a|b|rc|\.dev)(?=\d)", r"~\1", match.group(1))
+
+
+def get_version_from_tag(tag: str, source_version: str) -> str:
+    """
+    The Debian version of a tag "desktop-v<version>[-<pre-release>]", for
+    example "desktop-v0.30.2-rc1" gives "0.30.2~rc1". The base of the tag
+    ("0.30.2") has to be the base of the version of the source, so that a
+    package never carries a version that the code does not have.
+    """
+    match = re.fullmatch(r"desktop-v(\d+(?:\.\d+)*)(?:-([0-9A-Za-z.]+))?", tag)
+    if match is None:
+        raise RuntimeError(
+            f"The tag {tag!r} is not of the form desktop-v<version>, for "
+            "example desktop-v0.30.2 or desktop-v0.30.2-rc1."
+        )
+    base = match.group(1)
+    source_base = source_version.split("~", maxsplit=1)[0]
+    if base != source_base:
+        raise RuntimeError(
+            f"The tag {tag!r} says version {base}, but strictdoc.__version__ "
+            f"is {source_base}. Fix the tag or the version, then build again."
+        )
+    if match.group(2) is None:
+        return base
+    return f"{base}~{match.group(2)}"
 
 
 def get_runtime_packages(control_path: Path) -> List[str]:

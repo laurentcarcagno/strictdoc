@@ -545,13 +545,28 @@ def test_023_the_places_are_the_ones_of_a_deployment_and_not_the_user(
     frozen = get_policy_paths()
 
     assert all(path_.name == POLICY_FILE_NAME for path_ in development)
-    assert len(development) == 1 and len(frozen) == 2
-    assert frozen[0] == Path(sys.executable).parent / POLICY_FILE_NAME
-    assert frozen[1] == development[0]
+    assert frozen == development
+    assert len(frozen) == 1
     # Not in the folders of the user, not in the project.
     for path_ in frozen:
         assert "config" not in path_.parts[-3:-1]
         assert str(tmp_path) not in str(path_)
+
+
+def test_023b_a_file_next_to_a_frozen_program_is_not_read(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    program_folder = tmp_path / "Programs" / "StrictDoc"
+    _write_policy(program_folder / POLICY_FILE_NAME, {"version": 1})
+    monkeypatch.setattr(sys, "frozen", True, raising=False)
+    monkeypatch.setattr(
+        sys, "executable", str(program_folder / "strictdoc"), raising=False
+    )
+    configure_policy_paths(None)
+
+    assert program_folder / POLICY_FILE_NAME not in get_policy_paths()
+    policy = load_ai_policy(get_policy_paths())
+    assert policy.path != str(program_folder / POLICY_FILE_NAME)
 
 
 def test_024_the_tests_give_the_places_to_the_code(tmp_path: Path) -> None:
