@@ -479,8 +479,9 @@ class GitService:
 
     def unmerged_paths(self, path: str) -> List[str]:
         repo = self._repo(self.repository_root(path))
-        listing = str(repo.git.diff("--name-only", "--diff-filter=U"))
-        return [line for line in listing.splitlines() if line]
+        # -z: names are not quoted or escaped and are split on NUL.
+        listing = str(repo.git.diff("--name-only", "--diff-filter=U", "-z"))
+        return [name_ for name_ in listing.split("\0") if name_]
 
     def stage_text(self, path: str, relative: str, stage: int) -> Optional[str]:
         """

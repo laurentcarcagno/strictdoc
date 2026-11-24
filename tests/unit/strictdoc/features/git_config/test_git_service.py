@@ -314,3 +314,29 @@ def test_no_token_means_no_credential_helper(
     monkeypatch.delenv("SDOC_TEST_TOKEN", raising=False)
     service = GitService(str(repo), token_env="SDOC_TEST_TOKEN")
     assert service._remote_environment(Repo(str(repo))) == {}
+
+
+def test_unmerged_paths_returns_exact_names_of_special_files(
+    tmp_path: Path,
+) -> None:
+    repo = _init(tmp_path / "r")
+    name = "exigénces et plus.sdoc"
+    (repo / name).write_text("base\n", encoding="utf8")
+    _git(repo, "add", name)
+    _git(repo, "commit", "-q", "-m", "add")
+    _git(repo, "checkout", "-q", "-b", "other")
+    (repo / name).write_text("theirs\n", encoding="utf8")
+    _git(repo, "commit", "-q", "-am", "theirs")
+    _git(repo, "checkout", "-q", "master")
+    (repo / name).write_text("ours\n", encoding="utf8")
+    _git(repo, "commit", "-q", "-am", "ours")
+    merge = subprocess.run(
+        ["git", "merge", "--no-commit", "--no-ff", "other"],
+        cwd=repo,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert merge.returncode != 0
+
+    assert GitService(str(repo)).unmerged_paths(str(repo)) == [name]
