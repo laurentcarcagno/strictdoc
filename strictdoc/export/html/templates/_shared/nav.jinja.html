@@ -196,7 +196,7 @@
   </a>
 {%- endif -%}
 
-{%- if view_object.project_config.is_running_on_server and view_object.project_config.is_activated_git() -%}
+{%- if view_object.project_config.is_running_on_server and view_object.project_config.is_activated_git() and desktop_application is not defined -%}
   <a
     data-link="git"
     class="nav_button"

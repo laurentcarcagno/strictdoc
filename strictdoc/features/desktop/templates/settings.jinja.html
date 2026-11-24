@@ -1,0 +1,75 @@
+{% extends "base.jinja.html" %}
+{#
+  The screen of the settings of the application, served by the home server.
+  The window reaches it from the home screen and by the menu "Settings".
+  Variables: assets, form (language, sync_interval_minutes, errors), is_saved,
+  user (the user who signed in, or none), ai_section_template (the template of
+  the section of the AI servers, or none), ai (the servers and the policy),
+  ai_form (the server that the user typed and that has errors, or none),
+  ai_kinds.
+#}
+
+{% block head %}
+  <script src="{{ assets }}/ai_settings.js" defer></script>
+{% endblock %}
+
+{% block main_attributes %}data-testid="settings"{% endblock %}
+
+{% block content %}
+  <p><a href="/" data-testid="back-to-catalog">{{ _("Back to the catalog") }}</a></p>
+  <h2>{{ _("Settings") }}</h2>
+
+  {%- if is_saved %}
+  <p class="notice" role="status" data-testid="settings-saved">
+    {{ _("The settings are saved.") }}
+  </p>
+  {%- endif %}
+
+  <form method="post" action="/settings" data-testid="settings-form">
+    <section class="settings__section" data-testid="settings-general">
+      <h3>{{ _("General") }}</h3>
+      <p>
+        <label for="language">{{ _("Language") }}</label>
+        <select name="language" id="language" data-testid="settings-language">
+          <option value="" {% if form.language == "" %}selected{% endif %}>{{ _("Default") }}</option>
+          <option value="en" {% if form.language == "en" %}selected{% endif %}>English</option>
+          <option value="fr" {% if form.language == "fr" %}selected{% endif %}>Français</option>
+        </select>
+      </p>
+      {%- if form.errors.language %}
+      <p class="notice" role="alert" data-testid="settings-language-error">{{ form.errors.language }}</p>
+      {%- endif %}
+      <p>
+        <label for="sync_interval_minutes">{{ _("Minutes between two updates") }}</label>
+        <input type="text" inputmode="numeric" name="sync_interval_minutes"
+               id="sync_interval_minutes" size="4"
+               value="{{ form.sync_interval_minutes }}"
+               data-testid="settings-interval"/>
+      </p>
+      {%- if form.errors.sync_interval_minutes %}
+      <p class="notice" role="alert" data-testid="settings-interval-error">{{ form.errors.sync_interval_minutes }}</p>
+      {%- endif %}
+    </section>
+    <p>
+      <button type="submit" data-testid="settings-save">{{ _("Save") }}</button>
+    </p>
+  </form>
+
+  {#- The AI servers have their own forms: the section is outside this one. -#}
+  {%- if ai_section_template %}
+  <section class="settings__section" id="ai" data-testid="settings-ai">
+    {% include ai_section_template %}
+  </section>
+  {%- endif %}
+
+  {%- if user is not none %}
+  <div class="home__user" data-testid="signed-in-user">
+    {{ _("Signed in as %(name)s", name=user.display_name) }}
+    <span class="home__user_name" data-testid="signed-in-username">{{ user.username }}</span>
+    <form method="post" action="/sign-out" class="home__sign_out">
+      <button type="submit" class="home__sign_out_button"
+              data-testid="sign-out">{{ _("Sign out") }}</button>
+    </form>
+  </div>
+  {%- endif %}
+{% endblock %}

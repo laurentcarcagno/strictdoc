@@ -11,7 +11,7 @@ of its own; ``flush`` commits them on request.
 import logging
 import os
 import shutil
-from typing import Callable, List
+from typing import Callable, List, Optional
 
 from strictdoc.features.git_config.commit_message import (
     asset_message,
@@ -43,6 +43,10 @@ class GitCommitter:
         self.pending_paths: List[str] = []
         self.last_error: str = ""
         self.warnings: List[str] = []
+        # Called after each commit that was made, with no argument. The
+        # desktop application sends the commit to the server from it. A
+        # failure of the function never fails the save.
+        self.after_commit: Optional[Callable[[], None]] = None
 
     def on_asset_written(self, path: str) -> None:
         if path not in self.pending_paths:
@@ -116,11 +120,23 @@ class GitCommitter:
             return False
 
     def _commit(self, paths: List[str], message: str) -> bool:
+        """
+        Commit the paths. After a commit that was made, the function
+        after_commit is called (the desktop application sends the commit from
+        it), and its failure never fails the save.
+
+        @relation(SDOC-SRS-1242, scope=function)
+        """
         committed = self.service.commit_paths(
             paths, message, self.author_provider()
         )
         self.pending_paths = []
         self.last_error = ""
+        if committed and self.after_commit is not None:
+            try:
+                self.after_commit()
+            except Exception:
+                logger.exception("git: the function after a commit failed.")
         return committed
 
     def _fail(self, error: Exception) -> None:

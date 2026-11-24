@@ -106,6 +106,9 @@ class SessionCredentials:
         return True
 
 
+_SAFE_METHODS = frozenset({"GET", "HEAD", "OPTIONS"})
+
+
 class DesktopSessionMiddleware:
     """
     A pure ASGI middleware: it refuses every request that does not come from
@@ -119,6 +122,8 @@ class DesktopSessionMiddleware:
       the cookie is SameSite=Strict, so the browser does not send it when
       GitLab calls back the window from another site.
     - Any other request needs the session cookie.
+    - A request that changes something and names its origin (a browser always
+      does) must name this server: a page of another port cannot use the cookie.
 
     It covers the HTTP requests and the WebSocket connections.
     """
@@ -158,6 +163,10 @@ class DesktopSessionMiddleware:
             await self._bootstrap(scope, send)
             return
 
+        if not self._has_allowed_origin(scope, header_pairs):
+            await self._refuse(scope, send)
+            return
+
         if not self._has_session_cookie(header_pairs) and not (
             self._is_accepted_public_request(scope)
         ):
@@ -185,6 +194,30 @@ class DesktopSessionMiddleware:
         if len(hosts) != 1:
             return False
         return hosts[0].decode("latin-1").strip().lower() in self.allowed_hosts
+
+    def _has_allowed_origin(
+        self, scope: Scope, header_pairs: List[Tuple[bytes, bytes]]
+    ) -> bool:
+        """
+        A request that changes something comes from a page of this server.
+        The cookie is SameSite=Strict, but the browser does not tell the ports
+        of an address apart: a page of another program on this computer
+        would send the cookie too. The header Origin that the browser adds to
+        such a request names the page, so it must be this server. A request
+        without the header does not come from a page of a browser.
+        """
+        if scope["type"] != "http" or scope["method"] in _SAFE_METHODS:
+            return True
+        origins = [
+            value_.decode("latin-1").strip().lower()
+            for name_, value_ in header_pairs
+            if name_ == b"origin"
+        ]
+        if len(origins) == 0:
+            return True
+        return len(origins) == 1 and origins[0] in {
+            f"http://{host_}" for host_ in self.allowed_hosts
+        }
 
     def _has_session_cookie(
         self, header_pairs: List[Tuple[bytes, bytes]]

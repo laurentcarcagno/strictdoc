@@ -1,6 +1,8 @@
 import html
 import json
 import re
+import threading
+from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
 
 import pytest
@@ -450,3 +452,63 @@ def test_024_administrators_may_use_it_too(tmp_path, headers):
     client = make_client(tmp_path, _llm())
     assert _ask(client, headers).status_code == 200
     assert FL_2
+
+
+def _serve_chat_completions(answer):
+    """
+    A server of the protocol of OpenAI that answers `answer`; it keeps the
+    headers that it received.
+    """
+    received = []
+
+    class Handler(BaseHTTPRequestHandler):
+        def do_POST(self):
+            length = int(self.headers.get("Content-Length", 0))
+            self.rfile.read(length)
+            received.append({k_.lower(): v_ for k_, v_ in self.headers.items()})
+            body = json.dumps(
+                {"choices": [{"message": {"content": json.dumps(answer)}}]}
+            ).encode()
+            self.send_response(200)
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+
+        def log_message(self, *args):
+            pass
+
+    httpd = HTTPServer(("127.0.0.1", 0), Handler)
+    threading.Thread(target=httpd.serve_forever, daemon=True).start()
+    return httpd, received
+
+
+def test_025_the_draft_gives_the_key_that_the_program_holds(
+    tmp_path, monkeypatch
+):
+    monkeypatch.delenv("DRAFT_KEY", raising=False)
+    httpd, received = _serve_chat_completions(GOOD)
+    try:
+        llm = make_llm(
+            providers={
+                "local": OpenAICompatible(
+                    base_url=f"http://127.0.0.1:{httpd.server_port}/v1",
+                    model="test-model",
+                    is_local=True,
+                    api_key_env="DRAFT_KEY",
+                )
+            },
+            environment={"DRAFT_KEY": "sk-held-by-the-program"},
+        )
+        client = make_client(tmp_path, llm)
+
+        response = _ask(client)
+
+        assert response.status_code == 200
+        assert received[0]["authorization"] == "Bearer sk-held-by-the-program"
+        assert "sk-held-by-the-program" not in response.text
+        assert "sk-held-by-the-program" not in "".join(
+            (tmp_path / "audit" / "llm_audit.jsonl").read_text()
+        )
+    finally:
+        httpd.shutdown()
+        httpd.server_close()

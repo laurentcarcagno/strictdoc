@@ -121,7 +121,8 @@ def run_window(*, title: str, url: str, storage_path: Path) -> None:
 def set_home_url(url: Optional[str]) -> None:
     """
     Tell the window where the home screen is. The window then has the menu
-    "Projects > Switch project", which goes back to it. The home screen has
+    "Projects > Switch project", which goes back to it, and "Projects >
+    Settings", which shows the screen of the settings. The home screen has
     the session cookie of its server already: the window opens it directly.
     """
     global _home_url  # noqa: PLW0603
@@ -132,6 +133,12 @@ def go_to_home() -> None:
     """Show the home screen in the window. A thread of the menu calls it."""
     if _window is not None and _home_url is not None:
         _window.load_url(_home_url)
+
+
+def go_to_settings() -> None:
+    """Show the screen of the settings in the window."""
+    if _window is not None and _home_url is not None:
+        _window.load_url(f"{_home_url.rstrip('/')}/settings")
 
 
 def is_window_open() -> bool:
@@ -169,7 +176,10 @@ def _create_menu() -> List[Any]:
     return [
         menu_module.Menu(
             gettext("Projects"),
-            [menu_module.MenuAction(gettext("Switch project"), go_to_home)],
+            [
+                menu_module.MenuAction(gettext("Switch project"), go_to_home),
+                menu_module.MenuAction(gettext("Settings"), go_to_settings),
+            ],
         )
     ]
 

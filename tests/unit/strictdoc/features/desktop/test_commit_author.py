@@ -2,7 +2,6 @@
 @relation(SDOC-SRS-1238, scope=file)
 """
 
-import os
 import re
 import time
 import urllib.request
@@ -56,7 +55,6 @@ from tests.end2end.desktop.fake_gitlab import (
 )
 
 GITLAB_URL = "https://gitlab.example.org"
-TOKEN_ENV = "STRICTDOC_TEST_AUTHOR_TOKEN"
 
 
 def _create_user(**fields: object) -> GitLabUser:
@@ -126,14 +124,10 @@ def _create_session(user: GitLabUser) -> GitLabSession:
 
 
 @pytest.fixture(name="keeper")
-def fixture_keeper(monkeypatch: pytest.MonkeyPatch) -> Iterator[TokenKeeper]:
-    monkeypatch.delenv(TOKEN_ENV, raising=False)
-    keeper = TokenKeeper(
-        MemorySecretStore(), token_env=TOKEN_ENV, use_timer=False
-    )
+def fixture_keeper() -> Iterator[TokenKeeper]:
+    keeper = TokenKeeper(MemorySecretStore(), use_timer=False)
     yield keeper
     keeper.close()
-    os.environ.pop(TOKEN_ENV, None)
 
 
 def test_006_the_author_is_read_at_the_time_of_the_commit(

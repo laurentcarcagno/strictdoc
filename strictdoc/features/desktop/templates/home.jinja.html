@@ -5,7 +5,8 @@
   Variables: assets, has_opened_project, error, project_count, root,
   running_identifiers (the projects whose server runs), user (the GitLab user
   who signed in, or none), is_sign_in_offered (the sign-in can be started),
-  is_offline, is_sign_in_refused, storage_error, is_sign_in_required.
+  is_offline, is_sign_in_refused, storage_error, is_sign_in_required,
+  unsent_messages (the text of each project that has changes not sent).
 #}
 {%- set role_labels = {
   "reader": _("reader"),
@@ -44,6 +45,12 @@
         {{ _("opened") }}
       </span>
       {%- endif %}
+      {%- if project.identifier in unsent_messages %}
+      <span class="catalog__project_unsent_mark" data-testid="catalog-project-unsent"
+            title="{{ unsent_messages[project.identifier] }}">
+        {{ _("changes not sent") }}
+      </span>
+      {%- endif %}
       {%- if project.description %}
       <span class="catalog__project_description">
         {{ project.description }}
@@ -78,7 +85,7 @@
   </div>
   {%- if is_offline %}
   <p class="notice" role="status" data-testid="offline-notice">
-    {{ _("You are offline: GitLab cannot be reached. The application tries again by itself.") }}
+    {{ _("You are offline: the server cannot be reached. The application tries again by itself.") }}
   </p>
   {%- endif %}
   {%- endif %}
@@ -107,7 +114,7 @@
     </p>
     {%- elif is_sign_in_required %}
     <p class="notice" role="alert" data-testid="catalog-settings-incomplete">
-      {{ _("The GitLab settings are incomplete: the address of GitLab and the OAuth application are needed.") }}
+      {{ _("The sign-in settings are incomplete: the address of the server and the OAuth application are needed.") }}
     </p>
     {%- elif error is not none %}
     <div class="catalog__error" role="alert" data-testid="catalog-error">

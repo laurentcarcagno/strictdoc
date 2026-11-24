@@ -14,11 +14,16 @@ the user starts the application without a project.
 @relation(SDOC-SRS-1236, scope=file)
 @relation(SDOC-SRS-1237, scope=file)
 @relation(SDOC-SRS-1240, scope=file)
+@relation(SDOC-SRS-1241, scope=file)
+@relation(SDOC-SRS-1242, scope=file)
+@relation(SDOC-SRS-1243, scope=file)
+@relation(SDOC-SRS-1244, scope=file)
+@relation(SDOC-SRS-1252, scope=file)
 """
 
 import os
 from contextlib import asynccontextmanager
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 from typing import (
     AbstractSet,
@@ -26,6 +31,7 @@ from typing import (
     AsyncIterator,
     Dict,
     List,
+    Mapping,
     Optional,
     Union,
 )
@@ -41,7 +47,20 @@ from starlette.responses import (
 from starlette.staticfiles import StaticFiles
 
 from strictdoc.features.desktop import window
+from strictdoc.features.desktop.ai_settings import (
+    AiRuntime,
+    AiServerForm,
+    delete_ai_server,
+    list_models,
+    normalize_url,
+    parse_ai_server_form,
+    save_ai_server,
+)
+from strictdoc.features.desktop.application_language import (
+    apply_application_language,
+)
 from strictdoc.features.desktop.commit_author import create_author_provider
+from strictdoc.features.desktop.git_access import create_git_access
 from strictdoc.features.desktop.gitlab_client import create_catalog_client
 from strictdoc.features.desktop.oauth_gitlab import (
     CALLBACK_PATH,
@@ -51,6 +70,7 @@ from strictdoc.features.desktop.oauth_gitlab import (
     is_sign_in_configured,
     parse_callback_query,
 )
+from strictdoc.features.desktop.paths import get_data_dir
 from strictdoc.features.desktop.project_opener import (
     JobState,
     ProjectOpener,
@@ -61,12 +81,27 @@ from strictdoc.features.desktop.project_servers import (
     ProjectServerFactory,
     ProjectServerManager,
 )
-from strictdoc.features.desktop.secret_store import MemorySecretStore
+from strictdoc.features.desktop.project_status import get_state_text
+from strictdoc.features.desktop.secret_store import (
+    MemorySecretStore,
+    SecretStore,
+    SecretStoreError,
+)
+from strictdoc.features.desktop.send_queue import SendQueue, create_send_queue
 from strictdoc.features.desktop.session_token import (
     PUBLIC_PATHS_STATE_NAME,
     PublicPathChecker,
 )
-from strictdoc.features.desktop.settings import DesktopSettings, load_settings
+from strictdoc.features.desktop.settings import (
+    AI_KIND_OPENAI,
+    AI_KINDS,
+    DesktopSettings,
+    SettingsForm,
+    get_ai_secret_name,
+    load_settings,
+    parse_settings_form,
+    save_settings,
+)
 from strictdoc.features.desktop.token_store import SignInStatus, TokenKeeper
 from strictdoc.features.desktop.workspace import (
     FolderStatus,
@@ -88,6 +123,10 @@ from strictdoc.features.project_catalog.registry import (
 _DESKTOP_DIR = os.path.dirname(os.path.abspath(__file__))
 ASSETS_DIR = os.path.join(_DESKTOP_DIR, "assets")
 ASSETS_URL = "/assets"
+
+# The audit log of the assistant, in the data of the application: one for the
+# user, all the projects together.
+AI_AUDIT_FOLDER_NAME = "ai_audit"
 
 TEMPLATES = Environment(
     loader=FileSystemLoader(os.path.join(_DESKTOP_DIR, "templates")),
@@ -146,7 +185,10 @@ def create_home_app(
     keeper: Optional[TokenKeeper] = None,
     principals: Optional[ProjectPrincipals] = None,
     server_factory: Optional[ProjectServerFactory] = None,
+    secret_store: Optional[SecretStore] = None,
 ) -> FastAPI:
+    # The language of the user, for the home screen and for every project.
+    apply_application_language(load_settings(settings_path))
     # The tokens of the user. Without a keeper, they stay in memory.
     token_keeper = (
         keeper
@@ -155,6 +197,26 @@ def create_home_app(
     )
     if principals is None:
         principals = ProjectPrincipals(token_keeper)
+    # The only credential that Git gets: the token of the signed-in user.
+    git_access = create_git_access(token_keeper)
+    # The commits that wait to be sent: read again at the launch, for every
+    # folder of the settings, open or not.
+    send_queue = create_send_queue(
+        keeper=token_keeper,
+        git_access=git_access,
+        settings_path=settings_path,
+        get_role=principals.get_role,
+    )
+
+    # The AI servers of the user: their keys are in the secret store, never in
+    # the settings, and they give every project its assistant.
+    ai_runtime = AiRuntime(
+        settings_path=settings_path,
+        secret_store=(
+            secret_store if secret_store is not None else MemorySecretStore()
+        ),
+        audit_directory=get_data_dir() / AI_AUDIT_FOLDER_NAME,
+    )
 
     def create_identity(identifier: str) -> ProjectIdentity:
         # The projects of a GitLab catalog belong to the signed-in user, with
@@ -165,10 +227,17 @@ def create_home_app(
             load_settings(settings_path).catalog_provider
             == GITLAB_PROVIDER_NAME
         ):
-            return principals.create_identity(identifier)
+            return replace(
+                principals.create_identity(identifier),
+                send_queue=send_queue,
+                ai_runtime=ai_runtime,
+            )
         return ProjectIdentity(
             principal_provider=None,
             author_provider=create_author_provider(token_keeper),
+            git_access=git_access,
+            send_queue=send_queue,
+            ai_runtime=ai_runtime,
         )
 
     project_opener = (
@@ -179,11 +248,23 @@ def create_home_app(
                 server_factory=server_factory,
                 settings_path=settings_path,
                 identity_factory=create_identity,
+                git_access=git_access,
             ),
             settings_path=settings_path,
+            git_access=git_access,
         )
     )
     manager = project_opener.manager
+
+    def on_session_changed() -> None:
+        # Nobody signed in: the open projects receive nothing, and their
+        # timers end. A user who signs in gets the update at once.
+        if token_keeper.session is None:
+            manager.pause_timers()
+        else:
+            manager.resume_timers()
+
+    token_keeper.add_session_listener(on_session_changed)
     gitlab_sign_in = (
         sign_in
         if sign_in is not None
@@ -201,7 +282,12 @@ def create_home_app(
                 gitlab_url=settings.gitlab_url.strip(),
                 client_id=settings.oauth_client_id.strip(),
             )
+        # What waited at the last closing is sent now, project open or not.
+        send_queue.start()
         yield
+        # The closing does not wait for the network: what is not sent is in
+        # the working copy, and the next launch reads it.
+        send_queue.stop()
         token_keeper.close()
         # The web servers of the projects belong to the home server: they end
         # with it.
@@ -236,6 +322,183 @@ def create_home_app(
             sign_in_status=token_keeper.status,
             is_sign_in_refused=token_keeper.is_refused,
             storage_error=token_keeper.storage_error,
+            unsent_messages=_get_unsent_messages(settings, send_queue),
+        )
+
+    def render_settings(
+        form: SettingsForm,
+        *,
+        is_saved: bool = False,
+        status_code: int = 200,
+        ai_form: Optional[AiServerForm] = None,
+    ) -> HTMLResponse:
+        response = _render_page(
+            "settings.jinja.html",
+            form=form,
+            is_saved=is_saved,
+            user=_get_user(token_keeper),
+            ai_section_template="ai_servers.jinja.html",
+            ai=ai_runtime.get_overview(),
+            ai_form=ai_form,
+            ai_kinds=AI_KINDS,
+        )
+        response.status_code = status_code
+        return response
+
+    @application.get("/settings", response_class=HTMLResponse)
+    def show_settings(saved: bool = False) -> HTMLResponse:
+        """The screen of the settings, from the home screen or the window."""
+        settings = load_settings(settings_path)
+        return render_settings(
+            SettingsForm(
+                language=settings.language,
+                sync_interval_minutes=settings.sync_interval_minutes,
+            ),
+            is_saved=saved,
+        )
+
+    @application.post("/settings")
+    def save_settings_form(
+        language: str = Form(""), sync_interval_minutes: str = Form("")
+    ) -> Response:
+        """
+        Save the settings, and apply them with no restart: the language of the
+        home screen and of the open projects, and the time between two updates.
+        An error writes nothing.
+        """
+        form = parse_settings_form(language, sync_interval_minutes)
+        if len(form.errors) > 0:
+            form.language = language
+            return render_settings(form, status_code=422)
+        settings = load_settings(settings_path)
+        settings.language = form.language
+        settings.sync_interval_minutes = form.sync_interval_minutes
+        save_settings(settings, settings_path)
+        apply_application_language(settings)
+        manager.apply_settings()
+        return RedirectResponse("/settings?saved=true", status_code=303)
+
+    def render_settings_again(
+        ai_form: AiServerForm, status_code: int
+    ) -> HTMLResponse:
+        settings = load_settings(settings_path)
+        return render_settings(
+            SettingsForm(
+                language=settings.language,
+                sync_interval_minutes=settings.sync_interval_minutes,
+            ),
+            status_code=status_code,
+            ai_form=ai_form,
+        )
+
+    def apply_ai_settings() -> Response:
+        """The AI servers changed: the open projects follow, with no restart."""
+        ai_runtime.apply()
+        manager.apply_settings()
+        return RedirectResponse("/settings?saved=true#ai", status_code=303)
+
+    @application.post("/settings/ai/save")
+    def save_ai_form(
+        server_id: str = Form(""),
+        name: str = Form(""),
+        kind: str = Form(AI_KIND_OPENAI),
+        url: str = Form(""),
+        model: str = Form(""),
+        is_internal: str = Form(""),
+        key: str = Form(""),
+        clear_key: str = Form(""),
+    ) -> Response:
+        """
+        Add a server or change one. A key that is typed is kept in the
+        keyring; with none typed the saved key stays, unless the address
+        changed or the user asked to remove it. An error writes nothing.
+        """
+        settings = load_settings(settings_path)
+        if server_id != "" and not any(
+            server_.server_id == server_id for server_ in settings.ai_servers
+        ):
+            server_id = ""
+        form = parse_ai_server_form(
+            server_id=server_id,
+            name=name,
+            kind=kind,
+            url=url,
+            model=model,
+            is_internal=is_internal != "",
+            key=key,
+            clear_key=clear_key != "",
+            other_names=[
+                server_.name
+                for server_ in settings.ai_servers
+                if server_.server_id != server_id
+            ],
+        )
+        if len(form.errors) > 0:
+            return render_settings_again(form, 422)
+        try:
+            save_ai_server(settings, form, ai_runtime.secret_store)
+        except SecretStoreError:
+            form.errors["key"] = gettext(
+                "The keyring of the system refused to keep the key."
+            )
+            return render_settings_again(form, 422)
+        save_settings(settings, settings_path)
+        return apply_ai_settings()
+
+    @application.post("/settings/ai/delete")
+    def delete_ai_form(server_id: str = Form("")) -> Response:
+        """Remove a server and its key."""
+        settings = load_settings(settings_path)
+        try:
+            is_deleted = delete_ai_server(
+                settings, server_id, ai_runtime.secret_store
+            )
+        except SecretStoreError:
+            return _render_page(
+                "message.jinja.html",
+                notice=gettext(
+                    "The keyring of the system refused to remove the key."
+                ),
+            )
+        if is_deleted:
+            save_settings(settings, settings_path)
+        return apply_ai_settings()
+
+    @application.post("/settings/ai/models")
+    def list_ai_models(
+        server_id: str = Form(""),
+        kind: str = Form(AI_KIND_OPENAI),
+        url: str = Form(""),
+        is_internal: str = Form(""),
+        key: str = Form(""),
+    ) -> Response:
+        """
+        The models that a server lists, for the choice of the model. With no
+        key typed, the key that is saved is used, for the address that it was
+        saved with only.
+        """
+        settings = load_settings(settings_path)
+        key = key.strip()
+        saved = next(
+            (
+                server_
+                for server_ in settings.ai_servers
+                if server_.server_id == server_id
+            ),
+            None,
+        )
+        if key == "" and saved is not None:
+            if normalize_url(saved.url) == normalize_url(url):
+                stored_key = ai_runtime.secret_store.get(
+                    get_ai_secret_name(saved.server_id)
+                )
+                key = stored_key if stored_key is not None else ""
+        listing = list_models(
+            kind=kind, url=url, key=key, is_internal=is_internal != ""
+        )
+        return JSONResponse(
+            {"models": listing.models, "message": listing.message},
+            headers={"Cache-Control": "no-store"},
         )
 
     @application.post("/sign-in")
@@ -280,7 +543,7 @@ def create_home_app(
             gitlab_sign_in.refuse(state)
             return _render_page(
                 "message.jinja.html",
-                notice=gettext("GitLab refused the sign-in (%(reason)s).")
+                notice=gettext("The server refused the sign-in (%(reason)s).")
                 % {"reason": parameters["error"][:80]},
             )
         try:
@@ -387,6 +650,7 @@ def render_home(
     storage_error: Optional[str] = None,
     gitlab_client: Optional[Any] = None,
     identity: DesktopIdentity = ANONYMOUS_IDENTITY,
+    unsent_messages: Optional[Mapping[str, str]] = None,
 ) -> HTMLResponse:
     """
     The home page. A catalog that fails is an error shown in the page. The
@@ -428,8 +692,21 @@ def render_home(
         is_sign_in_refused=is_sign_in_refused and user is None,
         storage_error=storage_error,
         is_sign_in_offered=is_sign_in_offered,
+        unsent_messages=unsent_messages if unsent_messages is not None else {},
     )
     return HTMLResponse(output, headers={"Cache-Control": "no-store"})
+
+
+def _get_unsent_messages(
+    settings: DesktopSettings, send_queue: SendQueue
+) -> Dict[str, str]:
+    """The text of the projects that have changes that are not sent."""
+    messages: Dict[str, str] = {}
+    for identifier_, folder_ in settings.project_folders.items():
+        status = send_queue.get_status(folder_)
+        if status.is_attention_needed:
+            messages[identifier_] = get_state_text(status.state)
+    return messages
 
 
 def _get_identity(token_keeper: TokenKeeper) -> DesktopIdentity:
@@ -478,8 +755,8 @@ def _find_project(
             notice=gettext("Sign in to see your projects.")
             if is_sign_in_configured(settings)
             else gettext(
-                "The GitLab settings are incomplete: the address of GitLab "
-                "and the OAuth application are needed."
+                "The sign-in settings are incomplete: the address of the "
+                "server and the OAuth application are needed."
             ),
         )
     try:

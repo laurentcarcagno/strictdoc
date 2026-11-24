@@ -1,5 +1,6 @@
 """
 @relation(SDOC-SRS-1229, scope=file)
+@relation(SDOC-SRS-1244, scope=file)
 """
 
 import json
@@ -188,3 +189,41 @@ def test_008_unknown_language_is_refused(
 
     with pytest.raises(ValueError, match="expected one of"):
         set_language_from_environment()
+
+
+def test_009_a_project_with_changes_not_sent_has_a_mark(
+    catalog_path: str,
+) -> None:
+    settings = DesktopSettings(
+        catalog_provider="fake",
+        fake_catalog_path=catalog_path,
+        project_folders={"demo/isis": "/data/isis"},
+    )
+
+    without_mark = render_home(settings).body.decode("utf-8")
+    page = render_home(
+        settings,
+        unsent_messages={
+            "demo/isis": "Waiting for the network to share your changes."
+        },
+    ).body.decode("utf-8")
+
+    assert 'data-testid="catalog-project-unsent"' not in without_mark
+    assert page.count('data-testid="catalog-project-unsent"') == 1
+    assert "Waiting for the network to share your changes." in page
+    assert "changes not sent" in page
+
+
+def test_010_the_mark_is_in_french_when_the_language_is_french(
+    catalog_path: str,
+) -> None:
+    settings = DesktopSettings(
+        catalog_provider="fake", fake_catalog_path=catalog_path
+    )
+    i18n.set_language("fr")
+
+    page = render_home(
+        settings, unsent_messages={"demo/isis": "Sign in to share"}
+    ).body.decode("utf-8")
+
+    assert "modifications non envoyées" in page

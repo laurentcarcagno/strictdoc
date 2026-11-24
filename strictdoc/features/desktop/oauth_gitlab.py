@@ -216,7 +216,7 @@ def fetch_user(gitlab_url: str, access_token: str) -> GitLabUser:
     )
     username = answer.get("username")
     if not isinstance(username, str) or len(username) == 0:
-        raise OAuthError(gettext("GitLab did not tell who the user is."))
+        raise OAuthError(gettext("The server did not tell who the user is."))
     name = answer.get("name")
     user_id = answer.get("id")
     return GitLabUser(
@@ -349,7 +349,7 @@ class GitLabSignIn:
         if not is_sign_in_configured(settings):
             raise OAuthError(
                 gettext(
-                    "The sign-in needs the address of GitLab and the "
+                    "The sign-in needs the address of the server and the "
                     "identifier of the OAuth application in the settings."
                 )
             )
@@ -419,7 +419,7 @@ def _parse_tokens(
     refresh_token = answer.get("refresh_token")
     expires_in = answer.get("expires_in")
     if not isinstance(access_token, str) or len(access_token) == 0:
-        raise OAuthError(gettext("GitLab did not give an access token."))
+        raise OAuthError(gettext("The server did not give an access token."))
     return GitLabTokens(
         access_token=access_token,
         refresh_token=refresh_token if isinstance(refresh_token, str) else None,
@@ -457,22 +457,24 @@ def _request_json(
             OAuthRejectedError if reason == "invalid_grant" else OAuthError
         )
         raise error_class(
-            gettext("GitLab refused the request (%(reason)s).")
+            gettext("The server refused the request (%(reason)s).")
             % {"reason": reason}
         ) from None
     except (OSError, HTTPException) as exception_:
         # URLError, timeouts and refused connections are OSError. The message
         # of the exception can name the address: it holds no token.
         raise OAuthError(
-            gettext("GitLab cannot be reached at %(url)s.")
+            gettext("The server cannot be reached at %(url)s.")
             % {"url": _normalize_gitlab_url(gitlab_url)}
         ) from exception_
     except ValueError:
         raise OAuthError(
-            gettext("GitLab sent an answer that cannot be read.")
+            gettext("The server sent an answer that cannot be read.")
         ) from None
     if not isinstance(content, dict):
-        raise OAuthError(gettext("GitLab sent an answer that cannot be read."))
+        raise OAuthError(
+            gettext("The server sent an answer that cannot be read.")
+        )
     return content
 
 

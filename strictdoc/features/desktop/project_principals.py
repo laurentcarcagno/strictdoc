@@ -9,12 +9,14 @@ the function of create_provider().
 @relation(SDOC-SRS-1236, scope=file)
 @relation(SDOC-SRS-1237, scope=file)
 @relation(SDOC-SRS-1238, scope=file)
+@relation(SDOC-SRS-1241, scope=file)
 """
 
 import threading
 from typing import Dict, Optional, Tuple
 
 from strictdoc.features.desktop.commit_author import create_author_provider
+from strictdoc.features.desktop.git_access import create_git_access
 from strictdoc.features.desktop.project_servers import ProjectIdentity
 from strictdoc.features.desktop.token_store import TokenKeeper
 from strictdoc.features.project_catalog.catalog import CatalogRole
@@ -57,11 +59,25 @@ class ProjectPrincipals:
             else:
                 self._roles[key] = role
 
+    def get_role(self, identifier: str) -> Optional[str]:
+        """
+        The role of the signed-in user in the project, as a name ("reader",
+        "author", "administrator"), or None when nobody is signed in or the
+        role is not known: the project was not opened in this session.
+        """
+        session = self._keeper.session
+        if session is None:
+            return None
+        with self._lock:
+            role = self._roles.get((session.user.username, identifier))
+        return role.value if role is not None else None
+
     def create_identity(self, identifier: str) -> ProjectIdentity:
         """The principal and the author of the commits of a project server."""
         return ProjectIdentity(
             principal_provider=self.create_provider(identifier),
             author_provider=create_author_provider(self._keeper),
+            git_access=create_git_access(self._keeper),
         )
 
     def create_provider(self, identifier: str) -> PrincipalProvider:

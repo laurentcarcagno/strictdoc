@@ -5,7 +5,6 @@
 """
 
 import json
-import os
 import re
 import time
 import urllib.request
@@ -67,7 +66,6 @@ from tests.end2end.desktop.fake_gitlab import (
 
 PORT = 18083
 IDENTIFIER = "1"
-TOKEN_ENV = "STRICTDOC_TEST_ROLES_TOKEN"
 
 
 class FakeProjectServer:
@@ -125,7 +123,7 @@ class Environment:
         )
         self.servers: List[FakeProjectServer] = []
         self.keeper: TokenKeeper = TokenKeeper(
-            MemorySecretStore(), token_env=TOKEN_ENV, use_timer=False
+            MemorySecretStore(), use_timer=False
         )
         self.principals: ProjectPrincipals = ProjectPrincipals(self.keeper)
         self.manager: ProjectServerManager = ProjectServerManager(
@@ -224,7 +222,6 @@ def fixture_environment(
     environment = Environment(tmp_path, fake_gitlab)
     yield environment
     environment.keeper.close()
-    os.environ.pop(TOKEN_ENV, None)
 
 
 def _create_client(environment: Environment) -> TestClient:
@@ -235,7 +232,7 @@ def _create_client(environment: Environment) -> TestClient:
 
 
 def test_001_the_principal_is_the_user_with_the_role_of_the_project() -> None:
-    keeper = TokenKeeper(MemorySecretStore(), token_env=TOKEN_ENV)
+    keeper = TokenKeeper(MemorySecretStore())
     principals = ProjectPrincipals(keeper)
     provider = principals.create_provider("1")
 
@@ -648,13 +645,13 @@ def test_020_incomplete_gitlab_settings_are_said_and_not_a_sign_in(
     page = client.get("/").text
 
     assert 'data-testid="catalog-settings-incomplete"' in page
-    assert "The GitLab settings are incomplete" in page
+    assert "The sign-in settings are incomplete" in page
     assert 'data-testid="catalog-sign-in-required"' not in page
     assert 'data-testid="sign-in"' not in page
     response = client.post("/projects/open", data={"identifier": IDENTIFIER})
-    assert "The GitLab settings are incomplete" in response.text
+    assert "The sign-in settings are incomplete" in response.text
     i18n.set_language("fr")
-    assert "Les réglages de GitLab sont incomplets" in client.get("/").text
+    assert "Les réglages de connexion sont incomplets" in client.get("/").text
 
 
 def test_021_the_sign_out_ends_the_session_and_stops_the_servers(
@@ -667,7 +664,6 @@ def test_021_the_sign_out_ends_the_session_and_stops_the_servers(
     environment.open_project(client, folder)
     server = environment.servers[0]
     assert server.is_running
-    assert os.environ[TOKEN_ENV] != ""
     provider = server.principal_provider
     assert provider is not None and provider() is not None
     assert 'data-testid="sign-out"' in client.get("/").text
@@ -677,7 +673,6 @@ def test_021_the_sign_out_ends_the_session_and_stops_the_servers(
     assert response.status_code == 303
     assert response.headers["location"] == "/"
     assert environment.keeper.session is None
-    assert TOKEN_ENV not in os.environ
     assert not server.is_running
     assert environment.manager.get_open_identifiers() == set()
     assert provider() is None
@@ -731,7 +726,7 @@ class FakeCatalogEnvironment:
         )
         self.servers: List[FakeProjectServer] = []
         self.keeper: TokenKeeper = TokenKeeper(
-            MemorySecretStore(), token_env=TOKEN_ENV, use_timer=False
+            MemorySecretStore(), use_timer=False
         )
         self.application = create_home_app(
             settings_path=self.settings_path,
@@ -779,5 +774,8 @@ def test_022_a_project_of_the_fake_catalog_is_signed_by_the_signed_in_user(
         )
 
         assert server.identity.author_provider().name == "JDUPONT"
+        # The commits of both kinds of server go to the same queue, which
+        # sends them with the token of the signed-in user.
+        assert server.identity.send_queue is not None
+        assert server.identity.git_access is not None
     environment.keeper.close()
-    os.environ.pop(TOKEN_ENV, None)

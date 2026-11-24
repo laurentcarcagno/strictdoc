@@ -86,7 +86,7 @@ class Test(DesktopCase):
 
             self.click(SIGN_IN)
 
-            self.assert_text("GitLab refused the sign-in", MESSAGE)
+            self.assert_text("The server refused the sign-in", MESSAGE)
             self.assert_text("access_denied", MESSAGE)
             self.click(BACK_TO_CATALOG)
             self.assert_element(SIGN_IN)

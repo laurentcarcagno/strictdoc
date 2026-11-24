@@ -1,0 +1,50 @@
+{#
+  The window "Publish a version" of the desktop application. The version is the
+  one of the whole project. Variables: plan (refusal, latest, next_draft,
+  next_major), message (why the try failed), done (the version that was
+  published), can_publish.
+#}
+{% extends "components/modal/form.jinja" %}
+{% set form = "sdoc_modal_form" %}
+{% block modal__context %}{% endblock modal__context %}
+{% block modal_form__header %}{{ _("Publish a version") }}{% endblock modal_form__header %}
+{% block modal_form__content %}
+  <div data-testid="publish-dialog">
+  {%- if done %}
+    <p data-testid="publish-done">{{ _("Version %(version)s is published.", version=done) }}</p>
+  {%- elif message %}
+    <p class="sdoc-form-error" data-testid="publish-refusal">{{ message }}</p>
+  {%- elif plan.refusal %}
+    <p class="sdoc-form-error" data-testid="publish-refusal">{{ plan.refusal }}</p>
+  {%- endif %}
+  {%- if not done and not plan.refusal and can_publish %}
+    <form
+      id="{{ form }}"
+      action="/actions/git/version_document"
+      method="POST"
+      data-turbo="true"
+    >
+      <p>
+        {{ _("A version marks the whole project as it is now.") }}<br/>
+        {{ _("Latest version:") }} <strong data-testid="publish-latest">{{ plan.latest or "-" }}</strong>
+      </p>
+      <p>
+        <label>
+          <input type="radio" name="kind" value="draft" checked data-testid="publish-draft"/>
+          {{ _("Draft version") }} <strong data-testid="publish-next-draft">{{ plan.next_draft }}</strong>
+        </label><br/>
+        <label>
+          <input type="radio" name="kind" value="major" {% if not plan.next_major %}disabled{% endif %} data-testid="publish-major"/>
+          {{ _("Major version") }} <strong data-testid="publish-next-major">{{ plan.next_major or "-" }}</strong>
+          {%- if not plan.next_major %} ({{ _("a draft version is needed first") }}){% endif %}
+        </label>
+      </p>
+    </form>
+  {%- endif %}
+  </div>
+{% endblock modal_form__content %}
+{% block modal_form__footer_submit %}
+  {%- if not done and not plan.refusal and can_publish %}
+  {%- with submit_name=_("Publish") %}{% include "components/button/submit.jinja" %}{% endwith %}
+  {%- endif %}
+{% endblock modal_form__footer_submit %}

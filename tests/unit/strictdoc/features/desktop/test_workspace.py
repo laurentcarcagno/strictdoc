@@ -11,6 +11,7 @@ import pytest
 from git import Actor, GitCommandError, Repo
 
 from strictdoc.features.desktop import workspace
+from strictdoc.features.desktop.git_access import GitAccess
 from strictdoc.features.desktop.workspace import (
     FolderStatus,
     WorkspaceError,
@@ -94,7 +95,6 @@ def test_002_empty_folder(tmp_path: Path) -> None:
     [
         CLONE_URL,
         "https://GITLAB.example.org/team/project",
-        "https://token@gitlab.example.org/team/project.git/",
     ],
 )
 def test_003_folder_of_the_same_repository(
@@ -117,7 +117,7 @@ def test_004_folder_of_another_repository(tmp_path: Path) -> None:
     check = check_folder(str(tmp_path), CLONE_URL)
 
     assert check.status is FolderStatus.REFUSED
-    assert "another repository" in check.reason
+    assert "another project" in check.reason
     assert "team/other" in check.reason
 
 
@@ -222,9 +222,11 @@ def test_013_failed_clone_removes_what_it_wrote(
     folder = tmp_path / "workspace"
     folder.mkdir()
 
-    def failing_clone(clone_url: str, target_folder: str) -> None:
+    def failing_clone(
+        clone_url: str, target_folder: str, git_access: GitAccess
+    ) -> None:
         # What a clone that stops half way leaves: Git objects are read-only.
-        del clone_url
+        del clone_url, git_access
         pack_folder = Path(target_folder) / ".git" / "objects" / "pack"
         pack_folder.mkdir(parents=True)
         pack_file = pack_folder / "partial.pack"
@@ -394,3 +396,98 @@ def test_023_pull_of_a_folder_that_is_not_a_repository_raises(
 ) -> None:
     with pytest.raises(WorkspaceError):
         pull_project(str(tmp_path))
+
+
+# An address with a user name or a password is never used.
+
+SECRET = "made-up-secret-of-the-test"
+
+
+def _create_folder_with_origin(tmp_path: Path, origin_url: str) -> Path:
+    folder = tmp_path / "workspace"
+    folder.mkdir()
+    repo = Repo.init(folder)
+    repo.create_remote("origin", origin_url)
+    repo.close()
+    return folder
+
+
+def test_024_a_folder_whose_origin_has_credentials_is_refused(
+    tmp_path: Path,
+) -> None:
+    """
+    A folder whose origin holds a user name or a password is refused.
+
+    @relation(SDOC-SRS-1241, scope=function)
+    """
+    folder = _create_folder_with_origin(
+        tmp_path,
+        f"https://machine:{SECRET}@gitlab.example.org/team/project.git",
+    )
+
+    check = check_folder(str(folder), CLONE_URL)
+
+    assert check.status is FolderStatus.REFUSED
+    assert "user name or a password" in check.reason
+    # The reason names the folder, and shows no part of the address.
+    assert str(folder) in check.reason
+    assert SECRET not in check.reason
+    assert "gitlab.example.org" not in check.reason
+
+
+def test_025_the_refusal_of_that_folder_is_in_french_in_french(
+    tmp_path: Path,
+) -> None:
+    """
+    The reason of that refusal follows the language.
+
+    @relation(SDOC-SRS-1241, scope=function)
+    """
+    folder = _create_folder_with_origin(
+        tmp_path,
+        f"https://machine:{SECRET}@gitlab.example.org/team/project.git",
+    )
+    i18n.set_language("fr")
+
+    check = check_folder(str(folder), CLONE_URL)
+
+    assert check.status is FolderStatus.REFUSED
+    assert check.reason.startswith("Le dossier")
+    assert "nom d'utilisateur" in check.reason
+    assert SECRET not in check.reason
+    assert "gitlab.example.org" not in check.reason
+
+
+@pytest.mark.parametrize(
+    ("language", "expected"),
+    [
+        ("en", "The address of the project holds a user name or a password."),
+        (
+            "fr",
+            (
+                "L'adresse du projet contient un nom d'utilisateur ou un mot "
+                "de passe."
+            ),
+        ),
+    ],
+)
+def test_026_a_clone_address_with_credentials_is_refused_in_the_language(
+    tmp_path: Path, language: str, expected: str
+) -> None:
+    """
+    A clone address with a user name or a password is refused.
+
+    @relation(SDOC-SRS-1241, scope=function)
+    """
+    i18n.set_language(language)
+    folder = tmp_path / "workspace"
+
+    with pytest.raises(WorkspaceError) as exception_info:
+        clone_project(
+            f"https://machine:{SECRET}@gitlab.example.org/team/project.git",
+            str(folder),
+        )
+
+    assert expected in str(exception_info.value)
+    assert SECRET not in str(exception_info.value)
+    assert not folder.exists()

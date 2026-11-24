@@ -232,6 +232,8 @@ def test_010_open_and_return_update_the_project_in_the_background(
 ) -> None:
     context.manager.open("a", "/projects/a")
     _wait_until(lambda: len(context.updated) == 1)
+    # The first update has ended: a request during an update is dropped.
+    _wait_until(lambda: not context.manager._updating)  # noqa: SLF001
 
     context.manager.get_open_url("a", "/projects/a")
 

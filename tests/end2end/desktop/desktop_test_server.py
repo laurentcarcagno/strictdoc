@@ -21,6 +21,7 @@ from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 from urllib.parse import urlsplit
 
+from strictdoc.features.desktop.project_runtime import LEASE_SECONDS_VARIABLE
 from strictdoc.features.desktop.settings import DesktopSettings, save_settings
 from tests.end2end.conftest import test_environment
 from tests.end2end.server import ReadTimeout, SDocTestServer
@@ -50,8 +51,17 @@ class DesktopTestServer(SDocTestServer):
         oauth_client_id: Optional[str] = None,
         gitlab_projects_root: Optional[str] = None,
         port: Optional[int] = None,
+        lease_seconds: Optional[float] = None,
+        ai_policy_path: Optional[str] = None,
     ) -> None:
         super().__init__(input_path=input_path, port=port)
+        # The time that a page has to renew the lease of its open editors:
+        # a test that lets a lease run out sets a short one.
+        self.lease_seconds: Optional[float] = lease_seconds
+        # The file of the rules of the external AI servers. The application
+        # reads it nowhere that a user could set: the launcher of the tests
+        # gives it to the code (see launcher.py).
+        self.ai_policy_path: Optional[str] = ai_policy_path
         self.language: Optional[str] = language
         self.kept_servers: Optional[int] = kept_servers
         self.project_path: Optional[str] = project_path
@@ -153,7 +163,19 @@ class DesktopTestServer(SDocTestServer):
         # options of the other end2end tests, up to the name of the command.
         server_arguments, strictdoc_env = super()._get_strictdoc_command()
         command_index = server_arguments.index("server")
-        strictdoc_arguments = server_arguments[:command_index] + [
+        launcher_arguments: List[str] = []
+        if self.ai_policy_path is not None:
+            module_index = server_arguments.index("strictdoc.cli.main")
+            server_arguments = (
+                server_arguments[:module_index]
+                + ["tests.end2end.desktop.launcher"]
+                + server_arguments[module_index + 1 :]
+            )
+            command_index = server_arguments.index("server")
+            launcher_arguments = ["--ai-policy", self.ai_policy_path]
+        strictdoc_arguments = (
+            server_arguments[:command_index] + launcher_arguments
+        ) + [
             "desktop",
             "--no-window",
             "--port",
@@ -167,10 +189,27 @@ class DesktopTestServer(SDocTestServer):
         )
         strictdoc_env["XDG_CACHE_HOME"] = os.path.join(self.user_path, "cache")
         strictdoc_env["XDG_DATA_HOME"] = os.path.join(self.user_path, "data")
+        strictdoc_env["XDG_STATE_HOME"] = os.path.join(self.user_path, "state")
+        # Nothing of the computer: the Git setup of the user (proxy, helpers,
+        # signature) must not change the result of a test, and the application
+        # must not write in the home folder of the user.
+        home_path = os.path.join(self.user_path, "home")
+        os.makedirs(home_path, exist_ok=True)
+        git_configuration_path = os.path.join(home_path, ".gitconfig")
+        with open(git_configuration_path, "w", encoding="utf-8"):
+            pass
+        strictdoc_env["HOME"] = home_path
+        strictdoc_env["USERPROFILE"] = home_path
+        strictdoc_env["APPDATA"] = strictdoc_env["XDG_CONFIG_HOME"]
+        strictdoc_env["LOCALAPPDATA"] = strictdoc_env["XDG_DATA_HOME"]
+        strictdoc_env["GIT_CONFIG_GLOBAL"] = git_configuration_path
+        strictdoc_env["GIT_CONFIG_NOSYSTEM"] = "1"
         strictdoc_env["PYTHONPATH"] = os.pathsep.join(
             [STUB_KEYRING_PATH, strictdoc_env["PYTHONPATH"]]
         )
         strictdoc_env[KEYRING_FILE_VARIABLE] = self.get_keyring_path()
         if self.language is not None:
             strictdoc_env["STRICTDOC_LANGUAGE"] = self.language
+        if self.lease_seconds is not None:
+            strictdoc_env[LEASE_SECONDS_VARIABLE] = str(self.lease_seconds)
         return strictdoc_arguments, strictdoc_env

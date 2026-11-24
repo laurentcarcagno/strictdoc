@@ -247,3 +247,12 @@ body {
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
+
+/* A project that has changes which are not sent yet. */
+.catalog__project_unsent_mark {
+  margin-left: 0.5rem;
+  color: #8a5a00;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}

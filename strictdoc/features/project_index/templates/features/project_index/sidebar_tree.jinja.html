@@ -121,10 +121,16 @@
     {{ menu_item("tree-export-reqif-action", _("Export to ReqIF"), "icons/ico16_export.svg", "/reqif/export_tree", turbo=false) }}
     {%- endif %}
     {%- endif %}
-    {%- if config.is_running_on_server and config.is_activated_git() %}
+    {%- if config.is_running_on_server and config.is_activated_git() and desktop_application is not defined %}
     <hr class="sdoc-tree-menu__separator"/>
     {{ menu_item("tree-git-action", _("Configuration management"), "", "/actions/git/overview") }}
     {{ menu_item("tree-sync-action", _("Synchronize"), "", "/actions/git/sync_dialog") }}
+    {%- endif %}
+    {#- The desktop application: the two actions of the work with others. -#}
+    {%- if desktop_application is defined %}
+    <hr class="sdoc-tree-menu__separator"/>
+    {{ menu_item("tree-update-action", _("Update the project"), "", "/actions/git/sync_dialog") }}
+    {{ menu_item("tree-publish-action", _("Publish a version"), "", "/actions/git/version_document", role="administrator") }}
     {%- endif %}
     <hr class="sdoc-tree-menu__separator"/>
     {{ menu_item("project-edit-title-action", _("Edit project title"), "", "/actions/project_index/edit_project_title_form", role="administrator") }}
@@ -152,7 +158,7 @@
     {%- if config.is_activated_reqif() %}
     {{ menu_item("tree-export-reqif-document-action", _("Export to ReqIF"), "icons/ico16_export.svg", "/reqif/export_document/", turbo=false, href_template="/reqif/export_document/{mid}") }}
     {%- endif %}
-    {%- if config.is_running_on_server and config.is_activated_git() %}
+    {%- if config.is_running_on_server and config.is_activated_git() and desktop_application is not defined %}
     {{ menu_item("tree-version-document-action", _("Version document"), "", "/actions/git/version_document", role="administrator", href_template="/actions/git/version_document?for_mid={mid}") }}
     {%- endif %}
     <hr class="sdoc-tree-menu__separator"/>

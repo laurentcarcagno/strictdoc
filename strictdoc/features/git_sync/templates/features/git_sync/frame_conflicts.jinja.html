@@ -3,7 +3,7 @@
 {% block modal__context %}merge{% endblock modal__context %}
 {% block modal_form__header %}{{ _("Conflicts") }} <span class="gs-mono gs-title-file">{{ file }}</span>{% endblock modal_form__header %}
 {% block modal_form__content %}
-  <div class="gs-dialog gs-dialog--merge" data-file="{{ file }}" data-conflicts="{{ conflict_count }}" data-testid="sync-conflict-dialog">
+  <div class="gs-dialog gs-dialog--merge" data-file="{{ file }}" data-conflicts="{{ conflict_count }}"{% if desktop_application is defined %} data-wording="application"{% endif %} data-testid="sync-conflict-dialog">
     <div class="gs-toolbar">
       <span class="gs-counter" data-testid="sync-counter"><span id="gs-resolved">0</span> / {{ conflict_count }} {{ _("conflicts solved") }}</span>
       <button type="button" class="action_button" data-action-type="action" id="gs-prev" title="p" data-testid="sync-prev">{{ _("Previous conflict") }}</button>
@@ -16,8 +16,8 @@
     </div>
     <p class="gs-notice gs-notice--danger" id="gs-error" hidden data-testid="sync-error"></p>
     <div class="gs-heads">
-      <div class="gs-head"><span class="gs-label">{{ _("Server") }}</span> <span class="gs-mono">origin/{{ branch }}</span></div>
-      <div class="gs-head"><span class="gs-label">{{ _("Local") }}</span> <span class="gs-mono">{{ _("this project") }}</span></div>
+      <div class="gs-head"><span class="gs-label">{{ _("Server") if desktop_application is not defined else _("Your colleagues") }}</span> <span class="gs-mono">{% if desktop_application is not defined %}origin/{{ branch }}{% else %}{{ _("their version") }}{% endif %}</span></div>
+      <div class="gs-head"><span class="gs-label">{{ _("Local") if desktop_application is not defined else _("You") }}</span> <span class="gs-mono">{{ _("this project") if desktop_application is not defined else _("your version") }}</span></div>
     </div>
     <div class="gs-sheets" data-testid="sync-sheets">
       {%- for row in rows %}
@@ -29,11 +29,11 @@
   </div>
 {% endblock modal_form__content %}
 {% block modal_form__footer_extra %}
-  <button type="submit" form="gs-abandon-form" class="action_button" data-action-type="delete" data-requires-role="administrator" data-testid="sync-abort">{{ _("Abandon the merge") }}</button>
+  <button type="submit" form="gs-abandon-form" class="action_button" data-action-type="delete" data-requires-role="{{ desktop_resolve_role|default('administrator') }}" data-testid="sync-abort">{{ _("Abandon the merge") if desktop_application is not defined else _("Cancel and update later") }}</button>
 {% endblock modal_form__footer_extra %}
 {% block modal_form__footer_cancel %}
-  {%- with cancel_name=_("Close") %}{% include "components/button/cancel.jinja" %}{% endwith %}
+  {%- with cancel_name=_("Close") if desktop_application is not defined else _("Later") %}{% include "components/button/cancel.jinja" %}{% endwith %}
 {% endblock modal_form__footer_cancel %}
 {% block modal_form__footer_submit %}
-  <button type="button" class="action_button" data-action-type="submit" id="gs-finish" disabled data-requires-role="administrator" data-testid="sync-finish">{{ _("Finish this document") }}</button>
+  <button type="button" class="action_button" data-action-type="submit" id="gs-finish" disabled data-requires-role="{{ desktop_resolve_role|default('administrator') }}" data-testid="sync-finish">{{ _("Finish this document") if desktop_application is not defined else _("Done with this document") }}</button>
 {% endblock modal_form__footer_submit %}

@@ -67,7 +67,7 @@ def setup(monkeypatch):
         )
         fake = kb if kb is not None else FakeKBClient()
         monkeypatch.setattr(
-            assist_service, "create_provider", lambda _n, _l: provider
+            assist_service, "create_provider", lambda _n, _l, _e=None: provider
         )
         monkeypatch.setattr(kb_support.KBSupport, "client", lambda _self: fake)
         holder.update(provider=provider, kb=fake)

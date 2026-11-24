@@ -68,7 +68,7 @@ def create_author_provider(keeper: TokenKeeper) -> Callable[[], Author]:
         session = keeper.session
         if session is None:
             raise CommitAuthorError(
-                gettext("Nobody is signed in: the commit has no author.")
+                gettext("Nobody is signed in: the change has no author.")
             )
         return get_commit_author(session.user, keeper.gitlab_url)
 
@@ -84,7 +84,7 @@ def create_missing_author_provider() -> Callable[[], Author]:
 
     def provide() -> Author:
         raise CommitAuthorError(
-            gettext("The project has no author for its commits.")
+            gettext("The project has no author for its changes.")
         )
 
     return provide

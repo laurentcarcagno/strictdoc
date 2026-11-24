@@ -27,9 +27,9 @@
   data-kind="{{ row.kind }}"
   data-testid="sync-row-{{ row.kind }}"
 >
-  {%- if row.kind == "local" %}<div class="gs-tag">{{ _("Changed here only: kept") }}</div>
-  {%- elif row.kind == "server" %}<div class="gs-tag">{{ _("Changed on the server only: taken") }}</div>
-  {%- elif row.kind == "conflict" %}<div class="gs-tag gs-tag--conflict">{{ _("Conflict: both sides changed this") }} <span class="gs-state" data-state></span></div>
+  {%- if row.kind == "local" %}<div class="gs-tag">{{ _("Changed here only: kept") if desktop_application is not defined else _("Only you changed this: your version is kept") }}</div>
+  {%- elif row.kind == "server" %}<div class="gs-tag">{{ _("Changed on the server only: taken") if desktop_application is not defined else _("Only a colleague changed this: their version is taken") }}</div>
+  {%- elif row.kind == "conflict" %}<div class="gs-tag gs-tag--conflict">{{ _("Conflict: both sides changed this") if desktop_application is not defined else _("You and a colleague both changed this") }} <span class="gs-state" data-state></span></div>
   {%- endif %}
   <div class="gs-sheet gs-sheet--server">
     {%- for view in row.left %}{{ node(view) }}{%- endfor %}
@@ -40,14 +40,14 @@
     {%- if not row.right %}<div class="gs-empty">{{ _("(nothing)") }}</div>{%- endif %}
   </div>
   {%- if row.kind == "conflict" %}
-  <div class="gs-actions" data-requires-role="administrator">
-    <button type="button" class="action_button" data-action-type="action" data-choice="server" data-testid="sync-keep-server">{{ _("Keep the server") }}</button>
-    <button type="button" class="action_button" data-action-type="action" data-choice="local" data-testid="sync-keep-local">{{ _("Keep the local") }}</button>
+  <div class="gs-actions" data-requires-role="{{ desktop_resolve_role|default('administrator') }}">
+    <button type="button" class="action_button" data-action-type="action" data-choice="server" data-testid="sync-keep-server">{{ _("Keep the server") if desktop_application is not defined else _("Keep my colleague's version") }}</button>
+    <button type="button" class="action_button" data-action-type="action" data-choice="local" data-testid="sync-keep-local">{{ _("Keep the local") if desktop_application is not defined else _("Keep my version") }}</button>
     <button type="button" class="action_button" data-action-type="action" data-choice="both" data-testid="sync-keep-both">{{ _("Keep both") }}</button>
     <button type="button" class="action_button" data-action-type="action" data-choice="edit" data-testid="sync-edit">{{ _("Edit the result") }}</button>
   </div>
   <div class="gs-edit" hidden>
-    <label>{{ _("Result (the text of the document, as written in the .sdoc file)") }}</label>
+    <label>{{ _("Result (the text of the document, as written in the .sdoc file)") if desktop_application is not defined else _("Result (the text of the item, as it will be saved)") }}</label>
     <textarea spellcheck="false" rows="12" data-testid="sync-textarea"></textarea>
   </div>
   {%- endif %}

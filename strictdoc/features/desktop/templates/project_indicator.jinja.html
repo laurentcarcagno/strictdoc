@@ -1,0 +1,237 @@
+{#
+  The indicator of the changes that are not sent, in the pages of a project
+  of the desktop application. base.jinja.html includes it for the servers of
+  the application only. It is hidden while nothing waits. The page asks
+  /__desktop/status every few seconds and shows the answer: the texts come
+  from the server, in the language of the application.
+
+  When a merge waits (state "merge_waiting"), the window of the merge opens in
+  the page, once for each merge (the answer gives its identifier, and the tab
+  remembers the one it opened). "Later" closes the window; the button of the
+  indicator opens it again.
+
+  The window "Update the project" (menu of the project) asks for the update
+  when it appears and shows the answer of the server in words of work. When a
+  choice waits, the window closes and the window of the merge opens.
+
+  The style hides what the application does not show: "Publish a version" for
+  whoever is not an administrator, the entry "Configuration management" of
+  the menu of a document, and the link "Compare versions" of the navigation,
+  whose page speaks of revisions of Git (the templates are shared).
+#}
+<div id="desktop-indicator" class="desktop_indicator" role="status"
+     aria-live="polite" data-testid="desktop-indicator" data-state="idle"
+     hidden>
+  <span class="desktop_indicator__title"
+        data-testid="desktop-indicator-title">{{ _("Changes not sent") }}</span>
+  <span class="desktop_indicator__text"
+        data-testid="desktop-indicator-text"></span>
+  <button type="button" class="desktop_indicator__action"
+          data-testid="desktop-indicator-action" hidden>
+    {{ _("Choose now") }}
+  </button>
+</div>
+<style>
+  .desktop_indicator {
+    position: fixed;
+    right: 12px;
+    bottom: 12px;
+    z-index: 50;
+    max-width: 320px;
+    padding: 6px 10px;
+    border: 1px solid #c8c8c8;
+    border-radius: 4px;
+    background: #fff8e1;
+    color: #5f4b00;
+    font-size: 12px;
+    line-height: 1.3;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  }
+  .desktop_indicator[hidden] {
+    display: none;
+  }
+  .desktop_indicator[data-state="not_saved"],
+  .desktop_indicator[data-state="unreadable"],
+  .desktop_indicator[data-state="refused"] {
+    background: #fdecea;
+    color: #7a1c14;
+  }
+  .desktop_indicator__action {
+    margin-left: 6px;
+    padding: 1px 8px;
+    border: 1px solid currentColor;
+    border-radius: 3px;
+    background: transparent;
+    color: inherit;
+    font-size: 12px;
+    cursor: pointer;
+  }
+  .desktop_indicator__action[hidden] {
+    display: none;
+  }
+  html:not([data-role="administrator"]) [data-testid="tree-publish-action"],
+  [data-testid="document-git-action"],
+  [data-testid="project-tree-link-diff"] {
+    display: none;
+  }
+  .desktop_indicator__title {
+    font-weight: 600;
+    margin-right: 6px;
+  }
+</style>
+<script>
+  (function () {
+    var element = document.getElementById("desktop-indicator");
+    if (element === null) {
+      return;
+    }
+    var title = element.querySelector(".desktop_indicator__title");
+    var text = element.querySelector(".desktop_indicator__text");
+    var action = element.querySelector(".desktop_indicator__action");
+    var INTERVAL_MILLISECONDS = 4000;
+    var MERGE_STORAGE_KEY = "desktop-merge-opened";
+
+    // The window of the merge, as the page of the project opens any dialog.
+    function openMerge() {
+      fetch("/actions/git/sync_conflicts", {
+        cache: "no-store",
+        credentials: "same-origin",
+        headers: { Accept: "text/vnd.turbo-stream.html" },
+      })
+        .then(function (response) {
+          return response.text();
+        })
+        .then(function (text) {
+          if (window.Turbo && window.Turbo.renderStreamMessage) {
+            window.Turbo.renderStreamMessage(text);
+          }
+        })
+        .catch(function () {});
+    }
+
+    // Once for each merge in this tab.
+    function openMergeOnce(key) {
+      try {
+        var opened = window.sessionStorage.getItem(MERGE_STORAGE_KEY);
+        if (key === "" || opened === key) {
+          return;
+        }
+        window.sessionStorage.setItem(MERGE_STORAGE_KEY, key);
+      } catch (error) {
+        return;
+      }
+      openMerge();
+    }
+
+    action.addEventListener("click", openMerge);
+    window.sdocDesktopOpenMerge = openMerge;
+
+    var UPDATE_TEXTS = {
+      updated: {% filter tojson %}{% trans trimmed %}
+        The project was updated.
+      {% endtrans %}{% endfilter %},
+      failed: {% filter tojson %}{% trans trimmed %}
+        The update could not be done for now. Your changes are kept, and the
+        application tries again.
+      {% endtrans %}{% endfilter %}
+    };
+
+    // The window "Update the project": it asks, then says what happened.
+    function startUpdate(dialog) {
+      if (dialog.dataset.started === "1" || dialog.dataset.state === "done") {
+        return;
+      }
+      dialog.dataset.started = "1";
+      var message = dialog.querySelector('[data-testid="update-message"]');
+      fetch("/actions/git/sync", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { Accept: "application/json" },
+      })
+        .then(function (response) {
+          return response.json().catch(function () {
+            return null;
+          });
+        })
+        .then(function (answer) {
+          var state = answer !== null ? answer.state : "failed";
+          dialog.dataset.state = state;
+          if (state === "merge_waiting") {
+            var cancel = dialog.closest("sdoc-modal");
+            cancel = cancel !== null
+              ? cancel.querySelector('[data-testid="form-cancel-action"]')
+              : null;
+            if (cancel !== null) {
+              cancel.click();
+            }
+            openMerge();
+            return;
+          }
+          if (state === "updated") {
+            message.textContent = UPDATE_TEXTS.updated;
+          } else if (answer !== null && answer.message) {
+            message.textContent = answer.message;
+          } else {
+            message.textContent = UPDATE_TEXTS.failed;
+          }
+        })
+        .catch(function () {
+          dialog.dataset.state = "failed";
+          message.textContent = UPDATE_TEXTS.failed;
+        });
+    }
+
+    function scanUpdate() {
+      document
+        .querySelectorAll(".desktop-update-dialog")
+        .forEach(startUpdate);
+    }
+
+    new MutationObserver(scanUpdate).observe(document.documentElement, {
+      childList: true,
+      subtree: true,
+    });
+
+    function show(answer) {
+      action.hidden = answer.state !== "merge_waiting";
+      if (answer.state === "merge_waiting") {
+        openMergeOnce(answer.detail || "");
+      }
+      if (answer.state === "idle") {
+        element.hidden = true;
+        element.setAttribute("data-state", "idle");
+        return;
+      }
+      title.textContent = answer.title;
+      text.textContent =
+        answer.count > 0
+          ? answer.message + " (" + answer.count + ")"
+          : answer.message;
+      element.setAttribute("data-state", answer.state);
+      element.hidden = false;
+    }
+
+    function refresh() {
+      if (document.hidden) {
+        return;
+      }
+      fetch("/__desktop/status", {
+        cache: "no-store",
+        credentials: "same-origin",
+      })
+        .then(function (response) {
+          return response.ok ? response.json() : null;
+        })
+        .then(function (answer) {
+          if (answer !== null) {
+            show(answer);
+          }
+        })
+        .catch(function () {});
+    }
+
+    refresh();
+    window.setInterval(refresh, INTERVAL_MILLISECONDS);
+  })();
+</script>
+{% include "project_editing.jinja.html" %}

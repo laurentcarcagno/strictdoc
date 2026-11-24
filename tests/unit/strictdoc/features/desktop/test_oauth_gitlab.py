@@ -329,7 +329,10 @@ def test_012_gitlab_that_cannot_be_reached_is_an_error_without_token() -> None:
     with pytest.raises(OAuthError) as error_info:
         exchange_code(pending, "a-code")
 
-    assert str(error_info.value) == f"GitLab cannot be reached at {unused_url}."
+    assert (
+        str(error_info.value)
+        == f"The server cannot be reached at {unused_url}."
+    )
     with pytest.raises(OAuthError, match="cannot be reached"):
         fetch_user(unused_url, "a-token")
 
@@ -355,7 +358,7 @@ def test_014_the_state_that_is_not_waiting_is_refused(
 
 
 def test_015_the_sign_in_without_settings_says_what_is_missing() -> None:
-    with pytest.raises(OAuthError, match="address of GitLab"):
+    with pytest.raises(OAuthError, match="address of the server"):
         GitLabSignIn().start(settings=DesktopSettings(), port=PORT)
 
 
@@ -431,7 +434,7 @@ def test_020_home_offers_the_sign_in_only_when_the_settings_are_complete(
     assert 'data-testid="signed-in-user"' not in page
 
     home.save_settings(DesktopSettings(catalog_provider="fake"))
-    # Settings without the address of GitLab: no button.
+    # Settings without the address of the server: no button.
     assert 'data-testid="sign-in"' not in home.window.get("/").text
 
 
@@ -526,7 +529,7 @@ def test_025_a_refusal_of_the_user_is_a_message_and_the_way_back(
     response = home.from_another_site.get(callback_path)
 
     assert response.status_code == 200
-    assert "GitLab refused the sign-in (access_denied)." in response.text
+    assert "The server refused the sign-in (access_denied)." in response.text
     assert 'data-testid="back-to-catalog"' in response.text
     page = home.window.get("/").text
     assert 'data-testid="sign-in"' in page
@@ -547,7 +550,7 @@ def test_026_gitlab_that_cannot_be_reached_is_a_message(
     response = home.from_another_site.get(callback_path)
 
     assert response.status_code == 200
-    assert f"GitLab cannot be reached at {gitlab_url}." in response.text
+    assert f"The server cannot be reached at {gitlab_url}." in response.text
     assert DISPLAY_NAME not in home.window.get("/").text
 
 
@@ -559,7 +562,7 @@ def test_027_the_sign_in_without_settings_is_a_message(
     response = home.window.post("/sign-in", follow_redirects=False)
 
     assert response.status_code == 200
-    assert "address of GitLab" in response.text
+    assert "address of the server" in response.text
 
 
 def test_028_the_texts_of_the_sign_in_follow_the_language(
@@ -571,7 +574,7 @@ def test_028_the_texts_of_the_sign_in_follow_the_language(
     home.fake_gitlab.mode = MODE_DENY
     response = home.from_another_site.get(home.start_sign_in())
 
-    assert "GitLab a refusé la connexion (access_denied)." in response.text
+    assert "Le serveur a refusé la connexion (access_denied)." in response.text
 
 
 def _authorize(authorization_url: str) -> str:

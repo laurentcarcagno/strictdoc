@@ -129,7 +129,7 @@
   <div id="modal"></div>
   <div id="confirm"></div>
   {% block scripts %}{% endblock scripts %}
-  <script src="{{ view_object.render_static_url('mobile_nav.js') }}"></script>
+  <script src="{{ view_object.render_static_url('mobile_nav.js') }}"></script>{% if desktop_indicator is defined %}{% include "project_indicator.jinja.html" %}{% endif %}
 
 </body>
 </html>

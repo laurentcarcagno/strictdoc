@@ -39,11 +39,9 @@ from strictdoc.features.desktop.token_store import (
     RETRY_SECONDS,
     SignInStatus,
     TokenKeeper,
-    get_default_token_env,
     get_token_secret_name,
     parse_session,
     serialize_session,
-    set_token_environment,
 )
 from strictdoc.features.i18n import i18n
 from tests.end2end.desktop.fake_gitlab import (
@@ -57,7 +55,6 @@ from tests.end2end.desktop.fake_gitlab import (
 
 GITLAB_URL = "https://gitlab.example.org"
 SECRET_NAME = "gitlab/gitlab.example.org"
-TOKEN_ENV = "STRICTDOC_TEST_GITLAB_TOKEN"
 PORT = 18082
 LIFETIME = 7200.0
 
@@ -149,7 +146,6 @@ class Setup:
         self.keeper: TokenKeeper = TokenKeeper(
             self.store,
             clock=self.clock,
-            token_env=TOKEN_ENV,
             refresh=self.refresher,
             use_timer=False,
         )
@@ -167,7 +163,6 @@ class Setup:
         self.keeper = TokenKeeper(
             self.store,
             clock=self.clock,
-            token_env=TOKEN_ENV,
             refresh=self.refresher,
             use_timer=False,
         )
@@ -176,12 +171,10 @@ class Setup:
 
 
 @pytest.fixture(name="setup")
-def fixture_setup(monkeypatch: pytest.MonkeyPatch) -> Iterator[Setup]:
-    monkeypatch.delenv(TOKEN_ENV, raising=False)
+def fixture_setup() -> Iterator[Setup]:
     setup = Setup()
     yield setup
     setup.keeper.close()
-    os.environ.pop(TOKEN_ENV, None)
 
 
 @pytest.fixture(name="restore_language", autouse=True)
@@ -271,7 +264,7 @@ def test_003_the_name_of_the_record_follows_the_host_of_gitlab() -> None:
 # The keeper: sign-in, restore.
 
 
-def test_004_a_sign_in_writes_one_record_and_sets_the_variable(
+def test_004_a_sign_in_writes_one_record_and_no_variable(
     setup: Setup,
 ) -> None:
     setup.sign_in()
@@ -281,20 +274,21 @@ def test_004_a_sign_in_writes_one_record_and_sets_the_variable(
     stored = setup.store.get(SECRET_NAME)
     assert stored is not None
     assert parse_session(stored) == setup.keeper.session
-    assert os.environ[TOKEN_ENV] == "access-0"
+    assert setup.keeper.get_access_token() == "access-0"
+    assert not _is_token_in_environment("access-0")
 
 
 def test_005_a_token_that_is_still_good_is_used_with_no_network_call(
     setup: Setup,
 ) -> None:
     setup.sign_in()
-    os.environ.pop(TOKEN_ENV)
 
     keeper = setup.restart()
 
     assert keeper.session == _create_session(setup.clock)
     assert keeper.status is SignInStatus.SIGNED_IN
-    assert os.environ[TOKEN_ENV] == "access-0"
+    assert keeper.get_access_token() == "access-0"
+    assert not _is_token_in_environment("access-0")
     assert setup.refresher.received == []
     # The renewal is due 5 minutes before the end.
     assert keeper.get_seconds_until_renewal() == (
@@ -308,7 +302,6 @@ def test_006_without_a_record_the_user_is_signed_out(setup: Setup) -> None:
     assert keeper.session is None
     assert keeper.status is SignInStatus.SIGNED_OUT
     assert keeper.get_seconds_until_renewal() is None
-    assert TOKEN_ENV not in os.environ
 
 
 def test_007_a_record_that_is_not_good_is_ignored(setup: Setup) -> None:
@@ -343,7 +336,8 @@ def test_008_the_renewal_replaces_both_tokens_in_one_write(
     assert len(setup.store.set_calls) == 2
     stored = parse_session(setup.store.set_calls[-1])
     assert stored == session
-    assert os.environ[TOKEN_ENV] == "access-1"
+    assert setup.keeper.get_access_token() == "access-1"
+    assert not _is_token_in_environment("access-1")
 
 
 def test_009_a_token_that_is_not_due_is_not_renewed(setup: Setup) -> None:
@@ -360,16 +354,18 @@ def test_010_a_token_that_has_ended_is_renewed_at_the_launch(
 ) -> None:
     setup.sign_in()
     setup.clock.now += LIFETIME + 3600
-    os.environ.pop(TOKEN_ENV)
 
     keeper = setup.restart()
-    # The ended token is not given to Git.
-    assert TOKEN_ENV not in os.environ
+    # The token of the record has ended: it is the old one.
+    assert keeper.session is not None
+    assert keeper.session.tokens.access_token == "access-0"
+    assert keeper.session.tokens.expires_at <= setup.clock()
     assert keeper.get_seconds_until_renewal() == 0
     keeper.renew()
 
     assert setup.refresher.received == ["refresh-0"]
-    assert os.environ[TOKEN_ENV] == "access-1"
+    assert keeper.get_access_token() == "access-1"
+    assert not _is_token_in_environment("access-1")
     assert keeper.status is SignInStatus.SIGNED_IN
 
 
@@ -386,7 +382,6 @@ def test_011_a_refusal_of_gitlab_ends_the_session_and_deletes_the_record(
     assert setup.keeper.status is SignInStatus.SIGNED_OUT
     assert setup.keeper.is_refused
     assert setup.store.get(SECRET_NAME) is None
-    assert TOKEN_ENV not in os.environ
 
 
 def test_012_a_network_failure_keeps_the_session_and_the_record(
@@ -403,7 +398,8 @@ def test_012_a_network_failure_keeps_the_session_and_the_record(
     assert setup.keeper.status is SignInStatus.SIGNED_IN
     assert setup.store.get(SECRET_NAME) is not None
     assert not setup.keeper.is_refused
-    assert os.environ[TOKEN_ENV] == "access-0"
+    assert setup.keeper.get_access_token() == "access-0"
+    assert not _is_token_in_environment("access-0")
     # No new try before the pause: GitLab is not asked again at once.
     setup.keeper.renew()
     assert len(setup.refresher.received) == 1
@@ -411,13 +407,18 @@ def test_012_a_network_failure_keeps_the_session_and_the_record(
     setup.clock.now += 61
     assert setup.keeper.status is SignInStatus.OFFLINE
     assert setup.keeper.session is not None
+    # The token has ended and cannot be renewed: there is none to give.
+    assert setup.keeper.get_access_token() is None
 
     # The network comes back.
     setup.refresher.error = None
     setup.clock.now += RETRY_SECONDS
     setup.keeper.renew()
     assert setup.keeper.status is SignInStatus.SIGNED_IN
-    assert os.environ[TOKEN_ENV] == "access-2"
+    # The third call of the refresher: the second was the one of the check
+    # above, which failed like the first.
+    assert setup.keeper.get_access_token() == "access-3"
+    assert not _is_token_in_environment("access-3")
 
 
 def test_013_a_token_that_ends_in_the_margin_is_not_asked_for_in_a_loop(
@@ -503,7 +504,6 @@ def test_016_the_timer_renews_before_the_end_of_the_token() -> None:
 
     keeper = TokenKeeper(
         store,
-        token_env=TOKEN_ENV,
         refresh=refresh,
         margin_seconds=0.5,
     )
@@ -537,10 +537,9 @@ def test_016_the_timer_renews_before_the_end_of_the_token() -> None:
         assert keeper.session.tokens.refresh_token == "refresh-new"
     finally:
         keeper.close()
-        os.environ.pop(TOKEN_ENV, None)
 
 
-def test_017_the_sign_out_deletes_the_record_and_the_variable(
+def test_017_the_sign_out_deletes_the_record(
     setup: Setup,
 ) -> None:
     setup.sign_in()
@@ -550,7 +549,6 @@ def test_017_the_sign_out_deletes_the_record_and_the_variable(
     assert setup.keeper.status is SignInStatus.SIGNED_OUT
     assert not setup.keeper.is_refused
     assert setup.store.get(SECRET_NAME) is None
-    assert TOKEN_ENV not in os.environ
 
 
 def test_018_a_store_that_refuses_the_write_keeps_the_session_in_memory(
@@ -561,7 +559,8 @@ def test_018_a_store_that_refuses_the_write_keeps_the_session_in_memory(
     setup.sign_in()
 
     assert setup.keeper.status is SignInStatus.SIGNED_IN
-    assert os.environ[TOKEN_ENV] == "access-0"
+    assert setup.keeper.get_access_token() == "access-0"
+    assert not _is_token_in_environment("access-0")
     assert setup.keeper.storage_error is not None
     assert "did not save the sign-in" in setup.keeper.storage_error
     assert setup.store.get(SECRET_NAME) is None
@@ -587,24 +586,24 @@ def test_019_no_token_is_in_a_log_or_a_message(
     assert "refresh-1" not in repr(session)
 
 
-# The environment variable of Git.
+# No variable of the process holds a token.
 
 
-def test_020_the_variable_is_set_and_removed(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    monkeypatch.delenv(TOKEN_ENV, raising=False)
-
-    set_token_environment(TOKEN_ENV, "a-token")
-    assert os.environ[TOKEN_ENV] == "a-token"
-    set_token_environment(TOKEN_ENV, None)
-    assert TOKEN_ENV not in os.environ
-    # Removing it again is no error.
-    set_token_environment(TOKEN_ENV, None)
+def _is_token_in_environment(token: str) -> bool:
+    return token in os.environ.values()
 
 
-def test_021_the_default_name_is_the_one_of_the_git_feature() -> None:
-    assert get_default_token_env() == "GITLAB_TOKEN"
+def test_020_no_variable_of_the_process_holds_a_token(setup: Setup) -> None:
+    tokens = ["access-0", "refresh-0", "access-1", "refresh-1"]
+
+    setup.sign_in()
+    assert not any(_is_token_in_environment(token_) for token_ in tokens)
+    setup.clock.now += LIFETIME - 60
+    setup.keeper.renew()
+    assert setup.keeper.get_access_token() == "access-1"
+    assert not any(_is_token_in_environment(token_) for token_ in tokens)
+    setup.restart()
+    assert not any(_is_token_in_environment(token_) for token_ in tokens)
 
 
 # The renewal against the fake GitLab.
@@ -699,16 +698,13 @@ def test_024_the_home_names_the_user_from_the_record_with_no_network(
         calls.append(arguments["refresh_token"])
         raise AssertionError("The network must not be used.")
 
-    keeper = TokenKeeper(
-        store, clock=clock, token_env=TOKEN_ENV, refresh=refresh
-    )
+    keeper = TokenKeeper(store, clock=clock, refresh=refresh)
     home = Home(tmp_path, gitlab_url, keeper)
     try:
         with TestClient(home.application) as client:
             page = client.get("/").text
     finally:
         keeper.close()
-        os.environ.pop(TOKEN_ENV, None)
 
     assert "Jeanne Dupont" in page
     assert 'data-testid="sign-in"' not in page
@@ -729,7 +725,6 @@ def test_025_the_home_says_offline_when_the_token_has_ended_without_network(
     keeper = TokenKeeper(
         store,
         clock=clock,
-        token_env=TOKEN_ENV,
         refresh=refresh_tokens,
         use_timer=False,
     )
@@ -750,7 +745,6 @@ def test_025_the_home_says_offline_when_the_token_has_ended_without_network(
     assert "Vous êtes hors ligne" in french_page
     # The tokens are kept: the user is not signed out.
     assert store.get(get_token_secret_name(gitlab_url)) is not None
-    assert TOKEN_ENV not in os.environ
 
 
 def test_026_the_home_offers_the_sign_in_again_after_a_refusal(
@@ -767,7 +761,6 @@ def test_026_the_home_offers_the_sign_in_again_after_a_refusal(
     keeper = TokenKeeper(
         store,
         clock=clock,
-        token_env=TOKEN_ENV,
         refresh=refresh_tokens,
         use_timer=False,
     )
@@ -790,7 +783,7 @@ def test_027_a_sign_in_keeps_its_record_in_the_store_and_not_in_the_settings(
     tmp_path: Path, fake_gitlab: FakeGitLab
 ) -> None:
     store = CountingStore()
-    keeper = TokenKeeper(store, token_env=TOKEN_ENV, use_timer=False)
+    keeper = TokenKeeper(store, use_timer=False)
     sign_in = GitLabSignIn(session_listener=keeper.adopt_sign_in)
     home = Home(tmp_path, fake_gitlab.url, keeper)
     try:
@@ -808,8 +801,7 @@ def test_027_a_sign_in_keeps_its_record_in_the_store_and_not_in_the_settings(
     assert record["username"] == USERNAME
     assert record["name"] == DISPLAY_NAME
     assert record["email"] == EMAIL
-    assert os.environ[TOKEN_ENV] == session.tokens.access_token
-    os.environ.pop(TOKEN_ENV)
+    assert not _is_token_in_environment(session.tokens.access_token)
     assert DISPLAY_NAME in page
     # The settings hold none of it.
     settings_text = home.settings_path.read_text(encoding="utf-8")
@@ -873,7 +865,6 @@ def test_028_a_sign_out_during_a_renewal_is_not_undone(setup: Setup) -> None:
     assert setup.keeper.session is None
     assert setup.keeper.status is SignInStatus.SIGNED_OUT
     assert setup.store.get(SECRET_NAME) is None
-    assert TOKEN_ENV not in os.environ
 
 
 def test_029_a_new_sign_in_during_a_renewal_is_not_replaced(
@@ -891,7 +882,8 @@ def test_029_a_new_sign_in_during_a_renewal_is_not_replaced(
     stored = setup.store.get(SECRET_NAME)
     assert stored is not None
     assert parse_session(stored) == other_session
-    assert os.environ[TOKEN_ENV] == "access-B"
+    assert setup.keeper.get_access_token() == "access-B"
+    assert not _is_token_in_environment("access-B")
 
 
 def test_030_a_refusal_during_a_new_sign_in_does_not_end_the_new_session(
@@ -911,7 +903,8 @@ def test_030_a_refusal_during_a_new_sign_in_does_not_end_the_new_session(
     stored = setup.store.get(SECRET_NAME)
     assert stored is not None
     assert parse_session(stored) == other_session
-    assert os.environ[TOKEN_ENV] == "access-B"
+    assert setup.keeper.get_access_token() == "access-B"
+    assert not _is_token_in_environment("access-B")
 
 
 def test_031_a_network_failure_during_a_new_sign_in_spares_the_new_session(
@@ -942,6 +935,7 @@ def test_031_a_network_failure_during_a_new_sign_in_spares_the_new_session(
     thread.join(10)
 
     assert len(errors) == 1
+    assert setup.keeper.get_access_token() == "access-B"
     # The new session is not marked as failed, and is due when its time comes.
     assert setup.keeper.get_seconds_until_renewal() == (
         LIFETIME - RENEWAL_MARGIN_SECONDS
@@ -989,9 +983,7 @@ def test_033_a_slow_keyring_does_not_hold_up_the_readers_of_the_session() -> (
 ):
     store = SlowStore()
     clock = Clock()
-    keeper = TokenKeeper(
-        store, clock=clock, token_env=TOKEN_ENV, use_timer=False
-    )
+    keeper = TokenKeeper(store, clock=clock, use_timer=False)
     thread = threading.Thread(
         target=keeper.adopt,
         kwargs={
@@ -1022,26 +1014,27 @@ def test_033_a_slow_keyring_does_not_hold_up_the_readers_of_the_session() -> (
         store.gate.set()
         thread.join(10)
         keeper.close()
-        os.environ.pop(TOKEN_ENV, None)
     assert store.get(SECRET_NAME) is not None
 
 
-def test_034_the_token_is_given_to_git_until_it_ends_also_in_the_margin(
+def test_034_the_token_is_current_until_it_ends_also_in_the_margin(
     setup: Setup,
 ) -> None:
     setup.sign_in()
-    os.environ.pop(TOKEN_ENV)
     # The token ends in 100 seconds: it is due for renewal, and still good.
     setup.clock.now += LIFETIME - 100
 
-    setup.restart()
-
-    assert os.environ[TOKEN_ENV] == "access-0"
-    # Once it has ended, it is not given.
-    os.environ.pop(TOKEN_ENV)
+    keeper = setup.restart()
+    assert keeper.session is not None
+    assert keeper.session.tokens.access_token == "access-0"
+    assert keeper.status is SignInStatus.SIGNED_IN
+    assert not _is_token_in_environment("access-0")
+    # Once it has ended, and cannot be renewed, there is none to give.
     setup.clock.now += 100
-    setup.restart()
-    assert TOKEN_ENV not in os.environ
+    setup.refresher.error = OAuthError("cannot be reached")
+    keeper = setup.restart()
+    assert keeper.get_access_token() is None
+    assert not _is_token_in_environment("access-0")
 
 
 def _sign_in(fake_gitlab: FakeGitLab, sign_in: GitLabSignIn) -> GitLabSession:

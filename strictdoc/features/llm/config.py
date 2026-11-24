@@ -75,6 +75,13 @@ class LLMConfig:
     verification_field: str = ""
     # The knowledge base that the commands read (features/kb); None: none.
     kb: Optional[KBConfig] = None
+    # The keys of the providers, by the name that api_key_env gives, when the
+    # program that runs the server holds them itself (the desktop application
+    # keeps them in the keyring of the system). None: a key is read from the
+    # environment of the process, as the option api_key_env says. It holds
+    # secrets: it is not part of the representation of the configuration, and
+    # no log, no message and no audit line takes it.
+    environment: Optional[Dict[str, str]] = field(default=None, repr=False)
 
     def validate(self) -> None:
         if len(self.providers) == 0:

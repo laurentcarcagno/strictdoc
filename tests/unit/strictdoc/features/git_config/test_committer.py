@@ -149,3 +149,70 @@ def test_names_that_leave_the_assets_folder_are_refused(tmp_path: Path) -> None:
         == 0
     )
     assert (root / "secret").exists()
+
+
+def test_the_function_after_a_commit_is_called_once_per_commit(
+    tmp_path: Path,
+) -> None:
+    """
+    The function after a commit is called once per commit.
+
+    @relation(SDOC-SRS-1242, scope=function)
+    """
+    root = _repo(tmp_path)
+    committer = _committer(root)
+    calls: list = []
+    committer.after_commit = lambda: calls.append(1)
+    doc = root / "d.sdoc"
+
+    # No change, no commit, no call.
+    committer.on_document_written(str(doc))
+    assert calls == []
+
+    doc.write_text(doc.read_text().replace("STATEMENT: a", "STATEMENT: b"))
+    committer.on_document_written(str(doc))
+    assert calls == [1]
+
+
+def test_without_a_function_after_a_commit_nothing_changes(
+    tmp_path: Path,
+) -> None:
+    """
+    Without that function, a save is as it was.
+
+    @relation(SDOC-SRS-1242, scope=function)
+    """
+    root = _repo(tmp_path)
+    committer = _committer(root)
+    assert committer.after_commit is None
+    doc = root / "d.sdoc"
+    doc.write_text(doc.read_text().replace("STATEMENT: a", "STATEMENT: b"))
+
+    committer.on_document_written(str(doc))
+
+    assert _git(root, "rev-list", "--count", "HEAD") == "2"
+    assert committer.last_error == ""
+
+
+def test_a_function_after_a_commit_that_fails_never_fails_the_save(
+    tmp_path: Path,
+) -> None:
+    """
+    A function after a commit that fails never fails the save.
+
+    @relation(SDOC-SRS-1242, scope=function)
+    """
+    root = _repo(tmp_path)
+    committer = _committer(root)
+
+    def fail() -> None:
+        raise RuntimeError("broken")
+
+    committer.after_commit = fail
+    doc = root / "d.sdoc"
+    doc.write_text(doc.read_text().replace("STATEMENT: a", "STATEMENT: b"))
+
+    committer.on_document_written(str(doc))
+
+    assert _git(root, "rev-list", "--count", "HEAD") == "2"
+    assert committer.last_error == ""

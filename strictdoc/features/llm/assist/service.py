@@ -210,7 +210,7 @@ class AssistService:
 
     def provider(self, name: str) -> Any:
         """The provider object (the tests replace create_provider)."""
-        return create_provider(name, self.llm)
+        return create_provider(name, self.llm, self.llm.environment)
 
     def run(self, principal: Principal, request: AssistRequest) -> AssistResult:
         if request.scope == "document":

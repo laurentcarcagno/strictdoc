@@ -17,6 +17,10 @@
 <main class="home" {% block main_attributes %}{% endblock %}>
   <header class="home__header">
     <h1 class="home__title">StrictDoc</h1>
+    <nav class="home__nav">
+      <a href="/settings" class="home__settings_link"
+         data-testid="settings-link">{{ _("Settings") }}</a>
+    </nav>
   </header>
   {% block content %}{% endblock %}
 </main>

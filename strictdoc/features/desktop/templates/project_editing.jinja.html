@@ -1,0 +1,525 @@
+{#
+  What the pages of a project of the desktop application do about the files
+  that change while the user types. base.jinja.html includes it, through the
+  indicator, for the servers of the application only.
+
+  An editor or a form that is open takes a lease (a short one, that the page
+  renews every few seconds). While a lease lives, the application does not
+  change the files of the working copy: the update waits for the end of the
+  typing. A page that is asked to reload while an editor is open tells it and
+  reloads when the editor is closed. A save that comes from a form that was
+  opened on files that changed since is refused by the server, and the text
+  stays on the screen.
+
+  What counts as an editor, in this order:
+  - a form with a field to fill in that is shown, or that was changed (its
+    value is not the one that the page gave it): the node, the creation of a
+    node, the configuration of the document, the grammar, a folder, the title
+    of the project, an import, the cells of the table that are edited, and the
+    editors of Markdown that are in these forms. A form that is always in the
+    page and whose fields are hidden (the edit form of a comment, in a closed
+    "details") is not an editor until it is opened or changed. A list of
+    values (a "select") counts when it was changed or has the focus: a list
+    that the page shows at rest is not an editor;
+  - the form of the comments, once something is typed in it;
+  - the proposals of the assistant that wait to be applied (the button
+    "apply" of the bar, the form of the proposals of the page of a draft);
+  - a field that has the focus and is not in a form (the cells of the table
+    with a list of values, the fields of the page of an item).
+  The server refuses a save that comes from a form opened on older files. The
+  revision that the page sends is the one of the oldest editor of the typing,
+  and the page keeps it after the editor leaves the page: a field that saves
+  when it loses the focus (the cells with a list of values) has no editor
+  any more when its request starts, and a bar or a form that is removed before
+  its request keeps the revision for a few seconds.
+
+  The saves that carry typed text all go through "fetch" (Turbo, and the
+  scripts of the table), which this script completes. The forms that the
+  browser submits by itself have no text typed in them: the git and suspect
+  pages (buttons), and the page of the reviewers, which does not use the base
+  template and has no code of the application.
+
+  Not counted: the search, the differences, the export of a Word document, the
+  question to the assistant, the synchronization and the merge window, text
+  zone included (they do not change the files by themselves, and the merge
+  must go on).
+#}
+<script>
+  (function () {
+    var TEXTS = {
+      updateWaiting: {% filter tojson %}{% trans trimmed %}
+        An update of the project waits: it applies when you close the editor.
+      {% endtrans %}{% endfilter %},
+      reloadWaiting: {% filter tojson %}{% trans trimmed %}
+        The project was updated. The page reloads when you close the editor.
+      {% endtrans %}{% endfilter %}
+    };
+    var SIGNAL_URL = "/__desktop/editing";
+    var RENEW_MILLISECONDS = 5000;
+    var CHECK_MILLISECONDS = 2000;
+    // How long the revision of an editor that left the page still protects a
+    // request that comes after it.
+    var GRACE_MILLISECONDS = 5000;
+    // The forms that are not editors.
+    var EXCLUDED_ACTIONS = [
+      "/search",
+      "/diff",
+      "/docx/export",
+      "/versions/",
+      "/actions/llm/draft",
+      "/actions/git/sync",
+      "/actions/project_index/export_docx",
+      "/projects/",
+      "/sign-"
+    ];
+    // The forms that are an editor as long as they are open, with no field
+    // to look for: the proposals of the assistant (checkboxes), and the
+    // grammar (the window is a list of elements, each one opens its fields).
+    var ALWAYS_EDITOR_ACTIONS = [
+      "/actions/llm/create",
+      "/actions/document/save_grammar"
+    ];
+    var FIELD_SELECTOR = [
+      "textarea",
+      "select",
+      "input:not([type=hidden]):not([type=submit]):not([type=button])" +
+        ":not([type=checkbox]):not([type=radio]):not([type=search])",
+      "[contenteditable=true]",
+      "sdoc-markdown-editor"
+    ].join(",");
+    var originalFetch = window.fetch.bind(window);
+    var pageId =
+      String(Date.now()) + "-" + Math.random().toString(36).slice(2, 10);
+    var navigationRevision = readNavigationRevision();
+    var lastGetRevision = null;
+    var revisions = new WeakMap();
+    // The oldest revision of the editors of the typing, kept after they left
+    // the page, and the one of the typing that ended a moment ago.
+    var sessionRevision = null;
+    var releasedRevision = null;
+    var releasedAt = 0;
+    var isEditing = false;
+    var isPaused = false;
+    var isReloadWaiting = false;
+    var renewTimer = null;
+    var checkScheduled = false;
+
+    function readNavigationRevision() {
+      try {
+        var entries = performance.getEntriesByType("navigation");
+        var timings = entries.length > 0 ? entries[0].serverTiming : [];
+        for (var index = 0; index < timings.length; index++) {
+          if (timings[index].name === "desktop_revision") {
+            return parseInt(timings[index].description, 10);
+          }
+        }
+      } catch (error) {
+        // No timing: the check of the server is not asked.
+      }
+      return null;
+    }
+
+    function isExcluded(form) {
+      var path = new URL(
+        form.getAttribute("action") || window.location.href,
+        window.location.href
+      ).pathname;
+      return EXCLUDED_ACTIONS.some(function (prefix) {
+        return path.indexOf(prefix) === 0;
+      });
+    }
+
+    // The content of a "details" that is closed is not in the page for the
+    // user, whatever the browser says of its boxes.
+    function isInClosedDetails(element) {
+      var details = element.closest("details");
+      while (details !== null) {
+        if (!details.open) {
+          return true;
+        }
+        details =
+          details.parentElement !== null
+            ? details.parentElement.closest("details")
+            : null;
+      }
+      return false;
+    }
+
+    function isShown(element) {
+      return (
+        element.isConnected &&
+        !isInClosedDetails(element) &&
+        element.getClientRects().length > 0 &&
+        window.getComputedStyle(element).visibility !== "hidden"
+      );
+    }
+
+    // The user changed the field: its value is not the one of the page.
+    function isChanged(field) {
+      if (field.matches("select")) {
+        return Array.prototype.some.call(field.options, function (option) {
+          return option.selected !== option.defaultSelected;
+        });
+      }
+      if (field.matches("textarea, input")) {
+        return field.value !== field.defaultValue;
+      }
+      return false;
+    }
+
+    // A field of the form that the user can type in now, or typed in.
+    function hasLiveField(form) {
+      var fields = form.querySelectorAll(FIELD_SELECTOR);
+      for (var index = 0; index < fields.length; index++) {
+        var field = fields[index];
+        if (isChanged(field)) {
+          return true;
+        }
+        if (field.matches("select")) {
+          if (field === document.activeElement) {
+            return true;
+          }
+        } else if (isShown(field)) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    // The window of the merge: its text zone is where the user chooses, and
+    // the merge must go on while it is open, so it takes no lease.
+    function isInMerge(element) {
+      return (
+        element.closest(".gs-dialog") !== null ||
+        element.querySelector(".gs-dialog") !== null
+      );
+    }
+
+    function isEditorForm(form) {
+      if (
+        !form.isConnected ||
+        form.hidden ||
+        isExcluded(form) ||
+        isInMerge(form)
+      ) {
+        return false;
+      }
+      var path = new URL(
+        form.getAttribute("action") || window.location.href,
+        window.location.href
+      ).pathname;
+      if (ALWAYS_EDITOR_ACTIONS.some(function (prefix) {
+        return path.indexOf(prefix) === 0;
+      })) {
+        return true;
+      }
+      if (path.indexOf("/actions/comments/add") === 0) {
+        var text = form.querySelector("textarea");
+        return text !== null && text.value.trim() !== "";
+      }
+      return hasLiveField(form);
+    }
+
+    function findEditors() {
+      var found = [];
+      document.querySelectorAll("form").forEach(function (form) {
+        if (isEditorForm(form)) {
+          found.push(form);
+        }
+      });
+      var proposal = document.querySelector('[data-testid="ai-bar-apply"]');
+      if (proposal !== null) {
+        found.push(proposal);
+      }
+      var focused = document.activeElement;
+      if (
+        focused !== null &&
+        focused !== document.body &&
+        (focused.isContentEditable ||
+          focused.matches(
+            "textarea, input:not([type=button]):not([type=submit])"
+          )) &&
+        focused.closest("form") === null &&
+        focused.closest(".gs-dialog") === null &&
+        found.indexOf(focused) === -1
+      ) {
+        found.push(focused);
+      }
+      return found;
+    }
+
+    // The revision of the oldest editor that is in the page.
+    function getEditorsRevision(editors) {
+      var oldest = null;
+      editors.forEach(function (editor) {
+        if (!revisions.has(editor)) {
+          revisions.set(
+            editor,
+            lastGetRevision !== null ? lastGetRevision : navigationRevision
+          );
+        }
+        var revision = revisions.get(editor);
+        if (revision !== null && (oldest === null || revision < oldest)) {
+          oldest = revision;
+        }
+      });
+      return oldest;
+    }
+
+    // The revision of the files that the typing was opened on: the one of the
+    // answer that made the oldest editor, or else the one of the page. It is
+    // kept when the editor leaves the page, and for a moment after the typing
+    // ends: a request that comes from an editor that is gone is still one
+    // that was made from the old files.
+    function getEditingRevision(editors) {
+      var found = getEditorsRevision(editors);
+      if (
+        found !== null &&
+        (sessionRevision === null || found < sessionRevision)
+      ) {
+        sessionRevision = found;
+      }
+      var oldest = sessionRevision;
+      if (
+        releasedRevision !== null &&
+        Date.now() - releasedAt < GRACE_MILLISECONDS &&
+        (oldest === null || releasedRevision < oldest)
+      ) {
+        oldest = releasedRevision;
+      }
+      return oldest;
+    }
+
+    function endSession() {
+      if (sessionRevision !== null) {
+        releasedRevision = sessionRevision;
+        releasedAt = Date.now();
+        sessionRevision = null;
+      }
+    }
+
+    function showNotice(text) {
+      var notice = document.querySelector(
+        '[data-testid="desktop-editing-notice"]'
+      );
+      if (notice === null) {
+        notice = document.createElement("div");
+        notice.setAttribute("data-testid", "desktop-editing-notice");
+        notice.setAttribute("role", "alert");
+        notice.style.cssText =
+          "position:fixed;top:0;left:0;right:0;z-index:60;padding:8px 14px;" +
+          "background:#fff8e1;color:#5f4b00;border-bottom:1px solid #c8c8c8;" +
+          "font-size:13px;";
+        document.body.appendChild(notice);
+      }
+      notice.textContent = text;
+    }
+
+    function hideNotice() {
+      var notice = document.querySelector(
+        '[data-testid="desktop-editing-notice"]'
+      );
+      if (notice !== null) {
+        notice.remove();
+      }
+    }
+
+    function send(editing) {
+      if (isPaused) {
+        return Promise.resolve(null);
+      }
+      return originalFetch(SIGNAL_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ page: pageId, editing: editing }),
+        credentials: "same-origin",
+        keepalive: true
+      })
+        .then(function (response) {
+          return response.ok ? response.json() : null;
+        })
+        .catch(function () {
+          return null;
+        });
+    }
+
+    function renew() {
+      send(true).then(function (answer) {
+        if (answer !== null && answer.update_waiting === true && isEditing) {
+          showNotice(TEXTS.updateWaiting);
+        }
+      });
+    }
+
+    // The window "Update the project" shows what the update did: the page
+    // that the update asks to reload waits until the user closes it.
+    function isUpdateDialogOpen() {
+      return document.querySelector(".desktop-update-dialog") !== null;
+    }
+
+    function check() {
+      checkScheduled = false;
+      var editors = findEditors();
+      getEditingRevision(editors);
+      if (editors.length === 0) {
+        endSession();
+        if (isReloadWaiting && !isEditing && !isUpdateDialogOpen()) {
+          window.location.reload();
+        }
+      }
+      if (editors.length > 0 && !isEditing) {
+        isEditing = true;
+        renew();
+        renewTimer = window.setInterval(renew, RENEW_MILLISECONDS);
+      } else if (editors.length === 0 && isEditing) {
+        isEditing = false;
+        window.clearInterval(renewTimer);
+        renewTimer = null;
+        hideNotice();
+        send(false).then(function () {
+          if (isReloadWaiting) {
+            window.location.reload();
+          }
+        });
+      }
+    }
+
+    function scheduleCheck() {
+      if (!checkScheduled) {
+        checkScheduled = true;
+        window.setTimeout(check, 50);
+      }
+    }
+
+    function getHeaders(input, init) {
+      var headers = new Headers(
+        init && init.headers
+          ? init.headers
+          : input instanceof Request
+            ? input.headers
+            : undefined
+      );
+      return headers;
+    }
+
+    window.fetch = function (input, init) {
+      var url = new URL(
+        typeof input === "string" ? input : input.url,
+        window.location.href
+      );
+      var method = (
+        (init && init.method) ||
+        (typeof input !== "string" && input.method) ||
+        "GET"
+      ).toUpperCase();
+      var isOwn =
+        url.origin === window.location.origin &&
+        url.pathname.indexOf("/__desktop/") !== 0;
+      var request = [input, init];
+      if (isOwn && method !== "GET" && method !== "HEAD") {
+        var revision = getEditingRevision(findEditors());
+        if (revision !== null) {
+          var headers = getHeaders(input, init);
+          headers.set("X-Desktop-Revision", String(revision));
+          request =
+            input instanceof Request && !init
+              ? [new Request(input, { headers: headers }), undefined]
+              : [input, Object.assign({}, init, { headers: headers })];
+        }
+      }
+      return originalFetch(request[0], request[1]).then(function (response) {
+        if (isOwn && method === "GET") {
+          var value = response.headers.get("X-Desktop-Revision");
+          if (value !== null) {
+            lastGetRevision = parseInt(value, 10);
+          }
+        }
+        if (
+          isOwn &&
+          response.status === 409 &&
+          response.headers.get("X-Desktop-Conflict") === "1"
+        ) {
+          // The form is out of date: nothing was saved, the text stays.
+          return response
+            .clone()
+            .json()
+            .then(function (answer) {
+              showNotice(answer.message);
+              throw new DOMException(answer.message, "AbortError");
+            });
+        }
+        return response;
+      });
+    };
+
+    new MutationObserver(scheduleCheck).observe(document.documentElement, {
+      childList: true,
+      subtree: true
+    });
+    ["focusin", "focusout", "input", "change"].forEach(function (name) {
+      document.addEventListener(name, scheduleCheck, true);
+    });
+    // The revision is noted when the field gets the focus, not 50
+    // milliseconds later: a field can save as soon as it loses the focus.
+    document.addEventListener(
+      "focusin",
+      function () {
+        getEditingRevision(findEditors());
+      },
+      true
+    );
+    // A hidden window wakes its timers once a minute: the lease is renewed as
+    // soon as the window is shown again.
+    document.addEventListener("visibilitychange", function () {
+      if (!document.hidden) {
+        check();
+        if (isEditing) {
+          renew();
+        }
+      }
+    });
+    window.addEventListener("pageshow", function () {
+      if (isEditing) {
+        renew();
+      }
+    });
+    window.setInterval(check, CHECK_MILLISECONDS);
+    window.addEventListener("pagehide", function () {
+      if (isEditing && !isPaused && navigator.sendBeacon) {
+        navigator.sendBeacon(
+          SIGNAL_URL,
+          new Blob([JSON.stringify({ page: pageId, editing: false })], {
+            type: "application/json"
+          })
+        );
+      }
+    });
+
+    // What the page of the application offers to the code of the project.
+    window.sdocDesktop = {
+      // The server asks for a reload. False: an editor is open, the page
+      // waits for its end and says so.
+      onReload: function () {
+        check();
+        if (isUpdateDialogOpen() && !isEditing) {
+          isReloadWaiting = true;
+          return false;
+        }
+        if (isEditing) {
+          isReloadWaiting = true;
+          showNotice(TEXTS.reloadWaiting);
+          return false;
+        }
+        return true;
+      },
+      isEditing: function () {
+        return isEditing;
+      },
+      // For the tests of the application: a window that sleeps sends nothing.
+      pauseSignals: function (paused) {
+        isPaused = paused === true;
+      }
+    };
+    check();
+  })();
+</script>

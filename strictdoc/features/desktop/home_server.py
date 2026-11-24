@@ -30,8 +30,14 @@ class HomeServer(LocalServer):
 
 
 def create_home_application() -> FastAPI:
-    """The home application, with the tokens of the user in the keyring."""
-    return create_home_app(keeper=TokenKeeper(KeyringSecretStore()))
+    """
+    The home application, with the tokens and the keys of the AI servers of the
+    user in the keyring.
+    """
+    secret_store = KeyringSecretStore()
+    return create_home_app(
+        keeper=TokenKeeper(secret_store), secret_store=secret_store
+    )
 
 
 def create_home_server(*, port: Optional[int] = None) -> LocalServer:

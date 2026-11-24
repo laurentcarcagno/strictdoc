@@ -1,0 +1,24 @@
+{#
+  The window "Update the project" of the desktop application. It asks for the
+  update when it appears (the script of project_indicator.jinja.html does it)
+  and shows the answer in words of work. Variable: message, a text to show
+  as it is, without asking (the end of a choice).
+#}
+{% extends "components/modal/form.jinja" %}
+{% block modal__context %}{% endblock modal__context %}
+{% block modal_form__header %}{{ _("Update the project") }}{% endblock modal_form__header %}
+{% block modal_form__content %}
+  <div
+    class="desktop-update-dialog"
+    data-testid="update-dialog"
+    data-state="{% if message %}done{% else %}waiting{% endif %}"
+  >
+    <p data-testid="update-message">
+      {%- if message %}{{ message }}{% else %}{{ _("Looking for the changes of your colleagues...") }}{% endif -%}
+    </p>
+  </div>
+{% endblock modal_form__content %}
+{% block modal_form__footer_cancel %}
+  {%- with cancel_name=_("Close") %}{% include "components/button/cancel.jinja" %}{% endwith %}
+{% endblock modal_form__footer_cancel %}
+{% block modal_form__footer_submit %}{% endblock modal_form__footer_submit %}

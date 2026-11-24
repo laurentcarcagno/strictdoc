@@ -13,16 +13,16 @@ together, in one write. The renewal runs before the access token ends, from a
 timer thread at the launch and during the session. Only one renewal runs at a
 time: a second caller waits for it and uses its result.
 
-The current access token is also put in the environment of the process, in
-the variable that the Git feature reads (GitConfig.token_env), so that Git
-gets it with no file. The value is never logged.
+The tokens are in no variable of the environment of the application: a
+program that the application starts would read them. Git gets the access
+token in the environment of its own process only (git_access.py). The value is
+never logged.
 
 @relation(SDOC-SRS-1235, scope=file)
 @relation(SDOC-SRS-1239, scope=file)
 """
 
 import json
-import os
 import threading
 import time
 from enum import Enum
@@ -42,7 +42,6 @@ from strictdoc.features.desktop.secret_store import (
     SecretStore,
     SecretStoreError,
 )
-from strictdoc.features.git_config.config import GitConfig
 from strictdoc.features.i18n.i18n import gettext
 
 # The access token is renewed this long before it ends.
@@ -68,22 +67,6 @@ class SignInStatus(Enum):
 def get_token_secret_name(gitlab_url: str) -> str:
     """The name of the record of a GitLab in the SecretStore."""
     return f"{_SECRET_NAME_PREFIX}{urlsplit(gitlab_url.strip()).netloc.lower()}"
-
-
-def get_default_token_env() -> str:
-    """The name of the variable that the Git feature reads by default."""
-    return GitConfig().token_env
-
-
-def set_token_environment(token_env: str, access_token: Optional[str]) -> None:
-    """
-    Put the access token in the environment variable of the process, or remove
-    the variable when the token is None (the user signed out).
-    """
-    if access_token is None:
-        os.environ.pop(token_env, None)
-    else:
-        os.environ[token_env] = access_token
 
 
 def serialize_session(session: GitLabSession) -> str:
@@ -162,7 +145,6 @@ class TokenKeeper:
         secret_store: SecretStore,
         *,
         clock: Callable[[], float] = time.time,
-        token_env: Optional[str] = None,
         refresh: Callable[..., GitLabTokens] = refresh_tokens,
         margin_seconds: float = RENEWAL_MARGIN_SECONDS,
         retry_seconds: float = RETRY_SECONDS,
@@ -170,9 +152,6 @@ class TokenKeeper:
     ) -> None:
         self._secret_store: SecretStore = secret_store
         self._clock: Callable[[], float] = clock
-        self._token_env: str = (
-            token_env if token_env is not None else get_default_token_env()
-        )
         self._refresh: Callable[..., GitLabTokens] = refresh
         self._margin_seconds: float = margin_seconds
         self._retry_seconds: float = retry_seconds
@@ -264,12 +243,6 @@ class TokenKeeper:
             self._is_refused = False
             self._next_attempt_at = 0.0
             self._generation += 1
-            # The token is good until its end, also in the last minutes before
-            # it, when the timer renews it.
-            if self._clock() < session.tokens.expires_at:
-                set_token_environment(
-                    self._token_env, session.tokens.access_token
-                )
         self._notify_session_changed()
         self._schedule()
 
@@ -379,7 +352,7 @@ class TokenKeeper:
             return session.tokens.access_token
 
     def sign_out(self) -> None:
-        """End the session: delete the record, remove the token variable."""
+        """End the session: delete the record."""
         self._end_session(is_refused=False, expected_session=None)
 
     def close(self) -> None:
@@ -412,14 +385,13 @@ class TokenKeeper:
         self, session: GitLabSession, *, next_attempt_at: float
     ) -> int:
         """
-        Make the session current and set the variable of the token. Call it
-        with the state lock. It returns the number of the change.
+        Make the session current. Call it with the state lock. It returns the
+        number of the change.
         """
         self._session = session
         self._has_failed_renewal = False
         self._next_attempt_at = next_attempt_at
         self._generation += 1
-        set_token_environment(self._token_env, session.tokens.access_token)
         return self._generation
 
     def _end_session(
@@ -442,7 +414,6 @@ class TokenKeeper:
             self._generation += 1
             generation = self._generation
             self._cancel_timer()
-            set_token_environment(self._token_env, None)
         self._delete_record(gitlab_url, generation)
         self._notify_session_changed()
 

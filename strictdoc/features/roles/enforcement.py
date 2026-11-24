@@ -5,11 +5,13 @@ It runs inside PrincipalMiddleware (which has set the principal and its role)
 and looks up the route that Starlette would call, in the table of
 route_roles.py. With ``auth_mode="none"`` everybody is administrator and
 nothing is refused.
+
+@relation(SDOC-SRS-1250, scope=file)
 """
 
 import json
 from html import escape
-from typing import Any, Awaitable, Callable, Dict, Optional
+from typing import Any, Awaitable, Callable, Dict, Mapping, Optional
 
 from strictdoc.core.project_config import ProjectConfig
 from strictdoc.export.html.generators.view_objects.app_screen_view_object import (
@@ -40,15 +42,22 @@ class RoleMiddleware:
         auth_mode: str = AUTH_MODE_NONE,
         project_config: Optional[ProjectConfig] = None,
         env: Optional[Callable[[], JinjaEnvironment]] = None,
+        role_overrides: Optional[Mapping[RouteKey, str]] = None,
     ) -> None:
         """
         project_config, env: with them, a browser that is refused gets the
         page in the frame of the project; without them, a bare page.
+
+        role_overrides: the roles that some routes need in this server, in
+        place of the ones of the table. Only the desktop application gives
+        them (see features/desktop/permissions.py): the web server has none,
+        and its table is the one of route_roles.py.
         """
         self.app = app
         self.auth_mode = auth_mode
         self.project_config = project_config
         self.env = env
+        self.role_overrides: Mapping[RouteKey, str] = role_overrides or {}
 
     async def __call__(
         self, scope: Scope, receive: Receive, send: Send
@@ -66,7 +75,7 @@ class RoleMiddleware:
             return
 
         principal: Principal = scope["state"]["principal"]
-        required = ROUTE_ROLES.get(key)
+        required = self.role_overrides.get(key, ROUTE_ROLES.get(key))
         if required is None or not role_allows(principal.role, required):
             await self._refuse(scope, send, principal, required)
             return

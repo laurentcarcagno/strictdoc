@@ -229,7 +229,7 @@ def create_llm_routers(
                 )
             return fail(exception_.message, exception_.status)
 
-        provider_object = create_provider(provider_name, llm)
+        provider_object = create_provider(provider_name, llm, llm.environment)
         started = time.monotonic()
         calls: List[Tuple[Any, Any, Optional[str]]] = []
         status, detail = "ok", ""

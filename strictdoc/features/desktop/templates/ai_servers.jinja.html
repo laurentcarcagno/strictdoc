@@ -1,0 +1,109 @@
+{#
+  The section "AI servers" of the settings. Variables: ai (servers: each with
+  server, is_internal, is_forced_external, has_key, problem; policy_message),
+  ai_form (the form of a server that has errors, or none), ai_kinds.
+
+  A form for each server and one to add a server. The key is never shown: an
+  empty field keeps it. "Load the models" asks the server for its list.
+#}
+{%- macro server_form(view, form) -%}
+  {%- set server = view.server if view is not none else none -%}
+  {%- set id = server.server_id if server is not none else "" -%}
+  {%- set errors = form.errors if form is not none else {} -%}
+  {%- set values_name = form.name if form is not none else (server.name if server is not none else "") -%}
+  {%- set values_kind = form.kind if form is not none else (server.kind if server is not none else "openai") -%}
+  {%- set values_url = form.url if form is not none else (server.url if server is not none else "") -%}
+  {%- set values_model = form.model if form is not none else (server.model if server is not none else "") -%}
+  {%- set values_internal = form.is_internal if form is not none else (server.is_internal if server is not none else false) -%}
+  <form method="post" action="/settings/ai/save" class="ai_server"
+        data-testid="ai-server-form" data-server-id="{{ id }}"
+        data-ai-form>
+    <input type="hidden" name="server_id" value="{{ id }}"/>
+    <p>
+      <label>{{ _("Name") }}
+        <input type="text" name="name" value="{{ values_name }}" maxlength="60"
+               data-testid="ai-name"/></label>
+      {%- if errors.name %}<span class="notice" role="alert" data-testid="ai-name-error">{{ errors.name }}</span>{%- endif %}
+    </p>
+    <p>
+      <label>{{ _("Type") }}
+        <select name="kind" data-testid="ai-kind">
+          <option value="openai" {% if values_kind == "openai" %}selected{% endif %}>{{ _("Compatible with OpenAI (Ollama, vLLM, STRATA, Mistral)") }}</option>
+          <option value="anthropic" {% if values_kind == "anthropic" %}selected{% endif %}>Anthropic</option>
+        </select></label>
+      {%- if errors.kind %}<span class="notice" role="alert">{{ errors.kind }}</span>{%- endif %}
+    </p>
+    <p>
+      <label>{{ _("Address") }}
+        <input type="text" name="url" value="{{ values_url }}" size="40"
+               placeholder="https://" data-testid="ai-url"/></label>
+      {%- if errors.url %}<span class="notice" role="alert" data-testid="ai-url-error">{{ errors.url }}</span>{%- endif %}
+    </p>
+    <p>
+      {%- if view is not none and view.is_forced_external %}
+      <span data-testid="ai-external">{{ _("External server: its data leave the company.") }}</span>
+      {%- else %}
+      <label><input type="checkbox" name="is_internal" value="on"
+                    {% if values_internal %}checked{% endif %}
+                    data-testid="ai-internal"/>
+        {{ _("Internal server: its data stay in the company") }}</label>
+      {%- endif %}
+    </p>
+    <p>
+      <label>{{ _("Key") }}
+        <input type="password" name="key" value="" autocomplete="off"
+               data-testid="ai-key"
+               placeholder="{% if view is not none and view.has_key %}{{ _("A key is saved") }}{% endif %}"/></label>
+      {%- if view is not none and view.has_key %}
+      <label><input type="checkbox" name="clear_key" value="on"
+                    data-testid="ai-clear-key"/> {{ _("Remove the key") }}</label>
+      {%- endif %}
+      {%- if errors.key %}<span class="notice" role="alert" data-testid="ai-key-error">{{ errors.key }}</span>{%- endif %}
+    </p>
+    <p>
+      <label>{{ _("Model") }}
+        <input type="text" name="model" value="{{ values_model }}"
+               list="models-{{ id or 'new' }}" data-testid="ai-model"/></label>
+      <datalist id="models-{{ id or 'new' }}"></datalist>
+      <button type="button" data-action="load-models"
+              data-testid="ai-load-models">{{ _("Load the models") }}</button>
+      <span class="notice" data-models-message data-testid="ai-models-message"></span>
+      {%- if errors.model %}<span class="notice" role="alert" data-testid="ai-model-error">{{ errors.model }}</span>{%- endif %}
+    </p>
+    {%- if view is not none and view.problem %}
+    <p class="notice" data-testid="ai-problem">{{ view.problem }}</p>
+    {%- endif %}
+    <p>
+      <button type="submit" data-testid="ai-save">{% if server is not none %}{{ _("Save the server") }}{% else %}{{ _("Add the server") }}{% endif %}</button>
+      {%- if server is not none %}
+      <button type="submit" formaction="/settings/ai/delete" formnovalidate
+              data-testid="ai-delete">{{ _("Delete the server") }}</button>
+      {%- endif %}
+    </p>
+  </form>
+{%- endmacro -%}
+
+<h3>{{ _("AI servers") }}</h3>
+{%- if ai.policy_message %}
+<p class="notice" role="status" data-testid="ai-policy-message">{{ ai.policy_message }}</p>
+{%- endif %}
+{%- if ai.servers|length == 0 %}
+<p data-testid="ai-none">{{ _("No AI server yet: the AI buttons do not show.") }}</p>
+{%- endif %}
+{%- for view in ai.servers %}
+<details class="ai_server_item" data-testid="ai-server"
+         {% if ai_form is not none and ai_form.server_id == view.server.server_id %}open{% endif %}>
+  <summary>
+    <strong data-testid="ai-server-name">{{ view.server.name }}</strong>
+    <span>{{ view.server.model }}</span>
+    <span>{% if view.is_internal %}{{ _("internal") }}{% else %}{{ _("external") }}{% endif %}</span>
+    {%- if view.problem %}<span class="notice">{{ view.problem }}</span>{%- endif %}
+  </summary>
+  {{ server_form(view, ai_form if (ai_form is not none and ai_form.server_id == view.server.server_id) else none) }}
+</details>
+{%- endfor %}
+<details class="ai_server_item" data-testid="ai-add"
+         {% if ai_form is not none and ai_form.server_id == "" %}open{% endif %}>
+  <summary>{{ _("Add a server") }}</summary>
+  {{ server_form(none, ai_form if (ai_form is not none and ai_form.server_id == "") else none) }}
+</details>

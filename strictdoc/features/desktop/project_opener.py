@@ -8,6 +8,7 @@ state of the job.
 
 @relation(SDOC-SRS-1230, scope=file)
 @relation(SDOC-SRS-1231, scope=file)
+@relation(SDOC-SRS-1241, scope=file)
 """
 
 import threading
@@ -17,6 +18,7 @@ from enum import Enum
 from pathlib import Path
 from typing import Dict, Optional
 
+from strictdoc.features.desktop.git_access import GitAccess
 from strictdoc.features.desktop.project_servers import ProjectServerManager
 from strictdoc.features.desktop.settings import load_settings, save_settings
 from strictdoc.features.desktop.workspace import (
@@ -58,8 +60,10 @@ class ProjectOpener:
         *,
         manager: ProjectServerManager,
         settings_path: Optional[Path] = None,
+        git_access: Optional[GitAccess] = None,
     ) -> None:
         self.manager: ProjectServerManager = manager
+        self._git_access: Optional[GitAccess] = git_access
         self._settings_path: Optional[Path] = settings_path
         self._jobs: Dict[str, OpenJob] = {}
         self._lock: threading.Lock = threading.Lock()
@@ -96,7 +100,9 @@ class ProjectOpener:
     ) -> None:
         try:
             if is_clone_needed:
-                clone_project(project.clone_url, folder)
+                clone_project(
+                    project.clone_url, folder, git_access=self._git_access
+                )
                 job.step = JobStep.OPENING
             self._remember_folder(project.identifier, folder)
             # A project that was just cloned is up to date.

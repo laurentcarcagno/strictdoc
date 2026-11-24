@@ -1,17 +1,17 @@
 {% extends "components/modal/form.jinja" %}
 {% set form = "sdoc_modal_form" %}
 {% block modal__context %}git{% endblock modal__context %}
-{% block modal_form__header %}{{ _("Synchronization") }}{% endblock modal_form__header %}
+{% block modal_form__header %}{{ _("Synchronization") if desktop_application is not defined else _("Update") }}{% endblock modal_form__header %}
 {% block modal_form__content %}
   <div class="gs-dialog" data-testid="sync-dialog">
     {%- if message %}<p class="gs-notice gs-notice--danger" data-testid="sync-message">{{ message }}</p>{%- endif %}
     {%- if result %}
     <p class="gs-notice gs-notice--{{ 'success' if result.status in ('up_to_date', 'pulled', 'merged') else 'warning' }}" data-testid="sync-result" data-status="{{ result.status }}">
       {%- if result.status == "up_to_date" %}{{ _("Already up to date.") }}
-      {%- elif result.status == "pulled" %}{{ _("%(count)s commit(s) pulled.", count=result.pulled) }}
-      {%- elif result.status == "merged" and result.pulled %}{{ _("%(count)s commit(s) pulled and merged.", count=result.pulled) }}
-      {%- elif result.status == "merged" %}{{ _("The merge is committed.") }}
-      {%- elif result.status == "no_remote" %}{{ _("The repository has no remote (origin): nothing to synchronize with.") }}
+      {%- elif result.status == "pulled" %}{{ _("%(count)s commit(s) pulled.", count=result.pulled) if desktop_application is not defined else _("%(count)s change(s) of your colleagues received.", count=result.pulled) }}
+      {%- elif result.status == "merged" and result.pulled %}{{ _("%(count)s commit(s) pulled and merged.", count=result.pulled) if desktop_application is not defined else _("%(count)s change(s) of your colleagues received and combined with yours.", count=result.pulled) }}
+      {%- elif result.status == "merged" %}{{ _("The merge is committed.") if desktop_application is not defined else _("Your changes and those of your colleagues are combined.") }}
+      {%- elif result.status == "no_remote" %}{{ _("The repository has no remote (origin): nothing to synchronize with.") if desktop_application is not defined else _("The project is not shared with a server: there is nothing to update.") }}
       {%- else %}{{ result.message }}{%- endif %}
       {%- if result.pushed %} {{ _("Your commits are pushed.") }}{%- endif %}
     </p>
@@ -19,8 +19,8 @@
     {%- endif %}
 
     {%- if waiting %}
-    <h3 class="gs-h3">{{ _("A merge is waiting for its conflicts to be solved") }}</h3>
-    <p>{{ _("The project cannot be changed until the merge is finished or abandoned.") }}</p>
+    <h3 class="gs-h3">{{ _("A merge is waiting for its conflicts to be solved") if desktop_application is not defined else _("Your colleagues and you changed the same items") }}</h3>
+    <p>{{ _("The project cannot be changed until the merge is finished or abandoned.") if desktop_application is not defined else _("The project cannot be changed until you have chosen which version to keep, or cancelled.") }}</p>
     <ul class="gs-list" data-testid="sync-conflicts">
       {%- for path in conflicts %}
       <li>
@@ -29,15 +29,15 @@
       </li>
       {%- endfor %}
     </ul>
-    <form method="post" action="/actions/git/sync/abort" data-turbo="true" id="gs-abandon-form" data-requires-role="administrator">
-      <button class="action_button" data-action-type="delete" data-testid="sync-abort">{{ _("Abandon the merge") }}</button>
+    <form method="post" action="/actions/git/sync/abort" data-turbo="true" id="gs-abandon-form" data-requires-role="{{ desktop_resolve_role|default('administrator') }}">
+      <button class="action_button" data-action-type="delete" data-testid="sync-abort">{{ _("Abandon the merge") if desktop_application is not defined else _("Cancel and update later") }}</button>
     </form>
     {%- elif has_remote %}
     <form id="{{ form }}" method="post" action="/actions/git/sync" data-turbo="true">
-      <p>{{ _("Pulls what the server has (merging it with your changes), then pushes your commits and tags.") }}</p>
+      <p>{{ _("Pulls what the server has (merging it with your changes), then pushes your commits and tags.") if desktop_application is not defined else _("Receives the changes of your colleagues and combines them with yours.") }}</p>
     </form>
     {%- else %}
-    <p>{{ _("The repository has no remote (origin): there is nothing to synchronize with.") }}</p>
+    <p>{{ _("The repository has no remote (origin): there is nothing to synchronize with.") if desktop_application is not defined else _("The project is not shared with a server: there is nothing to update.") }}</p>
     {%- endif %}
   </div>
 {% endblock modal_form__content %}
@@ -46,6 +46,6 @@
 {% endblock modal_form__footer_cancel %}
 {% block modal_form__footer_submit %}
   {%- if not waiting and has_remote and can_sync %}
-  {%- with submit_name=_("Synchronize now") %}{% include "components/button/submit.jinja" %}{% endwith %}
+  {%- with submit_name=_("Synchronize now") if desktop_application is not defined else _("Update now") %}{% include "components/button/submit.jinja" %}{% endwith %}
   {%- endif %}
 {% endblock modal_form__footer_submit %}

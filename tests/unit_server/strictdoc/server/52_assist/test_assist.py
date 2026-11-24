@@ -1,11 +1,13 @@
 import json
+import threading
 import time
+from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
 
 import pytest
 
 import strictdoc.features.llm.assist.service as assist_service
-from strictdoc.features.llm.config import Fake
+from strictdoc.features.llm.config import Fake, OpenAICompatible
 from strictdoc.features.llm.fake import FakeProvider
 from tests.support.llm_fixture import (
     AUTHOR,
@@ -77,7 +79,7 @@ def provider(monkeypatch):
         monkeypatch.setattr(
             assist_service,
             "create_provider",
-            lambda _name, _llm: holder["provider"],
+            lambda _name, _llm, _environment=None: holder["provider"],
         )
         return holder["provider"]
 
@@ -952,3 +954,49 @@ def test_036_a_batch_that_fails_leaves_those_nodes_untranslated(
     assert done["actions"][0]["translated"] == 0
     assert any("could not be translated" in w for w in done["warnings"])
     assert any("A batch was skipped" in w for w in done["warnings"])
+
+
+def test_assist_gives_the_key_that_the_program_holds(tmp_path, monkeypatch):
+    monkeypatch.delenv("ASSIST_KEY", raising=False)
+    received = []
+    answer = {"comments": [{"severity": "info", "quote": "", "body": "Fine."}]}
+
+    class Handler(BaseHTTPRequestHandler):
+        def do_POST(self):
+            self.rfile.read(int(self.headers.get("Content-Length", 0)))
+            received.append({k_.lower(): v_ for k_, v_ in self.headers.items()})
+            body = json.dumps(
+                {"choices": [{"message": {"content": json.dumps(answer)}}]}
+            ).encode()
+            self.send_response(200)
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+
+        def log_message(self, *args):
+            pass
+
+    httpd = HTTPServer(("127.0.0.1", 0), Handler)
+    threading.Thread(target=httpd.serve_forever, daemon=True).start()
+    try:
+        llm = make_llm(
+            providers={
+                "local": OpenAICompatible(
+                    base_url=f"http://127.0.0.1:{httpd.server_port}/v1",
+                    model="test-model",
+                    is_local=True,
+                    api_key_env="ASSIST_KEY",
+                )
+            },
+            environment={"ASSIST_KEY": "sk-held-by-the-program"},
+        )
+        client = make_client(tmp_path, llm)
+
+        response = _ask(client, "/comment ambiguity")
+
+        assert response.status_code == 200, response.text
+        assert received[0]["authorization"] == "Bearer sk-held-by-the-program"
+        assert "sk-held-by-the-program" not in response.text
+    finally:
+        httpd.shutdown()
+        httpd.server_close()

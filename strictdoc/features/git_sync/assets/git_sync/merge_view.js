@@ -12,10 +12,18 @@
     both: 'both',
     edit: 'edited by hand',
   };
+  // The desktop application says it in the words of its users.
+  const applicationLabel = {
+    server: "- Kept: my colleague's version",
+    local: '- Kept: my version',
+    both: '- Kept: both versions',
+    edit: '- Kept: edited by hand',
+  };
 
   function setup(dialog) {
     if (dialog.dataset.ready) return;
     dialog.dataset.ready = '1';
+    const isApplication = dialog.dataset.wording === 'application';
     const texts = JSON.parse(dialog.querySelector('#gs-data').textContent || '{}');
     const file = dialog.dataset.file;
     const rows = [...dialog.querySelectorAll('.gs-row--conflict')];
@@ -41,7 +49,9 @@
         );
       });
       row.querySelector('[data-state]').textContent = answer
-        ? `- ${sdocT('kept')}: ${sdocT(label[answer.choice])}`
+        ? isApplication
+          ? sdocT(applicationLabel[answer.choice])
+          : `- ${sdocT('kept')}: ${sdocT(label[answer.choice])}`
         : '';
     }
 

@@ -3121,3 +3121,728 @@ msgid ""
 msgstr ""
 "Les réglages de GitLab sont incomplets : l'adresse de GitLab et "
 "l'application OAuth sont nécessaires."
+
+#: strictdoc/features/desktop/workspace.py
+msgid "The address of the project holds a user name or a password."
+msgstr "L'adresse du projet contient un nom d'utilisateur ou un mot de passe."
+
+#: strictdoc/features/desktop/workspace.py
+msgid ""
+"The folder %(folder)s holds a clone whose address has a user name or a "
+"password. Choose another folder."
+msgstr ""
+"Le dossier %(folder)s contient un clone dont l'adresse a un nom "
+"d'utilisateur ou un mot de passe. Choisissez un autre dossier."
+
+#: strictdoc/features/desktop/git_access.py
+msgid ""
+"The repository sets a header of authentication for an address: the "
+"application does not use it."
+msgstr ""
+"Le dépôt définit un en-tête d'authentification pour une adresse : "
+"l'application ne l'utilise pas."
+
+#: strictdoc/features/desktop/git_access.py
+msgid ""
+"The address of a remote of the repository holds a user name or a password: "
+"the application does not use it."
+msgstr ""
+"L'adresse d'un serveur distant du dépôt contient un nom d'utilisateur ou un "
+"mot de passe : l'application ne l'utilise pas."
+
+#: strictdoc/features/desktop/git_access.py
+msgid "The address of a submodule holds a user name or a password."
+msgstr ""
+"L'adresse d'un sous-module contient un nom d'utilisateur ou un mot de passe."
+
+#: strictdoc/features/desktop/project_status.py
+msgid "Sharing your changes."
+msgstr "Envoi de vos modifications en cours."
+
+#: strictdoc/features/desktop/project_status.py
+msgid "Waiting for the network to share your changes."
+msgstr "En attente du réseau pour envoyer vos modifications."
+
+#: strictdoc/features/desktop/project_status.py
+msgid "The server refused your changes."
+msgstr "Le serveur a refusé vos modifications."
+
+#: strictdoc/features/desktop/project_status.py
+msgid "An update is needed before your changes can be shared."
+msgstr ""
+"Une mise à jour est nécessaire avant que vos modifications puissent être "
+"envoyées."
+
+#: strictdoc/features/desktop/project_status.py
+msgid "Your last change was not saved."
+msgstr "Votre dernière modification n'a pas été enregistrée."
+
+#: strictdoc/features/desktop/project_status.py
+msgid ""
+"These changes are by another user: sign in as that user to share them."
+msgstr ""
+"Ces modifications sont d'un autre utilisateur : connectez-vous avec cet "
+"utilisateur pour les envoyer."
+
+#: strictdoc/features/desktop/project_status.py
+msgid "Sign in to share your changes."
+msgstr "Connectez-vous pour envoyer vos modifications."
+
+#: strictdoc/features/desktop/project_status.py
+msgid "You can read this project, not share changes to it."
+msgstr "Vous pouvez lire ce projet, mais pas y envoyer de modifications."
+
+#: strictdoc/features/desktop/project_status.py
+msgid "The changes of this project cannot be shared from here."
+msgstr "Les modifications de ce projet ne peuvent pas être envoyées d'ici."
+
+#: strictdoc/features/desktop/project_status.py
+#: strictdoc/features/desktop/templates/project_indicator.jinja.html
+msgid "Changes not sent"
+msgstr "Modifications non envoyées"
+
+#: strictdoc/features/desktop/templates/home.jinja.html
+msgid "changes not sent"
+msgstr "modifications non envoyées"
+
+#: strictdoc/features/desktop/project_status.py
+msgid ""
+"Your changes could not be shared for now: the application will try again."
+msgstr ""
+"Vos modifications n'ont pas pu être envoyées pour le moment : "
+"l'application réessaiera."
+
+#: strictdoc/features/desktop/templates/project_editing.jinja.html
+msgid ""
+"An update of the project waits: it applies when you close the editor."
+msgstr ""
+"Une mise à jour du projet attend : elle s'applique quand vous fermez "
+"l'éditeur."
+
+#: strictdoc/features/desktop/templates/project_editing.jinja.html
+msgid ""
+"The project was updated. The page reloads when you close the editor."
+msgstr ""
+"Le projet a été mis à jour. La page se recharge quand vous fermez "
+"l'éditeur."
+
+#: strictdoc/features/desktop/project_gate.py
+msgid ""
+"The project changed while you were typing, so your change was not saved. "
+"Your text is still on the screen: copy it, then reload the page."
+msgstr ""
+"Le projet a changé pendant votre saisie : votre modification n'a pas été "
+"enregistrée. Votre texte est toujours à l'écran : copiez-le, puis "
+"rechargez la page."
+
+#: strictdoc/features/desktop/project_gate.py
+msgid ""
+"The project files cannot be read since their last change, so nothing can "
+"be saved for now. Your text is still on the screen: copy it. Saving works "
+"again when the files are repaired."
+msgstr ""
+"Les fichiers du projet ne sont plus lisibles depuis leur dernier "
+"changement : rien ne peut être enregistré pour le moment. Votre texte est "
+"toujours à l'écran : copiez-le. L'enregistrement fonctionne de nouveau "
+"quand les fichiers sont réparés."
+
+#: strictdoc/features/desktop/project_status.py
+msgid ""
+"The project files cannot be read: nothing is saved until they are "
+"repaired."
+msgstr ""
+"Les fichiers du projet ne sont pas lisibles : rien n'est enregistré tant "
+"qu'ils ne sont pas réparés."
+
+#: strictdoc/features/desktop/project_gate.py
+msgid ""
+"You and a colleague changed the same items. Choose which version to keep "
+"before you change the project: your text is still on the screen, copy it."
+msgstr ""
+"Un collègue et vous avez modifié les mêmes éléments. Choisissez la version "
+"à garder avant de modifier le projet : votre texte est toujours à l'écran, "
+"copiez-le."
+
+#: strictdoc/features/desktop/project_status.py
+msgid ""
+"You and a colleague changed the same items: choose which version to keep."
+msgstr ""
+"Un collègue et vous avez modifié les mêmes éléments : choisissez la "
+"version à garder."
+
+#: strictdoc/features/desktop/project_status.py
+msgid ""
+"An update of your colleagues is on hold: it overlaps with changes that only "
+"you can keep."
+msgstr ""
+"Une mise à jour de vos collègues est en attente : elle recoupe des "
+"modifications que vous seul pouvez garder."
+
+#: strictdoc/features/desktop/project_status.py
+msgid ""
+"A file was changed by you and by a colleague: your version is kept, and "
+"theirs is saved next to it."
+msgstr ""
+"Un fichier a été modifié par vous et par un collègue : votre version est "
+"gardée, et la leur est enregistrée à côté."
+
+#: strictdoc/features/desktop/project_sync.py
+msgid "The project cannot be synchronized from here."
+msgstr "Le projet ne peut pas être mis à jour d'ici."
+
+#: strictdoc/features/desktop/project_sync.py
+msgid "The project is up to date."
+msgstr "Le projet est à jour."
+
+#: strictdoc/features/desktop/project_sync.py
+msgid ""
+"The update could not be done for now. Your changes are kept, and the "
+"application tries again."
+msgstr ""
+"La mise à jour n'a pas pu se faire pour le moment. Vos modifications sont "
+"gardées, et l'application réessaiera."
+
+#: strictdoc/features/desktop/project_sync.py
+msgid "The choice could not be saved. Nothing was lost: try again."
+msgstr "Le choix n'a pas pu être enregistré. Rien n'est perdu : réessayez."
+
+#: strictdoc/features/desktop/project_sync.py
+msgid ""
+"%(file)s was changed by you and by a colleague. Your version is kept, and "
+"theirs is saved as %(copy)s."
+msgstr ""
+"%(file)s a été modifié par vous et par un collègue. Votre version est "
+"gardée, et la leur est enregistrée sous le nom %(copy)s."
+
+#: strictdoc/features/desktop/project_sync.py
+msgid ""
+"%(file)s was changed by you and removed by a colleague. Your version is "
+"kept."
+msgstr ""
+"%(file)s a été modifié par vous et supprimé par un collègue. Votre version "
+"est gardée."
+
+#: strictdoc/features/desktop/project_sync.py
+msgid ""
+"%(file)s was changed by a colleague and removed by you. The changed file is "
+"kept."
+msgstr ""
+"%(file)s a été modifié par un collègue et supprimé par vous. Le fichier "
+"modifié est gardé."
+
+#: strictdoc/features/desktop/templates/project_indicator.jinja.html
+msgid "Choose now"
+msgstr "Choisir maintenant"
+
+#: strictdoc/features/git_sync/templates/features/git_sync/frame_sync.jinja.html
+msgid "Update"
+msgstr "Mise à jour"
+
+#: strictdoc/features/git_sync/templates/features/git_sync/frame_sync.jinja.html
+msgid "%(count)s change(s) of your colleagues received."
+msgstr "%(count)s modification(s) de vos collègues reçue(s)."
+
+#: strictdoc/features/git_sync/templates/features/git_sync/frame_sync.jinja.html
+msgid "%(count)s change(s) of your colleagues received and combined with yours."
+msgstr ""
+"%(count)s modification(s) de vos collègues reçue(s) et combinée(s) avec les "
+"vôtres."
+
+#: strictdoc/features/git_sync/templates/features/git_sync/frame_sync.jinja.html
+msgid "Your changes and those of your colleagues are combined."
+msgstr "Vos modifications et celles de vos collègues sont combinées."
+
+#: strictdoc/features/git_sync/templates/features/git_sync/frame_sync.jinja.html
+msgid "The project is not shared with a server: there is nothing to update."
+msgstr "Le projet n'est pas partagé avec un serveur : rien à mettre à jour."
+
+#: strictdoc/features/git_sync/templates/features/git_sync/frame_sync.jinja.html
+msgid "Your colleagues and you changed the same items"
+msgstr "Vos collègues et vous avez modifié les mêmes éléments"
+
+#: strictdoc/features/git_sync/templates/features/git_sync/frame_sync.jinja.html
+msgid ""
+"The project cannot be changed until you have chosen which version to keep, "
+"or cancelled."
+msgstr ""
+"Le projet ne peut pas être modifié tant que vous n'avez pas choisi la "
+"version à garder, ou annulé."
+
+#: strictdoc/features/git_sync/templates/features/git_sync/frame_sync.jinja.html
+msgid "Cancel and update later"
+msgstr "Annuler et mettre à jour plus tard"
+
+#: strictdoc/features/git_sync/templates/features/git_sync/frame_sync.jinja.html
+msgid "Receives the changes of your colleagues and combines them with yours."
+msgstr ""
+"Reçoit les modifications de vos collègues et les combine avec les vôtres."
+
+#: strictdoc/features/git_sync/templates/features/git_sync/frame_sync.jinja.html
+msgid "Update now"
+msgstr "Mettre à jour maintenant"
+
+#: strictdoc/features/git_sync/templates/features/git_sync/frame_conflicts.jinja.html
+msgid "Your colleagues"
+msgstr "Vos collègues"
+
+#: strictdoc/features/git_sync/templates/features/git_sync/frame_conflicts.jinja.html
+msgid "their version"
+msgstr "leur version"
+
+#: strictdoc/features/git_sync/templates/features/git_sync/frame_conflicts.jinja.html
+msgid "You"
+msgstr "Vous"
+
+#: strictdoc/features/git_sync/templates/features/git_sync/frame_conflicts.jinja.html
+msgid "your version"
+msgstr "votre version"
+
+#: strictdoc/features/git_sync/templates/features/git_sync/frame_conflicts.jinja.html
+msgid "Later"
+msgstr "Plus tard"
+
+#: strictdoc/features/git_sync/templates/features/git_sync/frame_conflicts.jinja.html
+msgid "Done with this document"
+msgstr "J'ai fini avec ce document"
+
+#: strictdoc/features/git_sync/templates/features/git_sync/row.jinja.html
+msgid "Only you changed this: your version is kept"
+msgstr "Vous seul avez modifié ceci : votre version est gardée"
+
+#: strictdoc/features/git_sync/templates/features/git_sync/row.jinja.html
+msgid "Only a colleague changed this: their version is taken"
+msgstr "Seul un collègue a modifié ceci : sa version est prise"
+
+#: strictdoc/features/git_sync/templates/features/git_sync/row.jinja.html
+msgid "You and a colleague both changed this"
+msgstr "Un collègue et vous avez tous deux modifié ceci"
+
+#: strictdoc/features/git_sync/templates/features/git_sync/row.jinja.html
+msgid "Keep my colleague's version"
+msgstr "Garder la version de mon collègue"
+
+#: strictdoc/features/git_sync/templates/features/git_sync/row.jinja.html
+msgid "Keep my version"
+msgstr "Garder ma version"
+
+#: strictdoc/features/git_sync/templates/features/git_sync/row.jinja.html
+msgid "Result (the text of the item, as it will be saved)"
+msgstr "Résultat (le texte de l'élément, tel qu'il sera enregistré)"
+
+#: strictdoc/features/git_sync/assets/git_sync/merge_view.js
+msgid "- Kept: my colleague's version"
+msgstr "- Gardé : la version de mon collègue"
+
+#: strictdoc/features/git_sync/assets/git_sync/merge_view.js
+msgid "- Kept: my version"
+msgstr "- Gardé : ma version"
+
+#: strictdoc/features/git_sync/assets/git_sync/merge_view.js
+msgid "- Kept: both versions"
+msgstr "- Gardé : les deux versions"
+
+#: strictdoc/features/git_sync/assets/git_sync/merge_view.js
+msgid "- Kept: edited by hand"
+msgstr "- Gardé : édité à la main"
+
+#: strictdoc/features/desktop/git_access.py
+msgid "Changes of colleagues combined with yours"
+msgstr "Modifications de collègues combinées avec les vôtres"
+
+#: strictdoc/features/desktop/project_publish.py
+msgid "A draft version is needed first."
+msgstr "Une version brouillon est nécessaire d'abord."
+
+#: strictdoc/features/desktop/project_publish.py
+msgid ""
+"The version could not be sent to the server, so it is not published. Try "
+"again when the connection is back."
+msgstr ""
+"La version n'a pas pu être envoyée au serveur : elle n'est donc pas "
+"publiée. Réessayez quand la connexion sera revenue."
+
+#: strictdoc/features/desktop/project_publish.py
+msgid "Only an administrator publishes a version."
+msgstr "Seul un administrateur publie une version."
+
+#: strictdoc/features/desktop/project_publish.py
+msgid ""
+"Choose which version to keep for the items that you and a colleague "
+"changed, then publish the version."
+msgstr ""
+"Choisissez la version à garder pour les éléments que vous et un collègue "
+"avez modifiés, puis publiez la version."
+
+#: strictdoc/features/desktop/project_publish.py
+msgid ""
+"A version can be published only when the server answers. Check your network "
+"and try again."
+msgstr ""
+"Une version ne peut être publiée que si le serveur répond. Vérifiez votre "
+"réseau et réessayez."
+
+#: strictdoc/features/desktop/project_publish.py
+msgid ""
+"Another administrator has just published this version. Update the project, "
+"then publish again."
+msgstr ""
+"Un autre administrateur vient de publier cette version. Mettez le projet à "
+"jour, puis publiez de nouveau."
+
+#: strictdoc/features/desktop/project_publish.py
+msgid "The version could not be prepared for now. Nothing was published."
+msgstr ""
+"La version n'a pas pu être préparée pour le moment. Rien n'a été publié."
+
+#: strictdoc/features/desktop/project_publish.py
+msgid ""
+"The project files cannot be read. Repair them, then publish the version."
+msgstr ""
+"Les fichiers du projet ne sont pas lisibles. Réparez-les, puis publiez la "
+"version."
+
+#: strictdoc/features/desktop/project_publish.py
+msgid ""
+"Some changes are not saved yet. Save them, then publish the version."
+msgstr ""
+"Certaines modifications ne sont pas encore enregistrées. Enregistrez-les, "
+"puis publiez la version."
+
+#: strictdoc/features/desktop/project_publish.py
+msgid ""
+"Your changes are not shared yet. Wait until they are sent, then publish the "
+"version."
+msgstr ""
+"Vos modifications ne sont pas encore partagées. Attendez qu'elles soient "
+"envoyées, puis publiez la version."
+
+#: strictdoc/features/desktop/project_publish.py
+msgid ""
+"Your colleagues shared changes that you do not have yet. Update the project "
+"first."
+msgstr ""
+"Vos collègues ont partagé des modifications que vous n'avez pas encore. "
+"Mettez d'abord le projet à jour."
+
+#: strictdoc/features/desktop/templates/publish_version.jinja.html
+msgid "Publish a version"
+msgstr "Publier une version"
+
+#: strictdoc/features/desktop/templates/publish_version.jinja.html
+msgid "Version %(version)s is published."
+msgstr "La version %(version)s est publiée."
+
+#: strictdoc/features/desktop/templates/publish_version.jinja.html
+msgid "A version marks the whole project as it is now."
+msgstr "Une version marque tout le projet tel qu'il est maintenant."
+
+#: strictdoc/features/desktop/templates/publish_version.jinja.html
+msgid "Publish"
+msgstr "Publier"
+
+#: strictdoc/features/desktop/templates/update_dialog.jinja.html
+msgid "Update the project"
+msgstr "Mettre à jour le projet"
+
+#: strictdoc/features/desktop/templates/update_dialog.jinja.html
+msgid "Looking for the changes of your colleagues..."
+msgstr "Recherche des modifications de vos collègues..."
+
+#: strictdoc/features/desktop/templates/project_indicator.jinja.html
+msgid "The project was updated."
+msgstr "Le projet a été mis à jour."
+
+#: strictdoc/features/desktop/wording.py
+msgid "No change has been saved for this item yet."
+msgstr "Aucune modification n'a encore été enregistrée pour cet élément."
+
+#: strictdoc/features/desktop/wording.py
+msgid "This document has no version yet."
+msgstr "Ce document n'a pas encore de version."
+
+#: strictdoc/features/desktop/wording.py
+msgid "Export to PDF without change marks"
+msgstr "Exporter en PDF sans les marques de modification"
+
+#: strictdoc/features/desktop/wording.py
+msgid "Latest version of the project"
+msgstr "Dernière version du projet"
+
+#: strictdoc/features/desktop/wording.py
+msgid "The history of this project is not recorded."
+msgstr "L'historique de ce projet n'est pas enregistré."
+
+#: strictdoc/features/desktop/commit_author.py
+msgid "Nobody is signed in: the change has no author."
+msgstr "Personne n'est connecté : la modification n'a pas d'auteur."
+
+#: strictdoc/features/desktop/commit_author.py
+msgid "The project has no author for its changes."
+msgstr "Le projet n'a pas d'auteur pour ses modifications."
+
+#: strictdoc/features/desktop/git_access.py
+msgid ""
+"The project sets a header of authentication for an address: the "
+"application does not use it."
+msgstr ""
+"Le projet définit un en-tête d'authentification pour une adresse : "
+"l'application ne l'utilise pas."
+
+#: strictdoc/features/desktop/git_access.py
+msgid ""
+"The address of the server of the project holds a user name or a password: "
+"the application does not use it."
+msgstr ""
+"L'adresse du serveur du projet contient un nom d'utilisateur ou un mot de "
+"passe : l'application ne l'utilise pas."
+
+#: strictdoc/features/desktop/home_app.py
+msgid ""
+"The sign-in settings are incomplete: the address of the server and the "
+"OAuth application are needed."
+msgstr ""
+"Les réglages de connexion sont incomplets : l'adresse du serveur et "
+"l'application OAuth sont nécessaires."
+
+#: strictdoc/features/desktop/home_app.py
+msgid "The server refused the sign-in (%(reason)s)."
+msgstr "Le serveur a refusé la connexion (%(reason)s)."
+
+#: strictdoc/features/desktop/templates/home.jinja.html
+msgid ""
+"You are offline: the server cannot be reached. The application tries again "
+"by itself."
+msgstr ""
+"Vous êtes hors ligne : le serveur est inaccessible. L'application réessaie "
+"d'elle-même."
+
+#: strictdoc/features/desktop/oauth_gitlab.py
+msgid "The server did not tell who the user is."
+msgstr "Le serveur n'a pas dit qui est l'utilisateur."
+
+#: strictdoc/features/desktop/oauth_gitlab.py
+msgid "The server did not give an access token."
+msgstr "Le serveur n'a pas donné de jeton d'accès."
+
+#: strictdoc/features/desktop/oauth_gitlab.py
+msgid "The server sent an answer that cannot be read."
+msgstr "Le serveur a envoyé une réponse illisible."
+
+#: strictdoc/features/desktop/oauth_gitlab.py
+msgid ""
+"The sign-in needs the address of the server and the identifier of the OAuth "
+"application in the settings."
+msgstr ""
+"La connexion a besoin de l'adresse du serveur et de l'identifiant de "
+"l'application OAuth dans les réglages."
+
+#: strictdoc/features/desktop/oauth_gitlab.py
+msgid "The server refused the request (%(reason)s)."
+msgstr "Le serveur a refusé la demande (%(reason)s)."
+
+#: strictdoc/features/desktop/oauth_gitlab.py
+msgid "The server cannot be reached at %(url)s."
+msgstr "Le serveur est inaccessible à l'adresse %(url)s."
+
+#: strictdoc/features/desktop/workspace.py
+msgid "The folder %(folder)s holds the clone of another project: %(url)s."
+msgstr "Le dossier %(folder)s contient le clone d'un autre projet : %(url)s."
+
+#: strictdoc/features/desktop/templates/base.jinja.html
+msgid "Settings"
+msgstr "Réglages"
+
+#: strictdoc/features/desktop/templates/settings.jinja.html
+msgid "General"
+msgstr "Général"
+
+#: strictdoc/features/desktop/templates/settings.jinja.html
+msgid "Language"
+msgstr "Langue"
+
+#: strictdoc/features/desktop/templates/settings.jinja.html
+msgid "Default"
+msgstr "Par défaut"
+
+#: strictdoc/features/desktop/templates/settings.jinja.html
+msgid "Minutes between two updates"
+msgstr "Minutes entre deux mises à jour"
+
+#: strictdoc/features/desktop/templates/settings.jinja.html
+msgid "The settings are saved."
+msgstr "Les réglages sont enregistrés."
+
+#: strictdoc/features/desktop/settings.py
+msgid "Choose English or French."
+msgstr "Choisissez l'anglais ou le français."
+
+#: strictdoc/features/desktop/settings.py
+msgid ""
+"The time between two updates is a whole number of minutes, from 1 to 120."
+msgstr ""
+"Le temps entre deux mises à jour est un nombre entier de minutes, de 1 à "
+"120."
+
+#: strictdoc/features/desktop/ai_settings.py
+msgid "Give the server a name of up to 60 letters."
+msgstr "Donnez au serveur un nom de 60 lettres au plus."
+
+#: strictdoc/features/desktop/ai_settings.py
+msgid "Another server has this name."
+msgstr "Un autre serveur porte ce nom."
+
+#: strictdoc/features/desktop/ai_settings.py
+msgid "Choose the type of the server."
+msgstr "Choisissez le type du serveur."
+
+#: strictdoc/features/desktop/ai_settings.py
+msgid "An external server needs an https address."
+msgstr "Un serveur externe a besoin d'une adresse en https."
+
+#: strictdoc/features/desktop/ai_settings.py
+msgid "Choose the model in the list, or type its name."
+msgstr "Choisissez le modèle dans la liste, ou tapez son nom."
+
+#: strictdoc/features/desktop/ai_settings.py
+msgid "The key has letters, digits and signs, and no space."
+msgstr "La clé est faite de lettres, de chiffres et de signes, sans espace."
+
+#: strictdoc/features/desktop/ai_settings.py
+msgid "Choose a model."
+msgstr "Choisissez un modèle."
+
+#: strictdoc/features/desktop/ai_settings.py
+msgid "The address is missing."
+msgstr "L'adresse manque."
+
+#: strictdoc/features/desktop/ai_settings.py
+msgid "An external server needs a key."
+msgstr "Un serveur externe a besoin d'une clé."
+
+#: strictdoc/features/desktop/ai_settings.py
+msgid "Not used: the rules for external servers are missing."
+msgstr "Non utilisé : les règles des serveurs externes manquent."
+
+#: strictdoc/features/desktop/ai_settings.py
+msgid "Give the address of the server, with http or https."
+msgstr "Donnez l'adresse du serveur, avec http ou https."
+
+#: strictdoc/features/desktop/ai_settings.py
+msgid ""
+"The server redirects to another address: the address of the server is "
+"probably wrong."
+msgstr ""
+"Le serveur renvoie vers une autre adresse : l'adresse du serveur est "
+"probablement fausse."
+
+#: strictdoc/features/desktop/ai_settings.py
+msgid "The server refused the key (or has none)."
+msgstr "Le serveur a refusé la clé (ou n'en a pas)."
+
+#: strictdoc/features/desktop/ai_settings.py
+msgid "The server cannot list its models."
+msgstr "Le serveur ne peut pas lister ses modèles."
+
+#: strictdoc/features/desktop/ai_settings.py
+msgid "The server cannot be reached."
+msgstr "Le serveur est inaccessible."
+
+#: strictdoc/features/desktop/ai_settings.py
+msgid "The list of models is too long."
+msgstr "La liste des modèles est trop longue."
+
+#: strictdoc/features/desktop/ai_settings.py
+msgid "The server lists no model."
+msgstr "Le serveur ne liste aucun modèle."
+
+#: strictdoc/features/desktop/ai_policy.py
+msgid ""
+"The rules for external servers are not installed: no external server is "
+"used. Ask your administrator."
+msgstr ""
+"Les règles des serveurs externes ne sont pas installées : aucun serveur "
+"externe n'est utilisé. Demandez à votre administrateur."
+
+#: strictdoc/features/desktop/ai_policy.py
+msgid ""
+"The rules for external servers cannot be read: no external server is used. "
+"Ask your administrator."
+msgstr ""
+"Les règles des serveurs externes ne sont pas lisibles : aucun serveur "
+"externe n'est utilisé. Demandez à votre administrateur."
+
+#: strictdoc/features/desktop/home_app.py
+msgid "The keyring of the system refused to keep the key."
+msgstr "Le trousseau du système a refusé de garder la clé."
+
+#: strictdoc/features/desktop/home_app.py
+msgid "The keyring of the system refused to remove the key."
+msgstr "Le trousseau du système a refusé de retirer la clé."
+
+#: strictdoc/features/desktop/templates/ai_servers.jinja.html
+msgid "Name"
+msgstr "Nom"
+
+#: strictdoc/features/desktop/templates/ai_servers.jinja.html
+msgid "Compatible with OpenAI (Ollama, vLLM, STRATA, Mistral)"
+msgstr "Compatible OpenAI (Ollama, vLLM, STRATA, Mistral)"
+
+#: strictdoc/features/desktop/templates/ai_servers.jinja.html
+msgid "Address"
+msgstr "Adresse"
+
+#: strictdoc/features/desktop/templates/ai_servers.jinja.html
+msgid "External server: its data leave the company."
+msgstr "Serveur externe : ses données sortent de l'entreprise."
+
+#: strictdoc/features/desktop/templates/ai_servers.jinja.html
+msgid "Internal server: its data stay in the company"
+msgstr "Serveur interne : ses données restent dans l'entreprise"
+
+#: strictdoc/features/desktop/templates/ai_servers.jinja.html
+msgid "Key"
+msgstr "Clé"
+
+#: strictdoc/features/desktop/templates/ai_servers.jinja.html
+msgid "A key is saved"
+msgstr "Une clé est enregistrée"
+
+#: strictdoc/features/desktop/templates/ai_servers.jinja.html
+msgid "Remove the key"
+msgstr "Retirer la clé"
+
+#: strictdoc/features/desktop/templates/ai_servers.jinja.html
+msgid "Load the models"
+msgstr "Charger les modèles"
+
+#: strictdoc/features/desktop/templates/ai_servers.jinja.html
+msgid "Save the server"
+msgstr "Enregistrer le serveur"
+
+#: strictdoc/features/desktop/templates/ai_servers.jinja.html
+msgid "Add the server"
+msgstr "Ajouter le serveur"
+
+#: strictdoc/features/desktop/templates/ai_servers.jinja.html
+msgid "Delete the server"
+msgstr "Supprimer le serveur"
+
+#: strictdoc/features/desktop/templates/ai_servers.jinja.html
+msgid "AI servers"
+msgstr "Serveurs d'IA"
+
+#: strictdoc/features/desktop/templates/ai_servers.jinja.html
+msgid "No AI server yet: the AI buttons do not show."
+msgstr "Aucun serveur d'IA pour l'instant : les boutons d'IA ne s'affichent pas."
+
+#: strictdoc/features/desktop/templates/ai_servers.jinja.html
+msgid "internal"
+msgstr "interne"
+
+#: strictdoc/features/desktop/templates/ai_servers.jinja.html
+msgid "external"
+msgstr "externe"
+
+#: strictdoc/features/desktop/templates/ai_servers.jinja.html
+msgid "Add a server"
+msgstr "Ajouter un serveur"

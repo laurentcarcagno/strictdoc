@@ -913,6 +913,188 @@ with the access token of that user.
 **Rationale**: The projects listed are those that GitLab lets this user read, with no separate
 configuration of the catalog.
 
+### Git with the token of the signed-in user only
+
+**MID**: 1e964d01e44644798acaf89f043a7ec1 \
+**UID**: SDOC-SRS-1241 \
+**Status**: Active
+
+**Statement**: StrictDoc shall give the token of the signed-in user to Git, in the desktop
+application, only for the origin (scheme, host and port) of the GitLab session
+of that user, and shall let no other credential helper supply or store a
+credential for these Git commands.
+
+**Rationale**: The token of the user must not reach another host, and a credential helper of
+the computer must not take its place or store it.
+
+### Transparent saving and sending
+
+**MID**: 92238e725dcd4efb82869659c7b4263f \
+**UID**: SDOC-SRS-1242 \
+**Status**: Active
+
+**Statement**: StrictDoc shall record each saved change of a document in the desktop
+application as a commit and shall send that commit to the remote at once,
+without making the user wait for the sending.
+
+**Rationale**: The user saves as in a word processor. The sharing of the change happens in the
+background.
+
+### Queue of the commits not sent
+
+**MID**: e0539a8fcdac4b06accf86bb9920de71 \
+**UID**: SDOC-SRS-1243 \
+**Status**: Active
+
+**Statement**: StrictDoc shall keep each commit that was not sent until it is sent, including
+after the application stops, shall try again when the network returns, and shall
+send it only under the user who made it.
+
+**Rationale**: Working offline must not lose a change. A commit sent under another user would
+give a wrong author and wrong rights.
+
+### Indicator of the changes not sent
+
+**MID**: 2558ebaa8ec9437c82055d72e06744a2 \
+**UID**: SDOC-SRS-1244 \
+**Status**: Active
+
+**Statement**: StrictDoc shall show a discreet indicator of the changes not sent, and shall
+tell apart a wait for the network, a refusal of the server and a failure of the
+saving.
+
+**Rationale**: The user sees that a change is not shared yet and knows whether to wait, to ask
+for an access or to call for help.
+
+### Periodic synchronization
+
+**MID**: 0ca55bd40e4e4c0c8c9a83848a97f184 \
+**UID**: SDOC-SRS-1245 \
+**Status**: Active
+
+**Statement**: StrictDoc shall synchronize a project with its remote when the user opens it and
+then every N minutes, with 5 minutes as the default value of N and with N set by
+the user, and shall suspend the synchronization while a merge waits for the
+user.
+
+**Rationale**: The user receives the changes of the others without asking for them. A merge in
+progress must not be disturbed by a new update.
+
+### Updates and typing in progress
+
+**MID**: 05020f7165bc4b87a9055b5f6064bf59 \
+**UID**: SDOC-SRS-1246 \
+**Status**: Active
+
+**Statement**: StrictDoc shall apply an update of the working copy to the open documents in a
+way that neither loses the text that the user is typing nor overwrites the
+update with the old text of the screen.
+
+**Rationale**: The server writes a whole document from memory. A careless update would erase
+the typing of the user or the change of the others.
+
+### Conflict and merge window
+
+**MID**: af9af88902c34264a1e865ac80d30dc4 \
+**UID**: SDOC-SRS-1247 \
+**Status**: Active
+
+**Statement**: StrictDoc shall open the merge window when a synchronization finds a conflict,
+and shall send the resolution once the user has validated it.
+
+**Rationale**: A conflict needs the choice of the user. The resolution is shared like any other
+change.
+
+### No Git vocabulary in the application
+
+**MID**: 6f71e73dc71c4f8eb0867cc792dd4ca5 \
+**UID**: SDOC-SRS-1248 \
+**Status**: Active
+
+**Statement**: StrictDoc shall not show Git vocabulary, such as commit, push, pull, branch or
+rebase, nor the name GitLab, in the interface of the desktop application.
+
+**Rationale**: The users of the application are authors, not developers. The labels use the
+vocabulary of their work.
+
+### Publication of a version
+
+**MID**: ffa1100a5f0e4fd1b24ea4dcd0bfb7a0 \
+**UID**: SDOC-SRS-1249 \
+**Status**: Active
+
+**Statement**: StrictDoc shall provide a "Publish a version" action that creates the next
+version tag of the project and sends it to the remote, and shall reserve that
+action to the administrator of the project.
+
+**Rationale**: A published version marks a state of the documents that the team agrees on. Only
+the administrator decides it.
+
+### Rights on the merge in the desktop application
+
+**MID**: 22f8e397af5e48e1a5b1f9a8e0c88c98 \
+**UID**: SDOC-SRS-1250 \
+**Status**: Active
+
+**Statement**: StrictDoc shall let, in the desktop application, an author and an administrator
+update, resolve and abandon a merge, shall let a reader receive the updates
+without sending anything, and shall keep the rules of the web server unchanged.
+
+**Rationale**: An author must not stay blocked by a conflict on a document that the author
+edits. A reader only follows the work of the others.
+
+### Settings screen
+
+**MID**: 0390e85fedfd45e7aac7e272729c4975 \
+**UID**: SDOC-SRS-1252 \
+**Status**: Active
+
+**Statement**: StrictDoc shall provide a settings screen of the desktop application, always
+accessible, with the language of the application and the interval of the
+synchronization, and shall not make the language depend on the open project.
+
+**Rationale**: The language belongs to the user, not to the project. Opening a project must not
+change the language of the home page.
+
+### Several AI servers
+
+**MID**: a102d20c3d0a4fda91b125b7a283ed02 \
+**UID**: SDOC-SRS-1253 \
+**Status**: Active
+
+**Statement**: StrictDoc shall let the user declare several AI servers, internal or external,
+shall keep the key of each one in the keyring of the operating system, and shall
+apply any change without restarting the application.
+
+**Rationale**: A team may use a server of the company and a server of a provider at the same
+time. A key written in a file is easy to leak.
+
+### AI buttons only with a complete server
+
+**MID**: bedc6d0386d54e10bf9b072c891d03e1 \
+**UID**: SDOC-SRS-1254 \
+**Status**: Active
+
+**Statement**: StrictDoc shall show the AI buttons in the desktop application only when at
+least one AI server is complete, that is a URL and a key for an external server,
+and a URL for an internal server, whose key is optional.
+
+**Rationale**: A button that cannot work only confuses the user.
+
+### Policy of the external AI servers
+
+**MID**: dcf92cb4abf54291adca7ca4c33e5390 \
+**UID**: SDOC-SRS-1255 \
+**Status**: Active
+
+**Statement**: StrictDoc shall read the policy of the external AI servers from a file deployed
+with the application, which the user cannot change, and shall use no external
+server when that file is missing or invalid.
+
+**Rationale**: The company decides what leaves its network. A missing policy must not let any
+external server through. The Python configuration of a project is trusted code,
+and this policy does not constrain it.
+
 ## Graph database
 
 **Type**: SECTION \
