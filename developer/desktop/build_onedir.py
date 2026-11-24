@@ -26,6 +26,10 @@ SOURCE_ROOT = HERE.parent.parent
 HTML2PDF4DOC_FROZEN_NAME = "html2pdf4doc-frozen"
 
 _HIDDEN_IMPORTS = [
+    # secret_store.py imports keyring by its name at run time (importlib), so
+    # PyInstaller does not see it. Its hook then collects the backends.
+    "keyring",
+    "keyring.errors",
     "strictdoc.api",
     "strictdoc.backend.markdown.strictdoc_lexer",
     "strictdoc.core.statistics.metric",

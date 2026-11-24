@@ -173,3 +173,9 @@ def test_html2pdf4doc_launcher_gives_back_the_library_path_of_the_system(
     assert text.startswith("#!/bin/sh\n")
     assert 'LD_LIBRARY_PATH="${LD_LIBRARY_PATH_ORIG:-}"' in text
     assert f'exec "$(dirname "$0")/{frozen.name}" "$@"' in text
+
+
+def test_keyring_is_a_hidden_import_because_it_is_loaded_by_name() -> None:
+    # secret_store.py calls importlib.import_module("keyring"): PyInstaller
+    # does not find the module by itself.
+    assert "keyring" in build_onedir._HIDDEN_IMPORTS  # noqa: SLF001
